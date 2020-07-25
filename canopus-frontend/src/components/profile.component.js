@@ -14,7 +14,7 @@ export default class Profile extends Component {
         this.state = {
             profile: null,
         };
-        console.log(this.props.match.params.id);
+        // console.log(this.props.match.params.id);
     }
     componentDidMount() {
         const user = {
@@ -84,7 +84,7 @@ export default class Profile extends Component {
     render() {
         return (
             <div>
-                <NavbarComponent />
+                {/* <NavbarComponent /> */}
                 {this.state.profile && (
                     <div className='row my-3 mx-3 mx-lg-0 p-2 justify-content-center '>
                         <div className='col-12 col-lg-3'>
