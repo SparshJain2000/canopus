@@ -21,6 +21,14 @@ router.route("/").get((req, res) => {
 router.post("/", (req, res) => {
     const user = new User({
         username: req.body.username,
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        address: {
+            pin: req.body.pin,
+            city: req.body.city,
+            state: req.body.state,
+        },
+
         role: "User",
     });
     User.register(user, req.body.password)
@@ -68,26 +76,25 @@ router.get("/current", (req, res) => {
 });
 // User profile update
 
-router.put("/user/:id" , middleware.isLoggedIn, (req,res) =>{
+router.put("/user/:id", middleware.isLoggedIn, (req, res) => {
     const user = new User({
         username: req.body.username,
         role: "User",
-        description:req.body.description,
+        description: req.body.description,
         //Previous job experience
-        experience:[
+        experience: [
             {
-                title:req.body.experience.title,
-                time:req.body.experience.time,
-                line:req.body.experience.line
-            }
+                title: req.body.experience.title,
+                time: req.body.experience.time,
+                line: req.body.experience.line,
+            },
         ],
-        address:{
-            pin:req.body.address.pin,
-            city:req.body.address.city,
-            state:req.body.address.state
-        }
+        address: {
+            pin: req.body.address.pin,
+            city: req.body.address.city,
+            state: req.body.address.state,
+        },
     });
-
 });
 
 module.exports = router;
