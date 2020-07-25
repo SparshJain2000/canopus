@@ -1,5 +1,6 @@
 const router = require("express").Router(),
     passport = require("passport"),
+    middleware = require("../middleware/index"),
     User = require("../models/user.model");
 
 //===========================================================================
@@ -65,8 +66,31 @@ router.get("/logout", (req, res) => {
 router.get("/current", (req, res) => {
     res.json({ user: req.user });
 });
-module.exports = router;
+// User profile update
 
+router.put("/user/:id" , middleware.isLoggedIn, (req,res) =>{
+    const user = new User({
+        username: req.body.username,
+        role: "User",
+        description:req.body.description,
+        //Previous job experience
+        experience:[
+            {
+                title:req.body.experience.title,
+                time:req.body.experience.time,
+                line:req.body.experience.line
+            }
+        ],
+        address:{
+            pin:req.body.address.pin,
+            city:req.body.address.city,
+            state:req.body.address.state
+        }
+    });
+
+});
+
+module.exports = router;
 /*
     "username":"sparshjain",
     "password":"sparsh@123"

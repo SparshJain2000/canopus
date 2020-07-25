@@ -6,5 +6,29 @@ module.exports = mongoose.model(
         username: String,
         password: String,
         role: String,
+        description:String,
+        //Previous job experience
+        experience:[
+            {
+             title:String,
+             time:String,
+             line:String
+            }
+        ],
+        address:{
+            pin:Number,
+            city:String,
+            state:String
+        },
+        applied:[
+            {
+                id: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "Job",
+                },
+                title: String,
+            },
+        ]
+        //Resume fs upload
     }).plugin(passportLocalMongoose),
 );
