@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 
-import { NavLink } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 import {
     // NavLink,
     Collapse,
@@ -22,14 +22,50 @@ import logo from "../images/logo.svg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUser, faLock } from "@fortawesome/free-solid-svg-icons";
 import { faFacebook, faGoogle } from "@fortawesome/free-brands-svg-icons";
-const NavbarComponent = () => {
+import axios from "axios";
+const NavbarComponent = (props) => {
+    const [user, set] = useState(props.user);
     const [isOpen, setIsOpen] = useState(false);
     const [modal, setModal] = useState(false);
     const [modalEmployer, setModalEmployer] = useState(false);
-
     const toggle = () => setIsOpen(!isOpen);
     const toggleModal = () => setModal(!modal);
     const toggleModaEmployer = () => setModalEmployer(!modalEmployer);
+    const username = useRef(null);
+    const password = useRef(null);
+    if (!props.user) {
+        axios
+            .get(`/api/user/current`)
+            .then(({ data }) => {
+                if (data.user) {
+                    set(data.user);
+                    props.setUser(data.user);
+                }
+            })
+            .catch((err) => {
+                console.log(err.response);
+            });
+    }
+    const submit = () => {
+        const user = {
+            username: username.current.value,
+            password: password.current.value,
+        };
+        toggleModal();
+
+        // console.log(user);
+        axios
+            .post(`/api/user/login`, user)
+            .then((newuser) => {
+                console.log(newuser);
+
+                props.setUser(newuser);
+                set(newuser);
+
+                window.location = "/search-jobs";
+            })
+            .catch((err) => console.log(err.response));
+    };
     return (
         <div>
             <Navbar color='light' light expand='lg'>
@@ -74,64 +110,84 @@ const NavbarComponent = () => {
                             </DropdownMenu>
                         </UncontrolledDropdown> */}
                     </Nav>
-                    <Nav
-                        className='row ml-auto align-content-center justify-content-center mt-3 mt-lg-0'
-                        style={{ minWidth: "35%" }}>
-                        <Toast
-                            className='my-auto mx-1'
-                            style={{
-                                border: "1px solid #4180cb",
-                                width: "45%",
+                    {!user ? (
+                        <Nav
+                            className='row ml-auto align-content-center justify-content-center mt-3 mt-lg-0'
+                            style={{ minWidth: "35%" }}>
+                            <Toast
+                                className='my-auto mx-1'
+                                style={{
+                                    border: "1px solid #4180cb",
+                                    width: "45%",
+                                }}>
+                                <div className='toast-header '>
+                                    <strong className='mx-auto'>
+                                        JobSeekers
+                                    </strong>
+                                </div>
+                                <ToastBody className='flex flex-column'>
+                                    <div>
+                                        <a
+                                            href='#'
+                                            className='text-danger'
+                                            onClick={toggleModal}>
+                                            Login
+                                        </a>
+                                    </div>
+                                    <div className='mt-2'>
+                                        <Link
+                                            to='/user/signup'
+                                            className='badge badge-lg badge-primary p-2'>
+                                            Signup
+                                        </Link>
+                                    </div>
+                                </ToastBody>
+                            </Toast>
+                            <Toast
+                                className=' my-auto mx-1'
+                                style={{
+                                    border: "1px solid rgb(255, 136, 0)",
+                                    width: "45%",
+                                }}>
+                                <div className='toast-header px-auto'>
+                                    <strong className='mx-auto'>
+                                        Employer
+                                    </strong>
+                                </div>
+                                <ToastBody className='flex flex-column'>
+                                    <div>
+                                        <a
+                                            href='#'
+                                            className='text-danger'
+                                            onClick={toggleModaEmployer}>
+                                            Login
+                                        </a>
+                                    </div>
+                                    <div className='mt-2'>
+                                        <a
+                                            href='#'
+                                            className='badge badge-lg badge-primary p-2'>
+                                            Signup
+                                        </a>
+                                    </div>
+                                </ToastBody>
+                            </Toast>
+                        </Nav>
+                    ) : (
+                        <div
+                            onClick={() => {
+                                axios
+                                    .get("/api/user/logout")
+                                    .then((user) => {
+                                        console.log(`logout${user}`);
+                                        props.setUser(null);
+                                        set(null);
+                                    })
+                                    .catch((err) => console.log(err.response));
                             }}>
-                            <div className='toast-header '>
-                                <strong className='mx-auto'>JobSeekers</strong>
-                            </div>
-                            <ToastBody className='flex flex-column'>
-                                <div>
-                                    <a
-                                        href='#'
-                                        className='text-danger'
-                                        onClick={toggleModal}>
-                                        Login
-                                    </a>
-                                </div>
-                                <div className='mt-2'>
-                                    <a
-                                        href='#'
-                                        className='badge badge-lg badge-primary p-2'>
-                                        Signup
-                                    </a>
-                                </div>
-                            </ToastBody>
-                        </Toast>
-                        <Toast
-                            className=' my-auto mx-1'
-                            style={{
-                                border: "1px solid rgb(255, 136, 0)",
-                                width: "45%",
-                            }}>
-                            <div className='toast-header px-auto'>
-                                <strong className='mx-auto'>Employer</strong>
-                            </div>
-                            <ToastBody className='flex flex-column'>
-                                <div>
-                                    <a
-                                        href='#'
-                                        className='text-danger'
-                                        onClick={toggleModaEmployer}>
-                                        Login
-                                    </a>
-                                </div>
-                                <div className='mt-2'>
-                                    <a
-                                        href='#'
-                                        className='badge badge-lg badge-primary p-2'>
-                                        Signup
-                                    </a>
-                                </div>
-                            </ToastBody>
-                        </Toast>
-                    </Nav>
+                            {user.firstName} logged in
+                        </div>
+                    )}
                 </Collapse>
             </Navbar>
             <div>
@@ -141,78 +197,73 @@ const NavbarComponent = () => {
                     </ModalHeader>
                     <ModalBody>
                         <div className='login-form'>
-                            <form
-                                action='/examples/actions/confirmation.php'
-                                method='post'>
-                                {/* <h2 className='text-center'>Sign in</h2> */}
-                                <div className='form-group'>
-                                    <div className='input-group'>
-                                        <div className='input-group-prepend'>
-                                            <span className='input-group-text'>
-                                                <FontAwesomeIcon
-                                                    icon={faUser}
-                                                />
-                                            </span>
-                                        </div>
-                                        <input
-                                            type='text'
-                                            className='form-control'
-                                            name='username'
-                                            placeholder='Username'
-                                            required
-                                        />
+                            {/* <form> */}
+                            {/* <h2 className='text-center'>Sign in</h2> */}
+                            <div className='form-group'>
+                                <div className='input-group'>
+                                    <div className='input-group-prepend'>
+                                        <span className='input-group-text'>
+                                            <FontAwesomeIcon icon={faUser} />
+                                        </span>
                                     </div>
+                                    <input
+                                        type='text'
+                                        className='form-control'
+                                        name='username'
+                                        placeholder='Username'
+                                        ref={username}
+                                        required
+                                    />
                                 </div>
-                                <div className='form-group'>
-                                    <div className='input-group'>
-                                        <div className='input-group-prepend'>
-                                            <span className='input-group-text'>
-                                                {" "}
-                                                <FontAwesomeIcon
-                                                    icon={faLock}
-                                                />
-                                            </span>
-                                        </div>
-                                        <input
-                                            type='password'
-                                            className='form-control'
-                                            name='password'
-                                            placeholder='Password'
-                                            required
-                                        />
+                            </div>
+                            <div className='form-group'>
+                                <div className='input-group'>
+                                    <div className='input-group-prepend'>
+                                        <span className='input-group-text'>
+                                            {" "}
+                                            <FontAwesomeIcon icon={faLock} />
+                                        </span>
                                     </div>
+                                    <input
+                                        type='password'
+                                        className='form-control'
+                                        name='password'
+                                        placeholder='Password'
+                                        ref={password}
+                                        required
+                                    />
                                 </div>
-                                <div className='form-group'>
-                                    <button
-                                        type='submit'
-                                        className='btn btn-primary login-btn btn-block'>
-                                        Log in
-                                    </button>
-                                </div>
-                                <div className='clearfix'>
-                                    <a href='#' className='float-right'>
-                                        Forgot Password?
-                                    </a>
-                                </div>
-                                <div className='or-seperator'>
-                                    <i>or</i>
-                                </div>
-                                <p className='text-center'>
-                                    Login with your social media account
-                                </p>
-                                <div className='text-center social-btn'>
-                                    <a
-                                        href='#'
-                                        className='btn btn-primary mx-2'>
-                                        <FontAwesomeIcon icon={faFacebook} />
-                                        &nbsp; Facebook
-                                    </a>
-                                    <a href='#' className='btn btn-danger mx-2'>
-                                        <FontAwesomeIcon icon={faGoogle} />
-                                        &nbsp; Google
-                                    </a>
-                                </div>
-                            </form>
+                            </div>
+                            <div className='form-group'>
+                                <button
+                                    type='submit'
+                                    onClick={submit}
+                                    className='btn btn-primary login-btn btn-block'>
+                                    Log in
+                                </button>
+                            </div>
+                            <div className='clearfix'>
+                                <a href='#' className='float-right'>
+                                    Forgot Password?
+                                </a>
+                            </div>
+                            <div className='or-seperator'>
+                                <i>or</i>
+                            </div>
+                            <p className='text-center'>
+                                Login with your social media account
+                            </p>
+                            <div className='text-center social-btn'>
+                                <a href='#' className='btn btn-primary mx-2'>
+                                    <FontAwesomeIcon icon={faFacebook} />
+                                    &nbsp; Facebook
+                                </a>
+                                <a href='#' className='btn btn-danger mx-2'>
+                                    <FontAwesomeIcon icon={faGoogle} />
+                                    &nbsp; Google
+                                </a>
+                            </div>
+                            {/* </form> */}
                             <p className='text-center text-muted small'>
                                 Don't have an account?{" "}
                                 <a href='#'>Sign up here!</a>
@@ -236,9 +287,7 @@ const NavbarComponent = () => {
                     </ModalHeader>
                     <ModalBody>
                         <div className='login-form'>
-                            <form
-                                action='/examples/actions/confirmation.php'
-                                method='post'>
+                            <form>
                                 {/* <h2 className='text-center'>Sign in</h2> */}
                                 <div className='form-group'>
                                     <div className='input-group'>

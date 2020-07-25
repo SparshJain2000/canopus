@@ -7,7 +7,7 @@ function Home() {
     return (
         <div>
             <div className='flex flex-column justify-content-between main-container'>
-                <NavbarComponent />
+                {/* <NavbarComponent /> */}
                 <div
                     className='main py-5 '
                     style={{ height: "100%", flexGrow: 1 }}>

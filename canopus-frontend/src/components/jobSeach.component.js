@@ -61,7 +61,7 @@ export default class JobSearch extends Component {
     render() {
         return (
             <div>
-                <NavbarComponent />
+                {/* <NavbarComponent /> */}
                 <div className='row justify-content-center align-content-center mx-4'>
                     <div className='col-12 col-lg-4 p-3 p-md-5 mt-md-3'>
                         <div className='form-group'>
