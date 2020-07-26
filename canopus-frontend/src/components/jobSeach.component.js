@@ -1,9 +1,12 @@
 import React, { Component } from "react";
 import NavbarComponent from "./navbar.component";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser, faLock, faMapMarker } from "@fortawesome/free-solid-svg-icons";
-import { Media, Badge } from "reactstrap";
+import { faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
+import { Media, Badge, Button } from "reactstrap";
+import axios from "axios";
 import doctor from "../images/doctor.png";
+import ReactLoading from "react-loading";
+
 const Job = ({ job }) => {
     return (
         <Media className='row block justify-content-center my-5 mx-auto py-4 px-2 px-md-4'>
@@ -17,17 +20,42 @@ const Job = ({ job }) => {
                 />
             </Media>
             <Media body className='col-12 col-sm-9 my-4 my-md-2'>
-                <Media heading>{job.company}</Media>
+                <Media heading>{job.title}</Media>
                 <Media heading>
-                    <h6>{job.location}</h6>
+                    <h6>
+                        <FontAwesomeIcon icon={faMapMarkerAlt} />{" "}
+                        {job.description.location}
+                    </h6>
                 </Media>
-                {job.description}
+                <div className='row'>
+                    <div className='col-8'>
+                        Type: {job.description.type}
+                        <br />
+                        Experience: {job.description.experience}
+                        <br />
+                        incentives: {job.description.incentives}
+                        <br />
+                        {job.description.line}
+                    </div>
+                    <div className='col-4'>
+                        <Button
+                            color='primary'
+                            className='float-right'
+                            size='lg'>
+                            Apply
+                        </Button>
+                    </div>
+                </div>
                 <hr />
-                {job.tags.map((tag) => (
+
+                {job.specialization.map((tag) => (
                     <Badge color='info' className='mx-1'>
                         {tag}
                     </Badge>
                 ))}
+                <Badge color='success' className='float-right'>
+                    {job.description.status}
+                </Badge>
             </Media>
         </Media>
     );
@@ -40,22 +68,32 @@ export default class JobSearch extends Component {
         };
     }
     componentDidMount() {
-        let job = {
-            id: "",
-            company: "Med & Co.",
-            location: "Delhi, India",
-            description:
-                "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Distinctio, dolor sit amet, consectetur adipisicing elit. Distinctiodolor sit amet, consectetur adipisicing elit. Distinctio ",
-            tags: ["Full Time", "Intern", "MBBS", "MD"],
-        };
-        let jobs = [];
-        for (let i = 0; i < 4; i++) {
-            job.id = i;
-            jobs = [...jobs, job];
-        }
-        this.setState({
-            jobs: jobs,
-        });
+        // let job = {
+        //     id: "",
+        //     company: "Med & Co.",
+        //     location: "Delhi, India",
+        //     description:
+        //         "Lorem ipsum dolor sit amet, consectetur adipisicing elit. Distinctio, dolor sit amet, consectetur adipisicing elit. Distinctiodolor sit amet, consectetur adipisicing elit. Distinctio ",
+        //     tags: ["Full Time", "Intern", "MBBS", "MD"],
+        // };
+        // let jobs = [];
+        // for (let i = 0; i < 4; i++) {
+        //     job.id = i;
+        //     jobs = [...jobs, job];
+        // }
+        axios
+            .get("/api/job")
+            .then(({ data: { jobs } }) => {
+                this.setState({
+                    jobs: jobs,
+                });
+                console.log(jobs);
+            })
+            .catch((err) => {
+                console.log(err);
+                // window.location = "/";
+            });
+
         // console.log(this.state.jobs);
     }
     render() {
@@ -75,7 +113,9 @@ export default class JobSearch extends Component {
                                 />
                                 <div className='input-group-append'>
                                     <button className='input-group-text'>
-                                        <FontAwesomeIcon icon={faMapMarker} />
+                                        <FontAwesomeIcon
+                                            icon={faMapMarkerAlt}
+                                        />
                                     </button>
                                 </div>
                             </div>
@@ -107,10 +147,19 @@ export default class JobSearch extends Component {
                     </div>
                     <div className='col-12 col-lg-8 '>
                         {console.log(this.state.jobs)}
-                        {this.state.jobs.length &&
+                        {this.state.jobs.length !== 0 ? (
                             this.state.jobs.map((job) => {
                                 return <Job key={job.id} job={job} />;
-                            })}
+                            })
+                        ) : (
+                            <ReactLoading
+                                type={"spin"}
+                                color={"orange"}
+                                height={"100vh"}
+                                width={"40%"}
+                                className='loading mx-auto'
+                            />
+                        )}
                     </div>
                 </div>
             </div>
