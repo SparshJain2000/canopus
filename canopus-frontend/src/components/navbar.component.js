@@ -17,10 +17,18 @@ import {
     ModalBody,
     Button,
     ModalFooter,
+    ButtonDropdown,
+    DropdownItem,
+    DropdownToggle,
+    DropdownMenu,
 } from "reactstrap";
 import logo from "../images/logo.svg";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faUser, faLock } from "@fortawesome/free-solid-svg-icons";
+import {
+    faUser,
+    faLock,
+    faSignOutAlt,
+} from "@fortawesome/free-solid-svg-icons";
 import { faFacebook, faGoogle } from "@fortawesome/free-brands-svg-icons";
 import axios from "axios";
 const NavbarComponent = (props) => {
@@ -28,9 +36,13 @@ const NavbarComponent = (props) => {
     const [isOpen, setIsOpen] = useState(false);
     const [modal, setModal] = useState(false);
     const [modalEmployer, setModalEmployer] = useState(false);
+    const [buttonDropdown, setButtonDropdown] = useState(false);
+
     const toggle = () => setIsOpen(!isOpen);
     const toggleModal = () => setModal(!modal);
     const toggleModaEmployer = () => setModalEmployer(!modalEmployer);
+    const toggleButtonDropdown = () => setButtonDropdown(!buttonDropdown);
+
     const username = useRef(null);
     const password = useRef(null);
     if (!props.user) {
@@ -174,19 +186,71 @@ const NavbarComponent = (props) => {
                             </Toast>
                         </Nav>
                     ) : (
-                        <div
-                            onClick={() => {
-                                axios
-                                    .get("/api/user/logout")
-                                    .then((user) => {
-                                        console.log(`logout${user}`);
-                                        props.setUser(null);
-                                        set(null);
-                                    })
-                                    .catch((err) => console.log(err.response));
-                            }}>
-                            {user.firstName} logged in
-                        </div>
+                        <Nav className='mt-3 mt-lg-0 ml-auto mx-0 row justify-content-center'>
+                            {/* <Button
+                                color='primary'
+                                style={{ width: "fit-content" }}
+                                onClick={() => {
+                                    axios
+                                        .get("/api/user/logout")
+                                        .then((user) => {
+                                            console.log(`logout${user}`);
+                                            props.setUser(null);
+                                            set(null);
+                                        })
+                                        .catch((err) =>
+                                            console.log(err.response),
+                                        );
+                                }}>
+                                {user.firstName}
+                            </Button> */}
+                            <ButtonDropdown
+                                isOpen={buttonDropdown}
+                                toggle={toggleButtonDropdown}>
+                                <Button
+                                    id='caret'
+                                    color='primary'
+                                    style={{ width: "max-content" }}>
+                                    <FontAwesomeIcon
+                                        icon={faUser}
+                                        className='mr-2'
+                                    />
+                                    {user.firstName}
+                                </Button>
+                                <DropdownToggle caret color='primary' />
+                                <DropdownMenu right>
+                                    <Link
+                                        to='/profile/'
+                                        className='dropdown-item'>
+                                        View Profile
+                                    </Link>
+
+                                    <DropdownItem divider />
+                                    <DropdownItem
+                                        onClick={() => {
+                                            axios
+                                                .get("/api/user/logout")
+                                                .then((user) => {
+                                                    console.log(
+                                                        `logout${user}`,
+                                                    );
+                                                    props.setUser(null);
+                                                    set(null);
+                                                    window.location = "/";
+                                                })
+                                                .catch((err) =>
+                                                    console.log(err.response),
+                                                );
+                                        }}>
+                                        logout
+                                        <FontAwesomeIcon
+                                            icon={faSignOutAlt}
+                                            className='ml-3'
+                                        />
+                                    </DropdownItem>
+                                </DropdownMenu>
+                            </ButtonDropdown>
+                        </Nav>
                     )}
                 </Collapse>
             </Navbar>
