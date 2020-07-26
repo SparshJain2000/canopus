@@ -27,11 +27,17 @@ router.get("/", middleware.isLoggedIn, (req, res) => {
 router.post("/", middleware.isEmployer, (req, res) => {
     let job = new Job({
         title: req.body.title,
-        location: req.body.location,
+        profession: req.body.profession,
+        specialization: req.body.specialization,
         description: req.body.description,
+        sponsored: true,
         // date: new Date(),
         // likes: [],
     });
+    // console.log(req.body.description.line);
+    // job.description = {
+    //     line: req.body.description.line,
+    // };
     Job.create(job)
         .then((job) => {
             job.author.username = req.user.username;
@@ -127,6 +133,6 @@ module.exports = router;
 
 /*{
    "title":"Nurse",
-   "location":"Mumbai",
+   "specialization":"Mumbai",
    "description":"Lorem ipsum dolor, sit amet consectetur adipisicing elit. Impedit ipsam officiis nisi repellat, quibusdam cupiditate doloremque expedita aperiam magnam. Assumenda eos a possimus dicta quaerat aliquam tenetur nostrum voluptas id?"
 }*/
