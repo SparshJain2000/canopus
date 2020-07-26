@@ -5,6 +5,7 @@ module.exports = mongoose.model(
     new mongoose.Schema({
         username: String,
         password: String,
+
         role: String,
         type: String,
         description: String,
