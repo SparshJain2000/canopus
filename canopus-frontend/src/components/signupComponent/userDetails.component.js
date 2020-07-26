@@ -13,7 +13,7 @@ export default class UserDetails extends Component {
         return (
             <div>
                 {/* <NavbarComponent /> */}
-                <Form className='block p-4 p-lg-5 mx-4 m-3'>
+                <Form className='border-block p-4 p-lg-5 mx-4 m-3'>
                     <h3>Enter Details</h3>
                     <FormGroup className='row'>
                         <div className='col-6'>

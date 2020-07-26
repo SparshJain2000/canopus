@@ -62,7 +62,7 @@ class App extends Component {
                     component={() => <SignupUser />}
                 />
                 <Route
-                    path='/profile/:id'
+                    path='/profile'
                     exact
                     // render={(props) => <Profile {...props} />}
                     component={() => <Profile />}

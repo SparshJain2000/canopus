@@ -52,7 +52,7 @@ export default class Confirmation extends Component {
         return (
             <div>
                 {/* <NavbarComponent /> */}
-                <div className='block mx-4 p-4 p-lg-5 m-3'>
+                <div className='border-block mx-4 p-4 p-lg-5 m-3'>
                     <h3>Details</h3>
                     <ListGroup style={{ background: "rgba(0,0,0,0)" }}>
                         <ListGroupItem>
