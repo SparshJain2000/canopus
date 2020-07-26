@@ -21,6 +21,14 @@ router.route("/").get((req, res) => {
 router.post("/", (req, res) => {
     const user = new User({
         username: req.body.username,
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        address: {
+            pin: req.body.pin,
+            city: req.body.city,
+            state: req.body.state,
+        },
+
         role: "User",
     });
     User.register(user, req.body.password)
@@ -75,6 +83,7 @@ router.get("/profile" , middleware.isUser, (req,res) => {
 });
 
 // User profile update
+
 
 router.put("/profile/update/" , middleware.isUser, (req,res) => {
 

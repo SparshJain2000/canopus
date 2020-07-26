@@ -4,23 +4,25 @@ module.exports = mongoose.model(
     "User",
     new mongoose.Schema({
         username: String,
+        firstName: String,
+        lastName: String,
         password: String,
         role: String,
-        description:String,
+        description: String,
         //Previous job experience
-        experience:[
+        experience: [
             {
-             title:String,
-             time:String,
-             line:String
-            }
+                title: String,
+                time: String,
+                line: String,
+            },
         ],
-        address:{
-            pin:Number,
-            city:String,
-            state:String
+        address: {
+            pin: Number,
+            city: String,
+            state: String,
         },
-        applied:[
+        applied: [
             {
                 id: {
                     type: mongoose.Schema.Types.ObjectId,
@@ -28,7 +30,7 @@ module.exports = mongoose.model(
                 },
                 title: String,
             },
-        ]
+        ],
         //Resume fs upload
     }).plugin(passportLocalMongoose),
 );

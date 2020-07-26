@@ -5,21 +5,22 @@ module.exports = mongoose.model(
     new mongoose.Schema({
         username: String,
         password: String,
-        role:String,
-        type:String,
-        description:String,
-        address:{
+
+        role: String,
+        type: String,
+        description: String,
+        address: {
             line: String,
-            city:String,
-            state:String,
-            pin: Number
+            city: String,
+            state: String,
+            pin: Number,
         },
         //Employer Plan
         tier: {
             allowed: Number,
             posted: Number,
-            closed:Number
-            },
+            closed: Number,
+        },
         jobs: [
             {
                 id: {
