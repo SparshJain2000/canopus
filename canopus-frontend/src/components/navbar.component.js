@@ -28,6 +28,7 @@ import {
     faUser,
     faLock,
     faSignOutAlt,
+    faUserPlus,
 } from "@fortawesome/free-solid-svg-icons";
 import { faFacebook, faGoogle } from "@fortawesome/free-brands-svg-icons";
 import axios from "axios";
@@ -40,7 +41,7 @@ const NavbarComponent = (props) => {
 
     const toggle = () => setIsOpen(!isOpen);
     const toggleModal = () => setModal(!modal);
-    const toggleModaEmployer = () => setModalEmployer(!modalEmployer);
+    const toggleModalEmployer = () => setModalEmployer(!modalEmployer);
     const toggleButtonDropdown = () => setButtonDropdown(!buttonDropdown);
 
     const username = useRef(null);
@@ -70,11 +71,28 @@ const NavbarComponent = (props) => {
             .post(`/api/user/login`, user)
             .then((newuser) => {
                 console.log(newuser);
-
                 props.setUser(newuser);
                 set(newuser);
 
                 window.location = "/search-jobs";
+            })
+            .catch((err) => console.log(err.response));
+    };
+    const submitEmployer = () => {
+        const user = {
+            username: username.current.value,
+            password: password.current.value,
+        };
+        toggleModalEmployer();
+
+        // console.log(user);
+        axios
+            .post(`/api/employer/login`, user)
+            .then((newuser) => {
+                console.log(newuser);
+                props.setUser(newuser);
+                set(newuser);
+                window.location = "/post";
             })
             .catch((err) => console.log(err.response));
     };
@@ -171,7 +189,7 @@ const NavbarComponent = (props) => {
                                         <a
                                             href='#'
                                             className='text-danger'
-                                            onClick={toggleModaEmployer}>
+                                            onClick={toggleModalEmployer}>
                                             Login
                                         </a>
                                     </div>
@@ -209,10 +227,18 @@ const NavbarComponent = (props) => {
                                 toggle={toggleButtonDropdown}>
                                 <Button
                                     id='caret'
-                                    color='primary'
+                                    color={
+                                        user.role === "Employer"
+                                            ? "danger"
+                                            : "primary"
+                                    }
                                     style={{ width: "max-content" }}>
                                     <FontAwesomeIcon
-                                        icon={faUser}
+                                        icon={
+                                            user.role === "Employer"
+                                                ? faUserPlus
+                                                : faUser
+                                        }
                                         className='mr-2'
                                     />
                                     {user.firstName}
@@ -345,82 +371,78 @@ const NavbarComponent = (props) => {
                 </Modal>
             </div>
             <div>
-                <Modal isOpen={modalEmployer} toggle={toggleModaEmployer}>
-                    <ModalHeader toggle={toggleModaEmployer}>
+                <Modal isOpen={modalEmployer} toggle={toggleModalEmployer}>
+                    <ModalHeader toggle={toggleModalEmployer}>
                         Employer Login
                     </ModalHeader>
                     <ModalBody>
                         <div className='login-form'>
-                            <form>
-                                {/* <h2 className='text-center'>Sign in</h2> */}
-                                <div className='form-group'>
-                                    <div className='input-group'>
-                                        <div className='input-group-prepend'>
-                                            <span className='input-group-text'>
-                                                <FontAwesomeIcon
-                                                    icon={faUser}
-                                                />
-                                            </span>
-                                        </div>
-                                        <input
-                                            type='text'
-                                            className='form-control'
-                                            name='username'
-                                            placeholder='Username'
-                                            required
-                                        />
+                            {/* <h2 className='text-center'>Sign in</h2> */}
+                            <div className='form-group'>
+                                <div className='input-group'>
+                                    <div className='input-group-prepend'>
+                                        <span className='input-group-text'>
+                                            <FontAwesomeIcon icon={faUser} />
+                                        </span>
                                     </div>
+                                    <input
+                                        type='text'
+                                        className='form-control'
+                                        name='username'
+                                        placeholder='Username'
+                                        ref={username}
+                                        required
+                                    />
                                 </div>
-                                <div className='form-group'>
-                                    <div className='input-group'>
-                                        <div className='input-group-prepend'>
-                                            <span className='input-group-text'>
-                                                {" "}
-                                                <FontAwesomeIcon
-                                                    icon={faLock}
-                                                />
-                                            </span>
-                                        </div>
-                                        <input
-                                            type='password'
-                                            className='form-control'
-                                            name='password'
-                                            placeholder='Password'
-                                            required
-                                        />
+                            </div>
+                            <div className='form-group'>
+                                <div className='input-group'>
+                                    <div className='input-group-prepend'>
+                                        <span className='input-group-text'>
+                                            {" "}
+                                            <FontAwesomeIcon icon={faLock} />
+                                        </span>
                                     </div>
+                                    <input
+                                        type='password'
+                                        className='form-control'
+                                        name='password'
+                                        placeholder='Password'
+                                        ref={password}
+                                        required
+                                    />
                                 </div>
-                                <div className='form-group'>
-                                    <button
-                                        type='submit'
-                                        className='btn btn-primary login-btn btn-block'>
-                                        Log in
-                                    </button>
-                                </div>
-                                <div className='clearfix'>
-                                    <a href='#' className='float-right'>
-                                        Forgot Password?
-                                    </a>
-                                </div>
-                                <div className='or-seperator'>
-                                    <i>or</i>
-                                </div>
-                                <p className='text-center'>
-                                    Login with your social media account
-                                </p>
-                                <div className='text-center social-btn'>
-                                    <a
-                                        href='#'
-                                        className='btn btn-primary mx-2'>
-                                        <FontAwesomeIcon icon={faFacebook} />
-                                        &nbsp; Facebook
-                                    </a>
-                                    <a href='#' className='btn btn-danger mx-2'>
-                                        <FontAwesomeIcon icon={faGoogle} />
-                                        &nbsp; Google
-                                    </a>
-                                </div>
-                            </form>
+                            </div>
+                            <div className='form-group'>
+                                <button
+                                    type='submit'
+                                    onClick={submitEmployer}
+                                    className='btn btn-primary login-btn btn-block'>
+                                    Log in
+                                </button>
+                            </div>
+                            <div className='clearfix'>
+                                <a href='#' className='float-right'>
+                                    Forgot Password?
+                                </a>
+                            </div>
+                            <div className='or-seperator'>
+                                <i>or</i>
+                            </div>
+                            <p className='text-center'>
+                                Login with your social media account
+                            </p>
+                            <div className='text-center social-btn'>
+                                <a href='#' className='btn btn-primary mx-2'>
+                                    <FontAwesomeIcon icon={faFacebook} />
+                                    &nbsp; Facebook
+                                </a>
+                                <a href='#' className='btn btn-danger mx-2'>
+                                    <FontAwesomeIcon icon={faGoogle} />
+                                    &nbsp; Google
+                                </a>
+                            </div>
+
                             <p className='text-center text-muted small'>
                                 Don't have an account?{" "}
                                 <a href='#'>Sign up here!</a>

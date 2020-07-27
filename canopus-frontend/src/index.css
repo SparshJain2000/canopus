@@ -107,14 +107,16 @@ a:hover {
 
 .block {
     border-radius: 0.5rem;
-    background-color: rgba(0, 0, 0, 0.15);
-    box-shadow: 6px 6px 8px rgba(0, 0, 0, 0.6);
+    border: .06rem solid rgb(109, 109, 109);
+    /* background-color: rgba(0, 0, 0, 0.15); */
+    box-shadow: 3px 3px 2px rgba(0, 0, 0, 0.6);
     transition: 0.3s ease-in-out;
 }
 
 .block:hover {
     /* background-color: rgba(0, 0, 0, 0.1); */
-    /* box-shadow: 10px 10px 20px rgba(0, 0, 0, 0.8); */
+    border: .06rem solid rgb(0, 0, 0);
+    box-shadow: 5px 5px 6px rgba(0, 0, 0, 0.8);
     transition: 0.3s ease-in-out;
     /* transform: scale(1.01); */
 }

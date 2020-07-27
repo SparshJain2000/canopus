@@ -29,13 +29,16 @@ const Job = ({ job }) => {
                 </Media>
                 <div className='row'>
                     <div className='col-8'>
-                        Type: {job.description.type}
+                        <em>{job.description.line}</em>
                         <br />
-                        Experience: {job.description.experience}
+                        <strong>Type:</strong> {job.description.type}
                         <br />
-                        incentives: {job.description.incentives}
+                        <strong>Experience: </strong>
+                        {job.description.experience}
                         <br />
-                        {job.description.line}
+                        <strong>incentives: </strong>
+                        {job.description.incentives}
+                        <br />
                     </div>
                     <div className='col-4'>
                         <Button
