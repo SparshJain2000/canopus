@@ -8,6 +8,7 @@ import Profile from "./components/profile.component";
 import SignupUser from "./components/signupuser.component";
 // import doctor from "./images/doctor.png";
 import JobSearch from "./components/jobSeach.component";
+import PostJob from "./components/postJob.component";
 import axios from "axios";
 class App extends Component {
     constructor(props) {
@@ -66,6 +67,12 @@ class App extends Component {
                     exact
                     // render={(props) => <Profile {...props} />}
                     component={() => <Profile />}
+                />
+                <Route
+                    path='/post'
+                    exact
+                    // render={(props) => <Profile {...props} />}
+                    component={() => <PostJob />}
                 />
 
                 <FooterComponent />
