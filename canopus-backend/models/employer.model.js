@@ -4,8 +4,9 @@ module.exports = mongoose.model(
     "Employer",
     new mongoose.Schema({
         username: String,
+        firstName: String,
+        lastName: String,
         password: String,
-
         role: String,
         type: String,
         description: String,

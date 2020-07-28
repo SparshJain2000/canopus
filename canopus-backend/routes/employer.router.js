@@ -21,6 +21,10 @@ router.route("/").get((req, res) => {
 router.post("/", (req, res) => {
     const employer = new Employer({
         username: req.body.username,
+        firstName: req.body.firstName,
+        lastName: req.body.lastName,
+        address: req.body.address,
+        description: req.body.description,
         role: "Employer",
     });
     Employer.register(employer, req.body.password)
@@ -69,37 +73,38 @@ router.get("/current", (req, res) => {
 
 //Get employer details
 
-router.get("/profile" , middleware.isEmployer, (req,res) => {
-    Employer.findById(req.employer._id).then((employer) => res.json(employer))
+router.get("/profile", middleware.isEmployer, (req, res) => {
+    Employer.findById(req.employer._id)
+        .then((employer) => res.json(employer))
         .catch((err) => res.status(400).json({ err: err }));
 });
 
 // Employer profile update
 
-router.put("/profile/update/" , middleware.isEmployer, (req,res) => {
-
-    const user= new Employer({
-
-        ...(req.body.description) && { description: req.body.description},
-        ...(req.body.address) && {address:{
-                pin:req.body.address.pin,
-                city:req.body.address.city,
-                state:req.body.address.state
-            }}
+router.put("/profile/update/", middleware.isEmployer, (req, res) => {
+    const user = new Employer({
+        ...(req.body.description && { description: req.body.description }),
+        ...(req.body.address && {
+            address: {
+                pin: req.body.address.pin,
+                city: req.body.address.city,
+                state: req.body.address.state,
+            },
+        }),
     });
     Employer.findByIdAndUpdate(
         // the id of the item to find
         req.employer._id,
         req.body,
-        {new: true},
+        { new: true },
 
         // the callback function
         (err, todo) => {
             // Handle any possible database errors
             if (err) return res.status(500).send(err);
             return res.send(todo);
-        }
-    )
+        },
+    );
 });
 module.exports = router;
 /*
