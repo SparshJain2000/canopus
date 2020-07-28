@@ -23,12 +23,14 @@ router.post("/", (req, res) => {
         username: req.body.username,
         firstName: req.body.firstName,
         lastName: req.body.lastName,
-        address: {
-            pin: req.body.pin,
-            city: req.body.city,
-            state: req.body.state,
-        },
-
+        address: req.body.address,
+        description: req.body.description,
+        // address: {
+        //     pin: req.body.pin,
+        //     city: req.body.city,
+        //     state: req.body.state,
+        // },
+        experience: req.body.experience,
         role: "User",
     });
     User.register(user, req.body.password)
@@ -74,52 +76,59 @@ router.get("/logout", (req, res) => {
 router.get("/current", (req, res) => {
     res.json({ user: req.user });
 });
-
+//===========================================================================
 //Get user profile details
 
-router.get("/profile" , middleware.isUser, (req,res) => {
-   User.findById(req.user._id).then((user) => res.json(user))
-                               .catch((err) => res.status(400).json({ err: err }));
+router.get("/profile", middleware.isUser, (req, res) => {
+    User.findById(req.user._id)
+        .then((user) => res.json(user))
+        .catch((err) => res.status(400).json({ err: err }));
+});
+//===========================================================================
+//get user profile by id
+router.get("/profile/:id", middleware.isLoggedIn, (req, res) => {
+    User.findById(req.params.id)
+        .then((user) => res.json(user))
+        .catch((err) => res.status(400).json({ err: err }));
 });
 
 // User profile update
 
-
-router.put("/profile/update/" , middleware.isUser, (req,res) => {
-
-    const user= new User({
-
-      ...(req.body.description) && { description: req.body.description},
-       //Previous job experience
-      ...(req.body.experience) && {experience:[
-            {
-                title:req.body.experience.title,
-                time:req.body.experience.time,
-                line:req.body.experience.line
-            }
-        ]},
-        ...(req.body.address) && {address:{
-            pin:req.body.address.pin,
-            city:req.body.address.city,
-            state:req.body.address.state
-        }}
+router.put("/profile/update/", middleware.isUser, (req, res) => {
+    const user = new User({
+        ...(req.body.description && { description: req.body.description }),
+        //Previous job experience
+        ...(req.body.experience && {
+            experience: [
+                {
+                    title: req.body.experience.title,
+                    time: req.body.experience.time,
+                    line: req.body.experience.line,
+                },
+            ],
+        }),
+        ...(req.body.address && {
+            address: {
+                pin: req.body.address.pin,
+                city: req.body.address.city,
+                state: req.body.address.state,
+            },
+        }),
     });
     User.findByIdAndUpdate(
         // the id of the item to find
         req.user._id,
         req.body,
-        {new: true},
+        { new: true },
 
         // the callback function
         (err, todo) => {
             // Handle any possible database errors
             if (err) return res.status(500).send(err);
             return res.send(todo);
-        }
-    )
+        },
+    );
 });
-
-
 
 module.exports = router;
 /*
