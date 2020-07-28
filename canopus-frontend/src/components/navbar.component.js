@@ -92,7 +92,7 @@ const NavbarComponent = (props) => {
                 console.log(newuser);
                 props.setUser(newuser);
                 set(newuser);
-                window.location = "/post";
+                window.location = "/employer";
             })
             .catch((err) => console.log(err.response));
     };
@@ -159,7 +159,7 @@ const NavbarComponent = (props) => {
                                     <div>
                                         <a
                                             href='#'
-                                            className='text-danger'
+                                            className='text-primary'
                                             onClick={toggleModal}>
                                             Login
                                         </a>
@@ -196,7 +196,7 @@ const NavbarComponent = (props) => {
                                     <div className='mt-2'>
                                         <a
                                             href='#'
-                                            className='badge badge-lg badge-primary p-2'>
+                                            className='badge badge-lg badge-danger p-2'>
                                             Signup
                                         </a>
                                     </div>
@@ -229,7 +229,7 @@ const NavbarComponent = (props) => {
                                     id='caret'
                                     color={
                                         user.role === "Employer"
-                                            ? "danger"
+                                            ? "info"
                                             : "primary"
                                     }
                                     style={{ width: "max-content" }}>
@@ -243,14 +243,28 @@ const NavbarComponent = (props) => {
                                     />
                                     {user.firstName}
                                 </Button>
-                                <DropdownToggle caret color='primary' />
+                                <DropdownToggle
+                                    caret
+                                    color={
+                                        user.role === "Employer"
+                                            ? "info"
+                                            : "primary"
+                                    }
+                                />
                                 <DropdownMenu right>
-                                    <Link
-                                        to='/profile/'
-                                        className='dropdown-item'>
-                                        View Profile
-                                    </Link>
-
+                                    {user.role === "Employer" ? (
+                                        <Link
+                                            to='/employer'
+                                            className='dropdown-item'>
+                                            Post/View Jobs
+                                        </Link>
+                                    ) : (
+                                        <Link
+                                            to='/profile/'
+                                            className='dropdown-item'>
+                                            View Profile
+                                        </Link>
+                                    )}
                                     <DropdownItem divider />
                                     <DropdownItem
                                         onClick={() => {
