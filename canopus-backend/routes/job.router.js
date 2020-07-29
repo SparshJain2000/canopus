@@ -117,12 +117,22 @@ router.get("/:id", middleware.isLoggedIn, (req, res) => {
 // });
 //===========================================================================
 //delete a job
+
 router.delete("/:id", middleware.isEmployer, (req, res) => {
     Job.findByIdAndDelete(req.params.id)
-        .then(() => res.json("Job deleted successfully !"))
+        .then(() => res.json("Job deleted successfully !")).
         .catch((err) => res.status(400).json({ err: err }));
 });
+
 //===========================================================================
+
+router.post("/search",(req,res) => {
+    let location=req.body.location;
+    Job.find(description.location:{meta:`${location}`})
+    .then((job) => res.json(job))
+    .catch((err) => res.status(400).json({ err: err });
+});
+
 module.exports = router;
 
 /*{
