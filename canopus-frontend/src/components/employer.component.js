@@ -58,7 +58,7 @@ export default class Employer extends Component {
                         className='col-12 mt-3'
                         style={{ textAlign: "center" }}>
                         <h1>View job applicants</h1>
-                        <Link to='/post'>
+                        <Link to='/applications'>
                             <Button outline='true' color='primary'>
                                 View
                             </Button>

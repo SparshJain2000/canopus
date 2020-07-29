@@ -10,6 +10,7 @@ import SignupUser from "./components/signupuser.component";
 import JobSearch from "./components/jobSeach.component";
 import PostJob from "./components/postJob.component";
 import Employer from "./components/employer.component";
+import JobApplications from "./components/jobApplications.component";
 import axios from "axios";
 class App extends Component {
     constructor(props) {
@@ -80,6 +81,12 @@ class App extends Component {
                     exact
                     // render={(props) => <Profile {...props} />}
                     component={() => <PostJob />}
+                />
+                <Route
+                    path='/applications'
+                    exact
+                    // render={(props) => <Profile {...props} />}
+                    component={() => <JobApplications />}
                 />
 
                 <FooterComponent />
