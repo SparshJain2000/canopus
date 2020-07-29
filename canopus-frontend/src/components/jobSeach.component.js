@@ -8,6 +8,14 @@ import doctor from "../images/doctor.png";
 import ReactLoading from "react-loading";
 
 const Job = ({ job }) => {
+    const applyJob = () => {
+        axios
+            .post(`/api/job/apply/${job._id}`)
+            .then(({ data }) => {
+                console.log(data);
+            })
+            .catch((err) => console.log(err.response));
+    };
     return (
         <Media className='row block justify-content-center my-5 mx-auto py-4 px-2 px-md-4'>
             <Media left href='#' className='col-12 col-sm-3 my-auto mx-auto'>
@@ -44,6 +52,7 @@ const Job = ({ job }) => {
                         <Button
                             color='primary'
                             className='float-right'
+                            onClick={applyJob}
                             size='lg'>
                             Apply
                         </Button>
