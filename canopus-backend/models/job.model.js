@@ -5,20 +5,19 @@ module.exports = mongoose.model(
     "Job",
     new mongoose.Schema({
         title: String,
-        profession:Array,
-        specialization:Array,
+        profession: Array,
+        specialization: Array,
+        description: Object,
+        // {
+        //     line: String,
+        //     experience: String,
+        //     incentives: String,
+        //     type: String,
+        //     status: String,
+        //     location: String,
+        //     salary: Number,
+        // },
         sponsored: Boolean,
-        description: {
-            line:String,
-            experience: String,
-            incentives: String,
-            type:String,
-            status: String,
-            location: String,
-            salary: Number,
-
-        },
-
 
         // date: Date,
         author: {
