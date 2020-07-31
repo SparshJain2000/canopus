@@ -75,6 +75,98 @@ router.get("/:id", middleware.isLoggedIn, (req, res) => {
         })
         .catch((err) => res.status(400).json({ err: err }));
 });
+
+
+router.post("/search",(req,res) => {
+   Job.aggregate([
+        {
+            $search: {
+                "compound": {
+                    "should":[
+                        {
+                        "text":
+                            {
+                                "query": req.body.location,
+                                "path": "description.location"
+                            }
+                        }
+                    ],
+                    "must":[
+
+                        {
+                            "text":{
+                                "query":req.body.description.type,
+                                "path":"description.type"
+                            }
+
+                        },
+                        {
+                            "text":
+                                {
+                                    "query": req.body.profession,
+                                    "path": "profession"
+                                }
+                        },
+                        {
+                            "text":
+                                {
+                                    "query": req.body.specialization,
+                                    "path": "specialization"
+                                }
+
+                        },
+
+                    ],
+
+                    /*"text": {
+                        "query":req.body.specialization,
+                        "path": "specialization"
+                    },
+                    "text": {
+                        "query":req.body.profession,
+                        "path": "profession"
+                    },
+                    "text": {
+                        "query":req.body.description.type,
+                        "path": "description.type"
+                        }
+                     */
+
+                }
+            }
+        },
+       {
+           $project:{
+               _id:0,
+               applicants:0,
+               author:0
+           }
+
+       }
+   ], (err,jobs) => {
+       console.log(jobs);
+       if(err) res.status(400).json({err:err});
+       else
+       res.json(jobs);
+   });
+    /*
+    Job.find(
+
+        {location:{"$eq":req.body.location}},
+        {tag:{"$in":req.body.tag}}
+        )
+
+
+
+            .then((job) =>{
+                res.json(job);
+                console.log(job);
+            })
+            .catch((err) => res.status(400).json({err:err}));
+*/
+});
+//router.put("/:id",middleware.isLoggedIn())
+
 router.post("/apply/:id", middleware.isUser, (req, res) => {
     Job.findById(req.params.id).then((job) => {
         job.applicants = [
@@ -102,6 +194,7 @@ router.post("/apply/:id", middleware.isUser, (req, res) => {
     });
     req.user;
 });
+
 //===========================================================================
 //update a job
 // router.put("/:id", middleware.checkBlogOwnership, (req, res) => {
@@ -145,12 +238,13 @@ router.post("/apply/:id", middleware.isUser, (req, res) => {
 // });
 //===========================================================================
 //delete a job
+
 router.delete("/:id", middleware.isEmployer, (req, res) => {
     Job.findByIdAndDelete(req.params.id)
         .then(() => res.json("Job deleted successfully !"))
-        .catch((err) => res.status(400).json({ err: err }));
+        .catch((err) => res.status(400).json({err: err}));
 });
-//===========================================================================
+
 module.exports = router;
 
 /*{
