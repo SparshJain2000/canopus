@@ -2,6 +2,7 @@ const router = require("express").Router(),
     passport = require("passport"),
     middleware = require("../middleware/index"),
     User = require("../models/user.model");
+    Tag = require("../models/tag.model");
 
 //===========================================================================
 //get all users
@@ -118,8 +119,19 @@ router.put("/profile/update/" , middleware.isUser, (req,res) => {
         }
     )
 });
+// TODO admin model for now works in user
+router.post("/tag", (req, res) => {
+    const tag = new Tag({
+        uber:req.body.uber,
+        specialization:req.body.specialization,
+        description:req.body.description
+    });
+    tag.save(tag)
+        .then((tag) => {
+            res.json({user: tag})})
+        .catch((err) => res.status(400).json({err: err}));
 
-
+});
 
 module.exports = router;
 /*

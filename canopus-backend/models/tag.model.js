@@ -1,7 +1,7 @@
 const mongoose = require("mongoose"),
     passportLocalMongoose = require("passport-local-mongoose");
 module.exports = mongoose.model(
-    "User",
+    "Tags",
     new mongoose.Schema({
         uber:String,
         specialization:String,
