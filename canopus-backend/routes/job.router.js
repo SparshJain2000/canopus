@@ -1,6 +1,7 @@
 const router = require("express").Router(),
     middleware = require("../middleware/index"),
     Employer = require("../models/employer.model"),
+    User = require("../models/user.model"),
     Job = require("../models/job.model");
 //===========================================================================
 //get all jobs
@@ -31,13 +32,7 @@ router.post("/", middleware.isEmployer, (req, res) => {
         specialization: req.body.specialization,
         description: req.body.description,
         sponsored: true,
-        // date: new Date(),
-        // likes: [],
     });
-    // console.log(req.body.description.line);
-    // job.description = {
-    //     line: req.body.description.line,
-    // };
     Job.create(job)
         .then((job) => {
             job.author.username = req.user.username;
@@ -80,6 +75,7 @@ router.get("/:id", middleware.isLoggedIn, (req, res) => {
         })
         .catch((err) => res.status(400).json({ err: err }));
 });
+
 
 router.post("/search",(req,res) => {
    Job.aggregate([
@@ -170,6 +166,35 @@ router.post("/search",(req,res) => {
 */
 });
 //router.put("/:id",middleware.isLoggedIn())
+
+router.post("/apply/:id", middleware.isUser, (req, res) => {
+    Job.findById(req.params.id).then((job) => {
+        job.applicants = [
+            ...job.applicants,
+            { id: req.user._id, username: req.user.username },
+        ];
+        job.save()
+            .then((updatedJob) => {
+                // res.json(updatedJob);
+                User.findById(req.user._id)
+                    .then((user) => {
+                        user.applied.push({
+                            id: updatedJob._id,
+                            title: updatedJob.title,
+                        });
+                        user.save()
+                            .then((updatedUser) => {
+                                res.json({ user: updatedUser, job: job });
+                            })
+                            .catch((err) => res.status(400).json({ err: err }));
+                    })
+                    .catch((err) => res.status(400).json({ err: err }));
+            })
+            .catch((err) => res.status(400).json({ err: err }));
+    });
+    req.user;
+});
+
 //===========================================================================
 //update a job
 // router.put("/:id", middleware.checkBlogOwnership, (req, res) => {

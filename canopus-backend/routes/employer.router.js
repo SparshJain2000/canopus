@@ -1,6 +1,9 @@
+const { checkJobOwnership } = require("../middleware");
+
 const router = require("express").Router(),
     passport = require("passport"),
     middleware = require("../middleware/index"),
+    Job = require("../models/job.model"),
     Employer = require("../models/employer.model");
 
 //===========================================================================
@@ -70,7 +73,39 @@ router.get("/logout", (req, res) => {
 router.get("/current", (req, res) => {
     res.json({ user: req.user });
 });
+//===========================================================================
+//Get all the jobs offered by employer
+const getJobs = (id) => {
+    return new Promise((resolve, reject) => {
+        // let jobs = [];
 
+        Job.findById(id)
+            .then((job) => {
+                // jobs = [...jobs, job];
+                resolve(job);
+            })
+            .catch((err) => reject(err));
+
+        // resolve(jobs);
+    });
+};
+router.get("/jobs", middleware.isEmployer, (req, res) => {
+    Employer.findById(req.user._id).then((employer) => {
+        let jobs = [];
+        employer.jobs.forEach((job) => {
+            jobs.push(getJobs(job.id));
+        });
+        // getJobs(employer)
+        //     .then((jobs) => res.json(jobs))
+        //     .catch((err) => res.status(400).json({ err: err }));
+        Promise.all(jobs)
+            .then((allJobs) => {
+                res.json(allJobs);
+            })
+            .catch((err) => res.status(400).json({ err: err }));
+    });
+});
+//===========================================================================
 //Get employer details
 
 router.get("/profile", middleware.isEmployer, (req, res) => {
@@ -79,6 +114,7 @@ router.get("/profile", middleware.isEmployer, (req, res) => {
         .catch((err) => res.status(400).json({ err: err }));
 });
 
+//===========================================================================
 // Employer profile update
 
 router.put("/profile/update/", middleware.isEmployer, (req, res) => {
