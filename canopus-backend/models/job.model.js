@@ -7,6 +7,7 @@ module.exports = mongoose.model(
         title: String,
         profession: Array,
         specialization: Array,
+        superSpecialization:Array,
         description: Object,
         // {
         //     line: String,
