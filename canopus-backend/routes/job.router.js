@@ -30,6 +30,7 @@ router.post("/", middleware.isEmployer, (req, res) => {
         title: req.body.title,
         profession: req.body.profession,
         specialization: req.body.specialization,
+        superSpecialization: req.body.superSpecialization,
         description: req.body.description,
         sponsored: true,
     });
