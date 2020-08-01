@@ -67,42 +67,46 @@ router.post("/", middleware.isEmployer, (req, res) => {
         .catch((err) => res.status(400).json({ err: err, user: req.user }));
 });
 //===========================================================================
-//search jobs by different params
 
-router.get("/search", (req, res) => {
-    Job.aggregate(
-        [
-            {
-                $search: {
-                    compound: {
-                        should: [
-                            {
-                                text: {
-                                    query: req.body.description.location,
-                                    path: "description.location",
-                                },
-                            },
-                        ],
-                        must: [
-                            {
-                                text: {
-                                    query: req.body.description.type,
-                                    path: "description.type",
-                                },
-                            },
-                            {
-                                text: {
-                                    query: req.body.profession,
-                                    path: "profession",
-                                },
-                            },
-                            {
-                                text: {
-                                    query: req.body.specialization,
-                                    path: "specialization",
-                                },
-                            },
-                        ],
+//get a job by id
+router.get("/:id", middleware.isLoggedIn, (req, res) => {
+    Job.findById(req.params.id)
+        .then((job) => {
+            res.json(job);
+        })
+        .catch((err) => res.status(400).json({ err: err }));
+});
+
+
+router.post("/search",(req,res) => {
+    function addQuery(query,path){
+       let abc=
+        {
+            "text":
+                {
+                    "query": `${query}`,
+                    "path": `${path}`
+                }
+        };
+       return abc;
+    }
+    var querybuild=[];
+    if(req.body.location)
+        querybuild.push(addQuery(req.body.location,"description.location"));
+     if(req.body.profession)
+    querybuild.push(addQuery(req.body.profession,"profession"));
+    if(req.body.specialization)
+        querybuild.push(addQuery(req.body.specialization,"specialization"));
+    if(req.body.superSpecialization)
+        querybuild.push(addQuery(req.body.superSpecialization,"superSpecialization"));
+    if(req.body.incentives)
+        querybuild.push(addQuery(req.body.incentives,"description.incentives"));
+
+    Job.aggregate([
+        {
+            $search: {
+                "compound": {
+                    "must":querybuild
 
                         /*"text": {
                         "query":req.body.specialization,

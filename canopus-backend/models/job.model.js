@@ -5,9 +5,11 @@ module.exports = mongoose.model(
     "Job",
     new mongoose.Schema({
         title: String,
+
         profession: String,
         specialization: String,
-        superSpecialization: Array,
+        superSpecialization:Array,
+
         description: Object,
         // {
         //     line: String,
