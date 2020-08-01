@@ -82,45 +82,34 @@ router.get("/:id", middleware.isLoggedIn, (req, res) => {
 });
 
 router.post("/search",(req,res) => {
-   Job.aggregate([
+    function addQuery(query,path){
+       let abc=
+        {
+            "text":
+                {
+                    "query": `${query}`,
+                    "path": `${path}`
+                }
+        };
+       return abc;
+    }
+    var querybuild=[];
+    if(req.body.location)
+        querybuild.push(addQuery(req.body.location,"description.location"));
+     if(req.body.profession)
+    querybuild.push(addQuery(req.body.profession,"profession"));
+    if(req.body.specialization)
+        querybuild.push(addQuery(req.body.specialization,"specialization"));
+    if(req.body.superSpecialization)
+        querybuild.push(addQuery(req.body.superSpecialization,"superSpecialization"));
+    if(req.body.incentives)
+        querybuild.push(addQuery(req.body.incentives,"description.incentives"));
+
+    Job.aggregate([
         {
             $search: {
                 "compound": {
-                    "should":[
-                        {
-                        "text":
-                            {
-                                "query": req.body.location,
-                                "path": "description.location"
-                            }
-                        }
-                    ],
-                    "must":[
-
-                        {
-                            "text":{
-                                "query":req.body.description.type,
-                                "path":"description.type"
-                            }
-
-                        },
-                        {
-                            "text":
-                                {
-                                    "query": req.body.profession,
-                                    "path": "profession"
-                                }
-                        },
-                        {
-                            "text":
-                                {
-                                    "query": req.body.specialization,
-                                    "path": "specialization"
-                                }
-
-                        },
-
-                    ],
+                    "must":querybuild
 
                     /*"text": {
                         "query":req.body.specialization,
