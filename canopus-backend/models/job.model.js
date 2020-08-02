@@ -5,9 +5,11 @@ module.exports = mongoose.model(
     "Job",
     new mongoose.Schema({
         title: String,
-        profession: Array,
-        specialization: Array,
+
+        profession: String,
+        specialization: String,
         superSpecialization:Array,
+
         description: Object,
         // {
         //     line: String,
@@ -19,7 +21,7 @@ module.exports = mongoose.model(
         //     salary: Number,
         // },
         sponsored: Boolean,
-        tag:Array,
+        tag: Array,
         // date: Date,
         author: {
             id: {
