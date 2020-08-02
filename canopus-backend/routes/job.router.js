@@ -5,7 +5,7 @@ const router = require("express").Router(),
     Job = require("../models/job.model");
 //===========================================================================
 //get all jobs
-router.get("/", middleware.isLoggedIn, (req, res) => {
+router.get("/", (req, res) => {
     Job.find()
         .then((jobs) => res.json({ jobs: jobs, user: req.user }))
         .catch((err) => res.status(400).json({ err: err }));
@@ -69,45 +69,39 @@ router.post("/", middleware.isEmployer, (req, res) => {
 });
 //===========================================================================
 
-//get a job by id
-router.get("/:id", middleware.isLoggedIn, (req, res) => {
-    Job.findById(req.params.id)
-        .then((job) => {
-            res.json(job);
-        })
-        .catch((err) => res.status(400).json({ err: err }));
-});
-
-
-router.post("/search",(req,res) => {
-    function addQuery(query,path){
-       let abc=
-        {
-            "text":
-                {
-                    "query": `${query}`,
-                    "path": `${path}`
-                }
+router.post("/search", (req, res) => {
+    console.log(req.body);
+    function addQuery(query, path) {
+        let abc = {
+            text: {
+                query: `${query}`,
+                path: `${path}`,
+            },
         };
-       return abc;
+        return abc;
     }
-    var querybuild=[];
-    if(req.body.location)
-        querybuild.push(addQuery(req.body.location,"description.location"));
-     if(req.body.profession)
-    querybuild.push(addQuery(req.body.profession,"profession"));
-    if(req.body.specialization)
-        querybuild.push(addQuery(req.body.specialization,"specialization"));
-    if(req.body.superSpecialization)
-        querybuild.push(addQuery(req.body.superSpecialization,"superSpecialization"));
-    if(req.body.incentives)
-        querybuild.push(addQuery(req.body.incentives,"description.incentives"));
+    var querybuild = [];
+    if (req.body.location)
+        querybuild.push(addQuery(req.body.location, "description.location"));
+    if (req.body.profession)
+        querybuild.push(addQuery(req.body.profession, "profession"));
+    if (req.body.specialization)
+        querybuild.push(addQuery(req.body.specialization, "specialization"));
+    if (req.body.superSpecialization)
+        querybuild.push(
+            addQuery(req.body.superSpecialization, "superSpecialization"),
+        );
+    if (req.body.incentives)
+        querybuild.push(
+            addQuery(req.body.incentives, "description.incentives"),
+        );
 
-    Job.aggregate([
-        {
-            $search: {
-                "compound": {
-                    "must":querybuild
+    Job.aggregate(
+        [
+            {
+                $search: {
+                    compound: {
+                        must: querybuild,
 
                         /*"text": {
                         "query":req.body.specialization,
@@ -155,6 +149,7 @@ router.post("/search",(req,res) => {
             .catch((err) => res.status(400).json({err:err}));
 */
 });
+
 //===========================================================================
 //get a job by id
 router.get("/:id", middleware.isLoggedIn, (req, res) => {
