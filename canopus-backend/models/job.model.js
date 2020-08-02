@@ -32,7 +32,7 @@ module.exports = mongoose.model(
             {
                 id: {
                     type: mongoose.Schema.Types.ObjectId,
-                    ref: "USer",
+                    ref: "User",
                 },
                 username: String,
             },
