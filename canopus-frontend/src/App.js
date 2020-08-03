@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React, { Component, createRef } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import { BrowserRouter, Route } from "react-router-dom";
 import NavbarComponent from "./components/navbar.component";
@@ -23,17 +23,17 @@ class App extends Component {
     }
     setUser(user) {
         this.setState({ user: user });
-        console.log(this.state.user);
+        // console.log(this.state.user);
     }
     async getUser() {
         axios
             .get(`/api/user/current`)
-            .then(({ data }) => {
+            .then((data) => {
                 console.log(data);
                 this.setUser(data.user);
             })
             .catch((err) => {
-                console.log(err.response.data);
+                console.log(err.response);
             });
         // const user = await axios.get(`/api/user/current`);
         // console.log(user);
@@ -42,12 +42,17 @@ class App extends Component {
     componentDidMount() {
         console.log(this.state.user);
         if (!this.state.user) {
-            // this.getUser();
+            this.getUser();
         }
+        const node = this.wrapper.current;
+        console.log(node);
     }
+    wrapper = createRef();
     render() {
         return (
-            <BrowserRouter className='flex flex-column justify-content-between'>
+            <BrowserRouter
+                className='flex flex-column justify-content-between'
+                ref={this.wrapper}>
                 <NavbarComponent
                     user={this.state.user}
                     setUser={this.setUser}
