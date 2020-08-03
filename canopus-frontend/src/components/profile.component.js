@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import NavbarComponent from "./navbar.component";
+// import NavbarComponent from "./navbar.component";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import {

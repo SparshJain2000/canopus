@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import NavbarComponent from "../navbar.component";
+// import NavbarComponent from "../navbar.component";
 import { Form, Input, Label, FormGroup, Button } from "reactstrap";
 
 export default class UserDetails extends Component {

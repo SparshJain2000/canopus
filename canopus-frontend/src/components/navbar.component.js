@@ -10,7 +10,6 @@ import {
     Nav,
     NavItem,
     Toast,
-    ToastHeader,
     ToastBody,
     Modal,
     ModalHeader,
@@ -35,6 +34,7 @@ import axios from "axios";
 const NavbarComponent = (props) => {
     const [user, set] = useState(props.user);
     const [isOpen, setIsOpen] = useState(false);
+    // const [loaded, setLoaded] = useState(false);
     const [modal, setModal] = useState(false);
     const [modalEmployer, setModalEmployer] = useState(false);
     const [buttonDropdown, setButtonDropdown] = useState(false);
@@ -46,19 +46,24 @@ const NavbarComponent = (props) => {
 
     const username = useRef(null);
     const password = useRef(null);
+    // if (props.user) setLoaded(true);
     if (!props.user) {
+        // props.getUser();
         axios
             .get(`/api/user/current`)
             .then(({ data }) => {
                 if (data.user) {
                     set(data.user);
                     props.setUser(data.user);
+                    // setLoaded(true);
                 }
             })
             .catch((err) => {
                 console.log(err.response);
+                // setLoaded(true);
             });
     }
+    // else set(props.user);
     const submit = () => {
         const user = {
             username: username.current.value,
@@ -70,13 +75,16 @@ const NavbarComponent = (props) => {
         axios
             .post(`/api/user/login`, user)
             .then((newuser) => {
-                console.log(newuser);
-                props.setUser(newuser);
-                set(newuser);
-
+                console.log(newuser.data.user);
+                props.setUser(newuser.data.user);
+                set(newuser.data.user);
+                // setLoaded(true);
                 window.location = "/search-jobs";
             })
-            .catch((err) => console.log(err.response));
+            .catch((err) => {
+                console.log(err.response);
+                // setLoaded(true);
+            });
     };
     const submitEmployer = () => {
         const user = {
@@ -89,12 +97,16 @@ const NavbarComponent = (props) => {
         axios
             .post(`/api/employer/login`, user)
             .then((newuser) => {
-                console.log(newuser);
-                props.setUser(newuser);
-                set(newuser);
+                console.log(newuser.data.employer);
+                props.setUser(newuser.data.employer);
+                set(newuser.data.employer);
+                // setLoaded(true);
                 window.location = "/employer";
             })
-            .catch((err) => console.log(err.response));
+            .catch((err) => {
+                console.log(err.response);
+                // setLoaded(true);
+            });
     };
     return (
         <div>
@@ -113,19 +125,13 @@ const NavbarComponent = (props) => {
                             <NavLink to='/search-jobs'>Job Search</NavLink>
                         </NavItem>
                         <NavItem className='m-1'>
-                            <NavLink to='#'>Job Alerts</NavLink>
+                            <NavLink to='/employer'>FInd Employees</NavLink>
                         </NavItem>
                         <NavItem className='m-1'>
-                            <NavLink to='#'>Career Resources</NavLink>
+                            <NavLink to='/'>Career Resources</NavLink>
                         </NavItem>
                         <NavItem className='m-1'>
-                            <NavLink to='#'>FInd Employees</NavLink>
-                        </NavItem>
-                        <NavItem className='m-1'>
-                            <NavLink to='#'>Career Resources</NavLink>
-                        </NavItem>
-                        <NavItem className='m-1'>
-                            <NavLink to='#'>About US</NavLink>
+                            <NavLink to='/'>About US</NavLink>
                         </NavItem>
 
                         {/* <UncontrolledDropdown nav inNavbar>
@@ -140,7 +146,7 @@ const NavbarComponent = (props) => {
                             </DropdownMenu>
                         </UncontrolledDropdown> */}
                     </Nav>
-                    {!user ? (
+                    {!props.user ? (
                         <Nav
                             className='row ml-auto align-content-center justify-content-center mt-3 mt-lg-0'
                             style={{ minWidth: "35%" }}>
@@ -228,31 +234,31 @@ const NavbarComponent = (props) => {
                                 <Button
                                     id='caret'
                                     color={
-                                        user.role === "Employer"
+                                        props.user.role === "Employer"
                                             ? "info"
                                             : "primary"
                                     }
                                     style={{ width: "max-content" }}>
                                     <FontAwesomeIcon
                                         icon={
-                                            user.role === "Employer"
+                                            props.user.role === "Employer"
                                                 ? faUserPlus
                                                 : faUser
                                         }
                                         className='mr-2'
                                     />
-                                    {user.firstName}
+                                    {props.user.firstName}
                                 </Button>
                                 <DropdownToggle
                                     caret
                                     color={
-                                        user.role === "Employer"
+                                        props.user.role === "Employer"
                                             ? "info"
                                             : "primary"
                                     }
                                 />
                                 <DropdownMenu right>
-                                    {user.role === "Employer" ? (
+                                    {props.user.role === "Employer" ? (
                                         <Link
                                             to='/employer'
                                             className='dropdown-item'>
@@ -269,18 +275,21 @@ const NavbarComponent = (props) => {
                                     <DropdownItem
                                         onClick={() => {
                                             axios
-                                                .get("/api/user/logout")
+                                                .get(`/api/user/logout`)
                                                 .then((user) => {
                                                     console.log(
                                                         `logout${user}`,
                                                     );
                                                     props.setUser(null);
                                                     set(null);
+                                                    // setLoaded(true);
+
                                                     window.location = "/";
                                                 })
-                                                .catch((err) =>
-                                                    console.log(err.response),
-                                                );
+                                                .catch((err) => {
+                                                    console.log(err.response);
+                                                    // setLoaded(true);
+                                                });
                                         }}>
                                         logout
                                         <FontAwesomeIcon
@@ -358,11 +367,11 @@ const NavbarComponent = (props) => {
                                 Login with your social media account
                             </p>
                             <div className='text-center social-btn'>
-                                <a href='#' className='btn btn-primary mx-2'>
+                                <a href='/' className='btn btn-primary mx-2'>
                                     <FontAwesomeIcon icon={faFacebook} />
                                     &nbsp; Facebook
                                 </a>
-                                <a href='#' className='btn btn-danger mx-2'>
+                                <a href='/' className='btn btn-danger mx-2'>
                                     <FontAwesomeIcon icon={faGoogle} />
                                     &nbsp; Google
                                 </a>
@@ -370,7 +379,7 @@ const NavbarComponent = (props) => {
                             {/* </form> */}
                             <p className='text-center text-muted small'>
                                 Don't have an account?{" "}
-                                <a href='#'>Sign up here!</a>
+                                <a href='/'>Sign up here!</a>
                             </p>
                         </div>
                     </ModalBody>
@@ -436,7 +445,7 @@ const NavbarComponent = (props) => {
                                 </button>
                             </div>
                             <div className='clearfix'>
-                                <a href='#' className='float-right'>
+                                <a href='/' className='float-right'>
                                     Forgot Password?
                                 </a>
                             </div>
@@ -447,11 +456,11 @@ const NavbarComponent = (props) => {
                                 Login with your social media account
                             </p>
                             <div className='text-center social-btn'>
-                                <a href='#' className='btn btn-primary mx-2'>
+                                <a href='/' className='btn btn-primary mx-2'>
                                     <FontAwesomeIcon icon={faFacebook} />
                                     &nbsp; Facebook
                                 </a>
-                                <a href='#' className='btn btn-danger mx-2'>
+                                <a href='/' className='btn btn-danger mx-2'>
                                     <FontAwesomeIcon icon={faGoogle} />
                                     &nbsp; Google
                                 </a>
@@ -459,7 +468,7 @@ const NavbarComponent = (props) => {
 
                             <p className='text-center text-muted small'>
                                 Don't have an account?{" "}
-                                <a href='#'>Sign up here!</a>
+                                <a href='/'>Sign up here!</a>
                             </p>
                         </div>
                     </ModalBody>

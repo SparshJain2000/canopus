@@ -7,7 +7,7 @@ import {
     ListGroupItemText,
     Button,
 } from "reactstrap";
-import NavbarComponent from "../navbar.component";
+// import NavbarComponent from "../navbar.component";
 export default class Confirmation extends Component {
     submit = (e) => {
         e.preventDefault();

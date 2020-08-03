@@ -1,4 +1,4 @@
-import React, { Component, useEffect, useState, useRef } from "react";
+import React, { Component, useEffect, useState } from "react";
 import axios from "axios";
 import ReactLoading from "react-loading";
 import { Media, Badge, Button } from "reactstrap";
@@ -38,7 +38,7 @@ const Job = ({ job }) => {
                 <Media
                     left
                     href='#'
-                    className='col-12 col-sm-3 my-auto mx-auto'>
+                    className='col-12 col-md-3 my-auto mx-auto'>
                     <Media
                         object
                         src={doctor}
@@ -47,28 +47,35 @@ const Job = ({ job }) => {
                         // style={{ maxWidth: "50%" }}
                     />
                 </Media>
-                <Media body className='col-12 col-sm-9 my-4 my-md-2'>
-                    <Media heading>{job.title}</Media>
-                    <Media heading>
+                <Media body className='col-12 col-md-9 my-4 my-md-2 '>
+                    <Media heading className='px-2 px-md-3'>
+                        {job.title}
+                    </Media>
+                    <Media heading className='px-2 px-md-3'>
                         <h6>
                             <FontAwesomeIcon icon={faMapMarkerAlt} />{" "}
                             {job.description.location}
                         </h6>
                     </Media>
-                    <div className='row'>
-                        <div className='col-8'>
-                            <em>{job.description.line}</em>
+                    <div className='row mx-auto w-100 p-2 p-md-3'>
+                        <div className='col-12 col-md-8'>
+                            <em>{job.description.specialization}</em>
                             <br />
-                            <strong>Type:</strong> {job.description.type}
+                            <strong>Type:</strong>{" "}
+                            {job.description.type.map((inc) => `${inc} , `)}
                             <br />
                             <strong>Experience: </strong>
                             {job.description.experience}
                             <br />
                             <strong>incentives: </strong>
-                            {job.description.incentives}
+                            {job.description.incentives.map(
+                                (inc) => `${inc} , `,
+                            )}
                             <br />
                         </div>
-                        <div className='col-4'>
+                        <div
+                            className='col-12 col-md-4 mt-4 mt-md-0'
+                            style={{ textAlign: "center" }}>
                             <Button onClick={showApplicants}>
                                 Show Applicants
                             </Button>
@@ -76,20 +83,25 @@ const Job = ({ job }) => {
                     </div>
 
                     <hr />
-                    {job.specialization.map((tag) => (
-                        <Badge color='info' className='mx-1'>
-                            {tag}
-                        </Badge>
-                    ))}
+                    {job.superSpecialization &&
+                        job.superSpecialization.map((tag) => (
+                            <Badge color='info' className='mx-1'>
+                                {tag}
+                            </Badge>
+                        ))}
                     <Badge color='success' className='float-right'>
                         {job.description.status}
                     </Badge>
                     {show &&
-                        job.applicants.map((applicant) => (
-                            <ApplicantDetails
-                                key={applicant.id}
-                                applicant={applicant.id}
-                            />
+                        (job.applicants.length ? (
+                            job.applicants.map((applicant) => (
+                                <ApplicantDetails
+                                    key={applicant.id}
+                                    applicant={applicant.id}
+                                />
+                            ))
+                        ) : (
+                            <h6>No applicants</h6>
                         ))}
                 </Media>
             </Media>
@@ -117,9 +129,10 @@ export default class JobApplications extends Component {
         return (
             <div>
                 {this.state.jobs ? (
-                    this.state.jobs.map((job) => (
-                        <Job key={job._id} job={job} />
-                    ))
+                    this.state.jobs.length !== 0 &&
+                    this.state.jobs.map(
+                        (job) => job && <Job key={job._id} job={job} />,
+                    )
                 ) : (
                     <ReactLoading
                         type={"spin"}

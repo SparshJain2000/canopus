@@ -1,7 +1,7 @@
 import React from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import NavbarComponent from "./navbar.component";
-import FooterComponent from "./footer.component";
+// import NavbarComponent from "./navbar.component";
+// import FooterComponent from "./footer.component";
 import doctor from "../images/doctor.png";
 function Home() {
     return (
@@ -51,22 +51,22 @@ function Home() {
                 <h1 style={{ textAlign: "center" }}>Jobs by Category</h1>
                 <div className='row justify-content-center px-3 px-md-4 m-4 '>
                     <div className='jobs text-secondary'>
-                        <a href='#'>Physician / Surgeon</a>
+                        <a href='/'>Physician / Surgeon</a>
                     </div>
                     <div className='jobs text-secondary'>
-                        <a href='#'>Nurse Practitioner</a>
+                        <a href='/'>Nurse Practitioner</a>
                     </div>
                     <div className='jobs text-secondary'>
-                        <a href='#'>Physician Assistant</a>
+                        <a href='/'>Physician Assistant</a>
                     </div>
                     <div className='jobs text-secondary'>
-                        <a href='#'>Certified Registered Nurse</a>
+                        <a href='/'>Certified Registered Nurse</a>
                     </div>
                     <div className='jobs text-secondary'>
-                        <a href='#'>Anesthetist (CRNA)</a>
+                        <a href='/'>Anesthetist (CRNA)</a>
                     </div>
                     <div className='jobs text-secondary'>
-                        <a href='#'>Academics / Research</a>
+                        <a href='/'>Academics / Research</a>
                     </div>
                 </div>
             </div>
