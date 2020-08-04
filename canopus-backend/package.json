@@ -5,7 +5,10 @@
     "main": "server.js",
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1",
-        "start": "node server.js"
+        "start": "node server.js",
+        "build": "cd canopus-frontend && npm run build",
+        "install-client": "cd canopus-frontend && npm install",
+        "heroku-postbuild": "npm run install-client && npm run build"
     },
     "author": "sparsh, sushant",
     "license": "ISC",
