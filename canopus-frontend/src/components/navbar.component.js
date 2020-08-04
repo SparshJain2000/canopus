@@ -6,6 +6,7 @@ import {
     Collapse,
     Navbar,
     NavbarToggler,
+    Alert,
     NavbarBrand,
     Nav,
     NavItem,
@@ -32,7 +33,9 @@ import {
 import { faFacebook, faGoogle } from "@fortawesome/free-brands-svg-icons";
 import axios from "axios";
 const NavbarComponent = (props) => {
-    const [user, set] = useState(props.user);
+    // const [user, set] = useState(props.user);
+    const [error, setError] = useState("");
+    const [showError, setShowError] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
     // const [loaded, setLoaded] = useState(false);
     const [modal, setModal] = useState(false);
@@ -53,13 +56,16 @@ const NavbarComponent = (props) => {
             .get(`/api/user/current`)
             .then(({ data }) => {
                 if (data.user) {
-                    set(data.user);
+                    // set(data.user);
                     props.setUser(data.user);
                     // setLoaded(true);
                 }
             })
             .catch((err) => {
-                console.log(err.response);
+                // console.log(err.response);
+                console.log(err.response.data.name);
+                setError(err.response.data.name);
+                setShowError(true);
                 // setLoaded(true);
             });
     }
@@ -77,12 +83,17 @@ const NavbarComponent = (props) => {
             .then((newuser) => {
                 console.log(newuser.data.user);
                 props.setUser(newuser.data.user);
-                set(newuser.data.user);
+                // set(newuser.data.user);
                 // setLoaded(true);
+
                 window.location = "/search-jobs";
             })
             .catch((err) => {
-                console.log(err.response);
+                setShowError(true);
+
+                // console.log(err.response);
+                if (err.response.data.err.name === "IncorrectPasswordError")
+                    setError("Invalid Credentials");
                 // setLoaded(true);
             });
     };
@@ -99,17 +110,29 @@ const NavbarComponent = (props) => {
             .then((newuser) => {
                 console.log(newuser.data.employer);
                 props.setUser(newuser.data.employer);
-                set(newuser.data.employer);
+                // set(newuser.data.employer);
                 // setLoaded(true);
                 window.location = "/employer";
             })
             .catch((err) => {
                 console.log(err.response);
                 // setLoaded(true);
+                setShowError(true);
+                console.log(err.response.data.name);
+                if (err.response.data.err.name === "IncorrectPasswordError")
+                    setError("Invalid Credentials");
             });
     };
     return (
         <div>
+            <Alert
+                color='danger'
+                isOpen={showError}
+                toggle={() => {
+                    setShowError(false);
+                }}>
+                {error}
+            </Alert>
             <Navbar color='light' light expand='lg'>
                 <img src={logo} alt='logo' width='30px' />
                 <NavbarBrand href='/' className='ml-2 text-align-center'>
@@ -211,23 +234,6 @@ const NavbarComponent = (props) => {
                         </Nav>
                     ) : (
                         <Nav className='mt-3 mt-lg-0 ml-auto mx-0 row justify-content-center'>
-                            {/* <Button
-                                color='primary'
-                                style={{ width: "fit-content" }}
-                                onClick={() => {
-                                    axios
-                                        .get("/api/user/logout")
-                                        .then((user) => {
-                                            console.log(`logout${user}`);
-                                            props.setUser(null);
-                                            set(null);
-                                        })
-                                        .catch((err) =>
-                                            console.log(err.response),
-                                        );
-                                }}>
-                                {user.firstName}
-                            </Button> */}
                             <ButtonDropdown
                                 isOpen={buttonDropdown}
                                 toggle={toggleButtonDropdown}>
@@ -281,7 +287,7 @@ const NavbarComponent = (props) => {
                                                         `logout${user}`,
                                                     );
                                                     props.setUser(null);
-                                                    set(null);
+                                                    // set(null);
                                                     // setLoaded(true);
 
                                                     window.location = "/";
