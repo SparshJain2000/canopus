@@ -1,8 +1,8 @@
 import React, { useState, useRef } from "react";
-
-import { NavLink, Link } from "react-router-dom";
+import { NavLink, Link, Redirect } from "react-router-dom";
+import { CSSTransition } from "react-transition-group";
+import { useHistory } from "react-router";
 import {
-    // NavLink,
     Collapse,
     Navbar,
     NavbarToggler,
@@ -33,11 +33,10 @@ import {
 import { faFacebook, faGoogle } from "@fortawesome/free-brands-svg-icons";
 import axios from "axios";
 const NavbarComponent = (props) => {
-    // const [user, set] = useState(props.user);
+    const history = useHistory();
     const [error, setError] = useState("");
     const [showError, setShowError] = useState(false);
     const [isOpen, setIsOpen] = useState(false);
-    // const [loaded, setLoaded] = useState(false);
     const [modal, setModal] = useState(false);
     const [modalEmployer, setModalEmployer] = useState(false);
     const [buttonDropdown, setButtonDropdown] = useState(false);
@@ -49,52 +48,41 @@ const NavbarComponent = (props) => {
 
     const username = useRef(null);
     const password = useRef(null);
-    // if (props.user) setLoaded(true);
     if (!props.user) {
-        // props.getUser();
         axios
             .get(`/api/user/current`)
             .then(({ data }) => {
                 if (data.user) {
-                    // set(data.user);
                     props.setUser(data.user);
-                    // setLoaded(true);
                 }
             })
             .catch((err) => {
-                // console.log(err.response);
                 console.log(err.response.data.name);
                 setError(err.response.data.name);
-                setShowError(true);
-                // setLoaded(true);
+                // setShowError(true);
             });
     }
-    // else set(props.user);
     const submit = () => {
         const user = {
             username: username.current.value,
             password: password.current.value,
         };
         toggleModal();
-
-        // console.log(user);
         axios
             .post(`/api/user/login`, user)
             .then((newuser) => {
                 console.log(newuser.data.user);
                 props.setUser(newuser.data.user);
-                // set(newuser.data.user);
-                // setLoaded(true);
-
-                window.location = "/search-jobs";
+                // window.location = "/search-jobs";
+                history.push("/search-jobs");
             })
             .catch((err) => {
                 setShowError(true);
-
-                // console.log(err.response);
-                if (err.response.data.err.name === "IncorrectPasswordError")
+                if (
+                    err.response &&
+                    err.response.data.err.name === "IncorrectPasswordError"
+                )
                     setError("Invalid Credentials");
-                // setLoaded(true);
             });
     };
     const submitEmployer = () => {
@@ -103,26 +91,27 @@ const NavbarComponent = (props) => {
             password: password.current.value,
         };
         toggleModalEmployer();
-
-        // console.log(user);
         axios
             .post(`/api/employer/login`, user)
             .then((newuser) => {
                 console.log(newuser.data.employer);
                 props.setUser(newuser.data.employer);
-                // set(newuser.data.employer);
-                // setLoaded(true);
-                window.location = "/employer";
+                // window.location = "/employer";
+                history.push("/employer");
             })
             .catch((err) => {
                 console.log(err.response);
-                // setLoaded(true);
                 setShowError(true);
-                console.log(err.response.data.name);
-                if (err.response.data.err.name === "IncorrectPasswordError")
+                if (
+                    err.response &&
+                    err.response.data.err.name === "IncorrectPasswordError"
+                )
                     setError("Invalid Credentials");
             });
     };
+    // if (props.user) {
+    //     return <Redirect to='/search-jobs' />;
+    // }
     return (
         <div>
             <Alert
@@ -142,7 +131,6 @@ const NavbarComponent = (props) => {
                 <Collapse isOpen={isOpen} navbar>
                     <Nav
                         className='row mx-auto justify-content-center px-5'
-                        // style={{ maxWidth: "7    0%" }}
                         navbar>
                         <NavItem className='m-1'>
                             <NavLink to='/search-jobs'>Job Search</NavLink>
@@ -156,156 +144,155 @@ const NavbarComponent = (props) => {
                         <NavItem className='m-1'>
                             <NavLink to='/'>About US</NavLink>
                         </NavItem>
-
-                        {/* <UncontrolledDropdown nav inNavbar>
-                            <DropdownToggle nav caret>
-                                Options
-                            </DropdownToggle>
-                            <DropdownMenu right>
-                                <DropdownItem>Option 1</DropdownItem>
-                                <DropdownItem>Option 2</DropdownItem>
-                                <DropdownItem divider />
-                                <DropdownItem>Reset</DropdownItem>
-                            </DropdownMenu>
-                        </UncontrolledDropdown> */}
                     </Nav>
-                    {!props.user ? (
-                        <Nav
-                            className='row ml-auto align-content-center justify-content-center mt-3 mt-lg-0'
-                            style={{ minWidth: "35%" }}>
-                            <Toast
-                                className='my-auto mx-1'
-                                style={{
-                                    border: "1px solid #4180cb",
-                                    width: "45%",
-                                }}>
-                                <div className='toast-header '>
-                                    <strong className='mx-auto'>
-                                        JobSeekers
-                                    </strong>
-                                </div>
-                                <ToastBody className='flex flex-column'>
-                                    <div>
-                                        <a
-                                            href='#'
-                                            className='text-primary'
-                                            onClick={toggleModal}>
-                                            Login
-                                        </a>
-                                    </div>
-                                    <div className='mt-2'>
-                                        <Link
-                                            to='/user/signup'
-                                            className='badge badge-lg badge-primary p-2'>
-                                            Signup
-                                        </Link>
-                                    </div>
-                                </ToastBody>
-                            </Toast>
-                            <Toast
-                                className=' my-auto mx-1'
-                                style={{
-                                    border: "1px solid rgb(255, 136, 0)",
-                                    width: "45%",
-                                }}>
-                                <div className='toast-header px-auto'>
-                                    <strong className='mx-auto'>
-                                        Employer
-                                    </strong>
-                                </div>
-                                <ToastBody className='flex flex-column'>
-                                    <div>
-                                        <a
-                                            href='#'
-                                            className='text-danger'
-                                            onClick={toggleModalEmployer}>
-                                            Login
-                                        </a>
-                                    </div>
-                                    <div className='mt-2'>
-                                        <a
-                                            href='#'
-                                            className='badge badge-lg badge-danger p-2'>
-                                            Signup
-                                        </a>
-                                    </div>
-                                </ToastBody>
-                            </Toast>
-                        </Nav>
-                    ) : (
-                        <Nav className='mt-3 mt-lg-0 ml-auto mx-0 row justify-content-center'>
-                            <ButtonDropdown
-                                isOpen={buttonDropdown}
-                                toggle={toggleButtonDropdown}>
-                                <Button
-                                    id='caret'
-                                    color={
-                                        props.user.role === "Employer"
-                                            ? "info"
-                                            : "primary"
-                                    }
-                                    style={{ width: "max-content" }}>
-                                    <FontAwesomeIcon
-                                        icon={
-                                            props.user.role === "Employer"
-                                                ? faUserPlus
-                                                : faUser
-                                        }
-                                        className='mr-2'
-                                    />
-                                    {props.user.firstName}
-                                </Button>
-                                <DropdownToggle
-                                    caret
-                                    color={
-                                        props.user.role === "Employer"
-                                            ? "info"
-                                            : "primary"
-                                    }
-                                />
-                                <DropdownMenu right>
-                                    {props.user.role === "Employer" ? (
-                                        <Link
-                                            to='/employer'
-                                            className='dropdown-item'>
-                                            Post/View Jobs
-                                        </Link>
-                                    ) : (
-                                        <Link
-                                            to='/profile/'
-                                            className='dropdown-item'>
-                                            View Profile
-                                        </Link>
-                                    )}
-                                    <DropdownItem divider />
-                                    <DropdownItem
-                                        onClick={() => {
-                                            axios
-                                                .get(`/api/user/logout`)
-                                                .then((user) => {
-                                                    console.log(
-                                                        `logout${user}`,
-                                                    );
-                                                    props.setUser(null);
-                                                    // set(null);
-                                                    // setLoaded(true);
 
-                                                    window.location = "/";
-                                                })
-                                                .catch((err) => {
-                                                    console.log(err.response);
-                                                    // setLoaded(true);
-                                                });
-                                        }}>
-                                        logout
+                    {!props.user ? (
+                        <CSSTransition
+                            in={props.user !== null}
+                            timeout={300}
+                            classNames='alert'
+                            unmountOnExit>
+                            <Nav
+                                className='row ml-auto align-content-center justify-content-center mt-3 mt-lg-0'
+                                style={{ minWidth: "35%" }}>
+                                <Toast
+                                    className='my-auto mx-1'
+                                    style={{
+                                        border: "1px solid #4180cb",
+                                        width: "45%",
+                                    }}>
+                                    <div className='toast-header '>
+                                        <strong className='mx-auto'>
+                                            JobSeekers
+                                        </strong>
+                                    </div>
+                                    <ToastBody className='flex flex-column'>
+                                        <div>
+                                            <a
+                                                href='#'
+                                                className='text-primary'
+                                                onClick={toggleModal}>
+                                                Login
+                                            </a>
+                                        </div>
+                                        <div className='mt-2'>
+                                            <Link
+                                                to='/user/signup'
+                                                className='badge badge-lg badge-primary p-2'>
+                                                Signup
+                                            </Link>
+                                        </div>
+                                    </ToastBody>
+                                </Toast>
+                                <Toast
+                                    className=' my-auto mx-1'
+                                    style={{
+                                        border: "1px solid rgb(255, 136, 0)",
+                                        width: "45%",
+                                    }}>
+                                    <div className='toast-header px-auto'>
+                                        <strong className='mx-auto'>
+                                            Employer
+                                        </strong>
+                                    </div>
+                                    <ToastBody className='flex flex-column'>
+                                        <div>
+                                            <a
+                                                href='#'
+                                                className='text-danger'
+                                                onClick={toggleModalEmployer}>
+                                                Login
+                                            </a>
+                                        </div>
+                                        <div className='mt-2'>
+                                            <a
+                                                href='#'
+                                                className='badge badge-lg badge-danger p-2'>
+                                                Signup
+                                            </a>
+                                        </div>
+                                    </ToastBody>
+                                </Toast>
+                            </Nav>
+                        </CSSTransition>
+                    ) : (
+                        <CSSTransition
+                            in={props.user === null}
+                            timeout={300}
+                            classNames='alert'
+                            unmountOnExit>
+                            <Nav className='mt-3 mt-lg-0 ml-auto mx-0 row justify-content-center'>
+                                <ButtonDropdown
+                                    isOpen={buttonDropdown}
+                                    toggle={toggleButtonDropdown}>
+                                    <Button
+                                        id='caret'
+                                        color={
+                                            props.user.role === "Employer"
+                                                ? "info"
+                                                : "primary"
+                                        }
+                                        style={{ width: "max-content" }}>
                                         <FontAwesomeIcon
-                                            icon={faSignOutAlt}
-                                            className='ml-3'
+                                            icon={
+                                                props.user.role === "Employer"
+                                                    ? faUserPlus
+                                                    : faUser
+                                            }
+                                            className='mr-2'
                                         />
-                                    </DropdownItem>
-                                </DropdownMenu>
-                            </ButtonDropdown>
-                        </Nav>
+                                        {props.user.firstName}
+                                    </Button>
+                                    <DropdownToggle
+                                        caret
+                                        color={
+                                            props.user.role === "Employer"
+                                                ? "info"
+                                                : "primary"
+                                        }
+                                    />
+                                    <DropdownMenu right>
+                                        {props.user.role === "Employer" ? (
+                                            <Link
+                                                to='/employer'
+                                                className='dropdown-item'>
+                                                Post/View Jobs
+                                            </Link>
+                                        ) : (
+                                            <Link
+                                                to='/profile/'
+                                                className='dropdown-item'>
+                                                View Profile
+                                            </Link>
+                                        )}
+                                        <DropdownItem divider />
+                                        <DropdownItem
+                                            onClick={() => {
+                                                axios
+                                                    .get(`/api/user/logout`)
+                                                    .then((user) => {
+                                                        console.log(
+                                                            `logout${user}`,
+                                                        );
+                                                        props.setUser(null);
+                                                        history.push("/");
+                                                    })
+                                                    .catch((err) => {
+                                                        console.log(
+                                                            err.response,
+                                                        );
+                                                    });
+                                            }}>
+                                            logout
+                                            <FontAwesomeIcon
+                                                icon={faSignOutAlt}
+                                                className='ml-3'
+                                            />
+                                        </DropdownItem>
+                                    </DropdownMenu>
+                                </ButtonDropdown>
+                            </Nav>
+                        </CSSTransition>
                     )}
                 </Collapse>
             </Navbar>
@@ -316,8 +303,6 @@ const NavbarComponent = (props) => {
                     </ModalHeader>
                     <ModalBody>
                         <div className='login-form'>
-                            {/* <form> */}
-                            {/* <h2 className='text-center'>Sign in</h2> */}
                             <div className='form-group'>
                                 <div className='input-group'>
                                     <div className='input-group-prepend'>
@@ -382,7 +367,6 @@ const NavbarComponent = (props) => {
                                     &nbsp; Google
                                 </a>
                             </div>
-                            {/* </form> */}
                             <p className='text-center text-muted small'>
                                 Don't have an account?{" "}
                                 <a href='/'>Sign up here!</a>
@@ -406,7 +390,6 @@ const NavbarComponent = (props) => {
                     </ModalHeader>
                     <ModalBody>
                         <div className='login-form'>
-                            {/* <h2 className='text-center'>Sign in</h2> */}
                             <div className='form-group'>
                                 <div className='input-group'>
                                     <div className='input-group-prepend'>
