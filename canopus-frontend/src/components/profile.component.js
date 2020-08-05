@@ -1,5 +1,4 @@
 import React, { Component } from "react";
-// import NavbarComponent from "./navbar.component";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import {
@@ -8,7 +7,7 @@ import {
     faEnvelope,
     faBriefcaseMedical,
 } from "@fortawesome/free-solid-svg-icons";
-import ReactLoading from "react-loading";
+import Loader from "react-loader-spinner";
 import { Media } from "reactstrap";
 export default class Profile extends Component {
     constructor(props) {
@@ -16,7 +15,6 @@ export default class Profile extends Component {
         this.state = {
             profile: null,
         };
-        // console.log(this.props.match.params.id);
     }
     componentDidMount() {
         axios
@@ -30,69 +28,6 @@ export default class Profile extends Component {
                 console.log(this.state.profile);
             })
             .catch((err) => console.log(err.response));
-        // const user = {
-        //     id: 1,
-        //     firstName: "Sparsh",
-        //     lastName: "Jain",
-        //     headline: "Neurosergeon ",
-        //     image:
-        //         "https://i.pinimg.com/736x/74/73/ba/7473ba244a0ace6d9d301d5fe4478983--sarcasm-meme.jpg",
-        //     email: "jainsparsh@gmail.com",
-        //     address: {
-        //         city: "MZN",
-        //         state: "UP",
-        //         country: "India",
-        //     },
-        //     about:
-        //         "Lorem ipsum dolor sit amet consectetur adipisicing elit. Alias dolorum vero voluptate consequuntur impedit pariatur laboriosam excepturi, iusto, nemo, iure illo voluptatum eos assumenda odit unde blanditiis aspernatur ab modi?",
-        //     education: [
-        //         {
-        //             institute: "DD public school",
-        //             startYear: 2016,
-        //             endYear: 2018,
-        //             degree: "High School",
-        //         },
-        //         {
-        //             institute: "Vellore Institute of Technology",
-        //             startYear: 2018,
-        //             degree: "B.Tech(IT)",
-        //             endYear: 2022,
-        //         },
-        //     ],
-        //     experience: [
-        //         {
-        //             headline: "Intern",
-        //             company: "Meds and Co.",
-        //             startYear: 2018,
-        //             endYear: 2020,
-        //         },
-        //         {
-        //             headline: "Anesthesist",
-        //             company: "XYZ hospital",
-        //             startYear: 2019,
-        //             endYear: 2022,
-        //         },
-        //     ],
-        //     certificates: [
-        //         {
-        //             url: "https://vit.ac.in/",
-        //             organization: "Vellore Institute of Technology",
-        //             course: "Artificial Intelligence",
-        //             issuedDate: "12-12-2012",
-        //             credentialId: "213719238enef-423",
-        //         },
-        //         {
-        //             url: "https://www.mit.edu/",
-        //             organization: "Stanford University",
-        //             course: "Business Mathematics",
-        //             issuedDate: "12-12-2012",
-        //             credentialId: "213719238enef-423",
-        //         },
-        //     ],
-        // };
-        // this.setState({
-        //     profile: user,
-        // });
     }
     render() {
         return (
@@ -104,8 +39,6 @@ export default class Profile extends Component {
                             <div
                                 className='block row text-dark p-2 mt-3 mb-5 my-lg-0'
                                 style={{
-                                    // backgroundColor: "rgba(0,0,0,.15)",
-                                    // borderRadius: "0.5rem",
                                     height: "fit-content",
                                 }}>
                                 <img
@@ -119,7 +52,6 @@ export default class Profile extends Component {
                                 <div
                                     className='py-3 px-2 col-12'
                                     style={{
-                                        // background: "rgba(0,0,0,.3)",
                                         borderRadius: "0.5rem",
                                     }}>
                                     <div className='m-2 mx-auto'>
@@ -192,11 +124,7 @@ export default class Profile extends Component {
                                                         <Media heading>
                                                             <h6>{data.line}</h6>
                                                         </Media>
-                                                        <div>
-                                                            {/* {data.startYear} -{" "}
-                                                    {data.endYear} */}
-                                                            {data.time}
-                                                        </div>
+                                                        <div>{data.time}</div>
                                                     </Media>
                                                 </Media>
                                             </div>
@@ -294,13 +222,9 @@ export default class Profile extends Component {
                         </div>
                     </div>
                 ) : (
-                    <ReactLoading
-                        type={"spin"}
-                        color={"orange"}
-                        height={"100vh"}
-                        width={"40%"}
-                        className='loading mx-auto'
-                    />
+                 <div className='mx-auto my-auto' style={{textAlign:'center'}}>
+                            <Loader type='Bars' color='#17a2b8' height={300} width={220}  />
+                            </div>
                 )}
             </div>
         );

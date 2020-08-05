@@ -1,19 +1,14 @@
 import React, { Component, useEffect, useState } from "react";
 import axios from "axios";
-import ReactLoading from "react-loading";
+import Loader from "react-loader-spinner";
 import { Media, Badge, Button } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
 import doctor from "../images/doctor.png";
-
-let i = 0;
 const ApplicantDetails = ({ applicant }) => {
     const [data, setData] = useState(null);
     const [error, setError] = useState(false);
-
     useEffect(() => {
-        console.log(i++);
-
         axios
             .get(`/api/user/profile/${applicant}`)
             .then(({ data }) => {
@@ -44,7 +39,6 @@ const Job = ({ job }) => {
                         src={doctor}
                         alt='Generic placeholder image'
                         className='img-fluid'
-                        // style={{ maxWidth: "50%" }}
                     />
                 </Media>
                 <Media body className='col-12 col-md-9 my-4 my-md-2 '>
@@ -81,7 +75,6 @@ const Job = ({ job }) => {
                             </Button>
                         </div>
                     </div>
-
                     <hr />
                     {job.superSpecialization &&
                         job.superSpecialization.map((tag) => (
@@ -134,13 +127,9 @@ export default class JobApplications extends Component {
                         (job) => job && <Job key={job._id} job={job} />,
                     )
                 ) : (
-                    <ReactLoading
-                        type={"spin"}
-                        color={"orange"}
-                        height={"100vh"}
-                        width={"40%"}
-                        className='loading mx-auto'
-                    />
+                  <div className='mx-auto my-auto' style={{textAlign:'center'}}>
+                            <Loader type='Bars' color='#17a2b8' height={300} width={220}  />
+                            </div>
                 )}
             </div>
         );
