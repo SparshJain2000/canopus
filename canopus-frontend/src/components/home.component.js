@@ -1,39 +1,56 @@
-import React from "react";
+import React, { useRef, useState } from "react";
+import Select from "react-select";
 import "bootstrap/dist/css/bootstrap.min.css";
-// import NavbarComponent from "./navbar.component";
-// import FooterComponent from "./footer.component";
 import doctor from "../images/doctor.png";
-function Home() {
+import data from "../data";
+import { Redirect, Link } from "react-router-dom";
+const professionArray = data.professions.map((opt) => ({
+    label: opt,
+    value: opt,
+}));
+
+const Home = () => {
+    const [search, setSearch] = useState(false);
+    const profession = useRef(null);
+    if (search) {
+        console.log(profession.current.state.value.value);
+        return (
+            <Redirect
+                to={{
+                    pathname: `/search-jobs/`,
+                    state: profession.current.state.value.value,
+                }}
+            />
+        );
+    }
     return (
         <div>
             <div className='flex flex-column justify-content-between main-container'>
-                {/* <NavbarComponent /> */}
                 <div
                     className='main py-5 '
                     style={{ height: "100%", flexGrow: 1 }}>
                     <h1 className='text-white' style={{ textAlign: "center" }}>
                         New Provider Jobs Added Every Day
                     </h1>
-                    <div
-                        className='form-inline row justify-content-center mt-5'
-                        style={{
-                            marginLeft: "15vw",
-                            width: "70vw",
-                        }}>
-                        <input
-                            className='form-control mr-sm-2 col-8'
-                            type='search'
-                            placeholder='Search a Profession'
-                            aria-label='Search'
+                    <div className='form-inline row justify-content-center mt-5 home-search'>
+                        <div
+                            className='col-8 '
                             style={{
-                                fontSize:
-                                    " calc(12px + (26 - 14) * ((100vw - 300px) / (1600 - 300)))",
-                            }}
-                            // ref={this.textInput}
-                        />
+                                width: `100%`,
+                            }}>
+                            <Select
+                                autosize={true}
+                                placeholder='Profession'
+                                options={professionArray}
+                                // className='basic-multi-select'
+                                // classNamePrefix='select'
+                                ref={profession}
+                            />
+                        </div>
                         <button
-                            className='col-3 btn btn-warning my-2 my-sm-0'
-                            type='submit'>
+                            className='col-3 btn btn-info my-2 my-sm-0'
+                            type='submit'
+                            onClick={() => setSearch(true)}>
                             <span
                                 style={{
                                     fontSize:
@@ -95,6 +112,6 @@ function Home() {
             </div>
         </div>
     );
-}
+};
 
 export default Home;
