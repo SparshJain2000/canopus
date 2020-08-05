@@ -9,7 +9,13 @@ module.exports = mongoose.model(
         profession: String,
         specialization: String,
         superSpecialization:Array,
-
+        address: Object,
+        // {
+        //     line: String, //specific addresss
+        //     city: String,
+        //     state: String,
+        //     pin: Number,
+        // },
         description: Object,
         // {
         //     line: String,

@@ -2,7 +2,8 @@ const router = require("express").Router(),
     middleware = require("../middleware/index"),
     Employer = require("../models/employer.model"),
     User = require("../models/user.model"),
-    Job = require("../models/job.model");
+    Job = require("../models/job.model"),
+    VisitorJob = require("../models/freelance.model");
 //===========================================================================
 //get all jobs
 router.get("/", middleware.isLoggedIn, (req, res) => {
@@ -10,6 +11,7 @@ router.get("/", middleware.isLoggedIn, (req, res) => {
         .then((jobs) => res.json({ jobs: jobs, user: req.user }))
         .catch((err) => res.status(400).json({ err: err }));
 });
+
 //===========================================================================
 //get jobs by user
 // router.get("/my", middleware.isLoggedIn, (req, res) => {
@@ -67,7 +69,6 @@ router.post("/", middleware.isEmployer, (req, res) => {
         .catch((err) => res.status(400).json({ err: err, user: req.user }));
 });
 //===========================================================================
-
 //get a job by id
 router.get("/:id", middleware.isLoggedIn, (req, res) => {
     Job.findById(req.params.id)
@@ -79,6 +80,7 @@ router.get("/:id", middleware.isLoggedIn, (req, res) => {
 
 
 router.post("/search",(req,res) => {
+    // query builder function
     function addQuery(query,path){
        let abc=
         {
@@ -90,70 +92,194 @@ router.post("/search",(req,res) => {
         };
        return abc;
     }
-    var querybuild=[];
+    // settting limit and skip
+    var skip = parseInt(req.body.skip) || 0;
+    var limiter = parseInt(req.body.limit) || 10;
+    // building must query and should query
+
+    var mustquery=[],shouldquery=[];
     if(req.body.location)
-        querybuild.push(addQuery(req.body.location,"description.location"));
-     if(req.body.profession)
-    querybuild.push(addQuery(req.body.profession,"profession"));
+        mustquery.push(addQuery(req.body.location,"description.location"));
+    if(req.body.pincode)
+        shouldquery.push(addQuery(req.body.pincode,"description.pincode"));
+    if(req.body.profession)
+        mustquery.push(addQuery(req.body.profession,"profession"));
     if(req.body.specialization)
-        querybuild.push(addQuery(req.body.specialization,"specialization"));
+        mustquery.push(addQuery(req.body.specialization,"specialization"));
     if(req.body.superSpecialization)
-        querybuild.push(addQuery(req.body.superSpecialization,"superSpecialization"));
+        mustquery.push(addQuery(req.body.superSpecialization,"superSpecialization"));
     if(req.body.incentives)
-        querybuild.push(addQuery(req.body.incentives,"description.incentives"));
+        shouldquery.push(addQuery(req.body.incentives,"description.incentives"));
+    if(req.body.type)
+        mustquery.push(addQuery(req.body.type,"description.type"));
+        // empty request response
+    // FIXME does not work
+        if(!(req.body))
+    {
+        Job.find()
+        .then((jobs) => res.json({ jobs: jobs, user: req.user }))
+        .catch((err) => res.status(400).json({ err: err }));
+    }
+
 
     Job.aggregate([
         {
             $search: {
                 "compound": {
-                    "must":querybuild
-
-                        /*"text": {
-                        "query":req.body.specialization,
-                        "path": "specialization"
-                    },
-                    "text": {
-                        "query":req.body.profession,
-                        "path": "profession"
-                    },
-                    "text": {
-                        "query":req.body.description.type,
-                        "path": "description.type"
-                        }
-                     */
+                    "must":mustquery,
+                    "should":shouldquery
                     },
                 },
             },
+            { $limit: limiter},
+            { $skip: skip},
+            { $sort: { score: { $meta: "textScore" } } },
+
             {
                 $project: {
                     _id: 0,
                     applicants: 0,
                     author: 0,
+                    tag: 0
                 },
             },
         ],
         (err, jobs) => {
-            console.log(jobs);
             if (err) res.status(400).json({ err: err });
             else res.json(jobs);
         },
     );
-    /*
-    Job.find(
-
-        {location:{"$eq":req.body.location}},
-        {tag:{"$in":req.body.tag}}
-        )
-
-
-
-            .then((job) =>{
-                res.json(job);
-                console.log(job);
-            })
-            .catch((err) => res.status(400).json({err:err}));
-*/
 });
+
+//Similar jobs
+router.post("/similar",(req,res) => {
+    function addQuery(query,path){
+        let abc=
+         {
+             "text":
+                 {
+                     "query": `${query}`,
+                     "path": `${path}`
+                 }
+         };
+        return abc;
+     }
+     // settting limit sends back 3 similar jobs
+     var limiter = 3;
+     // building must query and should query
+ 
+     var mustquery=[],shouldquery=[];
+     if(req.body.location)
+         mustquery.push(addQuery(req.body.location,"description.location"));
+     if(req.body.pin)
+         shouldquery.push(addQuery(req.body.pin,"address.pin"));
+     if(req.body.profession)
+         mustquery.push(addQuery(req.body.profession,"profession"));
+     if(req.body.specialization)
+         mustquery.push(addQuery(req.body.specialization,"specialization"));
+     if(req.body.superSpecialization)
+         mustquery.push(addQuery(req.body.superSpecialization,"superSpecialization"));
+
+ 
+     Job.aggregate([
+         {
+             $search: {
+                 "compound": {
+                     "must":mustquery,
+                     "should":shouldquery
+                     },
+                 },
+             },
+             { $limit: limiter},
+             { $sort: { score: { $meta: "textScore" } } },
+ 
+             {
+                 $project: {
+                     _id: 0,
+                     applicants: 0,
+                     author: 0,
+                     tag: 0
+                 },
+             },
+         ],
+         (err, jobs) => {
+             if (err) res.status(400).json({ err: err });
+             else res.json(jobs);
+         },
+     );
+ });
+ 
+//Freelance Search
+router.post("/freelance",(req,res) =>{
+    function addQuery(query,path){
+        let abc=
+         {
+             "text":
+                 {
+                     "query": `${query}`,
+                     "path": `${path}`
+                 }
+         };
+        return abc;
+     }
+     // settting limit and skip
+     var skip = parseInt(req.body.skip) || 0;
+     var limiter = parseInt(req.body.limit) || 10;
+     // building must query and should query
+ 
+     var mustquery=[],shouldquery=[];
+     if(req.body.location)
+         mustquery.push(addQuery(req.body.location,"description.location"));
+     if(req.body.pincode)
+         shouldquery.push(addQuery(req.body.pincode,"description.pincode"));
+     if(req.body.profession)
+         mustquery.push(addQuery(req.body.profession,"profession"));
+     if(req.body.specialization)
+         mustquery.push(addQuery(req.body.specialization,"specialization"));
+     if(req.body.superSpecialization)
+         mustquery.push(addQuery(req.body.superSpecialization,"superSpecialization"));
+     if(req.body.incentives)
+         shouldquery.push(addQuery(req.body.incentives,"description.incentives"));
+     if(req.body.type)
+         mustquery.push(addQuery(req.body.type,"description.type"));
+         // empty request response
+     if(!(req.body))
+     {
+         Job.find()
+         .then((jobs) => res.json({ jobs: jobs }))
+         .catch((err) => res.status(400).json({ err: err }));
+     }
+ 
+ 
+     Job.aggregate([
+             {
+             $search: {
+                 "compound": {
+                     "must":mustquery,
+                     "should":shouldquery
+                     },
+                 },
+             },
+             { $limit: limiter},
+             { $skip: skip},
+             { $sort: { score: { $meta: "textScore" } } },
+ 
+             {
+                 $project: {
+                     _id: 0,
+                     applicants: 0,
+                     author: 0,
+                     tag: 0
+                 },
+             },
+         ],
+         (err, jobs) => {
+             if (err) res.status(400).json({ err: err });
+             else res.json(jobs);
+         },
+     );
+ });
+ 
 //===========================================================================
 //get a job by id
 router.get("/:id", middleware.isLoggedIn, (req, res) => {
@@ -251,3 +377,5 @@ module.exports = router;
    "specialization":"Mumbai",
    "description":"Lorem ipsum dolor, sit amet consectetur adipisicing elit. Impedit ipsam officiis nisi repellat, quibusdam cupiditate doloremque expedita aperiam magnam. Assumenda eos a possimus dicta quaerat aliquam tenetur nostrum voluptas id?"
 }*/
+
+

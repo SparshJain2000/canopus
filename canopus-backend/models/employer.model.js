@@ -10,12 +10,13 @@ module.exports = mongoose.model(
         role: String,
         type: String,
         description: String,
-        address: {
-            line: String,
-            city: String,
-            state: String,
-            pin: Number,
-        },
+        address: Object,
+        // {
+        //     line: String,
+        //     city: String,
+        //     state: String,
+        //     pin: Number,
+        // },
         //Employer Plan
         tier: {
             allowed: Number,
