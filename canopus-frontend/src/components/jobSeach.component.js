@@ -1,5 +1,5 @@
-import React, { Component } from "react";
-// import NavbarComponent from "./navbar.component";
+import React, { Component, createRef } from "react";
+// import { Transition } from "react-transition-group";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -16,10 +16,30 @@ import {
     Col,
 } from "reactstrap";
 import axios from "axios";
+import { Sticky, Rail } from "semantic-ui-react";
+
 import doctor from "../images/doctor.png";
-import ReactLoading from "react-loading";
+import Loader from "react-loader-spinner";
 import Select from "react-select";
 import data from "../data";
+import { slideInRight } from "react-animations";
+import styled, { keyframes } from "styled-components";
+const BounceIn = styled.div`
+    animation: 1s ${keyframes`${slideInRight}`} 0s;
+`;
+// const duration = 300;
+
+// const defaultStyle = {
+//     transition: `opacity ${duration}ms ease-in-out`,
+//     opacity: 0,
+// };
+
+// const transitionStyles = {
+//     entering: { opacity: 1 },
+//     entered: { opacity: 1 },
+//     exiting: { opacity: 0 },
+//     exited: { opacity: 0 },
+// };
 
 const incentivesArray = data.incentive.map((opt) => ({
     label: opt,
@@ -38,7 +58,14 @@ const experienceArray = data.experience.map((opt) => ({
     label: opt,
     value: opt,
 }));
-
+const professionArray = data.professions.map((opt) => ({
+    label: opt,
+    value: opt,
+}));
+const specializationArray = data.specializations.map((opt) => ({
+    label: opt,
+    value: opt,
+}));
 const Job = ({ job }) => {
     const applyJob = () => {
         axios
@@ -49,47 +76,53 @@ const Job = ({ job }) => {
             .catch((err) => console.log(err.response));
     };
     return (
-        <Media className='row block justify-content-center my-5 mx-auto py-4 px-2 px-md-4'>
-            <Media left href='#' className='col-12 col-sm-3 my-auto mx-auto'>
+        <BounceIn>
+            <Media className='row block justify-content-center my-3 mx-auto py-4 px-2 px-md-4'>
                 <Media
-                    object
-                    src={doctor}
-                    alt='Generic placeholder image'
-                    className='img-fluid'
-                    // style={{ maxWidth: "50%" }}
-                />
-                <Button
-                    color='primary w-100 mt-3'
-                    // className='float-right'
-                    onClick={applyJob}>
-                    Apply
-                </Button>
-            </Media>
-            <Media body className='col-12 col-sm-9 my-4 my-md-2 p-2'>
-                <Media heading>{job.title}</Media>
-                <Media heading>
-                    <h6>
-                        <FontAwesomeIcon icon={faMapMarkerAlt} />{" "}
-                        {job.description.location}
-                    </h6>
+                    left
+                    href='#'
+                    className='col-12 col-sm-3 my-auto mx-auto'>
+                    <Media
+                        object
+                        src={doctor}
+                        alt='Generic placeholder image'
+                        className='img-fluid'
+                        // style={{ maxWidth: "50%" }}
+                    />
+                    <Button
+                        color='primary w-100 mt-3'
+                        // className='float-right'
+                        onClick={applyJob}>
+                        Apply
+                    </Button>
                 </Media>
-                <hr />
-                <div className='row m-0'>
-                    <div className='col-12 '>
-                        <em>{job.description.line}</em>
-                        <br />
-                        <br />
-                        <strong>Type:</strong>
-                        {job.description.type.map((type) => `${type} , `)}
-                        <br />
-                        <strong>Experience: </strong>
-                        {job.description.experience}
-                        <br />
-                        <strong>incentives: </strong>
-                        {job.description.incentives.map((inc) => `${inc} ,`)}
-                        <br />
-                    </div>
-                    {/* <div
+                <Media body className='col-12 col-sm-9 my-4 my-md-2 p-2'>
+                    <Media heading>{job.title}</Media>
+                    <Media heading>
+                        <h6>
+                            <FontAwesomeIcon icon={faMapMarkerAlt} />{" "}
+                            {job.description.location}
+                        </h6>
+                    </Media>
+                    <hr />
+                    <div className='row m-0'>
+                        <div className='col-12 '>
+                            <em>{job.description.line}</em>
+                            <br />
+                            <br />
+                            <strong>Type:</strong>
+                            {job.description.type.map((type) => `${type} , `)}
+                            <br />
+                            <strong>Experience: </strong>
+                            {job.description.experience}
+                            <br />
+                            <strong>incentives: </strong>
+                            {job.description.incentives.map(
+                                (inc) => `${inc} ,`,
+                            )}
+                            <br />
+                        </div>
+                        {/* <div
                         className='col-12 col-sm-2 my-2 my-sm-auto'
                         style={{ textAlign: "center" }}>
                         <Button
@@ -99,32 +132,35 @@ const Job = ({ job }) => {
                             Apply
                         </Button>
                     </div> */}
-                </div>
-                <hr />
+                    </div>
+                    <hr />
 
-                {job.superSpecialization &&
-                    job.superSpecialization.map((tag) => (
-                        <Badge color='info' className='mx-1'>
-                            {tag}
-                        </Badge>
-                    ))}
+                    {job.superSpecialization &&
+                        job.superSpecialization.map((tag) => (
+                            <Badge color='info' className='mx-1'>
+                                {tag}
+                            </Badge>
+                        ))}
 
-                <Badge color='success' className='float-right mt-3'>
-                    {job.author && job.author.username}
-                </Badge>
+                    <Badge color='success' className='float-right mt-3'>
+                        {job.author && job.author.username}
+                    </Badge>
+                </Media>
             </Media>
-        </Media>
+        </BounceIn>
     );
 };
 export default class JobSearch extends Component {
+    contextRef = createRef();
     constructor(props) {
         super(props);
         this.state = {
             jobs: [],
             activeTab: "1",
-            loaded: false,
+            // isSticky:false
         };
         this.toggleTab = this.toggleTab.bind(this);
+        this.getAllJobs = this.getAllJobs.bind(this);
         this.search = this.search.bind(this);
         this.location = React.createRef();
         this.profession = React.createRef();
@@ -133,32 +169,63 @@ export default class JobSearch extends Component {
         this.type = React.createRef();
         this.incentives = React.createRef();
         this.superSpecialization = React.createRef();
+        // this.filter=React.createRef();
     }
+    // handleScroll(){
+    //     if (this.fixed.current) {
+    //         this.setState({isSticky:this.fixed.current.getBoundingClientRect().top <= 0});
+    //     }
+    // }
     toggleTab(tab) {
         if (this.state.activeTab !== tab) this.setState({ activeTab: tab });
     }
+    getAllJobs() {
+        axios
+            .get(`/api/job`)
+            .then(({ data: { jobs } }) => {
+                this.setState({
+                    jobs: jobs,
+                    loaded: true,
+                });
+                console.log(jobs);
+            })
+            .catch((err) => {
+                console.log(err);
+                // window.location = "/";
+            });
+    }
     componentDidMount() {
-        if (this.state.jobs.length === 0)
+        if (this.props.location.state) {
+            this.profession.current.state.value = {
+                value: this.props.location.state,
+                label: this.props.location.state,
+            };
+            const query = {
+                profession: this.props.location.state,
+            };
             axios
-                .get(`/api/job`)
-                .then(({ data: { jobs } }) => {
-                    this.setState({
-                        jobs: jobs,
-                        loaded: true,
-                    });
-                    console.log(jobs);
+                .post(`/api/job/search`, query)
+                .then(({ data }) => {
+                    this.setState({ jobs: data, loaded: true });
+                    // console.log(data);
                 })
                 .catch((err) => {
-                    console.log(err);
-                    // window.location = "/";
+                    console.log(err.response);
+                    this.setState({ loaded: true });
                 });
+        } else if (this.state.jobs.length === 0) this.getAllJobs();
     }
     search() {
         this.setState({ loaded: false });
         // console.log(this.profession.current.value);
+        console.log(this.profession.current);
         const query = {
-            profession: this.profession.current.value,
-            specialization: this.specialization.current.value,
+            profession:
+                this.profession.current.state.value &&
+                this.profession.current.state.value.value,
+            specialization:
+                this.specialization.current.state.value &&
+                this.specialization.current.state.value.value,
             superSpecialization:
                 this.superSpecialization.current.state.value &&
                 this.superSpecialization.current.state.value.map(
@@ -186,28 +253,38 @@ export default class JobSearch extends Component {
                 delete query[key],
         );
         console.log(query);
-        axios
-            .post(`/api/job/search`, query)
-            .then(({ data }) => {
-                this.setState({ jobs: data, loaded: true });
-                // console.log(data);
-            })
-            .catch((err) => {
-                console.log(err.response);
-                this.setState({ loaded: true });
-            });
+        if (Object.keys(query).length > 0)
+            axios
+                .post(`/api/job/search`, query)
+                .then(({ data }) => {
+                    this.setState({ jobs: data, loaded: true });
+                    // console.log(data);
+                })
+                .catch((err) => {
+                    console.log(err.response);
+                    this.setState({ loaded: true });
+                });
+        else this.getAllJobs();
     }
     render() {
         return (
-            <div>
-                {/* <NavbarComponent /> */}
-                <div className='row justify-content-center align-content-center mx-4'>
-                    <div className='col-12 col-lg-4 p-3 p-md-5 mt-md-3'>
+            <div className='row justify-content-center align-content-center mx-4 mx-lg-2'>
+                <div className='col-12 col-lg-3 px-3 px-lg-3 pr-lg-5 p-1 p-md-3 mt-md-4 position-relative'>
+                    <div className='position-sticky pt-lg-2' style={{ top: 0 }}>
                         <div className='form-group'>
-                            <h5 style={{ textAlign: "center" }}>Location</h5>
+                            <h5
+                                style={{
+                                    textAlign: "center",
+                                }}>
+                                Location
+                            </h5>
                             <InputGroup className=''>
-                                <div style={{ width: `100%` }}>
+                                <div
+                                    style={{
+                                        width: `100%`,
+                                    }}>
                                     <Select
+                                        isClearable={true}
                                         autosize={true}
                                         placeholder='Location'
                                         options={locationArray}
@@ -251,46 +328,45 @@ export default class JobSearch extends Component {
                                 <Row>
                                     <Col sm='12'>
                                         <div className='form-group'>
-                                            {/* <h5 style={{ textAlign: "center" }}>
-                                                Select a Profession
-                                            </h5> */}
-
                                             <div className='input-group'>
-                                                <input
-                                                    ref={this.profession}
-                                                    className='form-control'
-                                                    placeholder='Search for a profession'
-                                                    list='professions'
-                                                    // required
-                                                />
-                                                <datalist id='professions'>
-                                                    {data.professions.map(
-                                                        (profession) => (
-                                                            <option
-                                                                value={
-                                                                    profession
-                                                                }></option>
-                                                        ),
-                                                    )}
-                                                </datalist>
+                                                <div
+                                                    style={{
+                                                        width: `100%`,
+                                                    }}>
+                                                    <Select
+                                                        styles={{
+                                                            menu: (base) => ({
+                                                                ...base,
+                                                                zIndex: 100,
+                                                            }),
+                                                        }}
+                                                        autosize={true}
+                                                        isClearable={true}
+                                                        placeholder='Profession'
+                                                        options={
+                                                            professionArray
+                                                        }
+                                                        ref={this.profession}
+                                                    />
+                                                </div>
                                             </div>
                                             <div className='input-group mt-2'>
-                                                <input
-                                                    placeholder='search for Specialization'
-                                                    ref={this.specialization}
-                                                    list='specializations'
-                                                    className='form-control'
-                                                />
-                                                <datalist id='specializations'>
-                                                    {data.specializations.map(
-                                                        (data) => (
-                                                            <option
-                                                                value={
-                                                                    data
-                                                                }></option>
-                                                        ),
-                                                    )}
-                                                </datalist>
+                                                <div
+                                                    style={{
+                                                        width: `100%`,
+                                                    }}>
+                                                    <Select
+                                                        autosize={true}
+                                                        isClearable={true}
+                                                        placeholder='Specialization'
+                                                        options={
+                                                            specializationArray
+                                                        }
+                                                        ref={
+                                                            this.specialization
+                                                        }
+                                                    />
+                                                </div>
                                             </div>
                                         </div>
                                     </Col>
@@ -305,13 +381,21 @@ export default class JobSearch extends Component {
                                             </h5> */}
 
                                             <InputGroup className='col-12 my-1'>
-                                                <div style={{ width: `100%` }}>
+                                                <div
+                                                    style={{
+                                                        width: `100%`,
+                                                    }}>
                                                     <Select
+                                                        isClearable={true}
                                                         autosize={true}
                                                         placeholder='Experience'
                                                         options={
                                                             experienceArray
                                                         }
+                                                        style={{
+                                                            backgroundColor:
+                                                                "red",
+                                                        }}
                                                         // className='basic-multi-select'
                                                         // classNamePrefix='select'
                                                         ref={this.experience}
@@ -319,7 +403,10 @@ export default class JobSearch extends Component {
                                                 </div>
                                             </InputGroup>
                                             <InputGroup className='col-12 my-1'>
-                                                <div style={{ width: `100%` }}>
+                                                <div
+                                                    style={{
+                                                        width: `100%`,
+                                                    }}>
                                                     <Select
                                                         autosize={true}
                                                         placeholder='Type'
@@ -332,7 +419,10 @@ export default class JobSearch extends Component {
                                                 </div>
                                             </InputGroup>
                                             <InputGroup className='col-12 my-1'>
-                                                <div style={{ width: `100%` }}>
+                                                <div
+                                                    style={{
+                                                        width: `100%`,
+                                                    }}>
                                                     <Select
                                                         autosize={true}
                                                         isMulti
@@ -348,7 +438,10 @@ export default class JobSearch extends Component {
                                             </InputGroup>
 
                                             <InputGroup className='col-12 my-1'>
-                                                <div style={{ width: `100%` }}>
+                                                <div
+                                                    style={{
+                                                        width: `100%`,
+                                                    }}>
                                                     <Select
                                                         isMulti
                                                         autosize={true}
@@ -382,35 +475,59 @@ export default class JobSearch extends Component {
                             </Button> */}
                         </div>
                     </div>
-                    <div className='col-12 col-lg-8 '>
-                        {console.log(this.state.jobs)}
-                        {this.state.loaded ? (
-                            this.state.jobs.length !== 0 ? (
-                                this.state.jobs.map((job) => {
+                </div>
+
+                <div
+                    className='col-1 my-4 vertical'
+                    style={{
+                        maxWidth: "1rem",
+                        borderLeft: ".1rem solid lightgray",
+                    }}></div>
+                <hr
+                    className='horizontal'
+                    style={{
+                        height: ".06rem",
+                        width: "120%",
+                        backgroundColor: "lightgrey",
+                    }}
+                />
+                <div className='col-12 col-lg-8 '>
+                    {console.log(this.state.jobs)}
+                    {this.state.loaded ? (
+                        this.state.jobs.length !== 0 ? (
+                            <div>
+                                <h3 className='mt-2'>
+                                    {this.state.jobs.length} jobs found
+                                </h3>
+                                {this.state.jobs.map((job) => {
                                     return <Job key={job.id} job={job} />;
-                                })
-                            ) : (
-                                <h2
-                                    className='my-5'
-                                    style={{
-                                        textAlign: "center",
-                                        // marginTop: "10rem",
-                                    }}>
-                                    No results found
-                                </h2>
-                            )
+                                })}
+                            </div>
                         ) : (
-                            <ReactLoading
-                                type={"spin"}
-                                color={"orange"}
-                                height={"100vh"}
-                                width={"40%"}
-                                className='loading mt-5 mx-auto'
+                            <h2
+                                className='my-5'
+                                style={{
+                                    textAlign: "center",
+                                    // marginTop: "10rem",
+                                }}>
+                                No results found
+                            </h2>
+                        )
+                    ) : (
+                        <div
+                            className='mx-auto my-auto'
+                            style={{ textAlign: "center" }}>
+                            <Loader
+                                type='Bars'
+                                color='#17a2b8'
+                                height={300}
+                                width={220}
                             />
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </div>
             </div>
+            //    </div>
         );
     }
 }
