@@ -6,7 +6,7 @@ const router = require("express").Router(),
     FreelanceJob = require("../models/freelance.model");
 //===========================================================================
 //get all jobs
-router.get("/", middleware.isLoggedIn, (req, res) => {
+router.get("/", (req, res) => {
     Job.find()
         .then((jobs) => res.json({ jobs: jobs, user: req.user }))
         .catch((err) => res.status(400).json({ err: err }));
@@ -32,6 +32,7 @@ router.post("/", middleware.isEmployer, (req, res) => {
         title: req.body.title,
         profession: req.body.profession,
         specialization: req.body.specialization,
+        superSpecialization: req.body.superSpecialization,
         description: req.body.description,
         address: req.body.address,
 
@@ -71,29 +72,21 @@ router.post("/", middleware.isEmployer, (req, res) => {
         .catch((err) => res.status(400).json({ err: err, user: req.user }));
 });
 //===========================================================================
-//get a job by id
-router.get("/:id", middleware.isLoggedIn, (req, res) => {
-    Job.findById(req.params.id)
-        .then((job) => {
-            res.json(job);
-        })
-        .catch((err) => res.status(400).json({ err: err }));
-});
 
 
-router.post("/search",(req,res) => {
-    // query builder function
-    function addQuery(query,path){
-       let abc=
-        {
-            "text":
-                {
-                    "query": `${query}`,
-                    "path": `${path}`
-                }
+router.post("/search", (req, res) => {
+    console.log(req.body);
+    function addQuery(query, path) {
+        let abc = {
+            text: {
+                query: `${query}`,
+                path: `${path}`,
+            },
+
         };
-       return abc;
+        return abc;
     }
+
     // settting limit and skip
     var skip = parseInt(req.body.skip) || 0;
     var limiter = parseInt(req.body.limit) || 10;
@@ -115,14 +108,14 @@ router.post("/search",(req,res) => {
     if(req.body.type)
         shouldquery.push(addQuery(req.body.type,"description.type"));
     if(req.body.status)
-        mustquery.push(addQuery(req.body.status),"description.status")
+        mustquery.push(addQuery(req.body.status,"description.status"));
      
     search={$search: {
         "compound": {
             "must":mustquery,
             "should":shouldquery
-            },
-        },};
+        }}
+    };
     // Ordering by Relevance and date filters
     if(req.body.order='Relevance')
         sort = {$sort: {score: { $meta: "textScore" }}};
@@ -181,6 +174,7 @@ router.post("/similar",(req,res) => {
          mustquery.push(addQuery(req.body.specialization,"specialization"));
      if(req.body.superSpecialization)
          mustquery.push(addQuery(req.body.superSpecialization,"superSpecialization"));
+
 
  
      Job.aggregate([
@@ -284,6 +278,7 @@ router.post("/freelance",(req,res) =>{
      );
  });
  
+
 //===========================================================================
 //get a job by id
 router.get("/:id", middleware.isLoggedIn, (req, res) => {
