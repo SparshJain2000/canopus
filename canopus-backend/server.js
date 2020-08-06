@@ -65,11 +65,21 @@ mongoose.connection.once("open", () => {
     console.log("connected to MONGO");
 });
 //===========================================================================
+//render static files (deployment)
+app.use(express.static("canopus-frontend/build"));
+
+//===========================================================================
 app.use("/api/job", jobRouter);
 app.use("/api/user", userRouter);
 app.use("/api/employer", employerRouter);
+//===========================================================================
+//render frontend file (deployment)
+app.use("*", function (req, res) {
+    res.sendFile(path.join(__dirname, "canopus-frontend/build/index.html"));
+});
+//===========================================================================
 
-const port = 8080 || process.env.PORT;
+const port = process.env.PORT || 8080;
 app.listen(port, () => {
     console.log(`Listening to ${port}`);
 });
