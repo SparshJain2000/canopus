@@ -8,8 +8,10 @@ module.exports = mongoose.model(
         lastName: String,
         password: String,
         role: String,
+        image: String,
         description: String,
-        //Previous job experience
+        google: Object,
+
         experience: [
             {
                 title: String,

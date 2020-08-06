@@ -7,8 +7,11 @@ const express = require("express"),
     passport = require("passport"),
     LocalStratergy = require("passport-local"),
     jobRouter = require("./routes/job.router"),
+    path = require("path"),
     userRouter = require("./routes/user.router"),
+    authRouter = require("./routes/auth.router"),
     employerRouter = require("./routes/employer.router"),
+    GoogleStrategy = require("passport-google-oauth").OAuth2Strategy,
     bodyParser = require("body-parser");
 require("dotenv").config();
 //==========================================================================
@@ -45,7 +48,42 @@ passport.use(
     "user",
     new LocalStratergy({ usernameField: "username" }, User.authenticate()),
 );
+passport.use(
+    "google",
+    new GoogleStrategy(
+        {
+            clientID: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            callbackURL: "http://localhost:8080/auth/google/callback",
+        },
+        function (accessToken, refreshToken, profile, done) {
+            User.findOne({ "google.id": profile.id }, function (err, user) {
+                if (err) return done(err);
+                if (user) return done(null, user);
+                else {
+                    var newUser = new User();
+                    newUser.username = profile.emails[0].value;
+                    newUser.role = "User";
+                    newUser.image = profile.photos[0].value;
+                    newUser.google = {
+                        id: profile.id,
+                        token: accessToken,
+                        name: profile.displayName,
+                        email: profile.emails[0].value,
+                    };
+                    newUser.firstName = profile.name.givenName;
+                    newUser.lastName = profile.name.familyName;
 
+                    newUser.save((err, user) => {
+                        if (!err) return done(err, user);
+                    });
+                    // done(null, userData);
+                }
+            });
+        },
+        // User.authenticate(),
+    ),
+);
 passport.serializeUser((user, done) => {
     done(null, user);
 });
@@ -72,6 +110,7 @@ app.use(express.static("canopus-frontend/build"));
 app.use("/api/job", jobRouter);
 app.use("/api/user", userRouter);
 app.use("/api/employer", employerRouter);
+app.use("/auth", authRouter);
 //===========================================================================
 //render frontend file (deployment)
 app.use("*", function (req, res) {
@@ -81,5 +120,5 @@ app.use("*", function (req, res) {
 
 const port = process.env.PORT || 8080;
 app.listen(port, () => {
-    console.log(`Listening to ${port}`);
+    console.log(`🌎 Listening to ${port}`);
 });
