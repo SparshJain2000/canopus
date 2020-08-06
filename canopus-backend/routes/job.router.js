@@ -3,7 +3,7 @@ const router = require("express").Router(),
     Employer = require("../models/employer.model"),
     User = require("../models/user.model"),
     Job = require("../models/job.model"),
-    VisitorJob = require("../models/freelance.model");
+    FreelanceJob = require("../models/freelance.model");
 //===========================================================================
 //get all jobs
 router.get("/", middleware.isLoggedIn, (req, res) => {
@@ -33,6 +33,8 @@ router.post("/", middleware.isEmployer, (req, res) => {
         profession: req.body.profession,
         specialization: req.body.specialization,
         description: req.body.description,
+        address: req.body.address,
+
         sponsored: true,
     });
     Job.create(job)
@@ -100,8 +102,8 @@ router.post("/search",(req,res) => {
     var mustquery=[],shouldquery=[];
     if(req.body.location)
         mustquery.push(addQuery(req.body.location,"description.location"));
-    if(req.body.pincode)
-        shouldquery.push(addQuery(req.body.pincode,"description.pincode"));
+    if(req.body.pin)
+        shouldquery.push(addQuery(req.body.pin,"address.pin"));
     if(req.body.profession)
         mustquery.push(addQuery(req.body.profession,"profession"));
     if(req.body.specialization)
@@ -111,30 +113,29 @@ router.post("/search",(req,res) => {
     if(req.body.incentives)
         shouldquery.push(addQuery(req.body.incentives,"description.incentives"));
     if(req.body.type)
-        mustquery.push(addQuery(req.body.type,"description.type"));
-        // empty request response
-    // FIXME does not work
-        if(!(req.body))
-    {
-        Job.find()
-        .then((jobs) => res.json({ jobs: jobs, user: req.user }))
-        .catch((err) => res.status(400).json({ err: err }));
-    }
-
-
-    Job.aggregate([
-        {
-            $search: {
-                "compound": {
-                    "must":mustquery,
-                    "should":shouldquery
-                    },
-                },
+        shouldquery.push(addQuery(req.body.type,"description.type"));
+    if(req.body.status)
+        mustquery.push(addQuery(req.body.status),"description.status")
+     
+    search={$search: {
+        "compound": {
+            "must":mustquery,
+            "should":shouldquery
             },
+        },};
+    // Ordering by Relevance and date filters
+    if(req.body.order='Relevance')
+        sort = {$sort: {score: { $meta: "textScore" }}};
+    if(req.body.order='New')
+        sort ={$sort:{ '_id':- 1}};
+    if(req.body.order='Old')
+        sort = { $sort: { '_id': 1}};
+        console.log(Job.aggregate([search,{$group:{$sum:1}}]));
+    Job.aggregate([
+            search,
             { $limit: limiter},
             { $skip: skip},
-            { $sort: { score: { $meta: "textScore" } } },
-
+            sort,
             {
                 $project: {
                     _id: 0,
@@ -149,7 +150,7 @@ router.post("/search",(req,res) => {
             else res.json(jobs);
         },
     );
-});
+    });
 
 //Similar jobs
 router.post("/similar",(req,res) => {
@@ -160,6 +161,7 @@ router.post("/similar",(req,res) => {
                  {
                      "query": `${query}`,
                      "path": `${path}`
+
                  }
          };
         return abc;
@@ -198,7 +200,8 @@ router.post("/similar",(req,res) => {
                      _id: 0,
                      applicants: 0,
                      author: 0,
-                     tag: 0
+                     tag: 0,
+                     score: { $meta: "textScore" }
                  },
              },
          ],
@@ -242,16 +245,17 @@ router.post("/freelance",(req,res) =>{
          shouldquery.push(addQuery(req.body.incentives,"description.incentives"));
      if(req.body.type)
          mustquery.push(addQuery(req.body.type,"description.type"));
+    
          // empty request response
      if(!(req.body))
      {
-         Job.find()
-         .then((jobs) => res.json({ jobs: jobs }))
-         .catch((err) => res.status(400).json({ err: err }));
+        search={};
+
      }
+
  
  
-     Job.aggregate([
+     FreelanceJob.aggregate([
              {
              $search: {
                  "compound": {
