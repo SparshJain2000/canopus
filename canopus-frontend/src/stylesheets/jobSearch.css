@@ -1,0 +1,29 @@
+.vertical {
+    display: none;
+}
+
+.horizontal {
+    display: block;
+}
+
+.sticky-filter {
+    position: relative;
+    top: 0;
+}
+
+@media (min-width: 992px) {
+    .vertical {
+        display: flex;
+    }
+    .horizontal {
+        display: none;
+    }
+    .sticky-filter {
+        position: sticky;
+        top: 0;
+    }
+}
+
+.active-tab {
+    border-bottom: 4px solid rgb(8, 163, 163) !important;
+}
