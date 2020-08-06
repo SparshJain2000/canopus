@@ -35,9 +35,6 @@ class App extends Component {
             .catch((err) => {
                 console.log(err.response);
             });
-        // const user = await axios.get(`/api/user/current`);
-        // console.log(user);
-        // return user;
     }
     componentDidMount() {
         console.log(this.state.user);
@@ -62,7 +59,7 @@ class App extends Component {
                 <Route
                     path='/search-jobs'
                     exact
-                    component={() => <JobSearch />}
+                    render={(props) => <JobSearch {...props} />}
                 />
                 <Route
                     path='/user/signup'
