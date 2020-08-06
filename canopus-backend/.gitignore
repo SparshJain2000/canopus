@@ -1,4 +1,6 @@
+.DS_Store
 node_modules
 .env
 .vscode
 .idea
+models/canopy.code-workspace

@@ -2,7 +2,7 @@ const mongoose = require("mongoose"),
     passportLocalMongoose = require("passport-local-mongoose");
 // var blogSchema =
 module.exports = mongoose.model(
-    "Job",
+    "Freelance",
     new mongoose.Schema({
         title: String,
 
@@ -16,8 +16,15 @@ module.exports = mongoose.model(
         //     state: String,
         //     pin: Number,
         // },
+        time: Object,
+        // {
+        //     day:String
+        //     start:Number,
+        //     end:Number
+        // },
         description: Object,
         // {
+        //     time:String,
         //     line: String,
         //     experience: String,
         //     incentives: String,
