@@ -1,7 +1,7 @@
 import React, { useState, useRef } from "react";
-import { NavLink, Link, Redirect } from "react-router-dom";
-import { CSSTransition } from "react-transition-group";
+import { NavLink, Link } from "react-router-dom";
 import { useHistory } from "react-router";
+import "../stylesheets/navbar.css";
 import {
     Collapse,
     Navbar,
@@ -32,6 +32,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { faFacebook, faGoogle } from "@fortawesome/free-brands-svg-icons";
 import axios from "axios";
+
 const NavbarComponent = (props) => {
     const history = useHistory();
     const [error, setError] = useState("");
@@ -127,7 +128,15 @@ const NavbarComponent = (props) => {
                 <NavbarBrand href='/' className='ml-2 text-align-center'>
                     Canopus
                 </NavbarBrand>
-                <NavbarToggler onClick={toggle} />
+                <NavbarToggler
+                    onClick={toggle}
+                    className={`position-relative ${
+                        !isOpen ? "collapsed" : ""
+                    }`}>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </NavbarToggler>
                 <Collapse isOpen={isOpen} navbar>
                     <Nav
                         className='row mx-auto justify-content-center px-5'
@@ -145,154 +154,139 @@ const NavbarComponent = (props) => {
                             <NavLink to='/'>About US</NavLink>
                         </NavItem>
                     </Nav>
-
                     {!props.user ? (
-                        <CSSTransition
-                            in={props.user !== null}
-                            timeout={300}
-                            classNames='alert'
-                            unmountOnExit>
-                            <Nav
-                                className='row ml-auto align-content-center justify-content-center mt-3 mt-lg-0'
-                                style={{ minWidth: "35%" }}>
-                                <Toast
-                                    className='my-auto mx-1'
-                                    style={{
-                                        border: "1px solid #4180cb",
-                                        width: "45%",
-                                    }}>
-                                    <div className='toast-header '>
-                                        <strong className='mx-auto'>
-                                            JobSeekers
-                                        </strong>
+                        <Nav
+                            className='row ml-auto align-content-center justify-content-center mt-3 mt-lg-0'
+                            style={{ minWidth: "35%" }}>
+                            <Toast
+                                className='my-auto mx-1'
+                                style={{
+                                    border: "1px solid #4180cb",
+                                    width: "45%",
+                                }}>
+                                <div className='toast-header '>
+                                    <strong className='mx-auto'>
+                                        JobSeekers
+                                    </strong>
+                                </div>
+                                <ToastBody className='flex flex-column'>
+                                    <div>
+                                        <a
+                                            href='#'
+                                            className='text-primary'
+                                            onClick={toggleModal}>
+                                            Login
+                                        </a>
                                     </div>
-                                    <ToastBody className='flex flex-column'>
-                                        <div>
-                                            <a
-                                                href='#'
-                                                className='text-primary'
-                                                onClick={toggleModal}>
-                                                Login
-                                            </a>
-                                        </div>
-                                        <div className='mt-2'>
-                                            <Link
-                                                to='/user/signup'
-                                                className='badge badge-lg badge-primary p-2'>
-                                                Signup
-                                            </Link>
-                                        </div>
-                                    </ToastBody>
-                                </Toast>
-                                <Toast
-                                    className=' my-auto mx-1'
-                                    style={{
-                                        border: "1px solid rgb(255, 136, 0)",
-                                        width: "45%",
-                                    }}>
-                                    <div className='toast-header px-auto'>
-                                        <strong className='mx-auto'>
-                                            Employer
-                                        </strong>
+                                    <div className='mt-2'>
+                                        <Link
+                                            to='/user/signup'
+                                            className='badge badge-lg badge-primary p-2'>
+                                            Signup
+                                        </Link>
                                     </div>
-                                    <ToastBody className='flex flex-column'>
-                                        <div>
-                                            <a
-                                                href='#'
-                                                className='text-danger'
-                                                onClick={toggleModalEmployer}>
-                                                Login
-                                            </a>
-                                        </div>
-                                        <div className='mt-2'>
-                                            <a
-                                                href='#'
-                                                className='badge badge-lg badge-danger p-2'>
-                                                Signup
-                                            </a>
-                                        </div>
-                                    </ToastBody>
-                                </Toast>
-                            </Nav>
-                        </CSSTransition>
+                                </ToastBody>
+                            </Toast>
+                            <Toast
+                                className=' my-auto mx-1'
+                                style={{
+                                    border: "1px solid rgb(255, 136, 0)",
+                                    width: "45%",
+                                }}>
+                                <div className='toast-header px-auto'>
+                                    <strong className='mx-auto'>
+                                        Employer
+                                    </strong>
+                                </div>
+                                <ToastBody className='flex flex-column'>
+                                    <div>
+                                        <a
+                                            href='#'
+                                            className='text-danger'
+                                            onClick={toggleModalEmployer}>
+                                            Login
+                                        </a>
+                                    </div>
+                                    <div className='mt-2'>
+                                        <a
+                                            href='#'
+                                            className='badge badge-lg badge-danger p-2'>
+                                            Signup
+                                        </a>
+                                    </div>
+                                </ToastBody>
+                            </Toast>
+                        </Nav>
                     ) : (
-                        <CSSTransition
-                            in={props.user === null}
-                            timeout={300}
-                            classNames='alert'
-                            unmountOnExit>
-                            <Nav className='mt-3 mt-lg-0 ml-auto mx-0 row justify-content-center'>
-                                <ButtonDropdown
-                                    isOpen={buttonDropdown}
-                                    toggle={toggleButtonDropdown}>
-                                    <Button
-                                        id='caret'
-                                        color={
+                        <Nav className='mt-3 mt-lg-0 ml-auto mx-0 row justify-content-center'>
+                            <ButtonDropdown
+                                isOpen={buttonDropdown}
+                                toggle={toggleButtonDropdown}>
+                                <Button
+                                    id='caret'
+                                    color={
+                                        props.user.role === "Employer"
+                                            ? "info"
+                                            : "primary"
+                                    }
+                                    style={{ width: "max-content" }}>
+                                    <FontAwesomeIcon
+                                        icon={
                                             props.user.role === "Employer"
-                                                ? "info"
-                                                : "primary"
+                                                ? faUserPlus
+                                                : faUser
                                         }
-                                        style={{ width: "max-content" }}>
-                                        <FontAwesomeIcon
-                                            icon={
-                                                props.user.role === "Employer"
-                                                    ? faUserPlus
-                                                    : faUser
-                                            }
-                                            className='mr-2'
-                                        />
-                                        {props.user.firstName}
-                                    </Button>
-                                    <DropdownToggle
-                                        caret
-                                        color={
-                                            props.user.role === "Employer"
-                                                ? "info"
-                                                : "primary"
-                                        }
+                                        className='mr-2'
                                     />
-                                    <DropdownMenu right>
-                                        {props.user.role === "Employer" ? (
-                                            <Link
-                                                to='/employer'
-                                                className='dropdown-item'>
-                                                Post/View Jobs
-                                            </Link>
-                                        ) : (
-                                            <Link
-                                                to='/profile/'
-                                                className='dropdown-item'>
-                                                View Profile
-                                            </Link>
-                                        )}
-                                        <DropdownItem divider />
-                                        <DropdownItem
-                                            onClick={() => {
-                                                axios
-                                                    .get(`/api/user/logout`)
-                                                    .then((user) => {
-                                                        console.log(
-                                                            `logout${user}`,
-                                                        );
-                                                        props.setUser(null);
-                                                        history.push("/");
-                                                    })
-                                                    .catch((err) => {
-                                                        console.log(
-                                                            err.response,
-                                                        );
-                                                    });
-                                            }}>
-                                            logout
-                                            <FontAwesomeIcon
-                                                icon={faSignOutAlt}
-                                                className='ml-3'
-                                            />
-                                        </DropdownItem>
-                                    </DropdownMenu>
-                                </ButtonDropdown>
-                            </Nav>
-                        </CSSTransition>
+                                    {props.user.firstName}
+                                </Button>
+                                <DropdownToggle
+                                    caret
+                                    color={
+                                        props.user.role === "Employer"
+                                            ? "info"
+                                            : "primary"
+                                    }
+                                />
+                                <DropdownMenu right>
+                                    {props.user.role === "Employer" ? (
+                                        <Link
+                                            to='/employer'
+                                            className='dropdown-item'>
+                                            Post/View Jobs
+                                        </Link>
+                                    ) : (
+                                        <Link
+                                            to='/profile/'
+                                            className='dropdown-item'>
+                                            View Profile
+                                        </Link>
+                                    )}
+                                    <DropdownItem divider />
+                                    <DropdownItem
+                                        onClick={() => {
+                                            axios
+                                                .get(`/api/user/logout`)
+                                                .then((user) => {
+                                                    console.log(
+                                                        `logout${user}`,
+                                                    );
+                                                    props.setUser(null);
+                                                    history.push("/");
+                                                })
+                                                .catch((err) => {
+                                                    console.log(err.response);
+                                                });
+                                        }}>
+                                        logout
+                                        <FontAwesomeIcon
+                                            icon={faSignOutAlt}
+                                            className='ml-3'
+                                        />
+                                    </DropdownItem>
+                                </DropdownMenu>
+                            </ButtonDropdown>
+                        </Nav>
                     )}
                 </Collapse>
             </Navbar>
@@ -358,11 +352,15 @@ const NavbarComponent = (props) => {
                                 Login with your social media account
                             </p>
                             <div className='text-center social-btn'>
-                                <a href='/' className='btn btn-primary mx-2'>
+                                <a
+                                    href={`${process.env.REACT_APP_API_URL}/auth/facebook`}
+                                    className='btn btn-primary mx-2'>
                                     <FontAwesomeIcon icon={faFacebook} />
                                     &nbsp; Facebook
                                 </a>
-                                <a href='/' className='btn btn-danger mx-2'>
+                                <a
+                                    href={`${process.env.REACT_APP_API_URL}/auth/google`}
+                                    className='btn btn-danger mx-2'>
                                     <FontAwesomeIcon icon={faGoogle} />
                                     &nbsp; Google
                                 </a>

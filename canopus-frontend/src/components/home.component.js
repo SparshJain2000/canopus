@@ -1,30 +1,36 @@
 import React, { useRef, useState } from "react";
 import Select from "react-select";
+import "../stylesheets/home.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import doctor from "../images/doctor.png";
 import data from "../data";
+import { Button, Alert } from "reactstrap";
 import { Redirect, Link } from "react-router-dom";
 const professionArray = data.professions.map((opt) => ({
     label: opt,
     value: opt,
 }));
 
-const Home = () => {
-    const [search, setSearch] = useState(false);
+const Home = (props) => {
     const profession = useRef(null);
-    if (search) {
-        console.log(profession.current.state.value.value);
-        return (
-            <Redirect
-                to={{
-                    pathname: `/search-jobs/`,
-                    state: profession.current.state.value.value,
-                }}
-            />
-        );
-    }
+    const [param, setParam] = useState("");
+    const [alert, setAlert] = useState(true);
     return (
         <div>
+            {props.location.search !== "" && (
+                <Alert
+                    color='danger'
+                    className='mb-0'
+                    isOpen={alert}
+                    toggle={() => {
+                        setAlert(!alert);
+                    }}>
+                    {props.location.search.slice(
+                        5,
+                        props.location.search.length,
+                    )}
+                </Alert>
+            )}
             <div className='flex flex-column justify-content-between main-container'>
                 <div
                     className='main py-5 '
@@ -42,23 +48,36 @@ const Home = () => {
                                 autosize={true}
                                 placeholder='Profession'
                                 options={professionArray}
-                                // className='basic-multi-select'
-                                // classNamePrefix='select'
+                                onChange={(e) => {
+                                    console.log(e);
+                                    setParam(e.value);
+                                }}
                                 ref={profession}
                             />
                         </div>
-                        <button
-                            className='col-3 btn btn-info my-2 my-sm-0'
-                            type='submit'
-                            onClick={() => setSearch(true)}>
-                            <span
-                                style={{
-                                    fontSize:
-                                        " calc(12px + (26 - 14) * ((100vw - 300px) / (1600 - 300)))",
-                                }}>
+                        {param !== "" ? (
+                            <Link
+                                to={{
+                                    pathname: `/search-jobs/`,
+                                    state: param,
+                                }}
+                                className='col-3 btn btn-info my-2 my-sm-0'>
+                                <span
+                                    style={{
+                                        fontSize:
+                                            " calc(12px + (26 - 14) * ((100vw - 300px) / (1600 - 300)))",
+                                    }}>
+                                    Search
+                                </span>
+                            </Link>
+                        ) : (
+                            <Button
+                                color='info'
+                                className='my-2 my-sm-0 col-3'
+                                disabled>
                                 Search
-                            </span>
-                        </button>
+                            </Button>
+                        )}
                     </div>
                 </div>
             </div>
