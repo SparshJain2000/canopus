@@ -20,8 +20,9 @@ export default class Profile extends Component {
         axios
             .get("/api/user/profile")
             .then(({ data }) => {
-                data.image =
-                    "https://i.pinimg.com/736x/74/73/ba/7473ba244a0ace6d9d301d5fe4478983--sarcasm-meme.jpg";
+                if (!data.image)
+                    data.image =
+                        "https://i.pinimg.com/736x/74/73/ba/7473ba244a0ace6d9d301d5fe4478983--sarcasm-meme.jpg";
                 this.setState({
                     profile: data,
                 });
@@ -74,17 +75,27 @@ export default class Profile extends Component {
                                                 this.state.profile.headline}
                                         </h6>
                                     </div>
-                                    <div className='m-2 mx-auto'>
-                                        <h6>
-                                            <FontAwesomeIcon
-                                                icon={faMapMarker}
-                                                className='ml-2 mr-3'
-                                            />
-                                            {this.state.profile.address.city},{" "}
-                                            {this.state.profile.address.pin},{" "}
-                                            {this.state.profile.address.country}
-                                        </h6>
-                                    </div>
+                                    {this.state.profile.address && (
+                                        <div className='m-2 mx-auto'>
+                                            <h6>
+                                                <FontAwesomeIcon
+                                                    icon={faMapMarker}
+                                                    className='ml-2 mr-3'
+                                                />
+                                                {
+                                                    this.state.profile.address
+                                                        .city
+                                                }
+                                                ,{" "}
+                                                {this.state.profile.address.pin}
+                                                ,{" "}
+                                                {
+                                                    this.state.profile.address
+                                                        .country
+                                                }
+                                            </h6>
+                                        </div>
+                                    )}
                                     <div className='m-2 mx-auto'>
                                         <h6>
                                             <FontAwesomeIcon
@@ -222,9 +233,16 @@ export default class Profile extends Component {
                         </div>
                     </div>
                 ) : (
-                 <div className='mx-auto my-auto' style={{textAlign:'center'}}>
-                            <Loader type='Bars' color='#17a2b8' height={300} width={220}  />
-                            </div>
+                    <div
+                        className='mx-auto my-auto'
+                        style={{ textAlign: "center" }}>
+                        <Loader
+                            type='Bars'
+                            color='#17a2b8'
+                            height={300}
+                            width={220}
+                        />
+                    </div>
                 )}
             </div>
         );
