@@ -1,3 +1,5 @@
+const { Console } = require("console");
+
 const express = require("express"),
     app = express(),
     cors = require("cors"),
@@ -12,6 +14,7 @@ const express = require("express"),
     authRouter = require("./routes/auth.router"),
     employerRouter = require("./routes/employer.router"),
     GoogleStrategy = require("passport-google-oauth").OAuth2Strategy,
+    FacebookStrategy = require("passport-facebook").Strategy,
     bodyParser = require("body-parser");
 require("dotenv").config();
 //==========================================================================
@@ -61,20 +64,20 @@ passport.use(
                 if (err) return done(err);
                 if (user) return done(null, user);
                 else {
-                    var newUser = new User();
-                    newUser.username = profile.emails[0].value;
-                    newUser.role = "User";
-                    newUser.image = profile.photos[0].value;
-                    newUser.google = {
+                    var user = new User();
+                    user.username = profile.emails[0].value;
+                    user.role = "User";
+                    user.image = profile.photos[0].value;
+                    user.google = {
                         id: profile.id,
                         token: accessToken,
                         name: profile.displayName,
                         email: profile.emails[0].value,
                     };
-                    newUser.firstName = profile.name.givenName;
-                    newUser.lastName = profile.name.familyName;
+                    user.firstName = profile.name.givenName;
+                    user.lastName = profile.name.familyName;
 
-                    newUser.save((err, user) => {
+                    user.save((err, user) => {
                         if (!err) return done(err, user);
                     });
                     // done(null, userData);
@@ -82,6 +85,50 @@ passport.use(
             });
         },
         // User.authenticate(),
+    ),
+);
+
+passport.use(
+    "facebook",
+    new FacebookStrategy(
+        {
+            clientID: process.env.FACEBOOK_APP_ID,
+            clientSecret: process.env.FACEBOOK_APP_SECRET,
+            callbackURL: "http://localhost:8080/auth/facebook/callback",
+            profileFields: [
+                "id",
+                "email",
+                "displayName",
+                "name",
+                "picture.width(400).height(400)",
+            ],
+            enableProof: true,
+        },
+        function (accessToken, refreshToken, profile, cb) {
+            console.log(profile);
+            User.findOne({ "facebook.id": profile.id }, function (err, user) {
+                if (err) return cb(err);
+                if (user) return cb(null, user);
+                else {
+                    var user = new User();
+                    user.username = profile.emails
+                        ? profile.emails[0].value
+                        : "";
+                    user.role = "User";
+                    user.image = profile.photos[0].value;
+                    user.facebook = {
+                        id: profile.id,
+                        token: accessToken,
+                    };
+                    user.firstName = profile.name.givenName;
+                    user.lastName = profile.name.familyName;
+
+                    user.save((err, user) => {
+                        if (!err) return cb(err, user);
+                    });
+                }
+            });
+        },
     ),
 );
 passport.serializeUser((user, done) => {

@@ -11,6 +11,7 @@ module.exports = mongoose.model(
         image: String,
         description: String,
         google: Object,
+        facebook: Object,
 
         experience: [
             {
