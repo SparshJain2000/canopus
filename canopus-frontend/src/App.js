@@ -29,8 +29,7 @@ class App extends Component {
         axios
             .get(`/api/user/current`)
             .then((data) => {
-                console.log(data);
-                this.setUser(data.user);
+                this.setUser(data.data.user);
             })
             .catch((err) => {
                 console.log(err.response);
@@ -55,7 +54,7 @@ class App extends Component {
                     setUser={this.setUser}
                     getUser={this.getUser}
                 />
-                <Route path='/' exact component={() => <Home />} />
+                <Route path='/' exact render={(props) => <Home {...props} />} />
                 <Route
                     path='/search-jobs'
                     exact

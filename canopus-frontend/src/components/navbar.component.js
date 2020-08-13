@@ -49,20 +49,20 @@ const NavbarComponent = (props) => {
 
     const username = useRef(null);
     const password = useRef(null);
-    if (!props.user) {
-        axios
-            .get(`/api/user/current`)
-            .then(({ data }) => {
-                if (data.user) {
-                    props.setUser(data.user);
-                }
-            })
-            .catch((err) => {
-                console.log(err.response.data.name);
-                setError(err.response.data.name);
-                // setShowError(true);
-            });
-    }
+    // if (!props.user) {
+    //     axios
+    //         .get(`/api/user/current`)
+    //         .then(({ data }) => {
+    //             if (data.user) {
+    //                 props.setUser(data.user);
+    //             }
+    //         })
+    //         .catch((err) => {
+    //             console.log(err.response.data.name);
+    //             setError(err.response.data.name);
+    //             // setShowError(true);
+    //         });
+    // }
     const submit = () => {
         const user = {
             username: username.current.value,
