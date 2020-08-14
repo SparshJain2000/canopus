@@ -1,10 +1,17 @@
 import React, { Component, useEffect, useState } from "react";
 import axios from "axios";
 import Loader from "react-loader-spinner";
+import { Link } from "react-router-dom";
 import { Media, Badge, Button } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
+import {
+    faMapMarkerAlt,
+    faUser,
+    faArrowRight,
+} from "@fortawesome/free-solid-svg-icons";
 import doctor from "../images/doctor.png";
+import "../stylesheets/jobApplications.css";
+import { ListGroup, ListGroupItem } from "reactstrap";
 const ApplicantDetails = ({ applicant }) => {
     const [data, setData] = useState(null);
     const [error, setError] = useState(false);
@@ -87,12 +94,29 @@ const Job = ({ job }) => {
                     </Badge>
                     {show &&
                         (job.applicants.length ? (
-                            job.applicants.map((applicant) => (
-                                <ApplicantDetails
-                                    key={applicant.id}
-                                    applicant={applicant.id}
-                                />
-                            ))
+                            <ListGroup className='mt-2 mx-2 mx-sm-0'>
+                                {job.applicants.map((applicant) => (
+                                    <ListGroupItem>
+                                        {/* <ApplicantDetails
+                                            key={applicant.id}
+                                            applicant={applicant.id}
+                                        /> */}
+                                        <FontAwesomeIcon
+                                            icon={faUser}
+                                            className='mr-2'
+                                        />
+                                        {applicant.username}
+                                        <Link
+                                            to={`/profile/${applicant.id}`}
+                                            className='btn btn-primary btn-sm float-right'
+                                            style={{ borderRadius: "50%" }}>
+                                            <FontAwesomeIcon
+                                                icon={faArrowRight}
+                                            />
+                                        </Link>
+                                    </ListGroupItem>
+                                ))}
+                            </ListGroup>
                         ) : (
                             <h6>No applicants</h6>
                         ))}
@@ -127,9 +151,16 @@ export default class JobApplications extends Component {
                         (job) => job && <Job key={job._id} job={job} />,
                     )
                 ) : (
-                  <div className='mx-auto my-auto' style={{textAlign:'center'}}>
-                            <Loader type='Bars' color='#17a2b8' height={300} width={220}  />
-                            </div>
+                    <div
+                        className='mx-auto my-auto'
+                        style={{ textAlign: "center" }}>
+                        <Loader
+                            type='Bars'
+                            color='#17a2b8'
+                            height={300}
+                            width={220}
+                        />
+                    </div>
                 )}
             </div>
         );
