@@ -1,5 +1,5 @@
 import React, { Component, createRef } from "react";
-// import { Transition } from "react-transition-group";
+import "../stylesheets/jobSearch.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -16,8 +16,6 @@ import {
     Col,
 } from "reactstrap";
 import axios from "axios";
-import { Sticky, Rail } from "semantic-ui-react";
-
 import doctor from "../images/doctor.png";
 import Loader from "react-loader-spinner";
 import Select from "react-select";
@@ -25,21 +23,8 @@ import data from "../data";
 import { slideInRight } from "react-animations";
 import styled, { keyframes } from "styled-components";
 const BounceIn = styled.div`
-    animation: 1s ${keyframes`${slideInRight}`} 0s;
+    animation: 0.3s ${keyframes`${slideInRight}`} 0s;
 `;
-// const duration = 300;
-
-// const defaultStyle = {
-//     transition: `opacity ${duration}ms ease-in-out`,
-//     opacity: 0,
-// };
-
-// const transitionStyles = {
-//     entering: { opacity: 1 },
-//     entered: { opacity: 1 },
-//     exiting: { opacity: 0 },
-//     exited: { opacity: 0 },
-// };
 
 const incentivesArray = data.incentive.map((opt) => ({
     label: opt,
@@ -195,29 +180,51 @@ export default class JobSearch extends Component {
             });
     }
     componentDidMount() {
+        console.log(this.props.location);
         if (this.props.location.state) {
-            this.profession.current.state.value = {
-                value: this.props.location.state,
-                label: this.props.location.state,
-            };
-            const query = {
-                profession: this.props.location.state,
-            };
-            axios
-                .post(`/api/job/search`, query)
-                .then(({ data }) => {
-                    this.setState({ jobs: data, loaded: true });
-                    // console.log(data);
-                })
-                .catch((err) => {
-                    console.log(err.response);
-                    this.setState({ loaded: true });
-                });
+            if (this.props.location.state.feild === "specialization") {
+                this.specialization.current.state.value = {
+                    value: this.props.location.state.query,
+                    label: this.props.location.state.query,
+                };
+                const query = {
+                    specialization: this.props.location.state.query,
+                };
+                axios
+                    .post(`/api/job/search`, query)
+                    .then(({ data }) => {
+                        this.setState({ jobs: data, loaded: true });
+                        // console.log(data);
+                    })
+                    .catch((err) => {
+                        console.log(err.response);
+                        this.setState({ loaded: true });
+                    });
+            }
+            if (this.props.location.state.feild === "profession") {
+                console.log(this.props.location);
+                this.profession.current.state.value = {
+                    value: this.props.location.state.query,
+                    label: this.props.location.state.query,
+                };
+                const query = {
+                    profession: this.props.location.state.query,
+                };
+                axios
+                    .post(`/api/job/search`, query)
+                    .then(({ data }) => {
+                        this.setState({ jobs: data, loaded: true });
+                        // console.log(data);
+                    })
+                    .catch((err) => {
+                        console.log(err.response);
+                        this.setState({ loaded: true });
+                    });
+            }
         } else if (this.state.jobs.length === 0) this.getAllJobs();
     }
     search() {
         this.setState({ loaded: false });
-        // console.log(this.profession.current.value);
         console.log(this.profession.current);
         const query = {
             profession:
@@ -270,7 +277,7 @@ export default class JobSearch extends Component {
         return (
             <div className='row justify-content-center align-content-center mx-4 mx-lg-2'>
                 <div className='col-12 col-lg-3 px-3 px-lg-3 pr-lg-5 p-1 p-md-3 mt-md-4 position-relative'>
-                    <div className='position-sticky pt-lg-2' style={{ top: 0 }}>
+                    <div className='sticky-filter pt-lg-2'>
                         <div className='form-group'>
                             <h5
                                 style={{
