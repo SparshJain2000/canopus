@@ -59,7 +59,10 @@ const Home = (props) => {
                             <Link
                                 to={{
                                     pathname: `/search-jobs/`,
-                                    state: param,
+                                    state: {
+                                        feild: "profession",
+                                        query: param,
+                                    },
                                 }}
                                 className='col-3 btn btn-info my-2 my-sm-0'>
                                 <span
@@ -87,22 +90,100 @@ const Home = (props) => {
                 <h1 style={{ textAlign: "center" }}>Jobs by Category</h1>
                 <div className='row justify-content-center px-3 px-md-4 m-4 '>
                     <div className='jobs text-secondary'>
-                        <a href='/'>Physician / Surgeon</a>
+                        <Link
+                            to={{
+                                pathname: `/search-jobs/`,
+                                state: {
+                                    feild: "specialization",
+                                    query: "General Surgery",
+                                },
+                            }}>
+                            General Surgery
+                        </Link>
                     </div>
                     <div className='jobs text-secondary'>
-                        <a href='/'>Nurse Practitioner</a>
+                        <Link
+                            to={{
+                                pathname: `/search-jobs/`,
+                                state: {
+                                    feild: "profession",
+                                    query: "Nurse",
+                                },
+                            }}>
+                            Certified Registered Nurse
+                        </Link>
                     </div>
                     <div className='jobs text-secondary'>
-                        <a href='/'>Physician Assistant</a>
+                        <Link
+                            to={{
+                                pathname: `/search-jobs/`,
+                                state: {
+                                    feild: "profession",
+                                    query: "Physician",
+                                },
+                            }}>
+                            Physician
+                        </Link>
+                    </div>
+                    {/* <div className='jobs text-secondary'>
+                        <Link
+                            to={{
+                                pathname: `/search-jobs/`,
+                                state: {
+                                    feild: "profession",
+                                    query: "Therapist",
+                                },
+                            }}>
+                            Therapist
+                        </Link>
+                    </div> */}
+                    <div className='jobs text-secondary'>
+                        <Link
+                            to={{
+                                pathname: `/search-jobs/`,
+                                state: {
+                                    feild: "profession",
+                                    query: "Technicians",
+                                },
+                            }}>
+                            Technicians
+                        </Link>
                     </div>
                     <div className='jobs text-secondary'>
-                        <a href='/'>Certified Registered Nurse</a>
+                        <Link
+                            to={{
+                                pathname: `/search-jobs/`,
+                                state: {
+                                    feild: "specialization",
+                                    query: "Community Health",
+                                },
+                            }}>
+                            Community Health
+                        </Link>
                     </div>
                     <div className='jobs text-secondary'>
-                        <a href='/'>Anesthetist (CRNA)</a>
+                        <Link
+                            to={{
+                                pathname: `/search-jobs/`,
+                                state: {
+                                    feild: "specialization",
+                                    query: "Anaesthesiology",
+                                },
+                            }}>
+                            Anesthetist (CRNA)
+                        </Link>
                     </div>
                     <div className='jobs text-secondary'>
-                        <a href='/'>Academics / Research</a>
+                        <Link
+                            to={{
+                                pathname: `/search-jobs/`,
+                                state: {
+                                    feild: "specialization",
+                                    query: "Ear, Nose and Throat",
+                                },
+                            }}>
+                            ENT Specialist
+                        </Link>
                     </div>
                 </div>
             </div>
@@ -120,13 +201,11 @@ const Home = (props) => {
                         Apply for Positions + Set Up Job Alerts + Get
                         Newsletters
                     </h1>
-                    <button
-                        className='btn btn-lg btn-outline-info mt-3'
-                        // type='submit'
-                        // onClick={this.search}
-                    >
+                    <Link
+                        to='/search-jobs/'
+                        className='btn btn-lg btn-outline-info mt-3'>
                         Get Started
-                    </button>
+                    </Link>
                 </div>
             </div>
         </div>
