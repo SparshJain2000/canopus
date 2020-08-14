@@ -58,7 +58,9 @@ class App extends Component {
                 <Route
                     path='/search-jobs'
                     exact
-                    render={(props) => <JobSearch {...props} />}
+                    render={(props) => (
+                        <JobSearch {...props} user={this.state.user} />
+                    )}
                 />
                 <Route
                     path='/user/signup'
@@ -70,6 +72,12 @@ class App extends Component {
                     exact
                     // render={(props) => <Profile {...props} />}
                     component={() => <Profile />}
+                />
+                <Route
+                    path='/profile/:id'
+                    exact
+                    // render={(props) => <Profile {...props} />}
+                    render={(props) => <Profile {...props} />}
                 />
                 <Route
                     path='/employer'

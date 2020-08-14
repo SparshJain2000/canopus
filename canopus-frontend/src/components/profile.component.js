@@ -15,20 +15,36 @@ export default class Profile extends Component {
         this.state = {
             profile: null,
         };
+        // console.log(this.props.match.params.id);
+        console.log(this.props);
     }
     componentDidMount() {
-        axios
-            .get("/api/user/profile")
-            .then(({ data }) => {
-                if (!data.image)
-                    data.image =
-                        "https://i.pinimg.com/736x/74/73/ba/7473ba244a0ace6d9d301d5fe4478983--sarcasm-meme.jpg";
-                this.setState({
-                    profile: data,
-                });
-                console.log(this.state.profile);
-            })
-            .catch((err) => console.log(err.response));
+        if (this.props.match) {
+            axios
+                .get(`/api/user/profile/${this.props.match.params.id}`)
+                .then(({ data }) => {
+                    if (!data.image)
+                        data.image =
+                            "https://i.pinimg.com/736x/74/73/ba/7473ba244a0ace6d9d301d5fe4478983--sarcasm-meme.jpg";
+                    this.setState({
+                        profile: data,
+                    });
+                    console.log(this.state.profile);
+                })
+                .catch((err) => console.log(err.response));
+        } else
+            axios
+                .get("/api/user/profile")
+                .then(({ data }) => {
+                    if (!data.image)
+                        data.image =
+                            "https://i.pinimg.com/736x/74/73/ba/7473ba244a0ace6d9d301d5fe4478983--sarcasm-meme.jpg";
+                    this.setState({
+                        profile: data,
+                    });
+                    console.log(this.state.profile);
+                })
+                .catch((err) => console.log(err.response));
     }
     render() {
         return (
