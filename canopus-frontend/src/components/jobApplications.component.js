@@ -9,7 +9,7 @@ import {
     faUser,
     faArrowRight,
 } from "@fortawesome/free-solid-svg-icons";
-import doctor from "../images/doctor.png";
+import hospital from "../images/hospital.svg";
 import "../stylesheets/jobApplications.css";
 import { ListGroup, ListGroupItem } from "reactstrap";
 const ApplicantDetails = ({ applicant }) => {
@@ -36,91 +36,131 @@ const Job = ({ job }) => {
     };
     return (
         <div>
-            <Media className='row block justify-content-center my-5 mx-4 py-4 px-2 px-md-4'>
-                <Media
-                    left
-                    href='#'
-                    className='col-12 col-md-3 my-auto mx-auto'>
-                    <Media
-                        object
-                        src={doctor}
-                        alt='Generic placeholder image'
-                        className='img-fluid'
-                    />
-                </Media>
-                <Media body className='col-12 col-md-9 my-4 my-md-2 '>
-                    <Media heading className='px-2 px-md-3'>
-                        {job.title}
-                    </Media>
-                    <Media heading className='px-2 px-md-3'>
+            <Media className='row block justify-content-center my-3 mx-3 mx-sm-4 p-2 px-md-4'>
+                <Media body className='col-12 mt-4 mb-2 my-md-2 p-2'>
+                    <Media heading>{job.title}</Media>
+                    <Media heading>
                         <h6>
                             <FontAwesomeIcon icon={faMapMarkerAlt} />{" "}
                             {job.description.location}
                         </h6>
                     </Media>
-                    <div className='row mx-auto w-100 p-2 p-md-3'>
-                        <div className='col-12 col-md-8'>
-                            <em>{job.description.specialization}</em>
+                    <hr />
+                    <div className='row m-0'>
+                        <div className='col-12 '>
+                            <em>{job.description.line}</em>
                             <br />
-                            <strong>Type:</strong>{" "}
-                            {job.description.type.map((inc) => `${inc} , `)}
                             <br />
-                            <strong>Experience: </strong>
-                            {job.description.experience}
-                            <br />
+                            {/* <strong>Type:</strong>
+                            {job.description.type.map((type) => `${type} , `)}
+                            <br /> */}
+                            {/* <strong>Experience: </strong>
+                            {job.description.experience} */}
+                            {/* <br />
                             <strong>incentives: </strong>
                             {job.description.incentives.map(
-                                (inc) => `${inc} , `,
-                            )}
+                                (inc) => `${inc} ,`,
+                            )} */}
                             <br />
                         </div>
-                        <div
-                            className='col-12 col-md-4 mt-4 mt-md-0'
-                            style={{ textAlign: "center" }}>
-                            <Button onClick={showApplicants}>
-                                Show Applicants
-                            </Button>
+                        {/* <div
+                        className='col-12 col-sm-2 my-2 my-sm-auto'
+                        style={{ textAlign: "center" }}>
+                        <Button
+                            color='primary w-100'
+                            // className='float-right'
+                            onClick={applyJob}>
+                            Apply
+                        </Button>
+                    </div> */}
+                    </div>
+                </Media>
+                <Media
+                    left
+                    href='#'
+                    className='d-none d-md-block col-12 col-sm-3 my-auto mx-auto '>
+                    <Media
+                        object
+                        src={hospital}
+                        alt='Generic placeholder image'
+                        className='img-fluid'
+                        // style={{ maxWidth: "50%" }}
+                    />
+                </Media>
+                <hr className='col-12' />
+                <div className='row w-100 justify-content-between '>
+                    <div className='col-12 col-md-9  pr-0 pr-sm-3 row w-100 py-2'>
+                        <div className='col-12 col-sm-10 px-0'>
+                            <Badge color='secondary' className='mx-1'>
+                                {job.description.experience}
+                            </Badge>
+
+                            {job.superSpecialization &&
+                                job.superSpecialization.map((tag) => (
+                                    <Badge color='info' className='mx-1'>
+                                        {tag}
+                                    </Badge>
+                                ))}
+                            <br />
+                            {job.description.type &&
+                                job.description.type.map((tag) => (
+                                    <Badge color='warning' className='mx-1'>
+                                        {tag}
+                                    </Badge>
+                                ))}
+                            <br />
+                            {job.description.incentives &&
+                                job.description.incentives.map((tag) => (
+                                    <Badge color='primary' className='mx-1'>
+                                        {tag}
+                                    </Badge>
+                                ))}
+                        </div>
+
+                        {/* <hr /> */}
+                        <div className='col-12 col-sm-2 mt-auto px-0'>
+                            <Badge color='success' className='float-right mt-3'>
+                                {job.author && job.author.username}
+                            </Badge>
                         </div>
                     </div>
-                    <hr />
-                    {job.superSpecialization &&
-                        job.superSpecialization.map((tag) => (
-                            <Badge color='info' className='mx-1'>
-                                {tag}
-                            </Badge>
-                        ))}
-                    <Badge color='success' className='float-right'>
-                        {job.description.status}
-                    </Badge>
-                    {show &&
-                        (job.applicants.length ? (
-                            <ListGroup className='mt-2 mx-2 mx-sm-0'>
-                                {job.applicants.map((applicant) => (
-                                    <ListGroupItem>
-                                        {/* <ApplicantDetails
+                    <div className='col-12 col-md-3 my-auto p-0 p-sm-2'>
+                        <Button
+                            color={`info`}
+                            size='lg'
+                            onClick={showApplicants}
+                            className={`w-100 `}>
+                            Show Applicants
+                        </Button>
+                    </div>
+                </div>
+                {show &&
+                    (job.applicants.length ? (
+                        <ListGroup className='mt-2 mx-2 w-100'>
+                            <hr />
+                            {job.applicants.map((applicant) => (
+                                <ListGroupItem>
+                                    {/* <ApplicantDetails
                                             key={applicant.id}
                                             applicant={applicant.id}
                                         /> */}
-                                        <FontAwesomeIcon
-                                            icon={faUser}
-                                            className='mr-2'
-                                        />
-                                        {applicant.username}
-                                        <Link
-                                            to={`/profile/${applicant.id}`}
-                                            className='btn btn-primary btn-sm float-right'
-                                            style={{ borderRadius: "50%" }}>
-                                            <FontAwesomeIcon
-                                                icon={faArrowRight}
-                                            />
-                                        </Link>
-                                    </ListGroupItem>
-                                ))}
-                            </ListGroup>
-                        ) : (
-                            <h6>No applicants</h6>
-                        ))}
-                </Media>
+                                    <FontAwesomeIcon
+                                        icon={faUser}
+                                        className='mr-2'
+                                    />
+                                    {applicant.username}
+                                    <Link
+                                        to={`/profile/${applicant.id}`}
+                                        className='btn btn-primary btn-sm float-right'
+                                        style={{ borderRadius: "50%" }}>
+                                        <FontAwesomeIcon icon={faArrowRight} />
+                                    </Link>
+                                </ListGroupItem>
+                            ))}
+                        </ListGroup>
+                    ) : (
+                        <h6>No applicants</h6>
+                    ))}
             </Media>
         </div>
     );
@@ -145,6 +185,9 @@ export default class JobApplications extends Component {
     render() {
         return (
             <div>
+                <h1 className='my-3' style={{ textAlign: "center" }}>
+                    Posted Jobs
+                </h1>
                 {this.state.jobs ? (
                     this.state.jobs.length !== 0 &&
                     this.state.jobs.map(
