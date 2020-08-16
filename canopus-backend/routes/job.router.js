@@ -140,7 +140,7 @@ router.post("/search", (req, res) => {
                 }
             }
         };
-    if (req.body.order = 'New') x
+    if (req.body.order = 'New') 
     sort = {
         $sort: {
             '_id': -1
@@ -152,7 +152,7 @@ router.post("/search", (req, res) => {
                 '_id': 1
             }
         };
-    var num;
+    var jobCount;
     Job.aggregate([search, {
         $group: {
             _id: null,
@@ -161,10 +161,9 @@ router.post("/search", (req, res) => {
             }
         }
     }], (err, jobNum) => {
-        if (err) num = 0;
-        else console.log(jobNum.jobCount);
+        if (err) jobCount = 0;
+        else jobCount=jobNum[0];
     });
-    console.log(num);
     Job.aggregate([
             search,
             {
@@ -177,9 +176,9 @@ router.post("/search", (req, res) => {
             {
                 $project: {
                     _id: 0,
-                    applicants: 0,
-                    author: 0,
-                    tag: 0
+                    title: 1,
+                    description: 1,
+                    "score": { "$meta": "searchScore" }
                 },
             },
         ],
@@ -187,7 +186,11 @@ router.post("/search", (req, res) => {
             if (err) res.status(400).json({
                 err: err
             });
-            else res.json(jobs);
+            else {
+               // jobs.push(jobCount);
+               // res.json(jobs);
+               res.json({jobs:jobs,count:jobCount});
+            }
         },
     );
 });
@@ -339,7 +342,9 @@ router.post("/freelance", (req, res) => {
             if (err) res.status(400).json({
                 err: err
             });
-            else res.json(jobs);
+            else {
+                res.json(jobs);
+            }
         },
     );
 });
