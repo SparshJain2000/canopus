@@ -84,17 +84,8 @@ router.post("/", middleware.isEmployer, (req, res) => {
         }));
 });
 //===========================================================================
-//get a job by id
-router.get("/:id", middleware.isLoggedIn, (req, res) => {
-    Job.findById(req.params.id)
-        .then((job) => {
-            res.json(job);
-        })
-        .catch((err) => res.status(400).json({ err: err }));
-});
 
 router.post("/search", (req, res) => {
-
     // query builder function
     function addQuery(query, path) {
         let abc = {
@@ -170,6 +161,8 @@ router.post("/search", (req, res) => {
         if (err) jobCount = 0;
         else jobCount=jobNum[0];
     });
+    const userid=req.user.id||0;
+    console.log(userid);
     Job.aggregate([
             search,
             {
@@ -183,6 +176,9 @@ router.post("/search", (req, res) => {
                 $project: {
                     _id: 0,
                     title: 1,
+                    applied:{
+                        $cond:{if:{$in:["$applicants.id",userid]},then:1,else:0}
+                    },
                     description: 1,
                     "score": { "$meta": "searchScore" }
                 },
@@ -450,7 +446,17 @@ router.post("/apply/:id", middleware.isUser, (req, res) => {
 //     });
 // });
 //===========================================================================
+//get a job by id
+router.get("/:id", middleware.isLoggedIn, (req, res) => {
+    Job.findById(req.params.id)
+        .then((job) => {
+            res.json(job);
+        })
+        .catch((err) => res.status(400).json({ err: err }));
+});
+
 //delete a job
+
 
 router.delete("/:id", middleware.isEmployer, (req, res) => {
     Job.findByIdAndDelete(req.params.id)
