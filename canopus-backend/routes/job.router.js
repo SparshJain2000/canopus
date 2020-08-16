@@ -6,7 +6,7 @@ const router = require("express").Router(),
     FreelanceJob = require("../models/freelance.model");
 //===========================================================================
 //get all jobs
-router.get("/", (req, res) => {
+router.get("/", middleware.isLoggedIn, (req, res) => {
     Job.find()
         .then((jobs) => res.json({
             jobs: jobs,
@@ -37,7 +37,6 @@ router.post("/", middleware.isEmployer, (req, res) => {
         title: req.body.title,
         profession: req.body.profession,
         specialization: req.body.specialization,
-        superSpecialization: req.body.superSpecialization,
         description: req.body.description,
         address: req.body.address,
 
@@ -85,20 +84,27 @@ router.post("/", middleware.isEmployer, (req, res) => {
         }));
 });
 //===========================================================================
-
+//get a job by id
+router.get("/:id", middleware.isLoggedIn, (req, res) => {
+    Job.findById(req.params.id)
+        .then((job) => {
+            res.json(job);
+        })
+        .catch((err) => res.status(400).json({ err: err }));
+});
 
 router.post("/search", (req, res) => {
+
+    // query builder function
     function addQuery(query, path) {
         let abc = {
             text: {
                 query: `${query}`,
                 path: `${path}`,
             },
-
         };
         return abc;
     }
-
     // settting limit and skip
     var skip = parseInt(req.body.skip) || 0;
     var limiter = parseInt(req.body.limit) || 10;
@@ -244,7 +250,6 @@ router.post("/similar", (req, res) => {
                     }
                 }
             },
-
             {
                 $project: {
                     _id: 0,
@@ -348,7 +353,6 @@ router.post("/freelance", (req, res) => {
         },
     );
 });
-
 
 //===========================================================================
 //get a job by id

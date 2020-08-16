@@ -1,3 +1,5 @@
+const { Console } = require("console");
+
 const express = require("express"),
     app = express(),
     cors = require("cors"),
@@ -7,8 +9,12 @@ const express = require("express"),
     passport = require("passport"),
     LocalStratergy = require("passport-local"),
     jobRouter = require("./routes/job.router"),
+    path = require("path"),
     userRouter = require("./routes/user.router"),
+    authRouter = require("./routes/auth.router"),
     employerRouter = require("./routes/employer.router"),
+    GoogleStrategy = require("passport-google-oauth").OAuth2Strategy,
+    FacebookStrategy = require("passport-facebook").Strategy,
     bodyParser = require("body-parser");
 require("dotenv").config();
 //==========================================================================
@@ -45,7 +51,86 @@ passport.use(
     "user",
     new LocalStratergy({ usernameField: "username" }, User.authenticate()),
 );
+passport.use(
+    "google",
+    new GoogleStrategy(
+        {
+            clientID: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            callbackURL: "http://localhost:8080/auth/google/callback",
+        },
+        function (accessToken, refreshToken, profile, done) {
+            User.findOne({ "google.id": profile.id }, function (err, user) {
+                if (err) return done(err);
+                if (user) return done(null, user);
+                else {
+                    var user = new User();
+                    user.username = profile.emails[0].value;
+                    user.role = "User";
+                    user.image = profile.photos[0].value;
+                    user.google = {
+                        id: profile.id,
+                        token: accessToken,
+                        name: profile.displayName,
+                        email: profile.emails[0].value,
+                    };
+                    user.firstName = profile.name.givenName;
+                    user.lastName = profile.name.familyName;
 
+                    user.save((err, user) => {
+                        if (!err) return done(err, user);
+                    });
+                    // done(null, userData);
+                }
+            });
+        },
+        // User.authenticate(),
+    ),
+);
+
+passport.use(
+    "facebook",
+    new FacebookStrategy(
+        {
+            clientID: process.env.FACEBOOK_APP_ID,
+            clientSecret: process.env.FACEBOOK_APP_SECRET,
+            callbackURL: "http://localhost:8080/auth/facebook/callback",
+            profileFields: [
+                "id",
+                "email",
+                "displayName",
+                "name",
+                "picture.width(400).height(400)",
+            ],
+            enableProof: true,
+        },
+        function (accessToken, refreshToken, profile, cb) {
+            console.log(profile);
+            User.findOne({ "facebook.id": profile.id }, function (err, user) {
+                if (err) return cb(err);
+                if (user) return cb(null, user);
+                else {
+                    var user = new User();
+                    user.username = profile.emails
+                        ? profile.emails[0].value
+                        : "";
+                    user.role = "User";
+                    user.image = profile.photos[0].value;
+                    user.facebook = {
+                        id: profile.id,
+                        token: accessToken,
+                    };
+                    user.firstName = profile.name.givenName;
+                    user.lastName = profile.name.familyName;
+
+                    user.save((err, user) => {
+                        if (!err) return cb(err, user);
+                    });
+                }
+            });
+        },
+    ),
+);
 passport.serializeUser((user, done) => {
     done(null, user);
 });
@@ -72,6 +157,7 @@ app.use(express.static("canopus-frontend/build"));
 app.use("/api/job", jobRouter);
 app.use("/api/user", userRouter);
 app.use("/api/employer", employerRouter);
+app.use("/auth", authRouter);
 //===========================================================================
 //render frontend file (deployment)
 app.use("*", function (req, res) {
@@ -81,5 +167,5 @@ app.use("*", function (req, res) {
 
 const port = process.env.PORT || 8080;
 app.listen(port, () => {
-    console.log(`Listening to ${port}`);
+    console.log(`🌎 Listening to ${port}`);
 });
