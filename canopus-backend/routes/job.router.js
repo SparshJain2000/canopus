@@ -115,6 +115,7 @@ router.post("/search", (req, res) => {
         };
         return abc;
     }
+
     var mustquery = [],
         shouldquery = [];
     // settting limit and skip
@@ -136,6 +137,7 @@ router.post("/search", (req, res) => {
                 });
                 mustquery.push(addQuery(nearby, "description.location"));
                 shouldquery.push(addQueryboost(req.body.location, "description.location"));
+
                 //console.log(nearby);
                 if (req.body.pin)
                     shouldquery.push(addQuery(req.body.pin, "address.pin"));

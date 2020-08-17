@@ -13,7 +13,10 @@
     "author": "sparsh, sushant",
     "license": "ISC",
     "dependencies": {
+<<<<<<< HEAD
         "aws-sdk": "^2.727.1",
+=======
+>>>>>>> 713d93de4cd34587707961d97a979914496040e3
         "axios": "^0.19.2",
         "body-parser": "^1.19.0",
         "cors": "^2.8.5",
