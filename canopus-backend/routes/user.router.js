@@ -2,7 +2,7 @@ const router = require("express").Router(),
     passport = require("passport"),
     middleware = require("../middleware/index"),
     User = require("../models/user.model");
-    Tag = require("../models/tag.model");
+Tag = require("../models/tag.model");
 
 //===========================================================================
 //get all users
@@ -49,7 +49,7 @@ router.post("/", (req, res) => {
 // });
 
 router.post("/login", function (req, res, next) {
-    passport.authenticate("user", function (err, user, info) {
+    passport.authenticate("user", (err, user, info) => {
         console.log(info);
         if (err) {
             return res.status(400).json({ err: err });
@@ -87,7 +87,7 @@ router.get("/profile", middleware.isUser, (req, res) => {
 });
 //===========================================================================
 //get user profile by id
-router.get("/profile/:id", middleware.isLoggedIn, (req, res) => {
+router.get("/profile/:id", (req, res) => {
     User.findById(req.params.id)
         .then((user) => res.json(user))
         .catch((err) => res.status(400).json({ err: err }));
@@ -96,30 +96,11 @@ router.get("/profile/:id", middleware.isLoggedIn, (req, res) => {
 // User profile update
 
 router.put("/profile/update/", middleware.isUser, (req, res) => {
-    const user = new User({
-        ...(req.body.description && { description: req.body.description }),
-        //Previous job experience
-        ...(req.body.experience && {
-            experience: [
-                {
-                    title: req.body.experience.title,
-                    time: req.body.experience.time,
-                    line: req.body.experience.line,
-                },
-            ],
-        }),
-        ...(req.body.address && {
-            address: {
-                pin: req.body.address.pin,
-                city: req.body.address.city,
-                state: req.body.address.state,
-            },
-        }),
-    });
+    const user = new User(req.body);
     User.findByIdAndUpdate(
         // the id of the item to find
         req.user._id,
-        req.body,
+        user,
         { new: true },
 
         // the callback function
@@ -133,16 +114,15 @@ router.put("/profile/update/", middleware.isUser, (req, res) => {
 // TODO admin model for now works in user
 router.post("/tag", (req, res) => {
     const tag = new Tag({
-        uber:req.body.uber,
-        specialization:req.body.specialization,
-        description:req.body.description
+        uber: req.body.uber,
+        specialization: req.body.specialization,
+        description: req.body.description,
     });
     tag.save(tag)
         .then((tag) => {
-            res.json({user: tag})})
-        .catch((err) => res.status(400).json({err: err}));
-
-
+            res.json({ user: tag });
+        })
+        .catch((err) => res.status(400).json({ err: err }));
 });
 
 module.exports = router;
