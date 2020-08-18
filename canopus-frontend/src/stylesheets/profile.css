@@ -1,0 +1,10 @@
+.img-container {
+    position: relative;
+    width: 100%;
+}
+
+.btn-float {
+    position: absolute;
+    bottom: 0;
+    right: 0
+}
