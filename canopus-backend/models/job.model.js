@@ -21,8 +21,8 @@ module.exports = mongoose.model(
         //     line: String,
         //     experience: String,
         //     incentives: String,
-        //     type: String,
-        //     status: String,
+        //     type: String, // govt ,corporate
+        //     status: String, // internship full time
         //     location: String,
         //     salary: Number,
         // },

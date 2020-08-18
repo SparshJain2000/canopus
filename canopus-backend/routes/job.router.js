@@ -9,17 +9,13 @@ const router = require("express").Router(),
 //get all jobs
 router.get("/", (req, res) => {
     Job.find()
-        .then((jobs) =>
-            res.json({
-                jobs: jobs,
-                user: req.user,
-            }),
-        )
-        .catch((err) =>
-            res.status(400).json({
-                err: err,
-            }),
-        );
+        .then((jobs) => res.json({
+            jobs: jobs,
+            user: req.user
+        }))
+        .catch((err) => res.status(400).json({
+            err: err
+        }));
 });
 
 //===========================================================================
@@ -95,6 +91,7 @@ router.post("/", middleware.isEmployer, (req, res) => {
 //===========================================================================
 
 router.post("/search", (req, res) => {
+
     // query builder function
     function addQuery(query, path) {
         let abc = {
@@ -368,10 +365,11 @@ router.post("/search", (req, res) => {
 router.post("/similar", (req, res) => {
     function addQuery(query, path) {
         let abc = {
-            text: {
-                query: `${query}`,
-                path: `${path}`,
-            },
+            "text": {
+                "query": `${query}`,
+                "path": `${path}`
+
+            }
         };
         return abc;
     }
@@ -383,35 +381,34 @@ router.post("/similar", (req, res) => {
         shouldquery = [];
     if (req.body.location)
         mustquery.push(addQuery(req.body.location, "description.location"));
-    if (req.body.pin) shouldquery.push(addQuery(req.body.pin, "address.pin"));
+    if (req.body.pin)
+        shouldquery.push(addQuery(req.body.pin, "address.pin"));
     if (req.body.profession)
         mustquery.push(addQuery(req.body.profession, "profession"));
     if (req.body.specialization)
         mustquery.push(addQuery(req.body.specialization, "specialization"));
     if (req.body.superSpecialization)
-        mustquery.push(
-            addQuery(req.body.superSpecialization, "superSpecialization"),
-        );
+        mustquery.push(addQuery(req.body.superSpecialization, "superSpecialization"));
 
-    Job.aggregate(
-        [
-            {
+
+
+    Job.aggregate([{
                 $search: {
-                    compound: {
-                        must: mustquery,
-                        should: shouldquery,
+                    "compound": {
+                        "must": mustquery,
+                        "should": shouldquery
                     },
                 },
             },
             {
-                $limit: limiter,
+                $limit: limiter
             },
             {
                 $sort: {
                     score: {
-                        $meta: "textScore",
-                    },
-                },
+                        $meta: "textScore"
+                    }
+                }
             },
             {
                 $project: {
@@ -420,17 +417,16 @@ router.post("/similar", (req, res) => {
                     author: 0,
                     tag: 0,
                     score: {
-                        $meta: "textScore",
-                    },
+                        $meta: "textScore"
+                    }
                 },
             },
         ],
         (err, jobs) => {
-            if (err)
-                res.status(400).json({
-                    err: err,
-                });
-            else res.json({ jobs: jobs });
+            if (err) res.status(400).json({
+                err: err
+            });
+            else res.json(jobs);
         },
     );
 });
@@ -439,10 +435,10 @@ router.post("/similar", (req, res) => {
 router.post("/freelance", (req, res) => {
     function addQuery(query, path) {
         let abc = {
-            text: {
-                query: `${query}`,
-                path: `${path}`,
-            },
+            "text": {
+                "query": `${query}`,
+                "path": `${path}`
+            }
         };
         return abc;
     }
@@ -462,43 +458,40 @@ router.post("/freelance", (req, res) => {
     if (req.body.specialization)
         mustquery.push(addQuery(req.body.specialization, "specialization"));
     if (req.body.superSpecialization)
-        mustquery.push(
-            addQuery(req.body.superSpecialization, "superSpecialization"),
-        );
+        mustquery.push(addQuery(req.body.superSpecialization, "superSpecialization"));
     if (req.body.incentives)
-        shouldquery.push(
-            addQuery(req.body.incentives, "description.incentives"),
-        );
+        shouldquery.push(addQuery(req.body.incentives, "description.incentives"));
     if (req.body.type)
         mustquery.push(addQuery(req.body.type, "description.type"));
 
     // empty request response
-    if (!req.body) {
+    if (!(req.body)) {
         search = {};
+
     }
 
-    FreelanceJob.aggregate(
-        [
-            {
+
+
+    FreelanceJob.aggregate([{
                 $search: {
-                    compound: {
-                        must: mustquery,
-                        should: shouldquery,
+                    "compound": {
+                        "must": mustquery,
+                        "should": shouldquery
                     },
                 },
             },
             {
-                $limit: limiter,
+                $limit: limiter
             },
             {
-                $skip: skip,
+                $skip: skip
             },
             {
                 $sort: {
                     score: {
-                        $meta: "textScore",
-                    },
-                },
+                        $meta: "textScore"
+                    }
+                }
             },
 
             {
@@ -506,17 +499,16 @@ router.post("/freelance", (req, res) => {
                     _id: 0,
                     applicants: 0,
                     author: 0,
-                    tag: 0,
+                    tag: 0
                 },
             },
         ],
         (err, jobs) => {
-            if (err)
-                res.status(400).json({
-                    err: err,
-                });
+            if (err) res.status(400).json({
+                err: err
+            });
             else {
-                res.json({ jobs: jobs });
+                res.json(jobs);
             }
         },
     );
@@ -529,11 +521,9 @@ router.get("/:id", middleware.isLoggedIn, (req, res) => {
         .then((job) => {
             res.json(job);
         })
-        .catch((err) =>
-            res.status(400).json({
-                err: err,
-            }),
-        );
+        .catch((err) => res.status(400).json({
+            err: err
+        }));
 });
 
 //router.put("/:id",middleware.isLoggedIn())
@@ -544,7 +534,8 @@ router.post("/apply/:id", middleware.isUser, (req, res) => {
             ...job.applicants,
             {
                 id: req.user._id,
-                username: req.user.username,
+
+                username: req.user.username
             },
         ];
         job.save()
@@ -560,26 +551,20 @@ router.post("/apply/:id", middleware.isUser, (req, res) => {
                             .then((updatedUser) => {
                                 res.json({
                                     user: updatedUser,
-                                    job: job,
+                                    job: job
                                 });
                             })
-                            .catch((err) =>
-                                res.status(400).json({
-                                    err: err,
-                                }),
-                            );
+                            .catch((err) => res.status(400).json({
+                                err: err
+                            }));
                     })
-                    .catch((err) =>
-                        res.status(400).json({
-                            err: err,
-                        }),
-                    );
+                    .catch((err) => res.status(400).json({
+                        err: err
+                    }));
             })
-            .catch((err) =>
-                res.status(400).json({
-                    err: err,
-                }),
-            );
+            .catch((err) => res.status(400).json({
+                err: err
+            }));
     });
     req.user;
 });
@@ -640,11 +625,9 @@ router.get("/:id", middleware.isLoggedIn, (req, res) => {
 router.delete("/:id", middleware.isEmployer, (req, res) => {
     Job.findByIdAndDelete(req.params.id)
         .then(() => res.json("Job deleted successfully !"))
-        .catch((err) =>
-            res.status(400).json({
-                err: err,
-            }),
-        );
+        .catch((err) => res.status(400).json({
+            err: err
+        }));
 });
 
 module.exports = router;
