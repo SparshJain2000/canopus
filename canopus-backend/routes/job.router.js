@@ -128,7 +128,7 @@ router.post("/search", (req, res) => {
         console.log("insode");
         axios
             .get(
-                `http://getnearbycities.geobytes.com/GetNearbyCities?radius=100&locationcode=${req.body.location[0]}`,
+                `http://getnearbycities.geobytes.com/GetNearbyCities?radius=100&locationcode=${req.body.location[0]}%2C`,
             )
             .then(function (response) {
                 console.log(response.data);

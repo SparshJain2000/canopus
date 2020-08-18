@@ -13,11 +13,9 @@
     "author": "sparsh, sushant",
     "license": "ISC",
     "dependencies": {
-<<<<<<< HEAD
-        "aws-sdk": "^2.727.1",
-=======
->>>>>>> 713d93de4cd34587707961d97a979914496040e3
+        "@azure/storage-blob": "^12.2.0-preview.1",
         "axios": "^0.19.2",
+        "azure-storage": "^2.10.3",
         "body-parser": "^1.19.0",
         "cors": "^2.8.5",
         "dotenv": "^8.2.0",
@@ -29,7 +27,7 @@
         "passport-google-oauth": "^2.0.0",
         "passport-local": "^1.0.0",
         "passport-local-mongoose": "^6.0.1",
-        "request": "^2.88.2"
+        "stream": "0.0.2"
     },
     "engines": {
         "node": "v10.16.0"
