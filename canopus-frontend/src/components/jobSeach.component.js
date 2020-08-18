@@ -345,7 +345,7 @@ export default class JobSearch extends Component {
                 axios
                     .post(`/api/job/search`, query)
                     .then(({ data }) => {
-                        this.setState({ jobs: data, loaded: true });
+                        this.setState({ jobs: data.jobs, loaded: true });
                         // console.log(data);
                     })
                     .catch((err) => {
@@ -366,7 +366,7 @@ export default class JobSearch extends Component {
                     .post(`/api/job/search`, query)
                     .then(({ data }) => {
                         console.log(data);
-                        this.setState({ jobs: data, loaded: true });
+                        this.setState({ jobs: data.jobs, loaded: true });
                         // console.log(data);
                     })
                     .catch((err) => {
@@ -401,9 +401,9 @@ export default class JobSearch extends Component {
             type:
                 this.type.current.state.value &&
                 this.type.current.state.value.map((obj) => obj.value),
-            location:
-                this.location.current.state.value &&
+            location: this.location.current.state.value && [
                 this.location.current.state.value.value,
+            ],
         };
         Object.keys(query).forEach(
             (key) =>
@@ -417,7 +417,8 @@ export default class JobSearch extends Component {
             axios
                 .post(`/api/job/search`, query)
                 .then(({ data }) => {
-                    this.setState({ jobs: data, loaded: true });
+                    console.log(data);
+                    this.setState({ jobs: data.jobs, loaded: true });
                     // console.log(data);
                 })
                 .catch((err) => {

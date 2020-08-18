@@ -35,10 +35,12 @@ const Home = (props) => {
                 <div
                     className='main py-5 '
                     style={{ height: "100%", flexGrow: 1 }}>
-                    <h1 className='text-white' style={{ textAlign: "center" }}>
+                    <h1
+                        className='text-white px-2'
+                        style={{ textAlign: "center" }}>
                         New Provider Jobs Added Every Day
                     </h1>
-                    <div className='form-inline row justify-content-center mt-5 home-search'>
+                    <div className='form-inline home-search  justify-content-center mt-5 '>
                         <div
                             className='col-8 '
                             style={{
@@ -66,10 +68,11 @@ const Home = (props) => {
                                 }}
                                 className='col-3 btn btn-info my-2 my-sm-0'>
                                 <span
-                                    style={{
-                                        fontSize:
-                                            " calc(12px + (26 - 14) * ((100vw - 300px) / (1600 - 300)))",
-                                    }}>
+                                // style={{
+                                //     fontSize:
+                                //         " calc(12px + (26 - 14) * ((100vw - 300px) / (1600 - 300)))",
+                                // }}
+                                >
                                     Search
                                 </span>
                             </Link>

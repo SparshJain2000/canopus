@@ -17,7 +17,7 @@ export default class PersonalDetails extends Component {
         return (
             <div>
                 {/* <NavbarComponent /> */}
-                <Form className='border-block p-4 p-lg-5 mx-4 m-3'>
+                <Form className='block p-4 p-lg-5 mx-4 m-3'>
                     <h3>Enter Address Details</h3>
                     <FormGroup>
                         <Label>Pin</Label>
