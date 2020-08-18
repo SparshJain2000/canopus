@@ -1,44 +1,47 @@
-const {
-    FileService
-} = require("azure-storage");
+const { FileService } = require("azure-storage");
 
 const router = require("express").Router(),
     middleware = require("../middleware/index"),
-    {
-        BlobServiceClient
-    } = require("@azure/storage-blob"),
+    { BlobServiceClient } = require("@azure/storage-blob"),
     azure = require("azure-storage");
 require("dotenv").config();
-AZURE_STORAGE_CONNECTION_STRING = process.env.AZURE_STORAGE_CONNECTION_STRING || "";
-
-
+AZURE_STORAGE_CONNECTION_STRING =
+    process.env.AZURE_STORAGE_CONNECTION_STRING || "";
 
 var blobService = azure.createBlobService();
 
 router.post("/", (req, res) => {
-    const container='user-image';
+    const container = "user-image";
     var rawdata = req.body.file;
+    // console.log(rawdata);
     var matches = rawdata.match(/^data:([A-Za-z-+\/]+);base64,(.+)$/);
     var type = matches[1];
-    var buffer = new Buffer(matches[2], 'base64');
+    var buffer = new Buffer(matches[2], "base64");
     console.log(buffer);
-    blobService.createBlockBlobFromText(container,
+    blobService.createBlockBlobFromText(
+        container,
         req.body.name,
-        buffer, {
+        buffer,
+        {
             contentSettings: {
-                contentType: type
+                contentType: type,
                 //contentEncoding: 'base64'
-            }
+            },
         },
         function (error, result, response) {
             if (error) {
                 res.send(error);
-            } else res.send(JSON.stringify("https://canopus.blob.core.windows.net/user-image/"+req.body.name));
+            } else
+                res.send(
+                    JSON.stringify(
+                        "https://canopus.blob.core.windows.net/user-image/" +
+                            req.body.name,
+                    ),
+                );
             console.log("result", result);
             console.log("response", response);
-        });
-
+        },
+    );
 });
-
 
 module.exports = router;
