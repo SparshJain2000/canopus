@@ -7,6 +7,11 @@ body {
     overflow-x: hidden;
 }
 
+html[data-theme='dark'] {
+    background: #000;
+    filter: invert(1) hue-rotate(180deg)
+}
+
 h1,
 h2,
 h3,
@@ -47,8 +52,8 @@ a:hover {
 
 .block:hover {
     /* background-color: rgba(0, 0, 0, 0.1); */
-    border: 0.05rem solid grey;
-    box-shadow: 5px 5px 6px rgba(0, 0, 0, 0.5);
+    border: 0.05rem solid rgb(150, 150, 150);
+    box-shadow: 5px 5px 6px rgba(0, 0, 0, 0.4);
     transition: 0.3s ease-in-out;
     /* transform: scale(1.01); */
 }

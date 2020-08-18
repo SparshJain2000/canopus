@@ -18,6 +18,7 @@ export default class Employer extends Component {
                         backgroundAttachment: "contain",
                         backgroundSize: "cover",
                         backgroundRepeat: "no-repeat",
+                        backgroundPosition: "center",
                     }}>
                     <div className='col-12 ' style={{ textAlign: "center" }}>
                         <img
@@ -45,6 +46,7 @@ export default class Employer extends Component {
                         backgroundAttachment: "contain",
                         backgroundSize: "cover",
                         backgroundRepeat: "no-repeat",
+                        backgroundPosition: "center",
                     }}>
                     <div className='col-12 ' style={{ textAlign: "center" }}>
                         <img

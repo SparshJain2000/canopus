@@ -1,7 +1,12 @@
-import React, { Component, createRef } from "react";
+import React, { Component, createRef, useState } from "react";
+
 import "../stylesheets/jobSearch.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faMapMarkerAlt } from "@fortawesome/free-solid-svg-icons";
+import {
+    faMapMarkerAlt,
+    faUser,
+    faEnvelope,
+} from "@fortawesome/free-solid-svg-icons";
 import {
     Media,
     Badge,
@@ -14,9 +19,14 @@ import {
     NavLink,
     Row,
     Col,
+    Modal,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
 } from "reactstrap";
 import axios from "axios";
 import doctor from "../images/doctor.png";
+import hospital from "../images/hospital.svg";
 import Loader from "react-loader-spinner";
 import Select from "react-select";
 import data from "../data";
@@ -51,63 +61,65 @@ const specializationArray = data.specializations.map((opt) => ({
     label: opt,
     value: opt,
 }));
-const Job = ({ job }) => {
+const Job = ({ job, userId, user }) => {
+    const [modal, setModal] = useState(false);
+    const [applied, setApplied] = useState(false);
+    // if (user.applied.map((job) => job.id).includes(job._id)) setApplied(true);
+    const toggle = () => {
+        if (!user) alert("Not Logged In");
+        else {
+            if (job.applicants.map((us) => us.id).includes(user._id))
+                alert("already applied");
+            else setModal(!modal);
+        }
+    };
+    const closeBtn = (
+        <button className='close' onClick={toggle}>
+            &times;
+        </button>
+    );
+
     const applyJob = () => {
         axios
             .post(`/api/job/apply/${job._id}`)
             .then(({ data }) => {
                 console.log(data);
+                // setApplied(true);
+                window.location = "/search-jobs";
             })
             .catch((err) => console.log(err.response));
     };
     return (
-        <BounceIn>
-            <Media className='row block justify-content-center my-3 mx-auto py-4 px-2 px-md-4'>
-                <Media
-                    left
-                    href='#'
-                    className='col-12 col-sm-3 my-auto mx-auto'>
-                    <Media
-                        object
-                        src={doctor}
-                        alt='Generic placeholder image'
-                        className='img-fluid'
-                        // style={{ maxWidth: "50%" }}
-                    />
-                    <Button
-                        color='primary w-100 mt-3'
-                        // className='float-right'
-                        onClick={applyJob}>
-                        Apply
-                    </Button>
-                </Media>
-                <Media body className='col-12 col-sm-9 my-4 my-md-2 p-2'>
-                    <Media heading>{job.title}</Media>
-                    <Media heading>
-                        <h6>
-                            <FontAwesomeIcon icon={faMapMarkerAlt} />{" "}
-                            {job.description.location}
-                        </h6>
-                    </Media>
-                    <hr />
-                    <div className='row m-0'>
-                        <div className='col-12 '>
-                            <em>{job.description.line}</em>
-                            <br />
-                            <br />
-                            <strong>Type:</strong>
+        <div>
+            <BounceIn>
+                <Media className='row block justify-content-center my-3 mx-auto p-2 px-md-4'>
+                    <Media body className='col-12  my-4 my-md-2 p-2'>
+                        <Media heading>{job.title}</Media>
+                        <Media heading>
+                            <h6>
+                                <FontAwesomeIcon icon={faMapMarkerAlt} />{" "}
+                                {job.description.location}
+                            </h6>
+                        </Media>
+                        <hr />
+                        <div className='row m-0'>
+                            <div className='col-12 '>
+                                <em>{job.description.line}</em>
+                                <br />
+                                <br />
+                                {/* <strong>Type:</strong>
                             {job.description.type.map((type) => `${type} , `)}
-                            <br />
-                            <strong>Experience: </strong>
-                            {job.description.experience}
-                            <br />
+                            <br /> */}
+                                {/* <strong>Experience: </strong>
+                            {job.description.experience} */}
+                                {/* <br />
                             <strong>incentives: </strong>
                             {job.description.incentives.map(
                                 (inc) => `${inc} ,`,
-                            )}
-                            <br />
-                        </div>
-                        {/* <div
+                            )} */}
+                                <br />
+                            </div>
+                            {/* <div
                         className='col-12 col-sm-2 my-2 my-sm-auto'
                         style={{ textAlign: "center" }}>
                         <Button
@@ -117,22 +129,162 @@ const Job = ({ job }) => {
                             Apply
                         </Button>
                     </div> */}
+                        </div>
+                    </Media>
+                    <Media
+                        left
+                        href='#'
+                        className='d-none d-md-block col-12 col-sm-3 my-auto mx-auto '>
+                        <Media
+                            object
+                            src={hospital}
+                            alt='Generic placeholder image'
+                            className='img-fluid'
+                            // style={{ maxWidth: "50%" }}
+                        />
+                    </Media>
+                    <hr className='col-12' />
+                    <div className='row w-100 justify-content-between'>
+                        <div className='col-12 col-md-9 pr-0 pr-sm-3 row w-100 py-2'>
+                            <div className='col-12 col-sm-10 px-0 '>
+                                <Badge color='secondary' className='mx-1'>
+                                    {job.description.experience}
+                                </Badge>
+
+                                {job.superSpecialization &&
+                                    job.superSpecialization.map((tag) => (
+                                        <Badge color='info' className='mx-1'>
+                                            {tag}
+                                        </Badge>
+                                    ))}
+                                <br />
+                                {job.description.type &&
+                                    job.description.type.map((tag) => (
+                                        <Badge color='warning' className='mx-1'>
+                                            {tag}
+                                        </Badge>
+                                    ))}
+                                <br />
+                                {job.description.incentives &&
+                                    job.description.incentives.map((tag) => (
+                                        <Badge color='primary' className='mx-1'>
+                                            {tag}
+                                        </Badge>
+                                    ))}
+                            </div>
+
+                            <div className='col-12 col-sm-2 px-0 mt-auto'>
+                                <Badge
+                                    color='success'
+                                    className='float-right mt-3'>
+                                    {job.author && job.author.username}
+                                </Badge>
+                            </div>
+                        </div>
+                        <div className='col-12 col-md-3 my-auto mt-sm-3'>
+                            {user ? (
+                                job.applicants
+                                    .map((user) => user.id)
+                                    .includes(user._id) ? (
+                                    <Button
+                                        color={`primary`}
+                                        size='lg'
+                                        className={`w-100  `}
+                                        disabled>
+                                        Apply
+                                    </Button>
+                                ) : (
+                                    <Button
+                                        color={`primary`}
+                                        className={`w-100`}
+                                        size='lg'
+                                        onClick={toggle}>
+                                        Apply
+                                    </Button>
+                                )
+                            ) : (
+                                <Button
+                                    color={`primary`}
+                                    size='lg'
+                                    className={`w-100  `}
+                                    disabled>
+                                    Apply
+                                </Button>
+                            )}
+                        </div>
                     </div>
-                    <hr />
-
-                    {job.superSpecialization &&
-                        job.superSpecialization.map((tag) => (
-                            <Badge color='info' className='mx-1'>
-                                {tag}
-                            </Badge>
-                        ))}
-
-                    <Badge color='success' className='float-right mt-3'>
-                        {job.author && job.author.username}
-                    </Badge>
                 </Media>
-            </Media>
-        </BounceIn>
+            </BounceIn>
+            {user && (
+                <Modal
+                    isOpen={modal}
+                    toggle={toggle}
+                    style={{ minWidth: "70vw" }}>
+                    <ModalHeader toggle={toggle} close={closeBtn}>
+                        Your Info
+                    </ModalHeader>
+                    <ModalBody className='row'>
+                        <div className='col-12 col-md-7 px-2'>
+                            <h6>
+                                <FontAwesomeIcon
+                                    icon={faEnvelope}
+                                    className='ml-2 mr-3'
+                                />
+                                {`${user.username}`}
+                            </h6>
+                            <h6>
+                                <FontAwesomeIcon
+                                    icon={faUser}
+                                    className='ml-2 mr-3'
+                                />
+                                {`${user.firstName} ${user.lastName}`}
+                            </h6>
+                            {user.address && (
+                                <h6>
+                                    <FontAwesomeIcon
+                                        icon={faMapMarkerAlt}
+                                        className='ml-2 mr-3'
+                                    />
+                                    {`${user.address.city}, ${user.address.state}, ${user.address.pin}`}
+                                </h6>
+                            )}
+                            <hr />
+                            <em>
+                                {user.description}
+                                Lorem ipsum dolor sit amet consectetur
+                                adipisicing elit. Saepe, repudiandae vitae,
+                                earum maerat doloribus acc
+                            </em>
+                        </div>
+                        <div className='col-12 col-md-5 px-2'>
+                            <h5>Experience</h5>
+                            <hr />
+                            {user.experience &&
+                                user.experience.map((exp) => (
+                                    <div>
+                                        <h6>{exp.title}</h6>
+
+                                        <p>
+                                            {exp.line}
+                                            <br />
+                                            {exp.time}
+                                        </p>
+                                        <hr />
+                                    </div>
+                                ))}
+                        </div>
+                    </ModalBody>
+                    <ModalFooter>
+                        <Button color='primary' onClick={applyJob}>
+                            Apply
+                        </Button>
+                        <Button color='secondary' onClick={toggle}>
+                            Cancel
+                        </Button>
+                    </ModalFooter>
+                </Modal>
+            )}
+        </div>
     );
 };
 export default class JobSearch extends Component {
@@ -193,7 +345,7 @@ export default class JobSearch extends Component {
                 axios
                     .post(`/api/job/search`, query)
                     .then(({ data }) => {
-                        this.setState({ jobs: data, loaded: true });
+                        this.setState({ jobs: data.jobs, loaded: true });
                         // console.log(data);
                     })
                     .catch((err) => {
@@ -213,7 +365,8 @@ export default class JobSearch extends Component {
                 axios
                     .post(`/api/job/search`, query)
                     .then(({ data }) => {
-                        this.setState({ jobs: data, loaded: true });
+                        console.log(data);
+                        this.setState({ jobs: data.jobs, loaded: true });
                         // console.log(data);
                     })
                     .catch((err) => {
@@ -248,9 +401,9 @@ export default class JobSearch extends Component {
             type:
                 this.type.current.state.value &&
                 this.type.current.state.value.map((obj) => obj.value),
-            location:
-                this.location.current.state.value &&
+            location: this.location.current.state.value && [
                 this.location.current.state.value.value,
+            ],
         };
         Object.keys(query).forEach(
             (key) =>
@@ -264,7 +417,8 @@ export default class JobSearch extends Component {
             axios
                 .post(`/api/job/search`, query)
                 .then(({ data }) => {
-                    this.setState({ jobs: data, loaded: true });
+                    console.log(data);
+                    this.setState({ jobs: data.jobs, loaded: true });
                     // console.log(data);
                 })
                 .catch((err) => {
@@ -507,7 +661,18 @@ export default class JobSearch extends Component {
                                     {this.state.jobs.length} jobs found
                                 </h3>
                                 {this.state.jobs.map((job) => {
-                                    return <Job key={job.id} job={job} />;
+                                    return (
+                                        <Job
+                                            key={job.id}
+                                            job={job}
+                                            userId={
+                                                this.props.user
+                                                    ? this.props.user._id
+                                                    : null
+                                            }
+                                            user={this.props.user}
+                                        />
+                                    );
                                 })}
                             </div>
                         ) : (

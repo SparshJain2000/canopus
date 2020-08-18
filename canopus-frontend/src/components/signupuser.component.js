@@ -1,6 +1,4 @@
 import React, { Component } from "react";
-// import NavbarComponent from "./navbar.component.js";
-// import { Form, Input, Label, FormGroup, Button } from "reactstrap";
 import UserDetails from "./signupComponent/userDetails.component";
 import PersonalDetails from "./signupComponent/personalDetails.component";
 import Confirmation from "./signupComponent/confirmation.component.js";
@@ -88,8 +86,6 @@ export default class SignupUser extends Component {
                         values={values}
                     />
                 );
-            // case 4:
-            //     return <Success />
             default:
                 return (
                     <UserDetails
