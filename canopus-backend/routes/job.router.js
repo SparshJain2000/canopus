@@ -9,6 +9,7 @@ const router = require("express").Router(),
 //get all jobs
 router.get("/", (req, res) => {
     Job.find()
+    
         .then((jobs) =>
             res.json({
                 jobs: jobs,
