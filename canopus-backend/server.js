@@ -162,9 +162,9 @@ app.use("/auth", authRouter);
 app.use("/api/upload", uploadRouter);
 //===========================================================================
 //render frontend file (deployment)
-app.use("*", function (req, res) {
-    res.sendFile(path.join(__dirname, "canopus-frontend/build/index.html"));
-});
+// app.use("*", function (req, res) {
+//     res.sendFile(path.join(__dirname, "canopus-frontend/build/index.html"));
+// });
 //===========================================================================
 
 const port = process.env.PORT || 8080;
