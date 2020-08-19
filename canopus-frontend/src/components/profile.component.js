@@ -8,11 +8,13 @@ import {
     faBriefcaseMedical,
     faPen,
     faPlus,
+    faFileAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import "../stylesheets/profile.css";
 import Loader from "react-loader-spinner";
 import imageCompression from "browser-image-compression";
 import {
+    Progress,
     Media,
     Button,
     Modal,
@@ -32,8 +34,9 @@ export default class Profile extends Component {
             modalAbout: false,
             modalDetail: false,
             modalExperience: false,
-            percentage: 0,
             imageLoading: true,
+            progress: 0,
+            uploaded: true,
         };
         this.image = React.createRef();
         this.firstName = React.createRef();
@@ -42,13 +45,16 @@ export default class Profile extends Component {
         this.city = React.createRef();
         this.addState = React.createRef();
         this.about = React.createRef();
-
+        this.resume = React.createRef();
         this.toggleAbout = this.toggleAbout.bind(this);
         this.toggleDetail = this.toggleDetail.bind(this);
         this.toggleExperience = this.toggleExperience.bind(this);
         this.uploadImage = this.uploadImage.bind(this);
+        this.uploadResume = this.uploadResume.bind(this);
         this.update = this.update.bind(this);
-        this.progress = this.progress.bind(this);
+        this.setProgress = this.setProgress.bind(this);
+
+        this.uploadToStorage = this.uploadToStorage.bind(this);
     }
     update() {
         console.log(this.state.profile);
@@ -75,11 +81,18 @@ export default class Profile extends Component {
     toggleExperience() {
         this.setState({ modalExperience: !this.state.modalExperience });
     }
-    progress(e) {
-        console.log(e);
-    }
+    // setProgress(e) {
+    //     this.setState({
+    //         progress: e,
+    //     });
+    // }
+    setProgress = (state) => {
+        this.setState({
+            progress: parseInt(state.loadedBytes) / parseInt(10000),
+        });
+    };
     async uploadToStorage(storageAccountName, sas, file) {
-        console.log(file);
+        // console.log(file);
         try {
             const account = storageAccountName;
             // const sharedKeyCredential = new Credential(account, accountKey);
@@ -93,6 +106,20 @@ export default class Profile extends Component {
             const blockBlobClient = blobClient.getBlockBlobClient();
             const uploadBlobResponse = await blockBlobClient.uploadBrowserData(
                 file.data,
+
+                {
+                    onProgress: (state) => {
+                        this.setState({
+                            progress:
+                                parseInt(state.loadedBytes) /
+                                parseInt(file.size),
+                        });
+                        // console.log(this.state.progress);
+                        // console.log(state);
+                        // console.log(parseInt(file.size));
+                    },
+                },
+
                 {
                     maxSingleShotSize: 4 * 1024 * 1024,
                 },
@@ -117,26 +144,61 @@ export default class Profile extends Component {
     uploadImage(e) {
         // console.log(this.image.current.value);
         const files = Array.from(e.target.files);
-        this.setState({ imageLoading: true });
-        let profile = this.state.profile;
-        const options = {
-            maxSizeMB: 0.256, // (default: Number.POSITIVE_INFINITY)
-            maxWidthOrHeight: 1920,
-            // compressedFile will scale down by ratio to a point that width or height is smaller than maxWidthOrHeight (default: undefined)
-            // onProgress: this.progress(0),
+        if (files.length !== 0) {
+            this.setState({ imageLoading: true });
+            let profile = this.state.profile;
+            const options = {
+                maxSizeMB: 0.256, // (default: Number.POSITIVE_INFINITY)
+                maxWidthOrHeight: 1920,
+            };
+            imageCompression(files[0], options).then((file) => {
+                // console.log("compressedFile instanceof Blob", file instanceof Blob); // true
+                console.log(`file size ${file.size / 1024 / 1024} MB`); // smaller than maxSizeMB
+                // await uploadToServer(file); // write your own logic
+                let reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => {
+                    var matches = reader.result.match(
+                        /^data:([A-Za-z-+\/]+);base64,(.+)$/,
+                    );
+                    var buffer = new Buffer(matches[2], "base64");
+                    const image = {
+                        name: `${profile._id}_${file.name}`,
+                        data: buffer,
+                        mimeType: file.type,
+                    };
+                    console.log(image);
+                    axios
+                        .post(`/api/upload`, {
+                            context: `${profile._id}_${file.name}`,
+                        })
+                        .then(({ data }) => {
+                            const sas = data.token;
+                            this.uploadToStorage("canopus", sas, image).then(
+                                (res) => {
+                                    // console.log(res);
+                                    profile.image = `https://canopus.blob.core.windows.net/user-image/${profile._id}_${file.name}`;
+                                    // console.log(profile);
+                                    this.setState({
+                                        profile: profile,
+                                        // imageLoading: false,
+                                    });
+                                    this.update();
+                                },
+                            );
+                        })
+                        .catch((e) => console.log(e));
+                };
+            });
+        }
+    }
+    uploadResume(e) {
+        const files = Array.from(e.target.files);
+        if (files.length !== 0) {
+            this.setState({ uploaded: false });
+            let profile = this.state.profile;
+            const file = files[0];
 
-            // useWebWorker: boolean, // optional, use multi-thread web worker, fallback to run in main-thread (default: true)
-            // maxIteration: number, // optional, max number of iteration to compress the image (default: 10)
-            // exifOrientation: number, // optional, see https://stackoverflow.com/a/32490603/10395024
-            // onProgress: Function, // optional, a function takes one progress argument (percentage from 0 to 100)
-            // fileType: string, // optional, fileType override
-        };
-        // const file = files[0];
-
-        imageCompression(files[0], options).then((file) => {
-            // console.log("compressedFile instanceof Blob", file instanceof Blob); // true
-            console.log(`file size ${file.size / 1024 / 1024} MB`); // smaller than maxSizeMB
-            // await uploadToServer(file); // write your own logic
             let reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = () => {
@@ -144,70 +206,37 @@ export default class Profile extends Component {
                     /^data:([A-Za-z-+\/]+);base64,(.+)$/,
                 );
                 var buffer = new Buffer(matches[2], "base64");
-                // console.log(buffer);
-                // console.log(matches);
-                const image = {
-                    // name: `profile_${profile._id}.${file.name.split(".")[1]}`,
+                const resume = {
                     name: `${profile._id}_${file.name}`,
                     data: buffer,
                     mimeType: file.type,
+                    size: file.size,
                 };
-                console.log(image);
+                console.log(resume);
                 axios
                     .post(`/api/upload`, {
                         context: `${profile._id}_${file.name}`,
                     })
                     .then(({ data }) => {
                         const sas = data.token;
-                        this.uploadToStorage("canopus", sas, image).then(
+                        this.uploadToStorage("canopus", sas, resume).then(
                             (res) => {
                                 console.log(res);
-                                profile.image = `https://canopus.blob.core.windows.net/user-image/${profile._id}_${file.name}`;
-                                // console.log(profile);
+                                const url = `https://canopus.blob.core.windows.net/user-image/${profile._id}_${file.name}`;
+                                console.log(url);
+                                profile.resume = url;
+
                                 this.setState({
                                     profile: profile,
-                                    // imageLoading: false,
                                 });
                                 this.update();
+                                this.setState({ uploaded: true });
                             },
                         );
                     })
                     .catch((e) => console.log(e));
             };
-        });
-
-        // console.log(files);
-        // const formData = new FormData();
-        // const file = e.target.files[0];
-        // formData.append("myfile", file, file.name);
-        // console.log(formData);
-
-        // console.log(image);
-        // let pro = this.state.profile;
-        // let reader = new FileReader();
-        // reader.readAsDataURL(file);
-        // reader.onload = () => {
-        //     const image = {
-        //         name: file.name,
-        //         file: reader.result,
-        //     };
-        //     console.log(image);
-        //     axios
-        //         .post(`/api/upload`, image)
-        //         .then((res) => {
-        //             console.log(res);
-        //             console.log(this.state);
-        //             // let pro = this.state.profile;
-        //             if (pro) pro.image = res.data;
-        //             this.setState({ profile: pro });
-        //             this.update();
-        //         })
-        //         .catch((err) => {
-        //             console.log(err);
-        //             console.log(err.status);
-        //             console.log(err.code);
-        //         });
-        // };
+        }
     }
     componentDidMount() {
         if (this.props.match) {
@@ -298,7 +327,7 @@ export default class Profile extends Component {
                                             width={220}
                                         />
                                     </div>
-
+                                    {/* 
                                     {this.state.editable && (
                                         <div className='position-relative'>
                                             <button
@@ -333,7 +362,7 @@ export default class Profile extends Component {
                                                 onChange={this.uploadImage}
                                             />
                                         </div>
-                                    )}
+                                    )} */}
                                 </div>
                                 <div
                                     className='py-3 px-2 col-12 position-relative'
@@ -541,6 +570,90 @@ export default class Profile extends Component {
                                     )}
                                 </div>
                             )}
+                            <div className='block mt-4 p-2 p-sm-3'>
+                                <h3>Resume</h3>
+
+                                {this.state.profile.resume === "" &&
+                                this.state.progress !== 1 ? (
+                                    <div>
+                                        <input
+                                            type='file'
+                                            class='file'
+                                            ref={this.resume}
+                                            accept='.pdf,.doc'
+                                            onChange={this.uploadResume}
+                                        />
+                                        <div className='my-1 mt-3'>
+                                            <Progress
+                                                animated
+                                                color='info'
+                                                value={
+                                                    this.state.progress * 100
+                                                }>
+                                                <h6 className='m-0'>
+                                                    {Math.round(
+                                                        this.state.progress *
+                                                            100,
+                                                    )}
+                                                    {"%"}
+                                                </h6>
+                                            </Progress>
+                                        </div>
+                                    </div>
+                                ) : this.state.uploaded ? (
+                                    <div className='row'>
+                                        <div className='col-12 col-sm-4'>
+                                            <h5>Uploaded !</h5>
+                                        </div>
+                                        <div className='col-12 col-sm-8 row justify-content-between'>
+                                            <a
+                                                href={`${this.state.profile.resume}`}
+                                                className='col-5 btn btn-info btn-sm mr-1'>
+                                                View PDF
+                                                <FontAwesomeIcon
+                                                    className='ml-2'
+                                                    icon={faFileAlt}
+                                                />
+                                            </a>
+                                            {/* <a
+                                                href={`${this.state.profile.resume}`}
+                                                className='btn btn-info btn-sm float-right mr-3'>
+                                                Change Resume
+                                            </a> */}
+                                            <button
+                                                className='col-6 btn btn-sm btn-primary'
+                                                onClick={() => {
+                                                    let profile = this.state
+                                                        .profile;
+                                                    profile.resume = "";
+                                                    this.setState({
+                                                        profile: profile,
+                                                    });
+                                                    this.update();
+                                                }}>
+                                                Change Resume
+                                                <FontAwesomeIcon
+                                                    className='ml-2'
+                                                    icon={faPen}
+                                                />
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <Loader
+                                        type='Rings'
+                                        color='#17a2b8'
+                                        className='mx-auto my-2 my-auto w-100 '
+                                        style={{
+                                            textAlign: "center",
+                                            height: "100%",
+                                            background: "rgba(255,255,255,.7)",
+                                        }}
+                                        height={160}
+                                        width={220}
+                                    />
+                                )}
+                            </div>
                         </div>
                         <Modal
                             isOpen={this.state.modalAbout}
