@@ -10,6 +10,7 @@ module.exports = mongoose.model(
         role: String,
         image: String,
         description: String,
+        resume: String,
         google: Object,
         facebook: Object,
 
