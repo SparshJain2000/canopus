@@ -111,7 +111,7 @@ router.post("/search", (req, res) => {
             text: {
                 query: `${query}`,
                 path: `${path}`,
-                score:{ "boost": { "value": 3 }}
+                score: { boost: { value: 3 } },
             },
         };
         return abc;
@@ -137,7 +137,9 @@ router.post("/search", (req, res) => {
                     nearby.push(element[1]);
                 });
                 mustquery.push(addQuery(nearby, "description.location"));
-                shouldquery.push(addQueryboost(req.body.location, "description.location"));
+                shouldquery.push(
+                    addQueryboost(req.body.location, "description.location"),
+                );
 
                 //console.log(nearby);
                 if (req.body.pin)
@@ -229,7 +231,7 @@ router.post("/search", (req, res) => {
                             $skip: skip,
                         },
                         //sort,
-                        {$sort: { score: { $meta: "textScore" }} },
+                        { $sort: { score: { $meta: "textScore" } } },
                         {
                             $project: {
                                 _id: 1,
@@ -660,7 +662,6 @@ router.delete("/:id", middleware.isEmployer, (req, res) => {
                 err: err,
             }),
         );
-
 });
 
 module.exports = router;
