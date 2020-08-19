@@ -9,7 +9,6 @@ const router = require("express").Router(),
 //get all jobs
 router.get("/", (req, res) => {
     Job.find()
-    
         .then((jobs) =>
             res.json({
                 jobs: jobs,
@@ -232,7 +231,7 @@ router.post("/search", (req, res) => {
                         {$sort: { score: { $meta: "textScore" }} },
                         {
                             $project: {
-                                _id: 0,
+                                _id: 1,
                                 title: 1,
                                 applied: {
                                     $cond: {
@@ -349,7 +348,7 @@ router.post("/search", (req, res) => {
                 sort,
                 {
                     $project: {
-                        _id: 0,
+                        _id: 1,
                         title: 1,
                         applied: {
                             $cond: {
@@ -430,9 +429,9 @@ router.post("/similar", (req, res) => {
             },
             {
                 $project: {
-                    _id: 0,
+                    _id: 1,
                     applicants: 0,
-                    author: 0,
+                    author: 1,
                     tag: 0,
                     score: {
                         $meta: "textScore",

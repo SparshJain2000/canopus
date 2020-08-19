@@ -12,14 +12,14 @@ const express = require("express"),
     path = require("path"),
     userRouter = require("./routes/user.router"),
     authRouter = require("./routes/auth.router"),
-    uploadRouter=require("./routes/blob.router"),
+    uploadRouter = require("./routes/blob.router"),
     employerRouter = require("./routes/employer.router"),
     GoogleStrategy = require("passport-google-oauth").OAuth2Strategy,
     FacebookStrategy = require("passport-facebook").Strategy,
     bodyParser = require("body-parser");
 require("dotenv").config();
 //==========================================================================
-app.use(bodyParser.json());
+app.use(bodyParser.json({ limit: "5mb" }));
 app.use(cors());
 app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Credentials", true);
@@ -159,7 +159,7 @@ app.use("/api/job", jobRouter);
 app.use("/api/user", userRouter);
 app.use("/api/employer", employerRouter);
 app.use("/auth", authRouter);
-app.use("/upload",uploadRouter);
+app.use("/api/upload", uploadRouter);
 //===========================================================================
 //render frontend file (deployment)
 app.use("*", function (req, res) {
