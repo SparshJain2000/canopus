@@ -49,6 +49,7 @@ router.post("/", middleware.isLoggedIn, (req, res) => {
     console.log(id);
     res.send(generateSasToken("user-image", filename));
 });
+
 router.post("/manual", (req, res) => {
     const container = "user-image";
     var rawdata = req.body.file;
