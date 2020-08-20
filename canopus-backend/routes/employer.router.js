@@ -29,6 +29,11 @@ router.post("/", (req, res) => {
         address: req.body.address,
         description: req.body.description,
         role: "Employer",
+        tier:{
+            allowed: 10,
+            posted: 0,
+            closed: 0,
+        }
     });
     Employer.register(employer, req.body.password)
         .then((employer) => {
