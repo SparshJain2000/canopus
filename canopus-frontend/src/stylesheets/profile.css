@@ -1,0 +1,21 @@
+.img-container {
+    position: relative;
+    width: 100%;
+}
+
+.btn-float {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+}
+
+.progress {
+    height: 1.7rem;
+}
+
+input.file {
+    margin: 0;
+    padding: 1rem 0.5rem;
+    font: 1rem/1.5 "PT Sans", Arial, sans-serif;
+    color: #5a5a5a;
+}
