@@ -8,6 +8,7 @@ import Profile from "./components/profile.component";
 import SignupUser from "./components/signupuser.component";
 // import doctor from "./images/doctor.png";
 import JobSearch from "./components/jobSeach.component";
+import Job from "./components/job.component";
 import PostJob from "./components/postJob.component";
 import Employer from "./components/employer.component";
 import JobApplications from "./components/jobApplications.component";
@@ -78,6 +79,12 @@ class App extends Component {
                     exact
                     // render={(props) => <Profile {...props} />}
                     render={(props) => <Profile {...props} />}
+                />
+                <Route
+                    path='/job/:id'
+                    exact
+                    // render={(props) => <Profile {...props} />}
+                    render={(props) => <Job {...props} />}
                 />
                 <Route
                     path='/employer'
