@@ -157,19 +157,18 @@ const NavbarComponent = (props) => {
                     {!props.user ? (
                         <Nav
                             className='row ml-auto align-content-center justify-content-center mt-3 mt-lg-0'
-                            style={{ minWidth: "35%" }}>
+                            style={{ minWidth: "33%" }}>
                             <Toast
                                 className='my-auto mx-1'
                                 style={{
                                     border: "1px solid #4180cb",
-                                    width: "45%",
                                 }}>
                                 <div className='toast-header '>
                                     <strong className='mx-auto'>
                                         JobSeekers
                                     </strong>
                                 </div>
-                                <ToastBody className='flex flex-column'>
+                                <ToastBody className='row justify-content-around mx-1'>
                                     <div>
                                         <a
                                             href='#'
@@ -178,10 +177,10 @@ const NavbarComponent = (props) => {
                                             Login
                                         </a>
                                     </div>
-                                    <div className='mt-2'>
+                                    <div className=''>
                                         <Link
                                             to='/user/signup'
-                                            className='badge badge-lg badge-primary p-2'>
+                                            className='badge badge-lg badge-primary p-2 ml-1'>
                                             Signup
                                         </Link>
                                     </div>
@@ -191,14 +190,13 @@ const NavbarComponent = (props) => {
                                 className=' my-auto mx-1'
                                 style={{
                                     border: "1px solid rgb(255, 136, 0)",
-                                    width: "45%",
                                 }}>
                                 <div className='toast-header px-auto'>
                                     <strong className='mx-auto'>
                                         Employer
                                     </strong>
                                 </div>
-                                <ToastBody className='flex flex-column'>
+                                <ToastBody className='row justify-content-around mx-1'>
                                     <div>
                                         <a
                                             href='#'
@@ -207,10 +205,10 @@ const NavbarComponent = (props) => {
                                             Login
                                         </a>
                                     </div>
-                                    <div className='mt-2'>
+                                    <div className=''>
                                         <a
                                             href='#'
-                                            className='badge badge-lg badge-danger p-2'>
+                                            className='badge badge-lg badge-danger p-2 ml-1'>
                                             Signup
                                         </a>
                                     </div>
