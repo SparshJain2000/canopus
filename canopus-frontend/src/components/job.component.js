@@ -1,8 +1,9 @@
-import React, { Component } from "react";
+import React, { Component, createRef } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
 import Loader from "react-loader-spinner";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { CopyToClipboard } from "react-copy-to-clipboard";
 import {
     faMapMarkerAlt,
     faEnvelope,
@@ -10,6 +11,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import {
     Badge,
+    Tooltip,
     Alert,
     Button,
     Modal,
@@ -33,6 +35,32 @@ const formatter = new Intl.NumberFormat("en-IN", {
 const BounceIn = styled.div`
     animation: 0.3s ${keyframes`${slideInRight}`} 0s;
 `;
+
+const Badges = ({ desc, superSpecialization }) => {
+    const superSp = superSpecialization ? superSpecialization : [];
+    let badges = [
+        desc.experience,
+        ...desc.type,
+        ...desc.incentives,
+        ...superSp,
+    ];
+    const number = badges.length - 5;
+    badges = badges.slice(0, 3);
+    console.log(badges);
+
+    return (
+        <div>
+            {badges.map((badge, i) => {
+                return (
+                    <Badge className='mx-1' color='info'>
+                        {badge}
+                    </Badge>
+                );
+            })}
+            {number > 0 && `+ ${number} more`}
+        </div>
+    );
+};
 
 class SimilarJobs extends Component {
     constructor(props) {
@@ -61,23 +89,41 @@ class SimilarJobs extends Component {
                 })
                 .catch(({ response }) => {
                     console.log({ response });
-                    this.setState({ message: "No Jobs found" });
+                    this.setState({ message: "No Similar Jobs found" });
                 });
     }
     render() {
         return (
             <div>
-                {this.state.message === "" ? (
-                    this.state.jobs ? (
+                {this.state.message === "" &&
+                    (this.state.jobs ? (
                         <div>
+                            <h4 style={{ textAlign: "center" }}>
+                                {this.state.jobs.length} similar jobs found
+                            </h4>
                             {this.state.jobs.map((job) => (
                                 <BounceIn>
-                                    <Media className='row block justify-content-center my-3 mx-2 p-2 px-md-3'>
-                                        <Media
-                                            body
-                                            className='col-12 my-2 my-md-3 my-md-2 p-2'>
+                                    <Link
+                                        to={`/job/${job._id}`}
+                                        className='row  block justify-content-center my-3 mx-auto p-2 px-md-3 '
+                                        style={{ cursor: "pointer" }}
+                                        // onClick={() =>
+                                        //     history.push(`/job/${job._id}`)
+                                        // }
+                                    >
+                                        <Media body className='col-12 my-1 p-1'>
                                             <Media heading>
                                                 <h5>{job.title}</h5>
+                                            </Media>
+
+                                            <Media heading>
+                                                <h6 className='text-info'>
+                                                    {/* <FontAwesomeIcon icon={faMapMarkerAlt} />{" "} */}
+                                                    {job.description.company
+                                                        ? job.description
+                                                              .company
+                                                        : "Company"}
+                                                </h6>
                                             </Media>
                                             <Media heading>
                                                 <h6>
@@ -87,7 +133,8 @@ class SimilarJobs extends Component {
                                                     {job.description.location}
                                                 </h6>
                                             </Media>
-                                            <hr className='my-2' />
+
+                                            {/* ?     <hr className='my-2' /> */}
                                             <div className='row m-0'>
                                                 <div className='col-12 desc'>
                                                     <em
@@ -98,6 +145,16 @@ class SimilarJobs extends Component {
                                                     </em>
                                                 </div>
                                             </div>
+                                            <hr />
+
+                                            <div className='col-12  px-0 '>
+                                                <Badges
+                                                    desc={job.description}
+                                                    superSpecialization={
+                                                        job.superSpecialization
+                                                    }
+                                                />
+                                            </div>
                                         </Media>
                                         <Media
                                             left
@@ -106,79 +163,12 @@ class SimilarJobs extends Component {
                                             <Media
                                                 object
                                                 src={hospital}
+                                                style={{ maxHeight: "200px" }}
                                                 alt='Generic placeholder image'
-                                                className='img-fluid'
-                                                // style={{ maxWidth: "50%" }}
+                                                className='img-fluid float-right pr-2 pr-lg-3'
                                             />
                                         </Media>
-                                        <hr className='col-12 my-1 my-md-2 ' />
-                                        <div className='row w-100 justify-content-between'>
-                                            <div className='col-12 col-md-9 pr-0 pr-sm-3 row w-100 py-2'>
-                                                <div className='col-12 col-sm-10 px-0 '>
-                                                    <Badge
-                                                        color='secondary'
-                                                        className='mx-1'>
-                                                        {
-                                                            job.description
-                                                                .experience
-                                                        }
-                                                    </Badge>
-
-                                                    {job.superSpecialization &&
-                                                        job.superSpecialization.map(
-                                                            (tag) => (
-                                                                <Badge
-                                                                    color='info'
-                                                                    className='mx-1'>
-                                                                    {tag}
-                                                                </Badge>
-                                                            ),
-                                                        )}
-                                                    <br />
-                                                    {job.description.type &&
-                                                        job.description.type.map(
-                                                            (tag) => (
-                                                                <Badge
-                                                                    color='warning'
-                                                                    className='mx-1'>
-                                                                    {tag}
-                                                                </Badge>
-                                                            ),
-                                                        )}
-                                                    <br />
-                                                    {job.description
-                                                        .incentives &&
-                                                        job.description.incentives.map(
-                                                            (tag) => (
-                                                                <Badge
-                                                                    color='primary'
-                                                                    className='mx-1'>
-                                                                    {tag}
-                                                                </Badge>
-                                                            ),
-                                                        )}
-                                                </div>
-
-                                                <div className='col-12 col-sm-2 px-0 mt-auto'>
-                                                    <Badge
-                                                        color='success'
-                                                        className='float-right mt-3'>
-                                                        {job.author &&
-                                                            job.author.username}
-                                                    </Badge>
-                                                </div>
-                                            </div>
-                                            <div className='col-12 col-md-3 my-auto mt-sm-3 row'>
-                                                <div className='col-12 p-1'>
-                                                    <Link
-                                                        to={`/job/${job._id}`}
-                                                        className='btn btn-danger w-100'>
-                                                        View Details
-                                                    </Link>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </Media>
+                                    </Link>
                                 </BounceIn>
                             ))}
                         </div>
@@ -193,19 +183,7 @@ class SimilarJobs extends Component {
                                 width={220}
                             />
                         </div>
-                    )
-                ) : (
-                    <div
-                        className='w-50 mx-auto'
-                        style={{ textAlign: "center" }}>
-                        <img
-                            src={error}
-                            classname='img-fluid'
-                            style={{ maxWidth: "200px" }}
-                        />
-                        <h4>{this.state.message}</h4>
-                    </div>
-                )}
+                    ))}
             </div>
         );
     }
@@ -218,15 +196,16 @@ export default class Job extends Component {
             user: null,
             modal: false,
             err: "",
-            showSimilar: false,
+            tooltipOpen: false,
         };
+
         this.applyJob = this.applyJob.bind(this);
         this.toggle = this.toggle.bind(this);
         this.showDetail = this.showDetail.bind(this);
-        this.showSimilar = this.showSimilar.bind(this);
+        this.toggleTooltip = this.toggleTooltip.bind(this);
     }
-    showSimilar() {
-        this.setState({ showSimilar: !this.state.showSimilar });
+    toggleTooltip() {
+        this.setState({ tooltipOpen: !this.state.tooltipOpen });
     }
     showDetail() {
         if (!this.state.user) {
@@ -274,7 +253,11 @@ export default class Job extends Component {
             })
             .catch(({ response }) => {
                 console.log(response);
-                this.setState({ err: "Invalid Job Id" });
+                this.setState({
+                    err: response.data.err.kind
+                        ? "Invalid Job Id"
+                        : response.data.err,
+                });
             });
     }
 
@@ -296,6 +279,11 @@ export default class Job extends Component {
                             <div className='row'>
                                 <div className='col-7 col-md-10 my-auto'>
                                     <h4>{job.title}</h4>
+                                    <h5 className='text-info'>
+                                        {job.description.company
+                                            ? job.description.company
+                                            : "Company"}
+                                    </h5>
                                     <h6>
                                         <FontAwesomeIcon
                                             icon={faMapMarkerAlt}
@@ -370,7 +358,7 @@ export default class Job extends Component {
                                         job.description.incentives.map(
                                             (tag) => (
                                                 <Badge
-                                                    color='secondary'
+                                                    color='info'
                                                     className='mx-1 p-1 incentive my-1'>
                                                     {tag}
                                                 </Badge>
@@ -412,8 +400,18 @@ export default class Job extends Component {
                             <hr />
                             <div className='row p-1'>
                                 <div className='col-12'>
-                                    <h4>About the job</h4>
-                                    {job.description.line}
+                                    <h4>
+                                        <b>Job responsibilities</b>
+                                    </h4>
+                                    <p>{job.description.line}</p>
+                                </div>
+                            </div>
+                            <div className='row p-1'>
+                                <div className='col-12'>
+                                    <h4>
+                                        <b>Who can apply</b>
+                                    </h4>
+                                    <p>{job.description.skills}</p>
                                 </div>
                             </div>
                             <hr />
@@ -428,19 +426,38 @@ export default class Job extends Component {
                                     </Button>
                                 </div>
                                 <div className='col-6'>
-                                    <Button
-                                        size='lg'
-                                        color='primary'
-                                        className='w-100'
-                                        onClick={this.showSimilar}>
-                                        Similar Jobs
-                                    </Button>
+                                    <CopyToClipboard
+                                        text={window.location.href}>
+                                        <Button
+                                            size='lg'
+                                            color='primary'
+                                            className='w-100'
+                                            id='t'
+                                            onClick={() => {
+                                                this.setState({
+                                                    tooltipOpen: true,
+                                                });
+                                            }}>
+                                            Share
+                                        </Button>
+                                    </CopyToClipboard>
+
+                                    <Tooltip
+                                        placement='top'
+                                        isOpen={this.state.tooltipOpen}
+                                        target='t'
+                                        // trigger='click'
+                                        // toggle={this.toggleTooltip}
+                                    >
+                                        URL copied!
+                                    </Tooltip>
                                 </div>
                             </div>
                         </div>
-                        {this.state.showSimilar && (
+                        <div className='mx-2 mx-md-4'>
                             <SimilarJobs job={this.state.job} />
-                        )}
+                        </div>
+
                         {this.state.user && (
                             <Modal
                                 isOpen={this.state.modal}
@@ -519,18 +536,42 @@ export default class Job extends Component {
                         )}
                     </div>
                 ) : (
-                    <div
-                        className='mx-auto my-auto'
-                        style={{ textAlign: "center" }}>
-                        <Loader
-                            type='Bars'
-                            color='#17a2b8'
-                            height={300}
-                            width={220}
-                        />
-                    </div>
+                    this.state.err === "" && (
+                        <div
+                            className='mx-auto my-auto'
+                            style={{ textAlign: "center" }}>
+                            <Loader
+                                type='Bars'
+                                color='#17a2b8'
+                                height={300}
+                                width={170}
+                            />
+                        </div>
+                    )
                 )}
             </div>
         );
     }
 }
+//  <span style={{ float: "right", zIndex: 10 }}>
+//      <FontAwesomeIcon
+//          icon={faShareAlt}
+//          style={{ fontSize: ".8rem" }}
+//          className='ml-2 mr-3'
+//      />
+//      <a
+//          href='#'
+//          id='t'
+//          style={{ fontSize: ".8rem" }}
+//          onClick={() => console.log("clicked")}>
+//          Share
+//      </a>
+//  <Tooltip
+//      placement='top'
+//      isOpen={tooltipOpen}
+//      target='t'
+//      // trigger='click'
+//      toggle={toggleTooltip}>
+//      Tooltip Content!
+//  </Tooltip>
+//  </span>;
