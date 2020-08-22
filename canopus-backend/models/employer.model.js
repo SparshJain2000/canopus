@@ -28,6 +28,15 @@ module.exports = mongoose.model(
         image: Array,
         //Empoyer valid status
         validated: Boolean,
+        freelanceJobs: [
+            {
+                id: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "Freelance",
+                },
+                title: String,
+            },
+        ],
         jobs: [
             {
                 id: {

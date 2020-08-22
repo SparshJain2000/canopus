@@ -2,6 +2,14 @@ const axios = require("axios");
 
 const searchController={};
 // query builder function
+
+function addMatchquery(query,path) {
+    let abc = {
+        $match:{path:query},
+    };
+    return abc;
+
+}
 function addQuery(query, path) {
     let abc = {
         text: {
@@ -35,6 +43,11 @@ async function queryBuilder(req) {
     query.shouldquery = [];
     query.skip = parseInt(req.body.skip) || 0;
     query.limiter = parseInt(req.body.limit) || 10;
+    if(req.body.coordinates){
+        location =await geolocationAPI(req.body.coordinates);
+        query.mustquery.push(addQuery(location, "description.location"));
+        query.shouldquery.push(addQueryboost(req.body.location, "description.location"));
+    }
     if (req.body.location && req.body.location.length > 0) {
     location = await nearbyAPI(req.body.location);
     // building query
@@ -68,7 +81,8 @@ async function queryBuilder(req) {
         query.mustquery.push(
             addQuery(req.body.status, "description.status"),
         );
-        if(query.mustquery!=[])
+        
+        if(query.mustquery!=[''])
         query.search = {
             $search: {
                 compound: {
@@ -101,7 +115,6 @@ async function queryBuilder(req) {
                     };
     return query;
 }
-
 const nearbyAPI=(location)=>{
     return new Promise((resolve,reject)=> {
         var nearby = [];
@@ -119,7 +132,24 @@ const nearbyAPI=(location)=>{
     //return nearby;
 });
 }
-exports.searchController={queryBuilder,nearbyAPI,addQuery,addQueryboost};
+const geolocationAPI=(location)=>{
+    return new Promise((resolve,reject)=> {
+        var nearby = [];
+        axios
+        .get(
+             `http://getnearbycities.geobytes.com/GetNearbyCities?radius=100&latitude=${location[0]}&longitude=${[1]}`,
+             )
+        .then(function (response) {
+            //console.log(response.data);
+            response.data.forEach((element) => {
+                nearby.push(element[1]);
+            });
+            resolve(response.data.map((element)=>element[1]));
+        }).catch(err=>reject(err));
+    //return nearby;
+});
+}
+exports.searchController={queryBuilder,nearbyAPI,addQuery,addQueryboost,geolocationAPI};
 // response.data.forEach((element) => {
 //     nearby.push(element[1]);
 // });
