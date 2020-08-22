@@ -43,7 +43,7 @@ a:hover {
 }
 
 .block {
-    border-radius: 0.5rem;
+    border-radius: 0.25rem;
     border: 0.05rem solid lightgrey;
     /* background-color: rgba(0, 0, 0, 0.15); */
     box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
@@ -53,9 +53,9 @@ a:hover {
 .block:hover {
     /* background-color: rgba(0, 0, 0, 0.1); */
     border: 0.05rem solid rgb(150, 150, 150);
-    box-shadow: 5px 5px 6px rgba(0, 0, 0, 0.4);
-    transition: 0.3s ease-in-out;
-    /* transform: scale(1.01); */
+    box-shadow: 5px 5px 7px rgba(0, 0, 0, 0.4);
+    transition: 0.2s ease-in-out;
+    /* transform: scale(1.0001); */
 }
 
 
@@ -85,10 +85,10 @@ a:hover {
     display: -webkit-box;
     white-space: normal;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 4;
+    -webkit-line-clamp: 1;
     /* number of lines to show */
     line-height: 1.3em;
     /* fallback */
-    max-height: 5.2em;
+    max-height: 1.3em;
     text-overflow: ellipsis;
 }
