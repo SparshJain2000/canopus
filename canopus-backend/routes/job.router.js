@@ -42,14 +42,22 @@ router.get("/", (req, res) => {
 //===========================================================================
 //post a job
 router.post("/", middleware.isEmployer, (req, res) => {
+	Employer.findById(req.user._id).then((employer) => {
+		//TODO validation
+		// if(employer.validated==true)
+		// console.log(employer.validated);
+		// if(employer.tier.allowed - employer.tier.posted<= 0)
+		// res.status(400).json({
+		// 	error:"Maximum Jobs Posted"
+		// });
+		// else
+		// Employer.findByIdAndUpdate(req.user._id,{$inc:{"tier.posted":1}})
 	let job = new Job({
 		title: req.body.title,
 		profession: req.body.profession,
 		specialization: req.body.specialization,
 		description: req.body.description,
 		address: req.body.address,
-
-		sponsored: true,
 	});
 	Job.create(job)
 	.then((job) => {
@@ -89,6 +97,13 @@ router.post("/", middleware.isEmployer, (req, res) => {
 		       }),
 		       );
 	})
+	})
+	.catch((err) =>
+	       res.status(400).json({
+	       	err: err,
+	       	user: req.user,
+	       }),
+	       )
 	.catch((err) =>
 	       res.status(400).json({
 	       	err: err,

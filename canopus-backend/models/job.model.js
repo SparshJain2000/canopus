@@ -5,7 +5,6 @@ module.exports = mongoose.model(
     "Job",
     new mongoose.Schema({
         title: String,
-
         profession: String,
         specialization: String,
         superSpecialization:Array,
@@ -18,7 +17,10 @@ module.exports = mongoose.model(
         // },
         description: Object,
         // {
-        //     line: String,
+        //      compay : String // company name
+        //     about:String //About the job responsibilites roles
+        //     skills:String //Who should apply para description
+        //     count : Number, //Number of jobs
         //     experience: String,
         //     incentives: String,
         //     type: String, // govt ,corporate
@@ -26,8 +28,9 @@ module.exports = mongoose.model(
         //     location: String,
         //     salary: Number,
         // },
+        validated: Boolean,
         sponsored: Boolean,
-        tag: Array,
+        tag: Array,// Covid ,urgent tgs
         // date: Date,
         author: {
             id: {
