@@ -23,6 +23,9 @@ module.exports = mongoose.model(
             posted: Number,
             closed: Number,
         },
+        websitelink: String,
+        youtube: Array, // links to youtube videos
+        image: Array,
         //Empoyer valid status
         validated: Boolean,
         jobs: [
