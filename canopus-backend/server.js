@@ -14,6 +14,7 @@ const express = require("express"),
     authRouter = require("./routes/auth.router"),
     uploadRouter = require("./routes/blob.router"),
     employerRouter = require("./routes/employer.router"),
+    adminRouter = require("./routes/admin.router"),
     GoogleStrategy = require("passport-google-oauth").OAuth2Strategy,
     FacebookStrategy = require("passport-facebook").Strategy,
     bodyParser = require("body-parser");
@@ -160,6 +161,7 @@ app.use("/api/user", userRouter);
 app.use("/api/employer", employerRouter);
 app.use("/auth", authRouter);
 app.use("/api/upload", uploadRouter);
+app.use("/api/admin", adminRouter);
 //===========================================================================
 //render frontend file (deployment)
 // app.use("*", function (req, res) {
