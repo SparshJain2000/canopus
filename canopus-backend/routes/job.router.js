@@ -1,3 +1,7 @@
+const { search } = require("./admin.router");
+const { searchController } = require("../controllers/search.controller");
+const { query: q } = require("express");
+
 const router = require("express").Router(),
 middleware = require("../middleware/index"),
 Employer = require("../models/employer.model"),
@@ -94,159 +98,57 @@ router.post("/", middleware.isEmployer, (req, res) => {
 });
 //===========================================================================
 
-router.post("/search", (req, res) => {
+router.post("/search", async (req, res) => {
     // query builder function
-    function addQuery(query, path) {
-    	let abc = {
-    		text: {
-    			query: `${query}`,
-    			path: `${path}`,
-    		},
-    	};
-    	return abc;
-    }
-    function addQueryboost(query, path) {
-    	let abc = {
-    		text: {
-    			query: `${query}`,
-    			path: `${path}`,
-    			score: { boost: { value: 3 } },
-    		},
-    	};
-    	return abc;
-    }
-
-    var mustquery = [],
-    shouldquery = [];
-    // settting limit and skip
-    var skip = parseInt(req.body.skip) || 0;
-    var limiter = parseInt(req.body.limit) || 10;
-    // building must query and should query
-    var nearby = [];
-    // console.log(req.body.location);
-    if (req.body.location && req.body.location.length > 0) {
-    	console.log("insode");
-    	axios
-    	.get(
-    	     `http://getnearbycities.geobytes.com/GetNearbyCities?radius=100&locationcode=${req.body.location[0]}%2C`,
-    	     )
-    	.then(function (response) {
-    		console.log(response.data);
-    		response.data.forEach((element) => {
-    			nearby.push(element[1]);
-    		});
-    		mustquery.push(addQuery(nearby, "description.location"));
-    		shouldquery.push(
-    		                 addQueryboost(req.body.location, "description.location"),
-    		                 );
-
-                //console.log(nearby);
-                if (req.body.pin)
-                	shouldquery.push(addQuery(req.body.pin, "address.pin"));
-                if (req.body.profession)
-                	mustquery.push(addQuery(req.body.profession, "profession"));
-                if (req.body.specialization)
-                	mustquery.push(
-                	               addQuery(req.body.specialization, "specialization"),
-                	               );
-                if (req.body.superSpecialization)
-                	mustquery.push(
-                	               addQuery(
-                	                        req.body.superSpecialization,
-                	                        "superSpecialization",
-                	                        ),
-                	               );
-                if (req.body.incentives)
-                	shouldquery.push(
-                	                 addQuery(req.body.incentives, "description.incentives"),
-                	                 );
-                if (req.body.type)
-                	shouldquery.push(
-                	                 addQuery(req.body.type, "description.type"),
-                	                 );
-                if (req.body.status)
-                	mustquery.push(
-                	               addQuery(req.body.status, "description.status"),
-                	               );
-                console.log(mustquery);
-                console.log(shouldquery);
-                search = {
-                	$search: {
-                		compound: {
-                			must: mustquery,
-                			should: shouldquery,
-                		},
-                	},
-                };
-
-                // Ordering by Relevance and date filters
-                if ((req.body.order = "Relevance"))
-                	sort = {
-                		$sort: {
-                			score: {
-                				$meta: "textScore",
-                			},
-                		},
-                	};
-                	if ((req.body.order = "New"))
-                		sort = {
-                			$sort: {
-                				_id: -1,
-                			},
-                		};
-                		if ((req.body.order = "Old"))
-                			sort = {
-                				$sort: {
-                					_id: 1,
-                				},
-                			};
-                			var jobCount;
-                			Job.aggregate(
-                			              [
-                			              search,
-                			              {
-                			              	$group: {
-                			              		_id: null,
-                			              		jobCount: {
-                			              			$sum: 1,
-                			              		},
-                			              	},
-                			              },
-                			              ],
-                			              (err, jobNum) => {
-                			              	if (err) jobCount = 0;
-                			              	else jobCount = jobNum[0];
-                			              },
-                			              );
-                			const userid = [0];
-                			console.log(userid);
-                			Job.aggregate(
-                			              [
-                			              search,
-                			              {
-                			              	$limit: limiter,
-                			              },
-                			              {
-                			              	$skip: skip,
-                			              },
-                        //sort,
-                        { $sort: { score: { $meta: "textScore" } } },
+    const query = await searchController.queryBuilder(req).then((query) => {
+                var jobCount;
+                Job.aggregate(
+                    [
+                        query.search,
                         {
-                        	$project: {
-                        		_id: 1,
-                        		title: 1,
-                        		applied: {
-                        			$cond: {
-                        				if: { $in: ["$applicants.id", userid] },
-                        					then: 1,
-                        				else: 0,
-                        			},
-                        	},
-                        	description: 1,
-                        	applicants: 1,
-                        	score: { $meta: "searchScore" },
+                            $group: {
+                                _id: null,
+                                jobCount: {
+                                    $sum: 1,
+                                },
+                            },
                         },
+                    ],
+                    (err, jobNum) => {
+                        if (err) jobCount = 0;
+                        else jobCount = jobNum[0];
                     },
+                );
+                const userid = '5f1d72e270ff602dc0250747';
+                // console.log(userid);
+                Job.aggregate(
+                    [
+                        query.search,
+                        {
+                            $limit: query.limiter,
+                        },
+                        {
+                            $skip: query.skip,
+                        },
+                        query.sort,
+                        //{$sort: { score: { $meta: "textScore" }} },
+                        {
+                            $project: {
+                                _id: 1,
+                                title: 1,
+                                // applied: {
+                                //     $cond: {
+                                //         if: { $eq:['$applicants.id',userid]},
+                                //         then: 1,
+                                //         else: 0,
+                                //     },
+                                // },
+                                description: 1,
+                                applicants: 1,
+                                score: { $meta: "searchScore" },
+                            },
+                        },
+                    
                     ],
                     (err, jobs) => {
                     	if (err)
@@ -256,129 +158,14 @@ router.post("/search", (req, res) => {
                     	else {
                     		res.json({ jobs: jobs, count: jobCount });
                     	}
-                    },
-                    );
-                		})
+                    })
+                })
 .catch(function (error) {
                 // handle error
                 console.log(error);
             });
-}
-    // if (req.body.location)
-    //     mustquery.push(addQuery(nearby, "description.location"));
-    else {
-    	if (req.body.pin)
-    		shouldquery.push(addQuery(req.body.pin, "address.pin"));
-    	if (req.body.profession)
-    		mustquery.push(addQuery(req.body.profession, "profession"));
-    	if (req.body.specialization)
-    		mustquery.push(addQuery(req.body.specialization, "specialization"));
-    	if (req.body.superSpecialization)
-    		mustquery.push(
-    		               addQuery(req.body.superSpecialization, "superSpecialization"),
-    		               );
-    	if (req.body.incentives)
-    		shouldquery.push(
-    		                 addQuery(req.body.incentives, "description.incentives"),
-    		                 );
-    	if (req.body.type)
-    		shouldquery.push(addQuery(req.body.type, "description.type"));
-    	if (req.body.status)
-    		mustquery.push(addQuery(req.body.status, "description.status"));
-    	console.log(mustquery);
+        });
 
-    	console.log(shouldquery);
-    	search = {
-    		$search: {
-    			compound: {
-    				must: mustquery,
-    				should: shouldquery,
-    			},
-    		},
-    	};
-
-        // Ordering by Relevance and date filters
-        if ((req.body.order = "Relevance"))
-        	sort = {
-        		$sort: {
-        			score: {
-        				$meta: "textScore",
-        			},
-        		},
-        	};
-        	if ((req.body.order = "New"))
-        		sort = {
-        			$sort: {
-        				_id: -1,
-        			},
-        		};
-        		if ((req.body.order = "Old"))
-        			sort = {
-        				$sort: {
-        					_id: 1,
-        				},
-        			};
-        			var jobCount;
-        			Job.aggregate(
-        			              [
-        			              search,
-        			              {
-        			              	$group: {
-        			              		_id: null,
-        			              		jobCount: {
-        			              			$sum: 1,
-        			              		},
-        			              	},
-        			              },
-        			              ],
-        			              (err, jobNum) => {
-        			              	if (err) jobCount = 0;
-        			              	else jobCount = jobNum[0];
-        			              },
-        			              );
-        			const userid = [0];
-        			console.log(userid);
-        			Job.aggregate(
-        			              [
-        			              search,
-        			              {
-        			              	$limit: limiter,
-        			              },
-        			              {
-        			              	$skip: skip,
-        			              },
-        			              sort,
-        			              {
-        			              	$project: {
-        			              		_id: 1,
-        			              		title: 1,
-        			              		applied: {
-        			              			$cond: {
-        			              				if: { $in: ["$applicants.id", userid] },
-        			              					then: 1,
-        			              				else: 0,
-        			              			},
-        			              	},
-        			              	description: 1,
-        			              	applicants: 1,
-        			              	score: { $meta: "searchScore" },
-        			              },
-        			          },
-        			          ],
-        			          (err, jobs) => {
-        			          	if (err)
-        			          		res.status(400).json({
-        			          			err: err,
-        			          		});
-        			          	else {
-                    // jobs.push(jobCount);
-                    // res.json(jobs);
-                    res.json({ jobs: jobs, count: jobCount });
-                }
-            },
-            );
-        		}
-        	});
 
 //Similar jobs
 router.post("/similar", (req, res) => {
@@ -669,9 +456,3 @@ router.delete("/:id", middleware.isEmployer, (req, res) => {
 });
 
 module.exports = router;
-
-/*{
-   "title":"Nurse",
-   "specialization":"Mumbai",
-   "description":"Lorem ipsum dolor, sit amet consectetur adipisicing elit. Impedit ipsam officiis nisi repellat, quibusdam cupiditate doloremque expedita aperiam magnam. Assumenda eos a possimus dicta quaerat aliquam tenetur nostrum voluptas id?"
-}*/

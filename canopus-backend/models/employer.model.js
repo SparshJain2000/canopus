@@ -23,6 +23,8 @@ module.exports = mongoose.model(
             posted: Number,
             closed: Number,
         },
+        //Empoyer valid status
+        validated: Boolean,
         jobs: [
             {
                 id: {

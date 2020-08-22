@@ -26,9 +26,16 @@ middleware.isEmployer = (req, res, next) => {
 };
 middleware.isUser = (req, res, next) => {
     req.isAuthenticated()
-        ? req.user.role === "User"
+        ? req.user.role === "User" || "Admin"
             ? next()
             : res.status(400).json({ err: "Not User" })
+        : res.status(400).json({ err: "Not Logged in" });
+};
+middleware.isAdmin = (req, res, next) => {
+    req.isAuthenticated()
+        ? req.user.role === "Admin"
+            ? next()
+            : res.status(400).json({ err: "Not Admin" })
         : res.status(400).json({ err: "Not Logged in" });
 };
 module.exports = middleware;
