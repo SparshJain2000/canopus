@@ -7,7 +7,7 @@ middleware = require("../middleware/index"),
 Employer = require("../models/employer.model"),
 User = require("../models/user.model"),
 Job = require("../models/job.model"),
-FreelanceJob = require("../models/freelance.model"),
+Freelance = require("../models/freelance.model"),
 axios = require("axios");
 //===========================================================================
 //get all jobs
@@ -111,6 +111,79 @@ router.post("/", middleware.isEmployer, (req, res) => {
 	       }),
 	       );
 });
+// Post freelance job
+router.post("/freelancePost", middleware.isEmployer, (req, res) => {
+	Employer.findById(req.user._id).then((employer) => {
+		//TODO validation
+		// if(employer.validated==true)
+		// console.log(employer.validated);
+		// if(employer.tier.allowed - employer.tier.posted<= 0)
+		// res.status(400).json({
+		// 	error:"Maximum Jobs Posted"
+		// });
+		// else
+		// Employer.findByIdAndUpdate(req.user._id,{$inc:{"tier.posted":1}})
+	let freelance = new Freelance({
+		title: req.body.title,
+		profession: req.body.profession,
+		specialization: req.body.specialization,
+		description: req.body.description,
+		address: req.body.address,
+		startDate:req.body.startDate,
+		endDate:req.body.endDate
+	});
+	Freelance.create(freelance)
+	.then((job) => {
+		job.author.username = req.user.username;
+		job.author.id = req.user._id;
+		console.log(job);
+		job.save()
+		.then((job) => {
+			Employer.findById(req.user._id).then((employer) => {
+				employer.freelanceJobs = [
+				...employer.freelanceJobs,
+				{
+					title: job.title,
+					id: job._id,
+				},
+				];
+				employer
+				.save()
+				.then((updatedEmployer) =>
+				      res.json({
+				      	job: job,
+				      	user: req.user,
+				      	updatedEmployer: updatedEmployer,
+				      }),
+				      )
+				.catch((err) =>
+				       res.status(400).json({
+				       	err: err,
+				       }),
+				       );
+			});
+		})
+		.catch((err) =>
+		       res.status(400).json({
+		       	err: err,
+		       	user: req.user,
+		       }),
+		       );
+	})
+	})
+	.catch((err) =>
+	       res.status(400).json({
+	       	err: err,
+	       	user: req.user,
+	       }),
+	       )
+	.catch((err) =>
+	       res.status(400).json({
+	       	err: err,
+	       	user: req.user,
+	       }),
+	       );
+});
 //===========================================================================
 
 router.post("/search", async (req, res) => {
@@ -150,7 +223,8 @@ router.post("/search", async (req, res) => {
                         {
                             $project: {
                                 _id: 1,
-                                title: 1,
+								title: 1,
+								specialization:1,
                                 // applied: {
                                 //     $cond: {
                                 //         if: { $eq:['$applicants.id',userid]},
@@ -234,7 +308,8 @@ router.post("/similar", (req, res) => {
                   {
                   	$project: {
                   		_id: 1,
-                  		title: 1,
+						  title: 1,
+						  specialization:1,
                   	// 	applied: {
                   	// 		$cond: {
                   	// 			if: { $in: ["$applicants.id", userid] },
@@ -243,7 +318,7 @@ router.post("/similar", (req, res) => {
                   	// 		},
                   	// },
                   	description: 1,
-                  	applicants: 1,
+					  applicants: 1,				
                   	score: { $meta: "searchScore" },
                   },
               },
@@ -257,92 +332,118 @@ router.post("/similar", (req, res) => {
               },
               );
 });
-
 //Freelance Search
-router.post("/freelance", (req, res) => {
-	function addQuery(query, path) {
-		let abc = {
-			text: {
-				query: `${query}`,
-				path: `${path}`,
-			},
+router.post("/freelance", async (req, res) => {
+	const query = await searchController.queryBuilder(req).then((query) => {
+		 var jobCount=0;
+		 var dateQuery=[];
+		 // trivial condition in case no date arguments are recieved
+		 var trivialQuery={
+			 title:{$ne:""}
+		 }
+		 dateQuery.push(trivialQuery);
+		var startDateMatch={},endDateMatch={};
+		 if(req.body.day){
+		 dayMatch={dayOfWeek:req.body.day}
+		 dateQuery.push(dayMatch);
+		 }
+
+		if(req.body.startDate){
+			const mystartDate = new Date(req.body.startDate);
+			startDateMatch={
+					startDate:{$gte:mystartDate}
+			}
+			dateQuery.push(startDateMatch);
+		}
+		if(req.body.endDate){
+			const myendDate = new Date(req.body.endDate);
+			endDateMatch={
+					endDate:{$lte:myendDate}
+				}
+			dateQuery.push(endDateMatch);
+		}
+		//Built date query
+		var query2={
+			$match:{
+				$and:dateQuery
+			}
 		};
-		return abc;
-	}
-    // settting limit and skip
-    var skip = parseInt(req.body.skip) || 0;
-    var limiter = parseInt(req.body.limit) || 10;
-    // building must query and should query
+	
+		//job count pipeline
+		Freelance.aggregate(
+			[
+				query.search,
+				{
+					$project:
+							{
+							startDate:1,
+							endDate:1,
+							title:1,
+							hour: { $hour: "$startDate" },
+							minutes: { $minute: "$startDate" },
+							dayOfWeek: { $dayOfWeek: "$startDate" }
+							}		
 
-    var mustquery = [],
-    shouldquery = [];
-    if (req.body.location)
-    	mustquery.push(addQuery(req.body.location, "description.location"));
-    if (req.body.pincode)
-    	shouldquery.push(addQuery(req.body.pincode, "description.pincode"));
-    if (req.body.profession)
-    	mustquery.push(addQuery(req.body.profession, "profession"));
-    if (req.body.specialization)
-    	mustquery.push(addQuery(req.body.specialization, "specialization"));
-    if (req.body.superSpecialization)
-    	mustquery.push(
-    	               addQuery(req.body.superSpecialization, "superSpecialization"),
-    	               );
-    if (req.body.incentives)
-    	shouldquery.push(
-    	                 addQuery(req.body.incentives, "description.incentives"),
-    	                 );
-    if (req.body.type)
-    	mustquery.push(addQuery(req.body.type, "description.type"));
+				},
+				query2,
+				{
+					$group: {
+						_id: null,
+						jobCount: {
+							$sum: 1,
+						},
+					},
+				},
+			],
+			(err, jobNum) => {
+				if (err) jobCount = 0;
+				else jobCount = jobNum[0];
+			},
+		);
+		//const userid = '5f1d72e270ff602dc0250747';
+		// console.log(userid);
+		// Aggregation pipeline
+		Freelance.aggregate(
+			[
+				
+				query.search,
+				{
+					$project:
+							{
+							_id:1,
+							startDate:1,
+							endDate:1,
+							title:1,
+							hour: { $hour: "$startDate" },
+							minutes: { $minute: "$startDate" },
+							dayOfWeek: { $dayOfWeek: "$startDate" }
+							}		
 
-    // empty request response
-    if (!req.body) {
-    	search = {};
-    }
-
-    FreelanceJob.aggregate(
-                           [
-                           {
-                           	$search: {
-                           		compound: {
-                           			must: mustquery,
-                           			should: shouldquery,
-                           		},
-                           	},
-                           },
-                           {
-                           	$limit: limiter,
-                           },
-                           {
-                           	$skip: skip,
-                           },
-                           {
-                           	$sort: {
-                           		score: {
-                           			$meta: "textScore",
-                           		},
-                           	},
-                           },
-
-                           {
-                           	$project: {
-                           		_id: 0,
-                           		applicants: 0,
-                           		author: 0,
-                           		tag: 0,
-                           	},
-                           },
-                           ],
-                           (err, jobs) => {
-                           	if (err)
-                           		res.status(400).json({
-                           			err: err,
-                           		});
-                           	else {
-                           		res.json({ jobs: jobs });
-                           	}
-                           },
-                           );
+				},
+				query2,
+				{
+					$limit: query.limiter,
+				},
+				{
+					$skip: query.skip,
+				},
+				query.sort,
+				
+			],
+			(err, jobs) => {
+				if (err)
+					res.status(400).json({
+						err: err,
+					});
+				else {
+					res.json({ jobs: jobs, count: jobCount });
+				}
+			})
+		})
+		.catch(function (error) {
+		// handle error
+		console.log(error);
+	});
 });
 
 //===========================================================================

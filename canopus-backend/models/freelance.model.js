@@ -5,7 +5,6 @@ module.exports = mongoose.model(
     "Freelance",
     new mongoose.Schema({
         title: String,
-
         profession: String,
         specialization: String,
         superSpecialization:Array,
@@ -16,7 +15,8 @@ module.exports = mongoose.model(
         //     state: String,
         //     pin: Number,
         // },
-        time: Object,
+        startDate: Date,
+        endDate: Date,
         // {
         //     day:String
         //     start:Number,

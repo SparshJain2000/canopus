@@ -17,7 +17,7 @@ module.exports = mongoose.model(
         // },
         description: Object,
         // {
-        //      compay : String // company name
+        //      company : String // company name
         //     about:String //About the job responsibilites roles
         //     skills:String //Who should apply para description
         //     count : Number, //Number of jobs
