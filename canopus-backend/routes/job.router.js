@@ -58,6 +58,7 @@ router.post("/", middleware.isEmployer, (req, res) => {
 		specialization: req.body.specialization,
 		description: req.body.description,
 		address: req.body.address,
+		createdAt:new Date()
 	});
 	Job.create(job)
 	.then((job) => {
@@ -207,7 +208,7 @@ router.post("/search", async (req, res) => {
                         else jobCount = jobNum[0];
                     },
                 );
-                const userid = '5f1d72e270ff602dc0250747';
+                //const userid = '5f1d72e270ff602dc0250747';
                 // console.log(userid);
                 Job.aggregate(
                     [
@@ -362,6 +363,18 @@ router.post("/freelance", async (req, res) => {
 				}
 			dateQuery.push(endDateMatch);
 		}
+		if(req.body.startHour){
+			startHourMatch={
+				startHour:{$gte:req.body.startHour}
+			}
+			dateQuery.push(startHourMatch);
+		}
+		if(req.body.endHour){
+			endHourMatch={
+				endHour:{$lte:req.body.endHour}
+			}
+			dateQuery.push(endHourMatch);
+		}
 		//Built date query
 		var query2={
 			$match:{
@@ -379,8 +392,8 @@ router.post("/freelance", async (req, res) => {
 							startDate:1,
 							endDate:1,
 							title:1,
-							hour: { $hour: "$startDate" },
-							minutes: { $minute: "$startDate" },
+							startHour: { $hour: "$startDate" },
+							endHour:{$hour:"$endDate"},
 							dayOfWeek: { $dayOfWeek: "$startDate" }
 							}		
 
@@ -414,8 +427,8 @@ router.post("/freelance", async (req, res) => {
 							startDate:1,
 							endDate:1,
 							title:1,
-							hour: { $hour: "$startDate" },
-							minutes: { $minute: "$startDate" },
+							startHour: { $hour: "$startDate" },
+							endHour:{$hour:"$endDate"},
 							dayOfWeek: { $dayOfWeek: "$startDate" }
 							}		
 

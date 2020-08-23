@@ -9,6 +9,7 @@ module.exports = mongoose.model(
         specialization: String,
         superSpecialization:Array,
         address: Object,
+        createdAt:Date,
         // {
         //     line: String, //specific addresss
         //     city: String,
@@ -28,7 +29,7 @@ module.exports = mongoose.model(
         //     location: String,
         //     salary: Number,
         // },
-        validated: Boolean,
+        validated: String,
         sponsored: Boolean,
         tag: Array,// Covid ,urgent tgs
         // date: Date,

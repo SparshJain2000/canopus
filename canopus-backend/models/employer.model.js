@@ -17,7 +17,7 @@ module.exports = mongoose.model(
         //     state: String,
         //     pin: Number,
         // },
-        //Employer Plan
+        //Employer Plan normal jobs
         tier: {
             allowed: Number,
             posted: Number,

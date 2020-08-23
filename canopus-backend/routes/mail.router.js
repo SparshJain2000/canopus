@@ -1,5 +1,7 @@
 const mailController=require("../controllers/email.controller");
+require("dotenv").config();
    const ADMIN_MAIL=process.env.ADMIN_MAIL;
+   console.log(ADMIN_MAIL);
     const message = {
         from: ADMIN_MAIL, // Sender address
         to: 'tmsusha@gmail.com',         // List of recipients
