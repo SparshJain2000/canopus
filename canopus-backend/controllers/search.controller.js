@@ -42,7 +42,7 @@ async function queryBuilder(req) {
     // init query parameters
     var query = {};
     query.mustquery = [],
-    query.shouldquery = [];
+    query.shouldquery = [],
     //search only validated jobs
 
     //query.mustquery.push(addQuery(true,"validated"));
@@ -61,8 +61,8 @@ async function queryBuilder(req) {
     query.mustquery.push(addQuery(location, "description.location"));
     query.shouldquery.push(addQueryboost(req.body.location, "description.location"));
     }
-    if (req.body.pin)
-        query.shouldquery.push(addQuery(req.body.pin, "address.pin"));
+    // if (req.body.pin)
+    //     query.shouldquery.push(addQuery(req.body.pin, "address.pin"));
     if (req.body.profession)
         query.mustquery.push(addQuery(req.body.profession, "profession"));
     if (req.body.specialization)
@@ -76,6 +76,19 @@ async function queryBuilder(req) {
                 "superSpecialization",
             ),
         );
+        const num =2;
+        query.sponsoredskip = parseInt(req.body.skip)/parseInt(req.body.limit)*num || 0;
+        query.sponsoredlimiter =num;
+        query.mustquery.push(addQuery(1,"sponsored"));
+        query.sponsored={
+            $search:{
+                compound:{
+                    must:query.mustquery,
+                    should:query.shouldquery,
+                },
+            },
+        };
+        query.mustquery.pop();
     if (req.body.incentives)
         query.shouldquery.push(
             addQuery(req.body.incentives, "description.incentives"),
@@ -89,7 +102,7 @@ async function queryBuilder(req) {
             addQuery(req.body.status, "description.status"),
         );
         
-       // if(query.mustquery!=[])
+       if(query.mustquery.length!=0)
         query.search = {
             $search: {
                 compound: {
@@ -98,23 +111,14 @@ async function queryBuilder(req) {
                 },
             },
         };
-        // else if(query.shouldquery!=[])
-        // query.search= {
-        //     $search: {
-        //         compound: {
-        //             should: query.shouldquery,
-        //         },
-        //     },
-        // };
-        // else
-        // query.search ={
-        //     $search:{
-        //         compound:{
-        //             must:
-        //         }
-        //     }
-        // }
-       // console.log(query.search);
+        else
+        query.search = {
+            $search: {
+                compound: {
+                    should: query.shouldquery,
+                },
+            },
+        };
         //By default sort by Relevance
         query.sort = {$sort: { score: { $meta: "textScore" }} };
                 if ((req.body.order == "New"))
@@ -166,9 +170,6 @@ const geolocationAPI=(location)=>{
 });
 }
 
-// async function sponsoredJobs(req,route){
-
-// }
 exports.searchController={queryBuilder,nearbyAPI,addQuery,addQueryboost,geolocationAPI};
 // response.data.forEach((element) => {
 //     nearby.push(element[1]);
