@@ -1,4 +1,6 @@
-const axios = require("axios");
+const axios = require("axios"),
+Job = require("../models/job.model"),
+Freelance = require("../models/freelance.model");
 
 const searchController={};
 // query builder function
@@ -41,6 +43,11 @@ async function queryBuilder(req) {
     var query = {};
     query.mustquery = [],
     query.shouldquery = [];
+    //search only validated jobs
+
+    //query.mustquery.push(addQuery(true,"validated"));
+    
+    // console.log(query.mustquery);
     query.skip = parseInt(req.body.skip) || 0;
     query.limiter = parseInt(req.body.limit) || 10;
     if(req.body.coordinates){
@@ -82,7 +89,7 @@ async function queryBuilder(req) {
             addQuery(req.body.status, "description.status"),
         );
         
-        if(query.mustquery!=[''])
+       // if(query.mustquery!=[])
         query.search = {
             $search: {
                 compound: {
@@ -91,14 +98,23 @@ async function queryBuilder(req) {
                 },
             },
         };
-        else 
-        query.search= {
-            $search: {
-                compound: {
-                    should: query.shouldquery,
-                },
-            },
-        };
+        // else if(query.shouldquery!=[])
+        // query.search= {
+        //     $search: {
+        //         compound: {
+        //             should: query.shouldquery,
+        //         },
+        //     },
+        // };
+        // else
+        // query.search ={
+        //     $search:{
+        //         compound:{
+        //             must:
+        //         }
+        //     }
+        // }
+       // console.log(query.search);
         //By default sort by Relevance
         query.sort = {$sort: { score: { $meta: "textScore" }} };
                 if ((req.body.order == "New"))
@@ -137,7 +153,7 @@ const geolocationAPI=(location)=>{
         var nearby = [];
         axios
         .get(
-             `http://getnearbycities.geobytes.com/GetNearbyCities?radius=100&latitude=${location[0]}&longitude=${[1]}`,
+             `http://getnearbycities.geobytes.com/GetNearbyCities?radius=100&latitude=${location[0]}&longitude=${location[1]}`,
              )
         .then(function (response) {
             //console.log(response.data);
@@ -149,6 +165,10 @@ const geolocationAPI=(location)=>{
     //return nearby;
 });
 }
+
+// async function sponsoredJobs(req,route){
+
+// }
 exports.searchController={queryBuilder,nearbyAPI,addQuery,addQueryboost,geolocationAPI};
 // response.data.forEach((element) => {
 //     nearby.push(element[1]);

@@ -6,7 +6,6 @@ router.post("/", middleware.isLoggedIn, (req, res) => {
     const content = req.body.context;
     const id = req.user._id;
     const filename = content;
-    console.log(id);
     res.send(blobController.generateSasToken('user-image',filename));
 
 })

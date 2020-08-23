@@ -4,6 +4,7 @@ const router = require("express").Router(),
     passport = require("passport"),
     middleware = require("../middleware/index"),
     Job = require("../models/job.model"),
+    Freelance = require("../models/freelance.model"),
     Employer = require("../models/employer.model");
 
 //===========================================================================
@@ -109,6 +110,30 @@ router.get("/jobs", middleware.isEmployer, (req, res) => {
             })
             .catch((err) => res.status(400).json({ err: err }));
     });
+});
+
+// Find active Jobs
+router.post("/active",middleware.isEmployer,(req,res) =>{
+    const ID=req.body.id;
+    var active=[];
+    var inactive=[];
+    let promises=[];
+    for(let i=0;i<ID.length;i++){
+        promises.push(new Promise((resolve,reject)=>{
+            const id=ID[i];
+            Job.findById(id).then((job)=>{
+                active.push(id);
+                resolve("Done");
+           // console.log(active)
+        }).catch((err)=> {
+        inactive.push(id);  
+        resolve("Done");
+        });    
+        }));
+    }
+    Promise.all(promises).then((msg)=>{
+        res.send({active:active,inactive:inactive});
+    }).catch((err) => res.send({active:active,inactive:inactive}));
 });
 //===========================================================================
 //Get employer details
