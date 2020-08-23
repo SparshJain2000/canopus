@@ -11,7 +11,7 @@ Freelance = require("../models/freelance.model"),
 axios = require("axios");
 //===========================================================================
 //get all jobs
-router.get("/", (req, res) => {
+router.post("/alljobs", (req, res) => {
 	skip = parseInt(req.body.skip) || 0;
     limiter = parseInt(req.body.limit) || 10;
 	Job.aggregate(
@@ -32,10 +32,10 @@ router.get("/", (req, res) => {
 	);
 	Job.aggregate([
 	{
-		$limit: limiter,
+		$skip: skip,
 	},
 	{
-		$skip: skip,
+		$limit: limiter,
 	},])
 	.then((jobs) =>
 	      res.json({
@@ -51,7 +51,7 @@ router.get("/", (req, res) => {
 	       );
 });
 //get all freelance jobs
-router.get("/freelance", (req, res) => {
+router.post("/allfreelance", (req, res) => {
 	skip = parseInt(req.body.skip) || 0;
     limiter = parseInt(req.body.limit) || 10;
 	Freelance.aggregate(
@@ -72,10 +72,10 @@ router.get("/freelance", (req, res) => {
 	);
 	Freelance.aggregate([
 	{
-		$limit: limiter,
+		$skip: skip,
 	},
 	{
-		$skip: skip,
+		$limit: limiter,
 	},])
 	.then((jobs) =>
 	      res.json({
@@ -254,7 +254,9 @@ router.post("/freelancePost", middleware.isEmployer, (req, res) => {
 router.post("/search", async (req, res) => {
     // query builder function
     const query = await searchController.queryBuilder(req).then((query) => {
-                var jobCount;
+				var jobCount;
+				var sponsoredJobs;
+				if(query.skip==0)
                 Job.aggregate(
                     [
                         query.search,
@@ -271,19 +273,35 @@ router.post("/search", async (req, res) => {
                         if (err) jobCount = 0;
                         else jobCount = jobNum[0];
                     },
-                );
+				);
+
+				Job.aggregate([
+					query.sponsored,
+					{
+						$skip: query.sponsoredskip,
+					},
+					query.sort,
+					{
+						$limit: query.sponsoredlimiter,
+					},
+				],(err,sponsored) =>{
+					if(err) sponsorFlag=0;
+					//console.log(err);
+					else sponsoredJobs=sponsored;
+				});
+				console.log(sponsoredJobs);
                 //const userid = '5f1d72e270ff602dc0250747';
-                // console.log(userid);
+				// console.log(userid);
                 Job.aggregate(
                     [
                         query.search,
                         {
+                            $skip: query.skip,
+						},
+						query.sort,
+						{
                             $limit: query.limiter,
                         },
-                        {
-                            $skip: query.skip,
-                        },
-                        query.sort,
                         //{$sort: { score: { $meta: "textScore" }} },
                         {
                             $project: {
@@ -310,11 +328,15 @@ router.post("/search", async (req, res) => {
                     			err: err,
                     		});
                     	else {
-                    		res.json({ jobs: jobs, count: jobCount });
-                    	}
+							//Array.prototype.splice.apply(jobs, [query.limit/2,0].concat(sponsoredJobs));
+							if(sponsoredJobs && sponsoredJobs.length>0)
+							jobs.splice(Math.floor(jobs.length/2),0, ...sponsoredJobs);
+							
+							res.json({jobs:jobs,count:jobCount});
+							}
                     })
                 })
-.catch(function (error) {
+				.catch(function (error) {
                 // handle error
                 console.log(error);
             });
@@ -401,6 +423,7 @@ router.post("/similar", (req, res) => {
 router.post("/freelance", async (req, res) => {
 	const query = await searchController.queryBuilder(req).then((query) => {
 		 var jobCount=0;
+		 var sponsoredJobs=[];
 		 var dateQuery=[];
 		 // trivial condition in case no date arguments are recieved
 		 var trivialQuery={
@@ -445,7 +468,6 @@ router.post("/freelance", async (req, res) => {
 				$and:dateQuery
 			}
 		};
-	
 		//job count pipeline
 		Freelance.aggregate(
 			[
@@ -456,6 +478,7 @@ router.post("/freelance", async (req, res) => {
 							startDate:1,
 							endDate:1,
 							title:1,
+							profession:1,
 							startHour: { $hour: "$startDate" },
 							endHour:{$hour:"$endDate"},
 							dayOfWeek: { $dayOfWeek: "$startDate" }
@@ -477,9 +500,33 @@ router.post("/freelance", async (req, res) => {
 				else jobCount = jobNum[0];
 			},
 		);
-		//const userid = '5f1d72e270ff602dc0250747';
-		// console.log(userid);
-		// Aggregation pipeline
+		Freelance.aggregate([
+			query.sponsored,
+			{
+				$project:
+						{
+						startDate:1,
+						endDate:1,
+						title:1,
+						profession:1,
+						startHour: { $hour: "$startDate" },
+						endHour:{$hour:"$endDate"},
+						dayOfWeek: { $dayOfWeek: "$startDate" }
+						}		
+
+			},
+			{
+				$skip: query.sponsoredskip,
+			},
+			query.sort,
+			{
+				$limit: query.sponsoredlimiter,
+			},
+		],(err,sponsored) =>{
+			if(err) 
+			console.log(err);
+			else sponsoredJobs=sponsored;
+		});
 		Freelance.aggregate(
 			[
 				
@@ -491,6 +538,7 @@ router.post("/freelance", async (req, res) => {
 							startDate:1,
 							endDate:1,
 							title:1,
+							profession:1,
 							startHour: { $hour: "$startDate" },
 							endHour:{$hour:"$endDate"},
 							dayOfWeek: { $dayOfWeek: "$startDate" }
@@ -499,12 +547,12 @@ router.post("/freelance", async (req, res) => {
 				},
 				query2,
 				{
-					$limit: query.limiter,
-				},
-				{
 					$skip: query.skip,
 				},
 				query.sort,
+				{
+					$limit: query.limiter,
+				}
 				
 			],
 			(err, jobs) => {
@@ -513,10 +561,16 @@ router.post("/freelance", async (req, res) => {
 						err: err,
 					});
 				else {
-					res.json({ jobs: jobs, count: jobCount });
+					if(sponsoredJobs.length!=0){
+						//jobs.splice(Math.floor(jobs.length/2),0, ...sponsoredJobs);
+					}
+					console.log(jobs);
+						res.json({ jobs: jobs, count: jobCount,sponsored:sponsoredJobs});
 				}
 			})
+	//	}).catch((err) => res.status(400).json({err:err}));
 		})
+		
 		.catch(function (error) {
 		// handle error
 		console.log(error);
