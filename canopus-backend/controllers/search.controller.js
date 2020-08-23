@@ -42,8 +42,10 @@ async function queryBuilder(req) {
     query.mustquery = [],
     query.shouldquery = [];
     //search only validated jobs
+
     //query.mustquery.push(addQuery(true,"validated"));
-    console.log(query.mustquery);
+    
+    // console.log(query.mustquery);
     query.skip = parseInt(req.body.skip) || 0;
     query.limiter = parseInt(req.body.limit) || 10;
     if(req.body.coordinates){

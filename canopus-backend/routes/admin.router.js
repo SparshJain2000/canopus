@@ -39,7 +39,7 @@ router.get("/validate",(req,res) => {
 
 router.post("/validate",(req,res) => {
         ID=req.body.id;
-        console.log(ID);
+        //console.log(ID);
 //         Job.updateMany({title:{$ne:""}},
 // {$set:{validated:"true"}}).then(console.log("Hello"));
         Employer.updateMany({_id:{$in:ID}},{$set:{validated:true}},{$project:{nModified:1}}).then((employer) =>{
