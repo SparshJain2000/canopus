@@ -113,7 +113,7 @@ router.get("/jobs", middleware.isEmployer, (req, res) => {
 });
 
 // Find active Jobs
-router.post("/active",(req,res) =>{
+router.post("/active",middleware.isEmployer,(req,res) =>{
     const ID=req.body.id;
     var active=[];
     var inactive=[];

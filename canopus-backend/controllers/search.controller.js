@@ -1,4 +1,6 @@
-const axios = require("axios");
+const axios = require("axios"),
+Job = require("../models/job.model"),
+Freelance = require("../models/freelance.model");
 
 const searchController={};
 // query builder function
@@ -163,6 +165,10 @@ const geolocationAPI=(location)=>{
     //return nearby;
 });
 }
+
+// async function sponsoredJobs(req,route){
+
+// }
 exports.searchController={queryBuilder,nearbyAPI,addQuery,addQueryboost,geolocationAPI};
 // response.data.forEach((element) => {
 //     nearby.push(element[1]);

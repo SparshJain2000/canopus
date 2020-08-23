@@ -12,10 +12,35 @@ axios = require("axios");
 //===========================================================================
 //get all jobs
 router.get("/", (req, res) => {
-	Job.find()
+	skip = parseInt(req.body.skip) || 0;
+    limiter = parseInt(req.body.limit) || 10;
+	Job.aggregate(
+		[
+			{
+				$group: {
+					_id: null,
+					jobCount: {
+						$sum: 1,
+					},
+				},
+			},
+		],
+		(err, jobNum) => {
+			if (err) jobCount = 0;
+			else jobCount = jobNum[0];
+		},
+	);
+	Job.aggregate([
+	{
+		$limit: limiter,
+	},
+	{
+		$skip: skip,
+	},])
 	.then((jobs) =>
 	      res.json({
-	      	jobs: jobs,
+			  jobs: jobs,
+			  count:jobCount,
 	      	user: req.user,
 	      }),
 	      )
@@ -25,7 +50,46 @@ router.get("/", (req, res) => {
 	       }),
 	       );
 });
-
+//get all freelance jobs
+router.get("/freelance", (req, res) => {
+	skip = parseInt(req.body.skip) || 0;
+    limiter = parseInt(req.body.limit) || 10;
+	Freelance.aggregate(
+		[
+			{
+				$group: {
+					_id: null,
+					jobCount: {
+						$sum: 1,
+					},
+				},
+			},
+		],
+		(err, jobNum) => {
+			if (err) jobCount = 0;
+			else jobCount = jobNum[0];
+		},
+	);
+	Freelance.aggregate([
+	{
+		$limit: limiter,
+	},
+	{
+		$skip: skip,
+	},])
+	.then((jobs) =>
+	      res.json({
+			  jobs: jobs,
+			  count:jobCount,
+	      	user: req.user,
+	      }),
+	      )
+	.catch((err) =>
+	       res.status(400).json({
+	       	err: err,
+	       }),
+	       );
+});
 //===========================================================================
 //get jobs by user
 // router.get("/my", middleware.isLoggedIn, (req, res) => {
