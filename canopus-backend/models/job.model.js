@@ -10,6 +10,7 @@ module.exports = mongoose.model(
         superSpecialization:Array,
         address: Object,
         createdAt:Date,
+        expireAt:Date,
         // {
         //     line: String, //specific addresss
         //     city: String,

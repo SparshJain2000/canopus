@@ -30,11 +30,17 @@ router.post("/", (req, res) => {
         address: req.body.address,
         description: req.body.description,
         role: "Employer",
-        tier:{
+        jobtier:{
             allowed: 10,
             posted: 0,
             closed: 0,
-        }
+        },
+        freelancetier:{
+            allowed:3,
+            posted:0,
+            closed:0,
+        },
+        validated:false,
     });
     Employer.register(employer, req.body.password)
         .then((employer) => {
@@ -135,11 +141,42 @@ router.post("/active",middleware.isEmployer,(req,res) =>{
         res.send({active:active,inactive:inactive});
     }).catch((err) => res.send({active:active,inactive:inactive}));
 });
+
+//Update a job
+router.put("/jobUpdate",middleware.isEmployer,(req,res) =>{
+    console.log(req.user._id)
+    Employer.findById(req.user._id,{jobs:1}).then((jobs)=>{
+       const jobid=jobs.jobs;
+       const ids=jobid.map(element=>{
+           return element.id;
+       })
+        if(ids.includes(req.body.id))
+        {
+
+        }
+        else res.status(400).json({err:"Job doesn't exist"});
+    }).catch((error)=>{res.status(400).json({err:error})});
+});
+//Update a freelance job
+router.put("/freelanceUpdate",middleware.isEmployer,(req,res) =>{
+    console.log(req.user._id)
+    Employer.findById(req.user._id,{jobs:1}).then((jobs)=>{
+       const jobid=jobs.jobs;
+       const ids=jobid.map(element=>{
+           return element.id;
+       })
+        if(ids.includes(req.body.id))
+        {
+
+        }
+        else res.status(400).json({err:"Job doesn't exist"});
+    }).catch((error)=>{res.status(400).json({err:error})});
+});
 //===========================================================================
 //Get employer details
 
 router.get("/profile", middleware.isEmployer, (req, res) => {
-    Employer.findById(req.employer._id)
+    Employer.findById(req.user._id)
         .then((employer) => res.json(employer))
         .catch((err) => res.status(400).json({ err: err }));
 });
