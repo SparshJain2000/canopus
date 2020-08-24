@@ -1,6 +1,6 @@
 import React, { Component, createRef } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { BrowserRouter, Route } from "react-router-dom";
+import { BrowserRouter, Route, Switch } from "react-router-dom";
 import NavbarComponent from "./components/navbar.component";
 import FooterComponent from "./components/footer.component";
 import Home from "./components/home.component";
@@ -12,6 +12,8 @@ import Job from "./components/job.component";
 import PostJob from "./components/postJob.component";
 import Employer from "./components/employer.component";
 import JobApplications from "./components/jobApplications.component";
+import UpdateJob from "./components/updateJob.component";
+import ErrorPage from "./components/error.component";
 import axios from "axios";
 class App extends Component {
     constructor(props) {
@@ -55,56 +57,70 @@ class App extends Component {
                     setUser={this.setUser}
                     getUser={this.getUser}
                 />
-                <Route path='/' exact render={(props) => <Home {...props} />} />
-                <Route
-                    path='/search-jobs'
-                    exact
-                    render={(props) => (
-                        <JobSearch {...props} user={this.state.user} />
+                <Switch>
+                    <Route
+                        exact
+                        path='/'
+                        render={(props) => <Home {...props} />}
+                    />
+                    <Route
+                        exact
+                        path='/search-jobs'
+                        render={(props) => (
+                            <JobSearch {...props} user={this.state.user} />
+                        )}
+                    />
+                    <Route
+                        exact
+                        path='/user/signup'
+                        component={() => <SignupUser />}
+                    />
+                    <Route
+                        exact
+                        path='/profile'
+                        // render={(props) => <Profile {...props} />}
+                        component={() => <Profile />}
+                    />
+                    <Route
+                        exact
+                        path='/profile/:id'
+                        // render={(props) => <Profile {...props} />}
+                        render={(props) => <Profile {...props} />}
+                    />
+                    <Route
+                        exact
+                        path='/job/:id'
+                        // render={(props) => <Profile {...props} />}
+                        render={(props) => <Job {...props} />}
+                    />
+                    {this.state.user && this.state.user.role === "Employer" && (
+                        <Route
+                            exact
+                            path='/employer/job/update/:id'
+                            render={(props) => <UpdateJob {...props} />}
+                        />
                     )}
-                />
-                <Route
-                    path='/user/signup'
-                    exact
-                    component={() => <SignupUser />}
-                />
-                <Route
-                    path='/profile'
-                    exact
-                    // render={(props) => <Profile {...props} />}
-                    component={() => <Profile />}
-                />
-                <Route
-                    path='/profile/:id'
-                    exact
-                    // render={(props) => <Profile {...props} />}
-                    render={(props) => <Profile {...props} />}
-                />
-                <Route
-                    path='/job/:id'
-                    exact
-                    // render={(props) => <Profile {...props} />}
-                    render={(props) => <Job {...props} />}
-                />
-                <Route
-                    path='/employer'
-                    exact
-                    // render={(props) => <Profile {...props} />}
-                    component={() => <Employer />}
-                />
-                <Route
-                    path='/post'
-                    exact
-                    // render={(props) => <Profile {...props} />}
-                    component={() => <PostJob />}
-                />
-                <Route
-                    path='/applications'
-                    exact
-                    // render={(props) => <Profile {...props} />}
-                    component={() => <JobApplications />}
-                />
+                    <Route
+                        exact
+                        path='/employer'
+                        // render={(props) => <Profile {...props} />}
+                        component={() => <Employer />}
+                    />
 
+                    <Route
+                        exact
+                        path='/post'
+                        // render={(props) => <Profile {...props} />}
+                        component={() => <PostJob />}
+                    />
+                    <Route
+                        exact
+                        path='/applications'
+                        // render={(props) => <Profile {...props} />}
+                        component={() => <JobApplications />}
+                    />
+                    <Route component={() => <ErrorPage />} />
+                </Switch>
                 <FooterComponent />
             </BrowserRouter>
         );
