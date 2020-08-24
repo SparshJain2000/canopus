@@ -142,36 +142,6 @@ router.post("/active",middleware.isEmployer,(req,res) =>{
     }).catch((err) => res.send({active:active,inactive:inactive}));
 });
 
-//Update a job
-router.put("/jobUpdate",middleware.isEmployer,(req,res) =>{
-    console.log(req.user._id)
-    Employer.findById(req.user._id,{jobs:1}).then((jobs)=>{
-       const jobid=jobs.jobs;
-       const ids=jobid.map(element=>{
-           return element.id;
-       })
-        if(ids.includes(req.body.id))
-        {
-
-        }
-        else res.status(400).json({err:"Job doesn't exist"});
-    }).catch((error)=>{res.status(400).json({err:error})});
-});
-//Update a freelance job
-router.put("/freelanceUpdate",middleware.isEmployer,(req,res) =>{
-    console.log(req.user._id)
-    Employer.findById(req.user._id,{jobs:1}).then((jobs)=>{
-       const jobid=jobs.jobs;
-       const ids=jobid.map(element=>{
-           return element.id;
-       })
-        if(ids.includes(req.body.id))
-        {
-
-        }
-        else res.status(400).json({err:"Job doesn't exist"});
-    }).catch((error)=>{res.status(400).json({err:error})});
-});
 //===========================================================================
 //Get employer details
 

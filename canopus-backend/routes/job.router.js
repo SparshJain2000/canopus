@@ -113,7 +113,9 @@ router.post("/", middleware.isEmployer, (req, res) => {
 		res.status(400).send("Max Jobs Posted");
 		else Employer.findByIdAndUpdate(req.user._id,{$inc:{"jobtier.posted":1}}).then((employer2)=>{
 		const expiry=new Date(req.body.expireAt);
-		//console.log(expirtyDate-Date().now)
+		var days=(expiry-Date.now())/(1000*60*60*24);
+		if(days<0 || days>90 )
+		res.status(400).send("Invalid time format");
 	let job = new Job({
 		title: req.body.title,
 		profession: req.body.profession,
@@ -122,6 +124,7 @@ router.post("/", middleware.isEmployer, (req, res) => {
 		address: req.body.address,
 		createdAt:new Date(),
 		expireAt:expiry,
+		validated:employer.validated,
 	});
 	Job.create(job)
 	.then((job) => {
@@ -176,6 +179,7 @@ router.post("/", middleware.isEmployer, (req, res) => {
 		   );
 		}).catch((err)=>{res.status(400).json({err:err})});
 });
+
 // Post freelance job
 router.post("/freelancePost", middleware.isEmployer, (req, res) => {
 	Employer.findById(req.user._id).then((employer) => {
@@ -191,7 +195,10 @@ router.post("/freelancePost", middleware.isEmployer, (req, res) => {
 		if(employer.freelancetier.allowed-employer.freelancetier.posted<=0)
 		res.status(400).json({err:"Max Jobs Posted"});
 		else Employer.findByIdAndUpdate(req.user._id,{$inc:{"freelancetier.posted":1}}).then((employer2) =>{
-		const expiry=new Date(req.body.expireAt);
+			const expiry=new Date(req.body.endDate);
+			var days=(expiry-Date.now())/(1000*60*60*24);
+			if(days<0 || days>90 )
+			res.status(400).send("Invalid time format");
 	let freelance = new Freelance({
 		title: req.body.title,
 		profession: req.body.profession,
@@ -258,7 +265,63 @@ router.post("/freelancePost", middleware.isEmployer, (req, res) => {
 		}).catch((err)=> res.status(400).json({err:err}));
 });
 //===========================================================================
-
+//update a job
+// router.put("/:id", middleware.checkBlogOwnership, (req, res) => {
+//     Job.findById(req.params.id)
+//         .then((job) => {
+//             job.title = req.body.title;
+//             job.image = req.body.image;
+//             job.body = req.body.body;
+//             job.date = new Date();
+//             job.likes = job.likes ? job.likes : [];
+//             job.save()
+//                 .then((updatedBlog) => res.json(updatedBlog))
+//                 .catch((err) => res.status(400).json({ err: err }));
+//         })
+//         .catch((err) => res.status(400).json({ err: err }));
+// });
+//===========================================================================
+//Update a job
+router.put("/:id",middleware.checkJobOwnership,async (req,res) =>{
+	var query;
+		query = await searchController.updateQueryBuilder(req)
+	//console.log(query.updateQuery);
+	Job.findById(req.params.id).then((job)=>{
+	if(req.body.expireAt){
+	const expiry=new Date(req.body.expireAt);
+		var days=(expiry-job.createdAt)/(1000*60*60*24) ;
+		console.log(days);
+		if(days<0 || days>90 )
+		res.status(400).json({err:"Invalid time format"});
+		else
+		query.update["expireAt"]=expiry;
+	}
+	Job.findByIdAndUpdate(req.params.id,{$set:query.update}).then((job)=>{	
+	res.status(200).json({updated:"true"});
+		}).catch((error)=>{res.status(400).json({updated:"false"})});
+	}).catch((err)=>{res.status(400).json({err:"Couldn't find employer"})});
+});
+//Update a freelance job
+router.put("/freelancePost/:id",middleware.checkJobOwnership,async (req,res) =>{
+	var query;
+		query = await searchController.updateQueryBuilder(req)
+	//console.log(query.updateQuery);
+	Freelance.findById(req.user._id).then((job)=>{
+	if(req.body.startDate) query.update["startDate"]=req.body.startDate;
+	if(req.body.endDate) query.update["endDate"]=req.body.endDate;
+	const expiry=new Date(req.body.endDate);
+		var days=(expiry-job.createdAt)/(1000*60*60*24) ;
+		if(days<0 || days>90 )
+		res.status(400).json({err:"Invalid time format"});
+	// if(req.body.sponsored) {
+	// 	query.update["sponsored"]=true;
+	// }
+	Freelance.findByIdAndUpdate(req.params.id,{$set:query.update}).then((job)=>{	
+	res.status(200).json({updated:"true"});
+		}).catch((error)=>{res.status(400).json({updated:"false"})});
+	}).catch((err)=>{res.status(400).json({err:"Couldn't find employer"})});
+});
+//job search route ( not for freelance search)
 router.post("/search", async (req, res) => {
     // query builder function
     const query = await searchController.queryBuilder(req).then((query) => {
@@ -426,6 +489,7 @@ router.post("/similar", (req, res) => {
               },
               );
 });
+
 //Freelance Search
 router.post("/freelance", async (req, res) => {
 	const query = await searchController.queryBuilder(req).then((query) => {
@@ -605,8 +669,8 @@ router.get("/:id", middleware.isLoggedIn, (req, res) => {
 	       );
 });
 
-//router.put("/:id",middleware.isLoggedIn())
 
+//router.put("/:id",middleware.isLoggedIn())
 router.post("/apply/:id", middleware.isUser, (req, res) => {
 	Job.findById(req.params.id).then((job) => {
 		job.applicants = [
@@ -653,48 +717,6 @@ router.post("/apply/:id", middleware.isUser, (req, res) => {
 	req.user;
 });
 
-//===========================================================================
-//update a job
-// router.put("/:id", middleware.checkBlogOwnership, (req, res) => {
-//     Job.findById(req.params.id)
-//         .then((job) => {
-//             job.title = req.body.title;
-//             job.image = req.body.image;
-//             job.body = req.body.body;
-//             job.date = new Date();
-//             job.likes = job.likes ? job.likes : [];
-//             job.save()
-//                 .then((updatedBlog) => res.json(updatedBlog))
-//                 .catch((err) => res.status(400).json({ err: err }));
-//         })
-//         .catch((err) => res.status(400).json({ err: err }));
-// });
-//===========================================================================
-//like a job
-// router.put("/:id/like", middleware.isLoggedIn, (req, res) => {
-// Job.findById(req.params.id).then((job) => {
-//     job.likes = [
-//         ...job.likes,
-//         { username: req.user.username, id: req.user._id },
-//     ];
-//     job.save()
-//         .then((updatedBlog) => res.json(updatedBlog))
-//         .catch((err) => res.status(400).json({ err: err }));
-// });
-// });
-//===========================================================================
-//unlike a job
-// router.put("/:id/unlike", middleware.isLoggedIn, (req, res) => {
-//     Job.findById(req.params.id).then((job) => {
-//         job.likes = job.likes.filter(
-//             (user) => user.username != req.user.username,
-//         );
-//         job.save()
-//             .then((updatedBlog) => res.json(updatedBlog))
-//             .catch((err) => res.status(400).json({ err: err }));
-//     });
-// });
-//===========================================================================
 //get a job by id
 router.get("/:id", middleware.isLoggedIn, (req, res) => {
 	Job.findById(req.params.id)

@@ -36,6 +36,19 @@ function addQueryboost(query, path) {
     };
     return abc;
 }
+async function updateQueryBuilder(req){
+    var query={};
+    query.update={};
+    if(req.body.title) query.update["title"]=req.body.title;
+    if(req.body.profession) query.update["profession"]=req.body.profession;
+    if(req.body.specialization) query.update["specialization"]=req.body.specialization
+    if(req.body.superSpecialization) query.update["superSpecialization"]=req.body.superSpecialization;
+    if(req.body.address) query.update["address"]=req.body.address;
+    if(req.body.description) query.update["description"]=req.body.description;
+    if(req.body.tag) query.update["tag"]=req.body.tag;
+    //console.log(query.update);
+    return query;
+}
 
 
 async function queryBuilder(req) {
@@ -170,7 +183,7 @@ const geolocationAPI=(location)=>{
 });
 }
 
-exports.searchController={queryBuilder,nearbyAPI,addQuery,addQueryboost,geolocationAPI};
+exports.searchController={queryBuilder,nearbyAPI,addQuery,addQueryboost,geolocationAPI,updateQueryBuilder};
 // response.data.forEach((element) => {
 //     nearby.push(element[1]);
 // });
