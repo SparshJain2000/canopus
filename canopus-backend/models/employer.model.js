@@ -51,5 +51,7 @@ module.exports = mongoose.model(
                 title: String,
             },
         ],
+        savedJobs:Array,
+        savedFreelance:Array,
     }).plugin(passportLocalMongoose),
 );
