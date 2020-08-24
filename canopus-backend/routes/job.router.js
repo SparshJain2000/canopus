@@ -113,7 +113,11 @@ router.post("/", middleware.isEmployer, (req, res) => {
 		res.status(400).send("Max Jobs Posted");
 		else Employer.findByIdAndUpdate(req.user._id,{$inc:{"jobtier.posted":1}}).then((employer2)=>{
 		const expiry=new Date(req.body.expireAt);
-		//console.log(expirtyDate-Date().now)
+		// console.log(Math.abs(expiry-Date.now())/(1000*60*60));
+		const expiry=new Date(req.body.expireAt);
+		var days=(expiry-employer.createdAt)/(1000*60*60*24)<0 ;
+		if(days<0 || days>90 )
+		res.status(400).send("Invalid time format");
 	let job = new Job({
 		title: req.body.title,
 		profession: req.body.profession,
@@ -193,7 +197,10 @@ router.post("/freelancePost", middleware.isEmployer, (req, res) => {
 		if(employer.freelancetier.allowed-employer.freelancetier.posted<=0)
 		res.status(400).json({err:"Max Jobs Posted"});
 		else Employer.findByIdAndUpdate(req.user._id,{$inc:{"freelancetier.posted":1}}).then((employer2) =>{
-		const expiry=new Date(req.body.expireAt);
+			const expiry=new Date(req.body.endDate);
+			var days=(expiry-employer.createdAt)/(1000*60*60*24)<0 ;
+			if(days<0 || days>90 )
+			res.status(400).send("Invalid time format");
 	let freelance = new Freelance({
 		title: req.body.title,
 		profession: req.body.profession,
@@ -281,25 +288,39 @@ router.put("/:id",middleware.checkJobOwnership,async (req,res) =>{
 	var query;
 		query = await searchController.updateQueryBuilder(req)
 	//console.log(query.updateQuery);
+	Employer.findById(req.user._id).then((employer)=>{
+	if(req.body.expireAt){
+	const expiry=new Date(req.body.expireAt);
+		var days=(expiry-employer.createdAt)/(1000*60*60*24)<0 ;
+		if(days<0 || days>90 )
+		res.status(400).send("Invalid time format");
+		else
+		query.update["expireAt"]=expiry;
+	}
 	const job=await Job.findByIdAndUpdate(req.params.id,{$set:query.update}).then((job)=>{	
 	res.status(200).json({updated:"true"});
 		}).catch((error)=>{res.status(400).json({updated:"false"})});
-	
+	}).catch((err)=>{res.status(400).json({err:"Couldn't find employer"})});
 });
 //Update a freelance job
 router.put("/freelancePost/:id",middleware.checkJobOwnership,async (req,res) =>{
 	var query;
 		query = await searchController.updateQueryBuilder(req)
 	//console.log(query.updateQuery);
+	Employer.findById(req.user._id).then((employer)=>{
 	if(req.body.startDate) query.update["startDate"]=req.body.startDate;
 	if(req.body.endDate) query.update["endDate"]=req.body.endDate;
+	const expiry=new Date(req.body.endDate);
+		var days=(expiry-employer.createdAt)/(1000*60*60*24)<0 ;
+		if(days<0 || days>90 )
+		res.status(400).send("Invalid time format");
 	// if(req.body.sponsored) {
 	// 	query.update["sponsored"]=true;
 	// }
 	const job=await Freelance.findByIdAndUpdate(req.params.id,{$set:query.update}).then((job)=>{	
 	res.status(200).json({updated:"true"});
 		}).catch((error)=>{res.status(400).json({updated:"false"})});
-	
+	}).catch((err)=>{res.status(400).json({err:"Couldn't find employer"})});
 });
 //job search route ( not for freelance search)
 router.post("/search", async (req, res) => {
