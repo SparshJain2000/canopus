@@ -108,7 +108,7 @@ router.post("/allfreelance", (req, res) => {
 //post a job
 router.post("/", middleware.isEmployer, (req, res) => {
 	Employer.findById(req.user._id).then((employer) => {
-		//TODO validation
+		//validation
 		if(employer.jobtier.allowed-employer.jobtier.posted<=0)
 		res.status(400).send("Max Jobs Posted");
 		else Employer.findByIdAndUpdate(req.user._id,{$inc:{"jobtier.posted":1}}).then((employer2)=>{
@@ -140,6 +140,11 @@ router.post("/", middleware.isEmployer, (req, res) => {
 					title: job.title,
 					id: job._id,
 				},
+				],
+				employer.savedJobs=[
+				...employer.savedJobs,
+					job
+				
 				];
 				employer
 				.save()
@@ -225,7 +230,10 @@ router.post("/freelancePost", middleware.isEmployer, (req, res) => {
 					title: job.title,
 					id: job._id,
 				},
-				];
+				],
+				employer.savedFreelance=[
+					...employer.savedFreelance,job
+					];
 				employer
 				.save()
 				.then((updatedEmployer) =>
@@ -297,6 +305,16 @@ router.put("/:id",middleware.checkJobOwnership,async (req,res) =>{
 		query.update["expireAt"]=expiry;
 	}
 	Job.findByIdAndUpdate(req.params.id,{$set:query.update}).then((job)=>{	
+		// Employer.replaceOne(req.user._id).then((employer) => {
+		// 	employer.savedFreelance=[
+		// 		...employer.savedFreelance,
+		// 		{
+		// 			job:job
+		// 		}
+		// 		];
+		// 	employer
+		// 	.save()
+		// Employer.update({"savedJobs"})
 	res.status(200).json({updated:"true"});
 		}).catch((error)=>{res.status(400).json({updated:"false"})});
 	}).catch((err)=>{res.status(400).json({err:"Couldn't find employer"})});
@@ -718,8 +736,16 @@ router.post("/apply/:id", middleware.isUser, (req, res) => {
 });
 
 //get a job by id
-router.get("/:id", middleware.isLoggedIn, (req, res) => {
+router.get("/:id", (req, res) => {
 	Job.findById(req.params.id)
+	.then((job) => {
+		res.json(job);
+	})
+	.catch((err) => res.status(400).json({ err: err }));
+});
+//get a freelance job by id
+router.get("/freelance/:id", (req, res) => {
+	Freelance.findById(req.params.id)
 	.then((job) => {
 		res.json(job);
 	})
