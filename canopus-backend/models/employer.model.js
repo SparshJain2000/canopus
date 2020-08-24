@@ -18,10 +18,15 @@ module.exports = mongoose.model(
         //     pin: Number,
         // },
         //Employer Plan normal jobs
-        tier: {
+        jobtier: {
             allowed: Number,
             posted: Number,
             closed: Number,
+        },
+        freelancetier:{
+            allowed:Number,
+            posted:Number,
+            closed:Number,
         },
         websitelink: String,
         youtube: Array, // links to youtube videos

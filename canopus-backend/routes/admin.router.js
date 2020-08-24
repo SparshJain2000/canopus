@@ -1,8 +1,9 @@
 const router = require("express").Router(),
     middleware = require("../middleware/index"),
     Employer = require("../models/employer.model"),
-    Tag = require("../models/tag.model");
-    Job = require("../models/job.model")
+    Tag = require("../models/tag.model"),
+    Job = require("../models/job.model"),
+    Freelance = require("../models/freelance.model");
 // add new tag
 
 //Work in progress TODO admin model
@@ -42,9 +43,13 @@ router.post("/validate",(req,res) => {
         //console.log(ID);
 //         Job.updateMany({title:{$ne:""}},
 // {$set:{validated:"true"}}).then(console.log("Hello"));
-        Employer.updateMany({_id:{$in:ID}},{$set:{validated:true}},{$project:{nModified:1}}).then((employer) =>{
-            res.send(employer);}
-        );
+        Employer.updateMany({_id:{$in:ID}},{$set:{validated:true}},{nModified:1}).then((employer) =>{
+            Job.updateMany({"author.id":{$in:ID}},{$set:{validated:true}}).then((jobs) =>{
+                Freelance.updateMany({"author.id":{$in:ID}},{$set:{validated:true}}).then((freelance) =>{
+                    res.json({employer:employer,jobs:jobs,freelance:freelance});
+                }).catch((err) => {res.json({err:err})});
+            }).catch((err) => {res.json({err:err})});
+            }).catch((err) => {res.json({err:err})});
 
 });
 module.exports = router;

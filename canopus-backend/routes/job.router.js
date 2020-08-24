@@ -56,6 +56,7 @@ router.post("/allfreelance", (req, res) => {
     limiter = parseInt(req.body.limit) || 10;
 	Freelance.aggregate(
 		[
+		
 			{
 				$group: {
 					_id: null,
@@ -108,21 +109,19 @@ router.post("/allfreelance", (req, res) => {
 router.post("/", middleware.isEmployer, (req, res) => {
 	Employer.findById(req.user._id).then((employer) => {
 		//TODO validation
-		// if(employer.validated==true)
-		// console.log(employer.validated);
-		// if(employer.tier.allowed - employer.tier.posted<= 0)
-		// res.status(400).json({
-		// 	error:"Maximum Jobs Posted"
-		// });
-		// else
-		// Employer.findByIdAndUpdate(req.user._id,{$inc:{"tier.posted":1}})
+		if(employer.jobtier.allowed-employer.jobtier.posted<=0)
+		res.status(400).send("Max Jobs Posted");
+		else Employer.findByIdAndUpdate(req.user._id,{$inc:{"jobtier.posted":1}}).then((employer2)=>{
+		const expiry=new Date(req.body.expireAt);
+		//console.log(expirtyDate-Date().now)
 	let job = new Job({
 		title: req.body.title,
 		profession: req.body.profession,
 		specialization: req.body.specialization,
 		description: req.body.description,
 		address: req.body.address,
-		createdAt:new Date()
+		createdAt:new Date(),
+		expireAt:expiry,
 	});
 	Job.create(job)
 	.then((job) => {
@@ -174,7 +173,8 @@ router.post("/", middleware.isEmployer, (req, res) => {
 	       	err: err,
 	       	user: req.user,
 	       }),
-	       );
+		   );
+		}).catch((err)=>{res.status(400).json({err:err})});
 });
 // Post freelance job
 router.post("/freelancePost", middleware.isEmployer, (req, res) => {
@@ -188,6 +188,10 @@ router.post("/freelancePost", middleware.isEmployer, (req, res) => {
 		// });
 		// else
 		// Employer.findByIdAndUpdate(req.user._id,{$inc:{"tier.posted":1}})
+		if(employer.freelancetier.allowed-employer.freelancetier.posted<=0)
+		res.status(400).json({err:"Max Jobs Posted"});
+		else Employer.findByIdAndUpdate(req.user._id,{$inc:{"freelancetier.posted":1}}).then((employer2) =>{
+		const expiry=new Date(req.body.expireAt);
 	let freelance = new Freelance({
 		title: req.body.title,
 		profession: req.body.profession,
@@ -195,7 +199,10 @@ router.post("/freelancePost", middleware.isEmployer, (req, res) => {
 		description: req.body.description,
 		address: req.body.address,
 		startDate:req.body.startDate,
-		endDate:req.body.endDate
+		endDate:req.body.endDate,
+		createdAt:new Date(),
+		expireAt:expiry,
+		validated:employer.validated,
 	});
 	Freelance.create(freelance)
 	.then((job) => {
@@ -247,7 +254,8 @@ router.post("/freelancePost", middleware.isEmployer, (req, res) => {
 	       	err: err,
 	       	user: req.user,
 	       }),
-	       );
+		   );
+		}).catch((err)=> res.status(400).json({err:err}));
 });
 //===========================================================================
 
@@ -331,7 +339,6 @@ router.post("/search", async (req, res) => {
 							//Array.prototype.splice.apply(jobs, [query.limit/2,0].concat(sponsoredJobs));
 							if(sponsoredJobs && sponsoredJobs.length>0)
 							jobs.splice(Math.floor(jobs.length/2),0, ...sponsoredJobs);
-							
 							res.json({jobs:jobs,count:jobCount});
 							}
                     })
@@ -505,6 +512,10 @@ router.post("/freelance", async (req, res) => {
 			{
 				$project:
 						{
+						_id:1,
+						superSpecialization:1,
+						tag:1,
+						title:1,
 						startDate:1,
 						endDate:1,
 						title:1,
@@ -535,6 +546,9 @@ router.post("/freelance", async (req, res) => {
 					$project:
 							{
 							_id:1,
+							superSpecialization:1,
+							tag:1,
+							title:1,
 							startDate:1,
 							endDate:1,
 							title:1,
@@ -562,10 +576,10 @@ router.post("/freelance", async (req, res) => {
 					});
 				else {
 					if(sponsoredJobs.length!=0){
-						//jobs.splice(Math.floor(jobs.length/2),0, ...sponsoredJobs);
+						jobs.splice(Math.floor(jobs.length/2),0, ...sponsoredJobs);
 					}
 					console.log(jobs);
-						res.json({ jobs: jobs, count: jobCount,sponsored:sponsoredJobs});
+						res.json({ jobs: jobs, count: jobCount});
 				}
 			})
 	//	}).catch((err) => res.status(400).json({err:err}));

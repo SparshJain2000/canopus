@@ -9,6 +9,8 @@ module.exports = mongoose.model(
         specialization: String,
         superSpecialization:Array,
         address: Object,
+        createdAt:Date,
+        expireAt:Date,
         // {
         //     line: String, //specific addresss
         //     city: String,
