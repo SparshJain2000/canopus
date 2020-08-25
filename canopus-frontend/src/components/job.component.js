@@ -197,8 +197,10 @@ export default class Job extends Component {
             modal: false,
             err: "",
             tooltipOpen: false,
+            isFreelance: false,
         };
-
+        if (props.location.search === "?type=freelance")
+            this.setState({ isFreelance: true });
         this.applyJob = this.applyJob.bind(this);
         this.toggle = this.toggle.bind(this);
         this.showDetail = this.showDetail.bind(this);
@@ -242,23 +244,42 @@ export default class Job extends Component {
     }
     componentDidMount() {
         const id = this.props.match.params.id;
-        axios
-            .get(`/api/job/${id}`)
-            .then(({ data }) => {
-                // console.log(data);
-                this.setState({
-                    job: data,
+        if (this.props.location.search === "?type=freelance")
+            axios
+                .get(`/api/job/freelance/${id}`)
+                .then(({ data }) => {
+                    // console.log(data);
+                    this.setState({
+                        job: data,
+                    });
+                    console.log(this.state.job);
+                })
+                .catch(({ response }) => {
+                    console.log(response);
+                    this.setState({
+                        err: response.data.err.kind
+                            ? "Invalid Job Id"
+                            : response.data.err,
+                    });
                 });
-                console.log(this.state.job);
-            })
-            .catch(({ response }) => {
-                console.log(response);
-                this.setState({
-                    err: response.data.err.kind
-                        ? "Invalid Job Id"
-                        : response.data.err,
+        else
+            axios
+                .get(`/api/job/${id}`)
+                .then(({ data }) => {
+                    // console.log(data);
+                    this.setState({
+                        job: data,
+                    });
+                    console.log(this.state.job);
+                })
+                .catch(({ response }) => {
+                    console.log(response);
+                    this.setState({
+                        err: response.data.err.kind
+                            ? "Invalid Job Id"
+                            : response.data.err,
+                    });
                 });
-            });
     }
 
     render() {
@@ -276,7 +297,7 @@ export default class Job extends Component {
                 {this.state.job ? (
                     <div>
                         <div className='main-job mx-2 mx-md-4 my-3 p-2 p-sm-3'>
-                            <div className='row'>
+                            <div className='row '>
                                 <div className='col-7 col-md-10 my-auto'>
                                     <h4>{job.title}</h4>
                                     <h5 className='text-info'>
@@ -301,36 +322,26 @@ export default class Job extends Component {
                                     />
                                 </div>
                             </div>
-                            <hr />
-                            <div className=' row'>
+                            {/* <hr /> */}
+                            <div className=' row justify-content-center'>
                                 <div
-                                    className='col-6 col-sm-4 my-1'
+                                    className='col-6 col-sm-3 my-1'
                                     style={{ textAlign: "center" }}>
                                     <h6>
-                                        <b>Profession : </b>
+                                        <b>Profession</b>
                                     </h6>
                                     {job.profession}
                                 </div>
 
                                 <div
-                                    className='col-6 col-sm-4 my-1'
+                                    className='col-6 col-sm-3 my-1'
                                     style={{ textAlign: "center" }}>
                                     <h6>
-                                        <b>Specialization : </b>
+                                        <b>Specialization </b>
                                     </h6>
                                     {job.specialization}
                                 </div>
-                                <div
-                                    className='col-12 col-sm-4 my-1'
-                                    style={{ textAlign: "center" }}>
-                                    <h6>
-                                        <b>Super - Specialization : </b>
-                                    </h6>
-                                    {job.superSpecialization.join(", ")}
-                                </div>
-                            </div>
-                            <hr />
-                            <div className='row'>
+
                                 <div
                                     className='col-6 col-sm-3 my-1'
                                     style={{ textAlign: "center" }}>
@@ -345,6 +356,20 @@ export default class Job extends Component {
                                 </div>
                                 <div
                                     className='col-6 col-sm-3 my-1'
+                                    style={{ textAlign: "center" }}>
+                                    <h6>
+                                        <b>Apply By </b>
+                                    </h6>
+                                    {job.expireAt &&
+                                        new Date(
+                                            job.expireAt,
+                                        ).toLocaleDateString()}
+                                </div>
+                            </div>
+                            <hr />
+                            <div className='row justify-content-center'>
+                                <div
+                                    className='col-6 col-sm-2 my-1'
                                     style={{ textAlign: "center" }}>
                                     <h6>
                                         <b>Incentives</b>
@@ -366,7 +391,15 @@ export default class Job extends Component {
                                         )}
                                 </div>
                                 <div
-                                    className='col-6 col-sm-3 my-1'
+                                    className='col-6 col-sm-2 my-1'
+                                    style={{ textAlign: "center" }}>
+                                    <h6>
+                                        <b>Super - Specialization </b>
+                                    </h6>
+                                    {job.superSpecialization.join(", ")}
+                                </div>
+                                <div
+                                    className='col-6 col-sm-2 my-1'
                                     style={{ textAlign: "center" }}>
                                     <h6>
                                         <b>Job Type</b>
@@ -385,7 +418,7 @@ export default class Job extends Component {
                                         ))}
                                 </div>
                                 <div
-                                    className='col-6 col-sm-3 my-1'
+                                    className='col-6 col-sm-2 my-1'
                                     style={{ textAlign: "center" }}>
                                     <h6>
                                         <b> Salary</b>
@@ -395,6 +428,18 @@ export default class Job extends Component {
                                     /> */}
                                     </h6>
                                     {formatter.format(job.description.salary)}
+                                </div>
+                                <div
+                                    className='col-6 col-sm-2 my-1'
+                                    style={{ textAlign: "center" }}>
+                                    <h6>
+                                        <b>Number of Applicants</b>
+                                        {/* <FontAwesomeIcon
+                                        icon={faMoneyBillWaveAlt}
+                                        className='ml-1'
+                                    /> */}
+                                    </h6>
+                                    {job.description.count}
                                 </div>
                             </div>
                             <hr />

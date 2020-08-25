@@ -29,16 +29,58 @@ const ApplicantDetails = ({ applicant }) => {
     }, []);
     return <div>{!error && data && data.username}</div>;
 };
+const Badges = ({ desc, superSpecialization }) => {
+    const superSp = superSpecialization ? superSpecialization : [];
+    let badges = [];
+    if (desc.type)
+        badges = [
+            desc.experience,
+            ...desc.type,
+            ...desc.incentives,
+            ...superSp,
+        ];
+    const number = badges.length - 5;
+    badges = badges.slice(0, 3);
+    // console.log(badges);
+
+    return (
+        <div>
+            {badges.map((badge, i) => {
+                return (
+                    <Badge className='mx-1' color='info' key={i}>
+                        {badge}
+                    </Badge>
+                );
+            })}
+            {number > 0 && `+ ${number} more`}
+        </div>
+    );
+};
 const Job = ({ job }) => {
+    const freelance = job.startDate ? true : false;
     const [show, setShow] = useState(false);
     const showApplicants = () => {
         setShow(!show);
     };
     return (
-        <div>
-            <Media className='row block justify-content-center my-3 mx-3 mx-sm-4 p-2 px-md-4'>
+        <div className='col-12 col-md-6'>
+            <Media
+                className={`row  justify-content-center m-2 m-md-3 p-2 px-md-3 ${
+                    job.sponsored ? "block-info" : "block"
+                }`}>
                 <Media body className='col-12 mt-4 mb-2 my-md-2 p-2'>
-                    <Media heading>{job.title}</Media>
+                    <Media heading>
+                        <h5>{job.title}</h5>
+                    </Media>
+
+                    <Media heading>
+                        <h6 className='text-info'>
+                            {/* <FontAwesomeIcon icon={faMapMarkerAlt} />{" "} */}
+                            {job.description.company
+                                ? job.description.company
+                                : "Company"}
+                        </h6>
+                    </Media>
                     <Media heading>
                         <h6>
                             <FontAwesomeIcon icon={faMapMarkerAlt} />{" "}
@@ -47,10 +89,9 @@ const Job = ({ job }) => {
                     </Media>
                     <hr />
                     <div className='row m-0'>
-                        <div className='col-12 '>
+                        <div className='col-12 desc'>
                             <em>{job.description.line}</em>
-                            <br />
-                            <br />
+
                             {/* <strong>Type:</strong>
                             {job.description.type.map((type) => `${type} , `)}
                             <br /> */}
@@ -73,73 +114,80 @@ const Job = ({ job }) => {
                             Apply
                         </Button>
                     </div> */}
+                        <hr />
+                        <div className='col-12'>
+                            {job.startDate && (
+                                <div className='row'>
+                                    {new Date(
+                                        job.startDate,
+                                    ).toLocaleDateString()}
+                                </div>
+                            )}
+                            <div className='row'>
+                                {job.startDate && (
+                                    <div className=''>
+                                        {new Date(
+                                            job.startDate,
+                                        ).toLocaleTimeString()}
+                                    </div>
+                                )}
+                                {" - "}
+                                {job.endDate && (
+                                    <div className=''>
+                                        {new Date(
+                                            job.endDate,
+                                        ).toLocaleTimeString()}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                        <div className='col-12  px-0 '>
+                            <Badges
+                                desc={job.description}
+                                superSpecialization={job.superSpecialization}
+                            />
+                        </div>
+                    </div>
+                    <div className='row w-100 justify-content-start mt-2'>
+                        <div className='col-6  my-auto p-0 p-md-2 pr-1'>
+                            <Button
+                                color={`info`}
+                                onClick={showApplicants}
+                                className={`w-100 `}>
+                                Show Applicants
+                            </Button>
+                        </div>
+                        <div className='col-6  my-auto p-0 p-md-2 pl-1'>
+                            <Link
+                                to={{
+                                    state: freelance,
+                                    pathname: `/employer/job/update/${job._id}`,
+                                }}
+                                className='btn btn-primary w-100'>
+                                Edit JOB
+                            </Link>
+                        </div>
                     </div>
                 </Media>
+
                 <Media
                     left
                     href='#'
-                    className='d-none d-md-block col-12 col-sm-3 my-auto mx-auto '>
+                    className='d-none  col-12 col-sm-3 my-auto mx-auto '>
                     <Media
                         object
                         src={hospital}
+                        style={{ maxHeight: "200px" }}
                         alt='Generic placeholder image'
-                        className='img-fluid'
-                        // style={{ maxWidth: "50%" }}
+                        className='img-fluid float-right pr-2 pr-lg-3'
                     />
                 </Media>
-                <hr className='col-12' />
-                <div className='row w-100 justify-content-between '>
-                    <div className='col-12 col-md-9  pr-0 pr-sm-3 row w-100 py-2'>
-                        <div className='col-12 col-sm-10 px-0'>
-                            <Badge color='secondary' className='mx-1'>
-                                {job.description.experience}
-                            </Badge>
-
-                            {job.superSpecialization &&
-                                job.superSpecialization.map((tag) => (
-                                    <Badge color='info' className='mx-1'>
-                                        {tag}
-                                    </Badge>
-                                ))}
-                            <br />
-                            {job.description.type &&
-                                job.description.type.map((tag) => (
-                                    <Badge color='warning' className='mx-1'>
-                                        {tag}
-                                    </Badge>
-                                ))}
-                            <br />
-                            {job.description.incentives &&
-                                job.description.incentives.map((tag) => (
-                                    <Badge color='primary' className='mx-1'>
-                                        {tag}
-                                    </Badge>
-                                ))}
-                        </div>
-
-                        {/* <hr /> */}
-                        <div className='col-12 col-sm-2 mt-auto px-0'>
-                            <Badge color='success' className='float-right mt-3'>
-                                {job.author && job.author.username}
-                            </Badge>
-                        </div>
-                    </div>
-                    <div className='col-12 col-md-3 my-auto p-0 p-sm-2'>
-                        <Button
-                            color={`info`}
-                            size='lg'
-                            onClick={showApplicants}
-                            className={`w-100 `}>
-                            Show Applicants
-                        </Button>
-                    </div>
-                </div>
                 {show &&
                     (job.applicants.length ? (
                         <ListGroup className='mt-2 mx-2 w-100'>
                             <hr />
                             {job.applicants.map((applicant) => (
-                                <ListGroupItem>
+                                <ListGroupItem key={applicant.id}>
                                     {/* <ApplicantDetails
                                             key={applicant.id}
                                             applicant={applicant.id}
@@ -170,6 +218,7 @@ export default class JobApplications extends Component {
         super(props);
         this.state = {
             jobs: null,
+            freelanceJobs: null,
         };
     }
     componentDidMount() {
@@ -181,11 +230,19 @@ export default class JobApplications extends Component {
                 console.log(this.state.jobs);
             })
             .catch((err) => console.log(err.response));
+        axios
+            .post("/api/job/allfreelance")
+            .then(({ data }) => {
+                // console.log(data);
+                this.setState({ freelanceJobs: data.jobs });
+                console.log(this.state.freelanceJobs);
+            })
+            .catch((err) => console.log(err.response));
     }
     render() {
         return (
-            <div>
-                <h1 className='my-3' style={{ textAlign: "center" }}>
+            <div className='row'>
+                <h1 className='col-12 my-3' style={{ textAlign: "center" }}>
                     Posted Jobs
                 </h1>
                 {this.state.jobs ? (
@@ -195,7 +252,27 @@ export default class JobApplications extends Component {
                     )
                 ) : (
                     <div
-                        className='mx-auto my-auto'
+                        className='mx-auto my-auto col-12'
+                        style={{ textAlign: "center" }}>
+                        <Loader
+                            type='Bars'
+                            color='#17a2b8'
+                            height={300}
+                            width={220}
+                        />
+                    </div>
+                )}
+                <h1 className='col-12 my-3' style={{ textAlign: "center" }}>
+                    Freelance Jobs
+                </h1>
+                {this.state.freelanceJobs ? (
+                    this.state.freelanceJobs.length !== 0 &&
+                    this.state.freelanceJobs.map(
+                        (job) => job && <Job key={job._id} job={job} />,
+                    )
+                ) : (
+                    <div
+                        className='mx-auto my-auto col-12'
                         style={{ textAlign: "center" }}>
                         <Loader
                             type='Bars'

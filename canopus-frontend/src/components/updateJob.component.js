@@ -1,4 +1,5 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import {
     Form,
     Label,
@@ -40,7 +41,7 @@ const experienceArray = data.experience.map((opt) => ({
     value: opt,
 }));
 
-const PostJob = () => {
+const UpdateJob = (props) => {
     const titleRef = useRef(null);
     const professionRef = useRef(null);
     const specializationRef = useRef(null);
@@ -95,6 +96,171 @@ const PostJob = () => {
     const handleChangeSelect = (name, value) => {
         eval(`set${name}`)(value);
     };
+    const loc = useLocation();
+    useEffect(() => {
+        console.log(props);
+        if (props.location.search === "?freelance") {
+            setFreelance(true);
+            console.log(data.startDate);
+
+            axios
+                .get(`/api/job/freelance/${props.match.params.id}`)
+                .then(({ data }) => {
+                    setTitle(data.title);
+                    setCompany(
+                        data.description.company
+                            ? data.description.company
+                            : "",
+                    );
+
+                    setNumberApp(
+                        data.description.count ? data.description.count : 0,
+                    );
+                    data.startDate &&
+                        setDate(
+                            `${new Date(data.startDate).getFullYear()}-${(
+                                "0" +
+                                (new Date(data.startDate).getMonth() + 1)
+                            ).slice(-2)}-${(
+                                "0" + new Date(data.startDate).getDate()
+                            ).slice(-2)}`,
+                        );
+                    data.startDate &&
+                        setStartTime(
+                            new Date(data.startDate).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: false,
+                            }),
+                        );
+                    data.endDate &&
+                        setEndTime(
+                            new Date(data.endDate).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: false,
+                            }),
+                        );
+                    setSkills(
+                        data.description.skills ? data.description.skills : "",
+                    );
+                    setLine(data.description.line ? data.description.line : "");
+                    setProfession(data.profession);
+                    setSpecialization(data.specialization);
+                    setExperience(
+                        data.description.experience
+                            ? data.description.experience
+                            : "",
+                    );
+                    setLocation(
+                        data.description.location
+                            ? data.description.location
+                            : "",
+                    );
+                    setSalary(
+                        data.description.salary ? data.description.salary : 0,
+                    );
+                    setIncentives(
+                        data.description.incentives
+                            ? data.description.incentives.map((x) => {
+                                  return { value: x, label: x };
+                              })
+                            : [],
+                    );
+                    setType(
+                        data.description.type
+                            ? data.description.type.map((x) => {
+                                  return { value: x, label: x };
+                              })
+                            : [],
+                    );
+                    setSuperSpecialization(
+                        data.superSpecialization
+                            ? data.superSpecialization.map((x) => {
+                                  return { value: x, label: x };
+                              })
+                            : [],
+                    );
+
+                    // console.log(endDate);
+                    // setTitle(data.title);
+                })
+                .catch((err) => {
+                    console.log(err);
+                    alert(err.response);
+                });
+        } else
+            axios
+                .get(`/api/job/${props.match.params.id}`)
+                .then(({ data }) => {
+                    setTitle(data.title);
+                    setCompany(
+                        data.description.company
+                            ? data.description.company
+                            : "",
+                    );
+
+                    setNumberApp(
+                        data.description.count ? data.description.count : 0,
+                    );
+                    data.expireAt &&
+                        setEndDate(
+                            `${new Date(data.expireAt).getFullYear()}-${(
+                                "0" +
+                                (new Date(data.expireAt).getMonth() + 1)
+                            ).slice(-2)}-${(
+                                "0" + new Date(data.expireAt).getDate()
+                            ).slice(-2)}`,
+                        );
+
+                    setSkills(
+                        data.description.skills ? data.description.skills : "",
+                    );
+                    setLine(data.description.line ? data.description.line : "");
+                    setProfession(data.profession);
+                    setSpecialization(data.specialization);
+                    setExperience(
+                        data.description.experience
+                            ? data.description.experience
+                            : "",
+                    );
+                    setLocation(
+                        data.description.location
+                            ? data.description.location
+                            : "",
+                    );
+                    setSalary(
+                        data.description.salary ? data.description.salary : 0,
+                    );
+                    setIncentives(
+                        data.description.incentives
+                            ? data.description.incentives.map((x) => {
+                                  return { value: x, label: x };
+                              })
+                            : [],
+                    );
+                    setType(
+                        data.description.type
+                            ? data.description.type.map((x) => {
+                                  return { value: x, label: x };
+                              })
+                            : [],
+                    );
+                    setSuperSpecialization(
+                        data.superSpecialization
+                            ? data.superSpecialization.map((x) => {
+                                  return { value: x, label: x };
+                              })
+                            : [],
+                    );
+
+                    console.log(endDate);
+                    // setTitle(data.title);
+                })
+                .catch((err) => {
+                    alert(err.response);
+                });
+    }, []);
     const submit = () => {
         let job = {
             title: title,
@@ -119,12 +285,19 @@ const PostJob = () => {
             job.endDate = new Date(`${date} ${endTime}`).toISOString();
             job.startDate = new Date(`${date} ${startTime}`).toISOString();
             axios
-                .post(`/api/job/freelancePost`, job)
+                .put(`/api/job/freelancePost/${props.match.params.id}`, job)
                 .then((data) => {
                     console.log(data);
                     //    window.location = "/search-jobs";
+                    if (data.data.updated) {
+                        alert("job Updated");
+                        window.location = "/applications";
+                    }
                 })
-                .catch((err) => console.log(err.response));
+                .catch((err) => {
+                    console.log(err.response);
+                    alert("Unable to post job");
+                });
             console.log(job);
         } else {
             job.expireAt =
@@ -135,10 +308,14 @@ const PostJob = () => {
                       ).toISOString();
 
             axios
-                .post(`/api/job`, job)
+                .put(`/api/job/${props.match.params.id}`, job)
                 .then((data) => {
                     console.log(data);
-                    if (data.status === 200) alert("job Posted");
+                    if (data.data.updated) {
+                        alert("job Posted");
+                        window.location = "/applications";
+                    }
+
                     //  window.location = "/search-jobs";
                 })
                 .catch((err) => {
@@ -151,7 +328,7 @@ const PostJob = () => {
     return (
         <div>
             <Form className='border-block p-3 p-md-4 mx-2 mx-sm-4 m-3'>
-                <h2>Post a Job</h2>
+                <h2>Edit a Job</h2>
                 <div className='block-card p-2 p-sm-3 mt-4'>
                     <div className='row justify-content-between'>
                         <h4 className='col-9 col-sm-10'>Job Details</h4>
@@ -519,16 +696,17 @@ const PostJob = () => {
                     )}
                 </div>
                 <hr />
-                <div
-                    className=' block-card p-2 p-sm-3'
-                    style={{
-                        height: "max-content",
-                    }}>
-                    <div className='row justify-content-between'>
-                        <div className='col-9 col-sm-10'>
-                            <h4>Freelance</h4>
-                        </div>
-                        <div className='col-3 col-sm-1'>
+                {freelance && (
+                    <div
+                        className=' block-card p-2 p-sm-3'
+                        style={{
+                            height: "max-content",
+                        }}>
+                        <div className='row justify-content-between'>
+                            <div className='col-9 col-sm-10'>
+                                <h4>Freelance</h4>
+                            </div>
+                            {/* <div className='col-3 col-sm-1'>
                             <input
                                 className='react-switch-checkbox'
                                 id={`react-switch-new`}
@@ -546,69 +724,73 @@ const PostJob = () => {
                                 }}>
                                 <span className={`react-switch-button`} />
                             </label>
+                        </div> */}
                         </div>
-                    </div>
-                    {freelance && (
-                        <FormGroup className='row p-2'>
-                            <InputGroup className='col-12 col-sm-6 my-1 pr-1 row justify-content-between'>
-                                <Label
-                                    className='pr-2 col-12 col-md-3'
-                                    for='exampleDate'
-                                    style={{ fontSize: "1.3rem" }}>
-                                    Start Time
-                                </Label>
-                                {/* <Label for='exampleTime'>Time</Label> */}
-                                <Input
-                                    type='time'
-                                    name='StartTime'
-                                    id='exampleTime'
-                                    placeholder='time placeholder'
-                                    className='col-12 col-md-8 px-2'
-                                    ref={startTimeRef}
-                                    onChange={handleChange}
-                                />
-                            </InputGroup>
-                            <InputGroup className='col-12 col-sm-6 my-1 pl-1 row justify-content-between'>
-                                <Label
-                                    className='pr-2 col-12 col-md-3'
-                                    for='exampleDate'
-                                    style={{ fontSize: "1.3rem" }}>
-                                    End Time
-                                </Label>
-                                {/* <Label for='exampleTime'>Time</Label> */}
-                                <Input
-                                    type='time'
-                                    name='EndTime'
-                                    id='exampleTime'
-                                    placeholder='time placeholder'
-                                    className='col-12 col-md-8 px-2'
-                                    ref={endTimeRef}
-                                    onChange={handleChange}
-                                />
-                            </InputGroup>
-                            <FormGroup className='col-12 row my-1 my-md-2'>
-                                <Label
-                                    className='pr-2 col-12 col-md-1'
-                                    for='exampleDate'
-                                    style={{ fontSize: "1.3rem" }}>
-                                    Date
-                                </Label>
-                                <Input
-                                    type='date'
-                                    name='Date'
-                                    id='exampleDate'
-                                    placeholder='date placeholder'
-                                    ref={dateRef}
-                                    className='col-12 px-3 col-md-11'
-                                    onChange={handleChange}
-                                    // defaultValue={endDate}
-                                    // ref={endDateRef}
-                                    // onChange={handleChange}
-                                />
+                        {freelance && (
+                            <FormGroup className='row p-2'>
+                                <InputGroup className='col-12 col-sm-6 my-1 pr-1 row justify-content-between'>
+                                    <Label
+                                        className='pr-2 col-12 col-md-3'
+                                        for='exampleDate'
+                                        style={{ fontSize: "1.3rem" }}>
+                                        Start Time
+                                    </Label>
+                                    {/* <Label for='exampleTime'>Time</Label> */}
+                                    <Input
+                                        type='time'
+                                        name='StartTime'
+                                        id='exampleTime'
+                                        placeholder='time placeholder'
+                                        className='col-12 col-md-8 px-2'
+                                        ref={startTimeRef}
+                                        defaultValue={startTime}
+                                        onChange={handleChange}
+                                    />
+                                </InputGroup>
+                                <InputGroup className='col-12 col-sm-6 my-1 pl-1 row justify-content-between'>
+                                    <Label
+                                        className='pr-2 col-12 col-md-3'
+                                        for='exampleDate'
+                                        style={{ fontSize: "1.3rem" }}>
+                                        End Time
+                                    </Label>
+                                    {/* <Label for='exampleTime'>Time</Label> */}
+                                    <Input
+                                        type='time'
+                                        name='EndTime'
+                                        id='exampleTime'
+                                        placeholder='time placeholder'
+                                        className='col-12 col-md-8 px-2'
+                                        defaultValue={endTime}
+                                        ref={endTimeRef}
+                                        onChange={handleChange}
+                                    />
+                                </InputGroup>
+                                <FormGroup className='col-12 row my-1 my-md-2'>
+                                    <Label
+                                        className='pr-2 col-12 col-md-1'
+                                        for='exampleDate'
+                                        style={{ fontSize: "1.3rem" }}>
+                                        Date
+                                    </Label>
+                                    <Input
+                                        type='date'
+                                        name='Date'
+                                        id='exampleDate'
+                                        placeholder='date placeholder'
+                                        ref={dateRef}
+                                        className='col-12 px-3 col-md-11'
+                                        defaultValue={date}
+                                        onChange={handleChange}
+                                        // defaultValue={endDate}
+                                        // ref={endDateRef}
+                                        // onChange={handleChange}
+                                    />
+                                </FormGroup>
                             </FormGroup>
-                        </FormGroup>
-                    )}
-                </div>
+                        )}
+                    </div>
+                )}
                 <FormGroup className='ml-auto mr-1 mt-3'>
                     <Button
                         onClick={submit}
@@ -621,4 +803,4 @@ const PostJob = () => {
         </div>
     );
 };
-export default PostJob;
+export default UpdateJob;
