@@ -9,7 +9,6 @@ module.exports = mongoose.model(
         password: String,
         role: String,
         type: String,
-        description: String,
         address: Object,
         // {
         //     line: String,
@@ -23,15 +22,26 @@ module.exports = mongoose.model(
             posted: Number,
             closed: Number,
         },
-        freelancetier:{
-            allowed:Number,
-            posted:Number,
-            closed:Number,
+        freelancetier: {
+            allowed: Number,
+            posted: Number,
+            closed: Number,
         },
-        websitelink: String,
-        youtube: Array, // links to youtube videos
-        image: Array,
-        //Empoyer valid status
+        //profile page related,
+        links: Array, // link to website or to other resources
+        youtube: Array, // links to youtube video
+        image: Array, //multiple hostpial images
+        //description
+        description: Object,
+        //
+        // {
+        //     about: String //  about our company
+        //         about2: String // why join our company // descri
+        //     employeeCount: Number, // number of employees
+        //     //show location on profile also from address object
+        // }
+        //  profile
+        //  Empoyer valid status
         validated: Boolean,
         freelanceJobs: [
             {
@@ -51,7 +61,7 @@ module.exports = mongoose.model(
                 title: String,
             },
         ],
-        savedJobs:Array,
-        savedFreelance:Array,
+        savedJobs: Array,
+        savedFreelance: Array,
     }).plugin(passportLocalMongoose),
 );
