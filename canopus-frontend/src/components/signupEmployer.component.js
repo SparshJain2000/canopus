@@ -6,6 +6,7 @@ import {
     faMinus,
     faMinusCircle,
 } from "@fortawesome/free-solid-svg-icons";
+import Axios from "axios";
 const block = {
     borderRadius: " 0.25rem",
     border: "0.05rem solid lightgrey",
@@ -68,6 +69,15 @@ export default class SignupEmployer extends Component {
             },
         };
         console.log(employer);
+        Axios.post(`/api/employer`, employer)
+            .then((data) => {
+                console.log(data);
+                if (data.status === 200) {
+                    alert("SignUp successful");
+                    window.location = "/employer";
+                }
+            })
+            .catch(({ response }) => alert(response.err));
     }
     render() {
         return (
