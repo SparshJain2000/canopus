@@ -39,6 +39,7 @@ module.exports = mongoose.model(
         //
         // {
         //     about: String //  about our company
+
        //         about2: String // why join our company // descri
         //     employeeCount: Number, // number of employees
         //     //show location on profile also from address object
@@ -72,7 +73,7 @@ module.exports = mongoose.model(
                 },
             },
         ],
-        savedJobs:Array,
-        savedFreelance:Array,
+        savedJobs: Array,
+        savedFreelance: Array,
     }).plugin(passportLocalMongoose),
 );

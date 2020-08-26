@@ -28,9 +28,11 @@ router.post("/", (req, res) => {
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         address: req.body.address,
+        links: req.body.links,
         description: req.body.description,
+        youtube: req.body.youtube,
         role: "Employer",
-        jobtier:{
+        jobtier: {
             allowed: 10,
             posted: 0,
             saved:0,
@@ -42,7 +44,7 @@ router.post("/", (req, res) => {
             saved:0,
             closed:0,
         },
-        validated:false,
+        validated: false,
     });
     Employer.register(employer, req.body.password)
         .then((employer) => {
@@ -89,6 +91,37 @@ router.get("/current", (req, res) => {
 });
 //===========================================================================
 //Get all the jobs offered by employer
+const getJobs = (id) => {
+    return new Promise((resolve, reject) => {
+        // let jobs = [];
+
+        Job.findById(id)
+            .then((job) => {
+                // jobs = [...jobs, job];
+                resolve(job);
+            })
+            .catch((err) => reject(err));
+
+        // resolve(jobs);
+    });
+};
+router.get("/jobs", middleware.isEmployer, (req, res) => {
+    Employer.findById(req.user._id).then((employer) => {
+        let jobs = [];
+        employer.jobs.forEach((job) => {
+            jobs.push(getJobs(job.id));
+        });
+        // getJobs(employer)
+        //     .then((jobs) => res.json(jobs))
+        //     .catch((err) => res.status(400).json({ err: err }));
+        Promise.all(jobs)
+            .then((allJobs) => {
+                res.json(allJobs);
+            })
+            .catch((err) => res.status(400).json({ err: err }));
+    });
+});
+//get all freelance jobs
 const getFreelanceJobs = (id) => {
     return new Promise((resolve, reject) => {
         // let jobs = [];
@@ -103,7 +136,7 @@ const getFreelanceJobs = (id) => {
         // resolve(jobs);
     });
 };
-router.get("/fjobs", middleware.isEmployer, (req, res) => {
+router.get("/freelance", middleware.isEmployer, (req, res) => {
     Employer.findById(req.user._id).then((employer) => {
         let jobs = [];
         employer.freelanceJobs.forEach((job) => {
@@ -119,30 +152,34 @@ router.get("/fjobs", middleware.isEmployer, (req, res) => {
             .catch((err) => res.status(400).json({ err: err }));
     });
 });
-
-
 // Find active Jobs
-router.post("/active",middleware.isEmployer,(req,res) =>{
-    const ID=req.body.id;
-    var active=[];
-    var inactive=[];
-    let promises=[];
-    for(let i=0;i<ID.length;i++){
-        promises.push(new Promise((resolve,reject)=>{
-            const id=ID[i];
-            Job.findById(id).then((job)=>{
-                active.push(id);
-                resolve("Done");
-           // console.log(active)
-        }).catch((err)=> {
-        inactive.push(id);  
-        resolve("Done");
-        });    
-        }));
+router.post("/active", middleware.isEmployer, (req, res) => {
+    const ID = req.body.id;
+    var active = [];
+    var inactive = [];
+    let promises = [];
+    for (let i = 0; i < ID.length; i++) {
+        promises.push(
+            new Promise((resolve, reject) => {
+                const id = ID[i];
+                Job.findById(id)
+                    .then((job) => {
+                        active.push(id);
+                        resolve("Done");
+                        // console.log(active)
+                    })
+                    .catch((err) => {
+                        inactive.push(id);
+                        resolve("Done");
+                    });
+            }),
+        );
     }
-    Promise.all(promises).then((msg)=>{
-        res.send({active:active,inactive:inactive});
-    }).catch((err) => res.send({active:active,inactive:inactive}));
+    Promise.all(promises)
+        .then((msg) => {
+            res.send({ active: active, inactive: inactive });
+        })
+        .catch((err) => res.send({ active: active, inactive: inactive }));
 });
 
 //===========================================================================
