@@ -1,10 +1,12 @@
 const mongoose = require("mongoose"),
     passportLocalMongoose = require("passport-local-mongoose");
 // var blogSchema =
-
+ObjectId=mongoose.Schema.ObjectId;
 module.exports = mongoose.model(
-    "Job",
+    "SavedFreelance",
     new mongoose.Schema({
+        jobRef:ObjectId,
+        status:String,
         title: String,
         profession: String,
         specialization: String,
@@ -18,22 +20,27 @@ module.exports = mongoose.model(
         //     state: String,
         //     pin: Number,
         // },
+        startDate: Date,
+        endDate: Date,
+        // {
+        //     day:String
+        //     start:Number,
+        //     end:Number
+        // },
         description: Object,
         // {
-        //      company : String // company name
-        //     about:String //About the job responsibilites roles
-        //     skills:String //Who should apply para description
-        //     count : Number, //Number of jobs
+        //     time:String,
+        //     line: String,
         //     experience: String,
         //     incentives: String,
-        //     type: String, // govt ,corporate
-        //     status: String, // internship full time
+        //     type: String,
+        //     status: String,
         //     location: String,
         //     salary: Number,
         // },
         validated: String,
         sponsored: Boolean,
-        tag: Array,// Covid ,urgent tgs
+        tag: Array,
         // date: Date,
         author: {
             id: {

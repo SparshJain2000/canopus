@@ -33,11 +33,13 @@ router.post("/", (req, res) => {
         jobtier:{
             allowed: 10,
             posted: 0,
+            saved:0,
             closed: 0,
         },
         freelancetier:{
             allowed:3,
             posted:0,
+            saved:0,
             closed:0,
         },
         validated:false,
@@ -87,11 +89,11 @@ router.get("/current", (req, res) => {
 });
 //===========================================================================
 //Get all the jobs offered by employer
-const getJobs = (id) => {
+const getFreelanceJobs = (id) => {
     return new Promise((resolve, reject) => {
         // let jobs = [];
 
-        Job.findById(id)
+        Freelance.findById(id)
             .then((job) => {
                 // jobs = [...jobs, job];
                 resolve(job);
@@ -101,11 +103,11 @@ const getJobs = (id) => {
         // resolve(jobs);
     });
 };
-router.get("/jobs", middleware.isEmployer, (req, res) => {
+router.get("/fjobs", middleware.isEmployer, (req, res) => {
     Employer.findById(req.user._id).then((employer) => {
         let jobs = [];
-        employer.jobs.forEach((job) => {
-            jobs.push(getJobs(job.id));
+        employer.freelanceJobs.forEach((job) => {
+            jobs.push(getFreelanceJobs(job.id));
         });
         // getJobs(employer)
         //     .then((jobs) => res.json(jobs))
@@ -117,6 +119,7 @@ router.get("/jobs", middleware.isEmployer, (req, res) => {
             .catch((err) => res.status(400).json({ err: err }));
     });
 });
+
 
 // Find active Jobs
 router.post("/active",middleware.isEmployer,(req,res) =>{

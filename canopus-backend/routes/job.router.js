@@ -1,6 +1,8 @@
 const { search } = require("./admin.router");
 const { searchController } = require("../controllers/search.controller");
 const { query: q } = require("express");
+const employerModel = require("../models/employer.model");
+const mongoose = require("mongoose");
 
 const router = require("express").Router(),
 middleware = require("../middleware/index"),
@@ -8,7 +10,8 @@ Employer = require("../models/employer.model"),
 User = require("../models/user.model"),
 Job = require("../models/job.model"),
 Freelance = require("../models/freelance.model"),
-axios = require("axios");
+savedJob= require("../models/savedJobs.model"),
+savedFreelance = require("../models/savedFreelance.model");
 //===========================================================================
 //get all jobs
 router.post("/alljobs", (req, res) => {
@@ -133,19 +136,36 @@ router.post("/", middleware.isEmployer, (req, res) => {
 		console.log(job);
 		job.save()
 		.then((job) => {
+			//let sJob= new savedJob()
+			let sjob = new savedJob({
+				jobRef:job._id,
+				status:"Active",
+				title: req.body.title,
+				profession: req.body.profession,
+				specialization: req.body.specialization,
+				description: req.body.description,
+				address: req.body.address,
+				createdAt:new Date(),
+				expireAt:expiry,
+				validated:employer.validated,
+			});
+			savedJob.create(sjob).then((sjob) =>{
 			Employer.findById(req.user._id).then((employer) => {
+			
 				employer.jobs = [
 				...employer.jobs,
 				{
 					title: job.title,
 					id: job._id,
+					sid:sjob._id,
 				},
 				],
-				employer.savedJobs=[
-				...employer.savedJobs,
-					job
+				//console.log(job);
+				//employer.savedJobs[job._id]=job;
+				//  employer.savedJobs=[
+				// ...employer.savedJobs,sjob._id
 				
-				];
+				// ];
 				employer
 				.save()
 				.then((updatedEmployer) =>
@@ -160,15 +180,16 @@ router.post("/", middleware.isEmployer, (req, res) => {
 				       	err: err,
 				       }),
 				       );
-			});
-		})
-		.catch((err) =>
+			}).catch((err) => {res.status(400).json({err:"Employer not found"})});
+		}).catch((err) =>
 		       res.status(400).json({
 		       	err: err,
 		       	user: req.user,
 		       }),
 		       );
-	})
+	
+			}).catch((err) => {res.status(400).json({err:"Job not created"})});
+		})
 	})
 	.catch((err) =>
 	       res.status(400).json({
@@ -188,15 +209,6 @@ router.post("/", middleware.isEmployer, (req, res) => {
 // Post freelance job
 router.post("/freelancePost", middleware.isEmployer, (req, res) => {
 	Employer.findById(req.user._id).then((employer) => {
-		//TODO validation
-		// if(employer.validated==true)
-		// console.log(employer.validated);
-		// if(employer.tier.allowed - employer.tier.posted<= 0)
-		// res.status(400).json({
-		// 	error:"Maximum Jobs Posted"
-		// });
-		// else
-		// Employer.findByIdAndUpdate(req.user._id,{$inc:{"tier.posted":1}})
 		if(employer.freelancetier.allowed-employer.freelancetier.posted<=0)
 		res.status(400).json({err:"Max Jobs Posted"});
 		else Employer.findByIdAndUpdate(req.user._id,{$inc:{"freelancetier.posted":1}}).then((employer2) =>{
@@ -220,19 +232,187 @@ router.post("/freelancePost", middleware.isEmployer, (req, res) => {
 	.then((job) => {
 		job.author.username = req.user.username;
 		job.author.id = req.user._id;
-		console.log(job);
+		//console.log(job);
 		job.save()
 		.then((job) => {
+			console.log(job._id);
+			let sfreelance = new savedFreelance({
+				jobRef:job._id,
+				status:"Active",
+				title: req.body.title,
+				profession: req.body.profession,
+				specialization: req.body.specialization,
+				description: req.body.description,
+				address: req.body.address,
+				startDate:req.body.startDate,
+				endDate:req.body.endDate,
+				createdAt:new Date(),
+				expireAt:expiry,
+				validated:employer.validated,
+			});
+			savedFreelance.create(sfreelance).then((sjob) =>{
 			Employer.findById(req.user._id).then((employer) => {
 				employer.freelanceJobs = [
 				...employer.freelanceJobs,
 				{
 					title: job.title,
 					id: job._id,
+					sid:sjob._id,
 				},
 				],
+				// employer.savedFreelance=[
+				// 	...employer.savedFreelance,sjob._id
+				// 	];
+				employer
+				.save()
+				.then((updatedEmployer) =>
+				      res.json({
+				      	job: job,
+				      	user: req.user,
+				      	updatedEmployer: updatedEmployer,
+				      }),
+				      )
+				.catch((err) =>
+				       res.status(400).json({
+				       	err: err,
+				       }),
+				       );
+			}).catch((err) => {res.status(400).json({err:"Employer not found"})});;
+		})
+		.catch((err) =>
+		       res.status(400).json({
+		       	err: err,
+		       	user: req.user,
+		       }),
+		       );
+		})
+	}).catch((err) => {res.status(400).json({err:"Job not saved"})});
+	})
+	.catch((err) =>
+	       res.status(400).json({
+	       	err: err,
+	       	user: req.user,
+	       }),
+	       )
+	.catch((err) =>
+	       res.status(400).json({
+	       	err: err,
+	       	user: req.user,
+	       }),
+		   );
+		}).catch((err)=> res.status(400).json({err:err}));
+});
+
+//save a job
+router.post("/saveJob", middleware.isEmployer, (req, res) => {
+	Employer.findById(req.user._id).then((employer) => {
+		//validation
+		if(employer.jobtier.allowed-employer.jobtier.saved<=0)
+		res.status(400).send("Max Jobs Saved");
+		else Employer.findByIdAndUpdate(req.user._id,{$inc:{"jobtier.saved":1}}).then((employer2)=>{
+		const expiry=new Date(req.body.expireAt);
+		var days=(expiry-Date.now())/(1000*60*60*24);
+		if(days<0 || days>90 )
+		res.status(400).send("Invalid time format");
+	let job = new savedJob({
+		status:"Saved",
+		title: req.body.title,
+		profession: req.body.profession,
+		specialization: req.body.specialization,
+		description: req.body.description,
+		address: req.body.address,
+		createdAt:new Date(),
+		expireAt:expiry,
+		validated:employer.validated,
+	});
+	savedJob.create(job)
+	.then((job) => {
+		job.author.username = req.user.username;
+		job.author.id = req.user._id;
+		console.log(job);
+		job.save()
+		.then((job) => {
+			console.log(job);
+			Employer.findById(req.user._id).then((employer) => {
+			
+				//console.log(job);
+				//employer.savedJobs[job._id]=job;
+				employer.savedJobs=[
+				...employer.savedJobs,job._id
+				
+				];
+				employer
+				.save()
+				.then((updatedEmployer) =>
+				      res.json({
+				      	job: job,
+				      	user: req.user,
+				      	updatedEmployer: updatedEmployer,
+				      }),
+				      )
+				.catch((err) =>
+				       res.status(400).json({
+				       	err: err,
+				       }),
+				       );
+			}).catch((err) => {res.status(400).json({err:"Employer not found"})});
+		}).catch((err) =>
+		       res.status(400).json({
+		       	err: err,
+		       	user: req.user,
+		       }),
+		       );
+	
+		//	}).catch((err) => {res.status(400).json({err:"Job not created"})});
+		})
+	})
+	.catch((err) =>
+	       res.status(400).json({
+	       	err: err,
+	       	user: req.user,
+	       }),
+	       )
+	.catch((err) =>
+	       res.status(400).json({
+	       	err: err,
+	       	user: req.user,
+	       }),
+		   );
+		}).catch((err)=>{res.status(400).json({err:err})});
+});
+
+// Save freelance job
+router.post("/saveFreelance", middleware.isEmployer, (req, res) => {
+	Employer.findById(req.user._id).then((employer) => {
+		if(employer.freelancetier.allowed-employer.freelancetier.posted<=0)
+		res.status(400).json({err:"Max Jobs Posted"});
+		else Employer.findByIdAndUpdate(req.user._id,{$inc:{"freelancetier.saved":1}}).then((employer2) =>{
+			const expiry=new Date(req.body.endDate);
+			var days=(expiry-Date.now())/(1000*60*60*24);
+			if(days<0 || days>30 )res.status(400).send("Invalid time format");
+	let freelance = new savedFreelance({
+		status:"Saved",
+		title: req.body.title,
+		profession: req.body.profession,
+		specialization: req.body.specialization,
+		description: req.body.description,
+		address: req.body.address,
+		startDate:req.body.startDate,
+		endDate:req.body.endDate,
+		createdAt:new Date(),
+		expireAt:expiry,
+		validated:employer.validated,
+	});
+	savedFreelance.create(freelance)
+	.then((job) => {
+		job.author.username = req.user.username;
+		job.author.id = req.user._id;
+		console.log(job);
+		job.save()
+		.then((job) => {
+			Employer.findById(req.user._id).then((employer) => {
 				employer.savedFreelance=[
-					...employer.savedFreelance,job
+					...employer.savedFreelance,job._id
 					];
 				employer
 				.save()
@@ -248,15 +428,10 @@ router.post("/freelancePost", middleware.isEmployer, (req, res) => {
 				       	err: err,
 				       }),
 				       );
-			});
+			}).catch((err) => {res.status(400).json({err:"Employer not found"})});;
+		
 		})
-		.catch((err) =>
-		       res.status(400).json({
-		       	err: err,
-		       	user: req.user,
-		       }),
-		       );
-	})
+	}).catch((err) => {res.status(400).json({err:"Job not saved"})});
 	})
 	.catch((err) =>
 	       res.status(400).json({
@@ -271,6 +446,112 @@ router.post("/freelancePost", middleware.isEmployer, (req, res) => {
 	       }),
 		   );
 		}).catch((err)=> res.status(400).json({err:err}));
+});
+
+//validate a saved job
+router.put("/saveJob/activate/:id",middleware.isEmployer, (req,res) =>{
+	Employer.findById(req.user._id).then((employer)=>{
+		if(employer.savedJobs.includes(req.params.id))
+		if(employer.jobtier.allowed-employer.jobtier.saved<=0)
+		res.status(400).send("Max Jobs Saved");
+		else Employer.findByIdAndUpdate(req.user._id,{$inc:{"jobtier.posted":1},$inc:{"jobtier.saved":-1}}).then((employer2)=>{
+		savedJob.findById(req.params.id).then( (sjob) =>{
+			const expiry=sjob.expireAt;
+			var days=(expiry-Date.now())/(1000*60*60*24);
+			if(days<0 || days>90 )
+			res.status(400).send("Invalid time range spcified");
+				let job = new Job({
+					author:sjob.author,
+					title: sjob.title,
+					profession: sjob.profession,
+					specialization: sjob.specialization,
+					description: sjob.description,
+					address: sjob.address,
+					createdAt:new Date(),
+					expireAt:sjob.expiry,
+					validated:employer.validated,
+				});
+				//console.log(job);
+				job.save().then((job)=> {
+					//console.log(job._id);
+					employer.jobs = [
+					...employer.jobs,
+					{
+						title: job.title,
+						id: job._id,
+						sid:sjob._id,
+					},
+					];
+					employer.savedJobs.splice (employer.savedJobs.indexOf(sjob._id),1);
+					employer.save().then((employer)=>{
+						sjob.jobRef=job._id;
+						sjob.status="Active";
+						sjob.createdAt=new Date;
+						sjob.expireAt=expiry;
+						sjob.save().then((sjob)=>{
+							res.status(200).json({updated:"true"})
+				}).catch((err)=>{res.status(400).json({err:"Saved job not saved"})});
+				}).catch((err)=>{res.status(400).json({err:"Employer not updated"})});
+			}).catch((err)=>{res.status(400).json({err:"job not saved"})});
+	// Employer.findOne({_id:req.user._id}).then((employer)=>{
+		}).catch((err)=>{res.status(400).json({err:"Saved job not found"})});
+	}).catch((err)=>{res.status(400).json({err:"Employer not updated"})});
+		// })
+	}).catch((err)=>{res.status(400).json({err:"Employer not found"})});
+});
+
+//validate a saved freelance job
+router.put("/saveFreelance/activate/:id",middleware.isEmployer, (req,res) =>{
+	Employer.findById(req.user._id).then((employer)=>{
+		if(employer.savedFreelance.includes(req.params.id))
+		if(employer.freelancetier.allowed-employer.freelancetier.saved<=0)
+		res.status(400).send("Max Jobs Saved");
+		else Employer.findByIdAndUpdate(req.user._id,{$inc:{"jobtier.posted":1},$inc:{"jobtier.saved":-1}}).then((employer2)=>{
+		savedFreelance.findById(req.params.id).then( (sjob) =>{
+			const expiry=sjob.endDate;
+			var days=(expiry-Date.now())/(1000*60*60*24);
+			if(days<0 || days>30 )
+			res.status(400).send("Invalid time range spcified");
+				let job = new Freelance({
+					author:sjob.author,
+					title: sjob.title,
+					profession: sjob.profession,
+					specialization: sjob.specialization,
+					description: sjob.description,
+					address: sjob.address,
+					createdAt:new Date(),
+					startDate:sjob.startDate,
+					expireAt:expiry,
+					endDate:sjob.expiry,
+					validated:employer.validated,
+				});
+				//console.log(job);
+				job.save().then((job)=> {
+					//console.log(job._id);
+					employer.jobs = [
+					...employer.jobs,
+					{
+						title: job.title,
+						id: job._id,
+						sid:sjob._id,
+					},
+					];
+					employer.savedJobs.splice (employer.savedJobs.indexOf(sjob._id),1);
+					employer.save().then((employer)=>{
+						sjob.jobRef=job._id;
+						sjob.status="Active";
+						sjob.createdAt=new Date;
+						sjob.expireAt=expiry;
+						sjob.save().then((sjob)=>{
+							res.status(200).json({updated:"true"})
+				}).catch((err)=>{res.status(400).json({err:"Saved job not saved"})});
+				}).catch((err)=>{res.status(400).json({err:"Employer not updated"})});
+			}).catch((err)=>{res.status(400).json({err:"job not saved"})});
+	// Employer.findOne({_id:req.user._id}).then((employer)=>{
+		}).catch((err)=>{res.status(400).json({err:"Saved job not found"})});
+	}).catch((err)=>{res.status(400).json({err:"Employer not updated"})});
+		// })
+	}).catch((err)=>{res.status(400).json({err:"Employer not found"})});
 });
 //===========================================================================
 //update a job
@@ -295,50 +576,56 @@ router.put("/:id",middleware.checkJobOwnership,async (req,res) =>{
 		query = await searchController.updateQueryBuilder(req)
 	//console.log(query.updateQuery);
 	Job.findById(req.params.id).then((job)=>{
+	if(req.body.status=="Active") res.status(400).json({err:"Invalid status"});
 	if(req.body.expireAt){
 	const expiry=new Date(req.body.expireAt);
 		var days=(expiry-job.createdAt)/(1000*60*60*24) ;
-		console.log(days);
+		//console.log(days);
 		if(days<0 || days>90 )
 		res.status(400).json({err:"Invalid time format"});
 		else
 		query.update["expireAt"]=expiry;
 	}
-	Job.findByIdAndUpdate(req.params.id,{$set:query.update}).then((job)=>{	
-		// Employer.replaceOne(req.user._id).then((employer) => {
-		// 	employer.savedFreelance=[
-		// 		...employer.savedFreelance,
-		// 		{
-		// 			job:job
-		// 		}
-		// 		];
-		// 	employer
-		// 	.save()
-		// Employer.update({"savedJobs"})
-	res.status(200).json({updated:"true"});
+	Job.findOneAndUpdate({_id:req.params.id},{$set:query.update},{new:true}).then((job)=>{	
+		console.log(job);
+		savedJob.findOneAndUpdate({jobRef:job._id},{$set:query.update}).then((employer)=>{
+			res.status(200).json({updated:"true"});
+		// employer.save().then((updatedEmployer)=>{
+		// res.status(200).json({updated:"true"});
+		// }).catch((err)=>{res.status(400).json({err:"Failed to save job"})});
+		 }).catch((error)=>{res.status(400).json({err:"Job not updated"})})
 		}).catch((error)=>{res.status(400).json({updated:"false"})});
 	}).catch((err)=>{res.status(400).json({err:"Couldn't find employer"})});
 });
 //Update a freelance job
-router.put("/freelancePost/:id",middleware.checkJobOwnership,async (req,res) =>{
+router.put("/freelancePost/:id",middleware.checkFreelanceJobOwnership,async (req,res) =>{
 	var query;
 		query = await searchController.updateQueryBuilder(req)
 	//console.log(query.updateQuery);
-	Freelance.findById(req.user._id).then((job)=>{
+	Freelance.findById(req.params.id).then((job)=>{
+	if(req.body.status=="Active") res.status(400).json({err:"Invalid status"});
 	if(req.body.startDate) query.update["startDate"]=req.body.startDate;
 	if(req.body.endDate) query.update["endDate"]=req.body.endDate;
 	const expiry=new Date(req.body.endDate);
 		var days=(expiry-job.createdAt)/(1000*60*60*24) ;
 		if(days<0 || days>90 )
 		res.status(400).json({err:"Invalid time format"});
+		else
+		query.update["expireAt"]=expiry;
 	// if(req.body.sponsored) {
 	// 	query.update["sponsored"]=true;
 	// }
 	Freelance.findByIdAndUpdate(req.params.id,{$set:query.update}).then((job)=>{	
-	res.status(200).json({updated:"true"});
-		}).catch((error)=>{res.status(400).json({updated:"false"})});
+		savedFreelance.findOneAndUpdate({jobRef:job._id},{$set:query.update}).then((employer)=>{
+			res.status(200).json({updated:"true"});
+		}).catch((err)=>res.status(400).json({err:"Job not saved"}));
+		}).catch((err)=>{res.status(400).json({updated:"false"})});
 	}).catch((err)=>{res.status(400).json({err:"Couldn't find employer"})});
 });
+
+//update a saved job
+
+//router.post("/")
 //job search route ( not for freelance search)
 router.post("/search", async (req, res) => {
     // query builder function
@@ -734,6 +1021,61 @@ router.post("/apply/:id", middleware.isUser, (req, res) => {
 	});
 	req.user;
 });
+
+//router.put("/:id",middleware.isLoggedIn())
+router.post("/apply/freelance/:id", middleware.isUser, (req, res) => {
+	Freelance.findById(req.params.id).then((job) => {
+		job.applicants = [
+		...job.applicants,
+		{
+			id: req.user._id,
+			username: req.user.username,
+		},
+		];
+		job.save()
+		.then((updatedJob) => {
+                // res.json(updatedJob);
+                User.findById(req.user._id)
+                .then((user) => {
+                	user.applied.push({
+                		id: updatedJob._id,
+                		title: updatedJob.title,
+                	});
+                	user.save()
+                	.then((updatedUser) => {
+                		res.json({
+                			user: updatedUser,
+                			job: job,
+                		});
+                	})
+                	.catch((err) =>
+                	       res.status(400).json({
+                	       	err: err,
+                	       }),
+                	       );
+                })
+                .catch((err) =>
+                       res.status(400).json({
+                       	err: err,
+                       }),
+                       );
+            })
+		.catch((err) =>
+		       res.status(400).json({
+		       	err: err,
+		       }),
+		       );
+	});
+	req.user;
+});
+//accept applicant freelance
+//STILL TODO 
+router.put("/apply/freelance/:id"),middleware.checkFreelanceJobOwnership, (req,res)=>{
+		User.findById(req.body.id).then((user) =>{
+			//send mobile OTP
+			Freelance.deleteOne({_id:req.params.id}).then()
+		}).catch((err) => { res.status(400).json({err:"Wrong user"})});
+}
 
 //get a job by id
 router.get("/:id", (req, res) => {
