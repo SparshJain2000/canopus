@@ -554,22 +554,7 @@ router.put("/saveFreelance/activate/:id",middleware.isEmployer, (req,res) =>{
 	}).catch((err)=>{res.status(400).json({err:"Employer not found"})});
 });
 //===========================================================================
-//update a job
-// router.put("/:id", middleware.checkBlogOwnership, (req, res) => {
-//     Job.findById(req.params.id)
-//         .then((job) => {
-//             job.title = req.body.title;
-//             job.image = req.body.image;
-//             job.body = req.body.body;
-//             job.date = new Date();
-//             job.likes = job.likes ? job.likes : [];
-//             job.save()
-//                 .then((updatedBlog) => res.json(updatedBlog))
-//                 .catch((err) => res.status(400).json({ err: err }));
-//         })
-//         .catch((err) => res.status(400).json({ err: err }));
-// });
-//===========================================================================
+
 //Update a job
 router.put("/:id",middleware.checkJobOwnership,async (req,res) =>{
 	var query;
@@ -1096,7 +1081,7 @@ router.get("/freelance/:id", (req, res) => {
 
 //delete a job
 
-router.delete("/:id", middleware.isEmployer, (req, res) => {
+router.delete("/:id", middleware.checkJobOwnership, (req, res) => {
 	Job.findByIdAndDelete(req.params.id)
 	.then(() => res.json("Job deleted successfully !"))
 	.catch((err) =>
