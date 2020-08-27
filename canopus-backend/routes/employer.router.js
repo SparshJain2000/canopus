@@ -35,12 +35,14 @@ router.post("/", (req, res) => {
         jobtier: {
             allowed: 10,
             posted: 0,
+            saved:0,
             closed: 0,
         },
-        freelancetier: {
-            allowed: 3,
-            posted: 0,
-            closed: 0,
+        freelancetier:{
+            allowed:3,
+            posted:0,
+            saved:0,
+            closed:0,
         },
         validated: false,
     });

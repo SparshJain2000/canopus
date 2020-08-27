@@ -1,10 +1,12 @@
 const mongoose = require("mongoose"),
     passportLocalMongoose = require("passport-local-mongoose");
 // var blogSchema =
-
+ObjectId=mongoose.Schema.ObjectId;
 module.exports = mongoose.model(
-    "Job",
+    "SavedJob",
     new mongoose.Schema({
+        jobRef:ObjectId,
+        status:String,
         title: String,
         profession: String,
         specialization: String,

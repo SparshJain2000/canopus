@@ -1,5 +1,6 @@
 const mongoose = require("mongoose"),
     passportLocalMongoose = require("passport-local-mongoose");
+    ObjectId=mongoose.Schema.ObjectId;
 module.exports = mongoose.model(
     "Employer",
     new mongoose.Schema({
@@ -20,28 +21,31 @@ module.exports = mongoose.model(
         jobtier: {
             allowed: Number,
             posted: Number,
+            saved: Number,
             closed: Number,
         },
-        freelancetier: {
-            allowed: Number,
-            posted: Number,
-            closed: Number,
+        freelancetier:{
+            allowed:Number,
+            posted:Number,
+            saved:Number,
+            closed:Number,
         },
         //profile page related,
-        links: Array, // link to website or to other resources
+        links: Array,// link to website or to other resources
         youtube: Array, // links to youtube video
-        image: Array, //multiple hostpial images
+        image: Array,//multiple hostpial images
         //description
         description: Object,
         //
         // {
         //     about: String //  about our company
-        //         about2: String // why join our company // descri
+
+       //         about2: String // why join our company // descri
         //     employeeCount: Number, // number of employees
         //     //show location on profile also from address object
         // }
-        //  profile
-        //  Empoyer valid status
+        // profile
+        //Empoyer valid status
         validated: Boolean,
         freelanceJobs: [
             {
@@ -50,6 +54,10 @@ module.exports = mongoose.model(
                     ref: "Freelance",
                 },
                 title: String,
+                sid:{
+                    type:mongoose.Schema.Types.ObjectId,
+                    ref:"savedFreelance"
+                },
             },
         ],
         jobs: [
@@ -59,6 +67,10 @@ module.exports = mongoose.model(
                     ref: "Job",
                 },
                 title: String,
+                sid:{
+                    type:mongoose.Schema.Types.ObjectId,
+                    ref:"savedJob"
+                },
             },
         ],
         savedJobs: Array,
