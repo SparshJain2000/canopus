@@ -26,6 +26,12 @@ router.post("/", (req, res) => {
         lastName: req.body.lastName,
         address: req.body.address,
         description: req.body.description,
+        locumtier:{
+            allowed:1,
+            saved:0,
+            posted:0,
+
+        },
         // address: {
         //     pin: req.body.pin,
         //     city: req.body.city,

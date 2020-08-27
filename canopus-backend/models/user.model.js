@@ -13,7 +13,24 @@ module.exports = mongoose.model(
         resume: String,
         google: Object,
         facebook: Object,
-
+        locumtier:{
+            allowed:Number,
+            saved:Number,
+            posted:Number,
+        },
+        locum: [
+            {
+                id: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "Freelance",
+                },
+                title: String,
+                sid:{
+                    type:mongoose.Schema.Types.ObjectId,
+                    ref:"savedFreelance"
+                },
+            },
+        ],
         experience: [
             {
                 title: String,

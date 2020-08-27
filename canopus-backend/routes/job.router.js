@@ -209,7 +209,7 @@ router.post("/", middleware.isEmployer, (req, res) => {
 });
 
 // Post freelance job
-router.post("/freelancePost", middleware.isEmployer, (req, res) => {
+router.post("/freelance", middleware.isEmployer, (req, res) => {
 	Employer.findById(req.user._id).then((employer) => {
 		if(employer.freelancetier.allowed-employer.freelancetier.posted<=0)
 		res.status(400).json({err:"Max Jobs Posted"});
@@ -585,7 +585,7 @@ router.put("/:id",middleware.checkJobOwnership,async (req,res) =>{
 	}).catch((err)=>{res.status(400).json({err:"Couldn't find employer"})});
 });
 //Update a freelance job
-router.put("/freelancePost/:id",middleware.checkFreelanceJobOwnership,async (req,res) =>{
+router.put("/freelance/:id",middleware.checkFreelanceJobOwnership,async (req,res) =>{
 	var query;
 		query = await searchController.updateQueryBuilder(req)
 	//console.log(query.updateQuery);
@@ -610,7 +610,69 @@ router.put("/freelancePost/:id",middleware.checkFreelanceJobOwnership,async (req
 	}).catch((err)=>{res.status(400).json({err:"Couldn't find employer"})});
 });
 
-//update a saved job
+//Update a saved job
+router.put("/savedJob/:id",middleware.isEmployer,async (req,res) =>{
+	var query;
+		query = await searchController.updateQueryBuilder(req)
+	//console.log(query.updateQuery);
+	Employer.findById(req.user._id).then((employer)=>{
+	if(!employer.savedJobs.includes(req.params.id))
+	res.status(400).json({err:"Invalid Job"});
+	savedJob.findById(req.params.id).then((job)=>{
+	if(req.body.status=="Active") res.status(400).json({err:"Invalid status"});
+	if(req.body.expireAt){
+	const expiry=new Date(req.body.expireAt);
+		var days=(expiry-Date.now())/(1000*60*60*24) ;
+		//console.log(days);
+		if(days<0 || days>90 )
+		res.status(400).json({err:"Invalid time format"});
+		else
+		query.update["expireAt"]=expiry;
+	}
+
+	savedJob.findOneAndUpdate({_id:req.params.id},{$set:query.update},{new:true}).then((job)=>{	
+		//console.log(job);
+		//savedJob.findOneAndUpdate({jobRef:job._id},{$set:query.update}).then((employer)=>{
+			res.status(200).json({updated:"true"});
+		// employer.save().then((updatedEmployer)=>{
+		// res.status(200).json({updated:"true"});
+		// }).catch((err)=>{res.status(400).json({err:"Failed to save job"})});
+		 }).catch((error)=>{res.status(400).json({err:"Job not updated"})})
+		}).catch((error)=>{res.status(400).json({err:"Couldn't find job"})});
+	}).catch((err)=>{res.status(400).json({err:"Couldn't find employer"})});
+});
+
+//Update a saved freelance job
+router.put("/savedFreelance/:id",middleware.isEmployer,async (req,res) =>{
+	var query;
+		query = await searchController.updateQueryBuilder(req)
+	//console.log(query.updateQuery);
+	Employer.findById(req.user._id).then((employer)=>{
+	if(!employer.savedFreelance.includes(req.params.id))
+	res.status(400).json({err:"Invalid Job"});
+	savedFreelance.findById(req.params.id).then((job)=>{
+	if(req.body.status=="Active") res.status(400).json({err:"Invalid status"});
+	if(req.body.endDate){
+	const expiry=new Date(req.body.endDate);
+		var days=(expiry-Date.now())/(1000*60*60*24) ;
+		//console.log(days);
+		if(days<0 || days>90 )
+		res.status(400).json({err:"Invalid time format"});
+		else
+		query.update["expireAt"]=expiry;
+	}
+
+	savedFreelance.findOneAndUpdate({_id:req.params.id},{$set:query.update},{new:true}).then((job)=>{	
+		//console.log(job);
+		//savedJob.findOneAndUpdate({jobRef:job._id},{$set:query.update}).then((employer)=>{
+			res.status(200).json({updated:"true"});
+		// employer.save().then((updatedEmployer)=>{
+		// res.status(200).json({updated:"true"});
+		// }).catch((err)=>{res.status(400).json({err:"Failed to save job"})});
+		 }).catch((error)=>{res.status(400).json({err:"Job not updated"})})
+		}).catch((error)=>{res.status(400).json({err:"Couldn't find job"})});
+	}).catch((err)=>{res.status(400).json({err:"Couldn't find employer"})});
+});
 
 //job search route ( not for freelance search)
 router.post("/search", async (req, res) => {
@@ -790,7 +852,7 @@ router.post("/similar", (req, res) => {
 });
 
 //Freelance Search
-router.post("/freelance", async (req, res) => {
+router.post("/freelanceSearch", async (req, res) => {
     const query = await searchController
         .queryBuilder(req)
         .then((query) => {
@@ -957,18 +1019,6 @@ router.post("/freelance", async (req, res) => {
 });
 
 //===========================================================================
-//get a job by id
-router.get("/:id", middleware.isLoggedIn, (req, res) => {
-    Job.findById(req.params.id)
-        .then((job) => {
-            res.json(job);
-        })
-        .catch((err) =>
-            res.status(400).json({
-                err: err,
-            }),
-        );
-});
 
 //router.put("/:id",middleware.isLoggedIn())
 router.post("/apply/:id", middleware.isUser, (req, res) => {
@@ -1071,7 +1121,22 @@ router.put("/apply/freelance/:id"),middleware.checkFreelanceJobOwnership, (req,r
 			Freelance.deleteOne({_id:req.params.id}).then()
 		}).catch((err) => { res.status(400).json({err:"Wrong user"})});
 }
-
+//get saved job
+router.get("/savedJob/:id",middleware.isEmployer,(req,res)=>{
+	savedJob.findById(req.params.id)
+	.then((job) =>{
+		res.json(job);
+	})
+	.catch((err) =>res.status(400).json({err:"Job not found"}));
+});
+//get saved freelance job
+router.get("/savedFreelance/:id",middleware.isEmployer,(req,res)=>{
+	savedFreelance.findById(req.params.id)
+	.then((job) =>{
+		res.json(job);
+	})
+	.catch((err) =>res.status(400).json({err:"Job not found"}));
+});
 //get a job by id
 router.get("/:id", (req, res) => {
     Job.findById(req.params.id)
@@ -1094,6 +1159,39 @@ router.get("/freelance/:id", (req, res) => {
 router.delete("/:id", middleware.checkJobOwnership, (req, res) => {
 	Job.findByIdAndDelete(req.params.id)
 	.then(() => res.json("Job deleted successfully !"))
+	.catch((err) =>
+	       res.status(400).json({
+	       	err: err,
+	       }),
+	       );
+});
+//delete a job
+
+router.delete("/savedJob/:id", middleware.isEmployer, (req, res) => {
+	savedJob.findByIdAndDelete(req.params.id)
+	.then(() => res.json("Saved Job deleted successfully !"))
+	.catch((err) =>
+	       res.status(400).json({
+	       	err: err,
+	       }),
+	       );
+});
+//delete a job
+
+router.delete("/freelance/:id", middleware.checkJobOwnership, (req, res) => {
+	Freelance.findByIdAndDelete(req.params.id)
+	.then(() => res.json("Freelance Job deleted successfully !"))
+	.catch((err) =>
+	       res.status(400).json({
+	       	err: err,
+	       }),
+	       );
+});
+//delete a job
+
+router.delete("/savedFreelance/:id", middleware.checkJobOwnership, (req, res) => {
+	savedFreelance.findByIdAndDelete(req.params.id)
+	.then(() => res.json("Saved Freelance Job deleted successfully !"))
 	.catch((err) =>
 	       res.status(400).json({
 	       	err: err,
