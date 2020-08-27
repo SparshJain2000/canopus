@@ -9,3 +9,10 @@
     margin-left: 0;
     margin-right: 0;
 }
+
+.active-tab-side {
+    border-bottom: 4px solid rgb(8, 163, 163) !important;
+    /* border-right: 0px solid transparent; */
+    color: black;
+    font-family: 'Chivo';
+}

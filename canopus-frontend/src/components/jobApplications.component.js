@@ -7,11 +7,27 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faMapMarkerAlt,
     faUser,
+    faPen,
     faArrowRight,
 } from "@fortawesome/free-solid-svg-icons";
 import hospital from "../images/hospital.svg";
 import "../stylesheets/jobApplications.css";
-import { ListGroup, ListGroupItem } from "reactstrap";
+import {
+    ListGroup,
+    ListGroupItem,
+    Nav,
+    NavItem,
+    DropdownToggle,
+    NavLink,
+    Dropdown,
+    DropdownItem,
+    DropdownMenu,
+    TabContent,
+    TabPane,
+    Row,
+    Col,
+} from "reactstrap";
+
 const ApplicantDetails = ({ applicant }) => {
     const [data, setData] = useState(null);
     const [error, setError] = useState(false);
@@ -32,7 +48,7 @@ const ApplicantDetails = ({ applicant }) => {
 const Badges = ({ desc, superSpecialization }) => {
     const superSp = superSpecialization ? superSpecialization : [];
     let badges = [];
-    if (desc.type)
+    if (desc && desc.type)
         badges = [
             desc.experience,
             ...desc.type,
@@ -56,41 +72,59 @@ const Badges = ({ desc, superSpecialization }) => {
         </div>
     );
 };
-const Job = ({ job }) => {
+const Job = ({ job, jobType, type2 }) => {
     const freelance = job.startDate ? true : false;
     const [show, setShow] = useState(false);
     const showApplicants = () => {
         setShow(!show);
     };
+    const post = () => {
+        console.log("posted");
+        if (type2 === "freelance")
+            axios
+                .put(`/api/job/saveFreelance/activate/${job._id}`)
+                .then((data) => {
+                    console.log(data);
+                    if (data.status === 200) alert("posted");
+                })
+                .catch((err) => console.log(err.response));
+        else
+            axios
+                .put(`/api/job/saveJob/activate/${job._id}`)
+                .then((data) => {
+                    if (data.status === 200) alert("posted");
+                })
+                .catch((err) => console.log(err.response));
+    };
     return (
         <div className='col-12 col-md-6'>
             <Media
-                className={`row  justify-content-center m-2 m-md-3 p-2 px-md-3 ${
+                className={`row  justify-content-center m-2 m-md-3 p-2 px-md-3  ${
                     job.sponsored ? "block-info" : "block"
                 }`}>
-                <Media body className='col-12 mt-4 mb-2 my-md-2 p-2'>
+                <Media body className='col-12 py-1 px-2'>
                     <Media heading>
                         <h5>{job.title}</h5>
                     </Media>
 
-                    <Media heading>
+                    {/* <Media heading>
                         <h6 className='text-info'>
-                            {/* <FontAwesomeIcon icon={faMapMarkerAlt} />{" "} */}
+                            
                             {job.description.company
                                 ? job.description.company
                                 : "Company"}
                         </h6>
-                    </Media>
+                    </Media> */}
                     <Media heading>
                         <h6>
                             <FontAwesomeIcon icon={faMapMarkerAlt} />{" "}
-                            {job.description.location}
+                            {job.description && job.description.location}
                         </h6>
                     </Media>
                     <hr />
                     <div className='row m-0'>
                         <div className='col-12 desc'>
-                            <em>{job.description.line}</em>
+                            <em>{job.description && job.description.line}</em>
 
                             {/* <strong>Type:</strong>
                             {job.description.type.map((type) => `${type} , `)}
@@ -129,9 +163,10 @@ const Job = ({ job }) => {
                                         {new Date(
                                             job.startDate,
                                         ).toLocaleTimeString()}
+                                        {" - "}
                                     </div>
                                 )}
-                                {" - "}
+
                                 {job.endDate && (
                                     <div className=''>
                                         {new Date(
@@ -148,26 +183,58 @@ const Job = ({ job }) => {
                             />
                         </div>
                     </div>
-                    <div className='row w-100 justify-content-start mt-2'>
-                        <div className='col-6  my-auto p-0 p-md-2 pr-1'>
-                            <Button
-                                color={`info`}
-                                onClick={showApplicants}
-                                className={`w-100 `}>
-                                Show Applicants
-                            </Button>
+                    {jobType === "Open" && (
+                        <div className='row w-100 justify-content-start mt-3'>
+                            <div className='col-6  my-auto p-0 p-md-2 pr-1'>
+                                <Button
+                                    color={`info`}
+                                    onClick={showApplicants}
+                                    className={`w-100 `}>
+                                    Applicants
+                                </Button>
+                            </div>
+                            <div className='col-6  my-auto p-0 p-md-2 pl-1'>
+                                <Link
+                                    to={{
+                                        pathname: `/employer/job/update/${job._id}`,
+                                        search: freelance
+                                            ? "freelance"
+                                            : "normal",
+                                    }}
+                                    params={{ freelance: freelance }}>
+                                    <Button className='btn btn-primary w-100'>
+                                        Edit JOB
+                                    </Button>
+                                </Link>
+                            </div>
                         </div>
-                        <div className='col-6  my-auto p-0 p-md-2 pl-1'>
-                            <Link
-                                to={{
-                                    state: freelance,
-                                    pathname: `/employer/job/update/${job._id}`,
-                                }}
-                                className='btn btn-primary w-100'>
-                                Edit JOB
-                            </Link>
+                    )}
+                    {jobType === "Saved" && (
+                        <div className='row w-100 justify-content-start mt-3'>
+                            <div className='col-6  my-auto p-0 p-md-2 pr-1'>
+                                <Button
+                                    color={`info`}
+                                    onClick={post}
+                                    className={`w-100 `}>
+                                    Post
+                                </Button>
+                            </div>
+                            <div className='col-6  my-auto p-0 p-md-2 pl-1'>
+                                <Link
+                                    to={{
+                                        pathname: `/employer/job/update/${job._id}`,
+                                        search: freelance
+                                            ? "freelance"
+                                            : "normal",
+                                    }}
+                                    params={{ freelance: freelance }}>
+                                    <Button className='btn btn-primary w-100'>
+                                        Edit JOB
+                                    </Button>
+                                </Link>
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </Media>
 
                 <Media
@@ -185,7 +252,6 @@ const Job = ({ job }) => {
                 {show &&
                     (job.applicants.length ? (
                         <ListGroup className='mt-2 mx-2 w-100'>
-                            <hr />
                             {job.applicants.map((applicant) => (
                                 <ListGroupItem key={applicant.id}>
                                     {/* <ApplicantDetails
@@ -207,7 +273,9 @@ const Job = ({ job }) => {
                             ))}
                         </ListGroup>
                     ) : (
-                        <h6>No applicants</h6>
+                        <h6 className='w-100' style={{ textAlign: "center" }}>
+                            No applicants
+                        </h6>
                     ))}
             </Media>
         </div>
@@ -219,19 +287,30 @@ export default class JobApplications extends Component {
         this.state = {
             jobs: null,
             freelanceJobs: null,
+            activeTab: "1",
+            jobType: "Open",
+            dropdownOpen: false,
+            closedJobs: null,
+            savedJobs: null,
         };
+        this.toggleTab = this.toggleTab.bind(this);
+        this.getSavedJobs = this.getSavedJobs.bind(this);
+        this.getOpenJobs = this.getOpenJobs.bind(this);
+        this.getClosedJobs = this.getClosedJobs.bind(this);
     }
-    componentDidMount() {
-        console.log("inside component did mount");
+    toggleTab(tab) {
+        if (this.state.activeTab !== tab) this.setState({ activeTab: tab });
+    }
+    getClosedJobs() {
         axios
-            .get("/api/employer/jobs")
+            .get("/api/job/all/expiredJobs")
             .then(({ data }) => {
-                this.setState({ jobs: data });
-                console.log(this.state.jobs);
+                console.log(data);
+                this.setState({ jobs: data.jobs });
             })
             .catch((err) => console.log(err.response));
         axios
-            .post("/api/job/allfreelance")
+            .get("/api/job/all/expiredFreelance")
             .then(({ data }) => {
                 // console.log(data);
                 this.setState({ freelanceJobs: data.jobs });
@@ -239,49 +318,143 @@ export default class JobApplications extends Component {
             })
             .catch((err) => console.log(err.response));
     }
+    getOpenJobs() {
+        axios
+            .get("/api/job/all/jobs")
+            .then(({ data }) => {
+                console.log(data.jobs);
+                this.setState({ jobs: data.jobs });
+            })
+            .catch((err) => console.log(err.response));
+        axios
+            .get("/api/job/all/freelance")
+            .then(({ data }) => {
+                console.log(data.jobs);
+                this.setState({ freelanceJobs: data.jobs });
+            })
+            .catch((err) => console.log(err.response));
+    }
+    getSavedJobs() {
+        axios
+            .get("/api/job/all/savedJobs")
+            .then(({ data }) => {
+                console.log(data.jobs);
+                this.setState({ jobs: data.jobs });
+            })
+            .catch((err) => console.log(err.response));
+        axios
+            .get("/api/job/all/savedFreelance")
+            .then(({ data }) => {
+                console.log(data.jobs);
+                this.setState({ freelanceJobs: data.jobs });
+            })
+            .catch((err) => console.log(err.response));
+    }
+    componentDidMount() {
+        console.log("inside component did mount");
+        this[`get${this.state.jobType}Jobs`]();
+    }
     render() {
         return (
-            <div className='row'>
-                <h1 className='col-12 my-3' style={{ textAlign: "center" }}>
-                    Posted Jobs
-                </h1>
-                {this.state.jobs ? (
-                    this.state.jobs.length !== 0 &&
-                    this.state.jobs.map(
-                        (job) => job && <Job key={job._id} job={job} />,
-                    )
-                ) : (
-                    <div
-                        className='mx-auto my-auto col-12'
-                        style={{ textAlign: "center" }}>
-                        <Loader
-                            type='Bars'
-                            color='#17a2b8'
-                            height={300}
-                            width={220}
-                        />
+            <div className='w-100'>
+                <div
+                    className='mt-2 mr-2 mr-md-3'
+                    style={{ textAlign: "right" }}>
+                    <Dropdown
+                        isOpen={this.state.dropdownOpen}
+                        toggle={() => {
+                            this.setState({
+                                dropdownOpen: !this.state.dropdownOpen,
+                            });
+                        }}>
+                        <DropdownToggle
+                            style={{ textTransform: "capitalize" }}
+                            caret>{`${this.state.jobType} jobs`}</DropdownToggle>
+                        <DropdownMenu right>
+                            <DropdownItem
+                                onClick={() => {
+                                    this.setState({ jobType: "Open" });
+                                    this.getOpenJobs();
+                                }}>
+                                Open Jobs
+                            </DropdownItem>
+                            <DropdownItem
+                                onClick={() => {
+                                    this.setState({ jobType: "Closed" });
+                                    this.getClosedJobs();
+                                }}>
+                                Closed Jobs
+                            </DropdownItem>
+                            <DropdownItem
+                                onClick={() => {
+                                    this.setState({ jobType: "Saved" });
+                                    this.getSavedJobs();
+                                }}>
+                                Saved Jobs
+                            </DropdownItem>
+                        </DropdownMenu>
+                    </Dropdown>
+                </div>
+                <h3 className='text-align-center w-100'>Jobs</h3>
+                <div className='row'>
+                    {this.state.jobs !== null &&
+                    this.state.jobs !== undefined ? (
+                        this.state.jobs.length !== 0 &&
+                        this.state.jobs.map(
+                            (job) =>
+                                job && (
+                                    <Job
+                                        key={job._id}
+                                        job={job}
+                                        jobType={this.state.jobType}
+                                        type2='normal'
+                                    />
+                                ),
+                        )
+                    ) : (
+                        <div
+                            className='mx-auto my-auto col-12'
+                            style={{ textAlign: "center" }}>
+                            <Loader
+                                type='Bars'
+                                color='#17a2b8'
+                                height={300}
+                                width={220}
+                            />
+                        </div>
+                    )}
+
+                    <hr className='w-100' />
+                    <h3 className='text-align-center w-100'>Locum Jobs</h3>
+
+                    <div className='row w-100'>
+                        {this.state.freelanceJobs ? (
+                            this.state.freelanceJobs.length !== 0 &&
+                            this.state.freelanceJobs.map(
+                                (job) =>
+                                    job && (
+                                        <Job
+                                            key={job._id}
+                                            job={job}
+                                            jobType={this.state.jobType}
+                                            type2='freelance'
+                                        />
+                                    ),
+                            )
+                        ) : (
+                            <div
+                                className='mx-auto my-auto col-12 '
+                                style={{ textAlign: "center" }}>
+                                <Loader
+                                    type='Bars'
+                                    color='#17a2b8'
+                                    height={300}
+                                    width={220}
+                                />
+                            </div>
+                        )}
                     </div>
-                )}
-                <h1 className='col-12 my-3' style={{ textAlign: "center" }}>
-                    Freelance Jobs
-                </h1>
-                {this.state.freelanceJobs ? (
-                    this.state.freelanceJobs.length !== 0 &&
-                    this.state.freelanceJobs.map(
-                        (job) => job && <Job key={job._id} job={job} />,
-                    )
-                ) : (
-                    <div
-                        className='mx-auto my-auto col-12'
-                        style={{ textAlign: "center" }}>
-                        <Loader
-                            type='Bars'
-                            color='#17a2b8'
-                            height={300}
-                            width={220}
-                        />
-                    </div>
-                )}
+                </div>
             </div>
         );
     }
