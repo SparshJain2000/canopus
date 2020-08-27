@@ -1,8 +1,9 @@
 const router = require("express").Router(),
     passport = require("passport"),
     middleware = require("../middleware/index"),
-    User = require("../models/user.model");
-Tag = require("../models/tag.model");
+    User = require("../models/user.model"),
+    Tag = require("../models/tag.model"),
+    savedFreelance= require("../models/savedFreelance.model");
 
 //===========================================================================
 //get all users
@@ -30,6 +31,7 @@ router.post("/", (req, res) => {
             allowed:1,
             saved:0,
             posted:0,
+            closed:0,
 
         },
         // address: {
@@ -99,6 +101,78 @@ router.get("/profile/:id", (req, res) => {
         .catch((err) => res.status(400).json({ err: err }));
 });
 
+
+// Apply for a locum job
+
+router.post("/locum",middleware.isUser,(req,res) =>{
+    User.findById(req.user._id).then((user) => {
+		if(user.locumtier.allowed-user.locumtier.posted<=0)
+		res.status(400).json({err:"Max Jobs Posted"});
+		else User.findByIdAndUpdate(req.user._id,{$inc:{"locumtier.saved":1}}).then((employer2) =>{
+			const expiry=new Date(req.body.endDate);
+			var days=(expiry-Date.now())/(1000*60*60*24);
+			if(days<0 || days>90 )res.status(400).send("Invalid time format");
+	let freelance = new savedFreelance({
+        status:"Saved",
+        category:"Locum",
+		title: req.body.title,
+		profession: req.body.profession,
+		specialization: req.body.specialization,
+		description: req.body.description,
+		address: req.body.address,
+		startDate:req.body.startDate,
+		endDate:req.body.endDate,
+		createdAt:new Date(),
+		expireAt:expiry,
+		validated:false,
+	});
+	savedFreelance.create(freelance)
+	.then((job) => {
+		job.author.username = req.user.username;
+		job.author.id = req.user._id;
+		console.log(job);
+		job.save()
+		.then((job) => {
+			User.findById(req.user._id).then((user) => {
+				user.locum=[
+					...user.locum,{
+                        title:req.body.title,
+                        sid:job._id
+                    },
+					];
+				user
+				.save()
+				.then((updatedUser) =>
+				      res.json({
+				      	job: job,
+				      	user: req.user,
+				      	updatedEmployer: updatedUser,
+				      }),
+				      )
+				.catch((err) =>
+				       res.status(400).json({
+				       	err: err,
+				       }),
+				       );
+			}).catch((err) => {res.status(400).json({err:"Employer not found"})});;
+		
+		})
+	}).catch((err) => {res.status(400).json({err:"Job not saved"})});
+	})
+	.catch((err) =>
+	       res.status(400).json({
+	       	err: err,
+	       	user: req.user,
+	       }),
+	       )
+	.catch((err) =>
+	       res.status(400).json({
+	       	err: err,
+	       	user: req.user,
+	       }),
+		   );
+		}).catch((err)=> res.status(400).json({err:err}));
+});
 // User profile update
 
 router.put("/profile/update/", middleware.isUser, (req, res) => {

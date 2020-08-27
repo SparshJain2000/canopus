@@ -15,6 +15,21 @@ savedFreelance = require("../models/savedFreelance.model");
 //===========================================================================
 //get all jobs
 router.post("/alljobs", (req, res) => {
+	 //By default sort by Relevance
+	 var sort;
+	 sort = {$sort: { score: { $meta: "textScore" }} };
+	 if ((req.body.order == "New"))
+		 sort = {
+			 $sort: {
+				 _id: -1,
+			 },
+		 };
+	 if ((req.body.order == "Old"))
+		 sort = {
+			 $sort: {
+				 _id: 1,
+			 },
+		 };
     skip = parseInt(req.body.skip) || 0;
     limiter = parseInt(req.body.limit) || 10;
     Job.aggregate(
@@ -56,6 +71,20 @@ router.post("/alljobs", (req, res) => {
 });
 //get all freelance jobs
 router.post("/allfreelance", (req, res) => {
+	var sort;
+	 sort = {$sort: { score: { $meta: "textScore" }} };
+	 if ((req.body.order == "New"))
+		 sort = {
+			 $sort: {
+				 _id: -1,
+			 },
+		 };
+	 if ((req.body.order == "Old"))
+		 sort = {
+			 $sort: {
+				 _id: 1,
+			 },
+		 };
     skip = parseInt(req.body.skip) || 0;
     limiter = parseInt(req.body.limit) || 10;
     Freelance.aggregate(
@@ -1121,6 +1150,121 @@ router.put("/apply/freelance/:id"),middleware.checkFreelanceJobOwnership, (req,r
 			Freelance.deleteOne({_id:req.params.id}).then()
 		}).catch((err) => { res.status(400).json({err:"Wrong user"})});
 }
+
+//get multiple jobs
+router.get("/all/jobs",middleware.isEmployer,(req,res)=>{
+	Employer.findById(req.user._id).then((employer)=>{
+		const id=employer.jobs.map(job=>{
+			return job.id;
+		});
+		console.log(id);
+		Job.find({_id:{$in:id}}).then((jobs)=>{
+			res.json({jobs:jobs});
+		}).catch((err)=>{res.json({err:"Jobs not found"})});
+	}).catch((err)=>{res.json({err:"Employer not found"})});
+});
+
+//get multiple freelance jobs
+router.get("/all/freelance",middleware.isEmployer,(req,res)=>{
+	Employer.findById(req.user._id).then((employer)=>{
+		const id=employer.freelanceJobs.map(job=>{
+			return job.id;
+		});
+		console.log(id);
+		Freelance.find({_id:{$in:id}}).then((jobs)=>{
+			res.json({jobs:jobs});
+		}).catch((err)=>{res.json({err:"Jobs not found"})});
+	}).catch((err)=>{res.json({err:"Employer not found"})});
+});
+
+// get multiple saved jobs
+router.get("/all/savedJobs",middleware.isEmployer,(req,res)=>{
+	Employer.findById(req.user._id).then((employer)=>{
+		savedJob.find({_id:{$in:employer.savedJobs}}).then((jobs)=>{
+			res.json({jobs:jobs});
+		}).catch((err)=>{res.json({err:"Jobs not found"})});
+	}).catch((err)=>{res.json({err:"Employer not found"})});
+});
+
+//  get multiple saved freelance jobs
+router.get("/all/savedFreelance",middleware.isEmployer,(req,res)=>{
+	Employer.findById(req.user._id).then((employer)=>{
+		
+		savedFreelance.find({_id:{$in:employer.savedFreelance}}).then((jobs)=>{
+			res.json({jobs:jobs});
+		}).catch((err)=>{res.json({err:"Jobs not found"})});
+	}).catch((err)=>{res.json({err:"Employer not found"})});
+});
+// get expired jobs
+router.post("/all/expiredJobs",middleware.isEmployer,(req,res)=>{
+	const ID = req.body.id;
+    var active = [];
+    var inactive = [];
+    let promises = [];
+    for (let i = 0; i < ID.length; i++) {
+        promises.push(
+            new Promise((resolve, reject) => {
+                const id = ID[i];
+                Job.findById(id)
+                    .then((job) => {
+						if(job==null)
+						inactive.push(id);
+						else
+                        active.push(id);
+                        resolve("Done");
+                    })
+                    .catch((err) => {
+                        inactive.push(id);
+                        resolve("Done");
+                    });
+            }),
+        );
+    }
+    Promise.all(promises)
+        .then((msg) => {
+			console.log(inactive);
+			savedJob.find({jobRef:{$in:inactive}}).then((jobs)=>{
+				res.json({jobs:jobs});
+			}).catch((err)=>{res.json({err:"Error finding expired jobs"})});
+           
+        })
+        .catch((err) => res.json({ err:"Couldn't find expired jobs" }));
+});
+// get expired freelance jobs
+router.post("/all/expiredFreelance",middleware.isEmployer,(req,res)=>{
+	const ID = req.body.id;
+    var active = [];
+    var inactive = [];
+    let promises = [];
+    for (let i = 0; i < ID.length; i++) {
+        promises.push(
+            new Promise((resolve, reject) => {
+                const id = ID[i];
+                Freelance.findById(id)
+                    .then((job) => {
+						if(job==null)
+						inactive.push(id);
+						else
+                        active.push(id);
+                        resolve("Done");
+                    })
+                    .catch((err) => {
+                        inactive.push(id);
+                        resolve("Done");
+                    });
+            }),
+        );
+    }
+    Promise.all(promises)
+        .then((msg) => {
+			console.log(inactive);
+			savedFreelance.find({jobRef:{$in:inactive}}).then((jobs)=>{
+				res.json({jobs:jobs});
+			}).catch((err)=>{res.json({err:"Error finding expired jobs"})});
+           
+        })
+        .catch((err) => res.json({ err:"Couldn't find expired jobs" }));
+});
 //get saved job
 router.get("/savedJob/:id",middleware.isEmployer,(req,res)=>{
 	savedJob.findById(req.params.id)
@@ -1178,7 +1322,7 @@ router.delete("/savedJob/:id", middleware.isEmployer, (req, res) => {
 });
 //delete a job
 
-router.delete("/freelance/:id", middleware.checkJobOwnership, (req, res) => {
+router.delete("/freelance/:id", middleware.checkFreelanceJobOwnership, (req, res) => {
 	Freelance.findByIdAndDelete(req.params.id)
 	.then(() => res.json("Freelance Job deleted successfully !"))
 	.catch((err) =>
@@ -1189,7 +1333,7 @@ router.delete("/freelance/:id", middleware.checkJobOwnership, (req, res) => {
 });
 //delete a job
 
-router.delete("/savedFreelance/:id", middleware.checkJobOwnership, (req, res) => {
+router.delete("/savedFreelance/:id", middleware.isEmployer, (req, res) => {
 	savedFreelance.findByIdAndDelete(req.params.id)
 	.then(() => res.json("Saved Freelance Job deleted successfully !"))
 	.catch((err) =>

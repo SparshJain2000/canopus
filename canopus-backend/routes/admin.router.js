@@ -52,6 +52,10 @@ router.post("/validate",(req,res) => {
             }).catch((err) => {res.json({err:err})});
 
 });
+// delete everything related to an employer
+router.post("/nuke/:id",(req,res)=>{
+
+})
 module.exports = router;
 //Testing valodation code this doesnt work but is more efficient
 // Employer.aggregate([{ $project:{"validated" :{ $cond: {
