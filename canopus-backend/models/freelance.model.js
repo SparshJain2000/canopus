@@ -11,6 +11,7 @@ module.exports = mongoose.model(
         address: Object,
         createdAt:Date,
         expireAt:Date,
+        category:String,
         // {
         //     line: String, //specific addresss
         //     city: String,

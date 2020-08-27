@@ -17,6 +17,7 @@ module.exports = mongoose.model(
             allowed:Number,
             saved:Number,
             posted:Number,
+            closed:Number,
         },
         locum: [
             {
