@@ -207,7 +207,7 @@ const NavbarComponent = (props) => {
                                     </div>
                                     <div className=''>
                                         <a
-                                            href='#'
+                                            href='/employer/signup'
                                             className='badge badge-lg badge-danger p-2 ml-1'>
                                             Signup
                                         </a>

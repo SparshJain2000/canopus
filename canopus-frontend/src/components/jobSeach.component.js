@@ -1,6 +1,7 @@
+import "../stylesheets/jobSearch.css";
+
 import React, { Component, createRef, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
-import "../stylesheets/jobSearch.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faMapMarkerAlt,
@@ -72,7 +73,7 @@ const specializationArray = data.specializations.map((opt) => ({
 const Badges = ({ desc, superSpecialization }) => {
     const superSp = superSpecialization ? superSpecialization : [];
     let badges = [];
-    if (desc.type)
+    if (desc && desc.type && desc.incentives)
         badges = [
             desc.experience,
             ...desc.type,
@@ -87,7 +88,7 @@ const Badges = ({ desc, superSpecialization }) => {
         <div>
             {badges.map((badge, i) => {
                 return (
-                    <Badge className='mx-1' color='info' id={i}>
+                    <Badge className='mx-1' color='info' key={i}>
                         {badge}
                     </Badge>
                 );
@@ -131,72 +132,85 @@ const Job = ({ job, userId, user }) => {
     return (
         <div>
             <BounceIn>
-                <Media
-                    className={`row  justify-content-center my-3 mx-auto p-2 px-md-3 ${
-                        job.sponsored ? "block-info" : "block"
-                    }`}
-                    style={{ cursor: "pointer" }}
-                    onClick={() => history.push(`/job/${job._id}`)}>
-                    <Media body className='col-12 my-1 p-1'>
-                        <Media heading>
-                            <h5>{job.title}</h5>
-                        </Media>
-
-                        <Media heading>
-                            <h6 className='text-info'>
-                                {/* <FontAwesomeIcon icon={faMapMarkerAlt} />{" "} */}
-                                {job.description.company
-                                    ? job.description.company
-                                    : "Company"}
-                            </h6>
-                        </Media>
-                        <Media heading>
-                            <h6>
-                                <FontAwesomeIcon icon={faMapMarkerAlt} />{" "}
-                                {job.description.location}
-                            </h6>
-                        </Media>
-
-                        {/* ?     <hr className='my-2' /> */}
-                        <div className='row m-0'>
-                            <div className='col-12 desc'>
-                                <em style={{ fontSize: ".9rem" }}>
-                                    {job.description.line}
-                                </em>
-                            </div>
-                        </div>
-                        <hr />
-                        {job.startDate && (
-                            <div className='row'>
-                                {new Date(job.startDate).toDateString()}
-                            </div>
-                        )}
-                        {job.endDate && (
-                            <div className='row'>
-                                {new Date(job.endDate).toDateString()}
-                            </div>
-                        )}
-
-                        <div className='col-12  px-0 '>
-                            <Badges
-                                desc={job.description}
-                                superSpecialization={job.superSpecialization}
-                            />
-                        </div>
-                    </Media>
+                <Link
+                    to={{
+                        pathname: `/job/${job._id}`,
+                        search: `?type=${
+                            job.startDate ? "freelance" : "normal"
+                        }`,
+                    }}>
                     <Media
-                        left
-                        href='#'
-                        className='d-none d-md-block col-12 col-sm-3 my-auto mx-auto '>
+                        className={`row  justify-content-center my-3 mx-auto p-2 px-md-3 ${
+                            job.sponsored ? "block-info" : "block"
+                        }`}
+                        style={{ cursor: "pointer" }}>
+                        <Media body className='col-12 my-1 p-1'>
+                            <Media heading>
+                                <h5>{job.title}</h5>
+                            </Media>
+
+                            <Media heading>
+                                <h6 className='text-info'>
+                                    {/* <FontAwesomeIcon icon={faMapMarkerAlt} />{" "} */}
+                                    {job.description && job.description.company
+                                        ? job.description.company
+                                        : "Company"}
+                                </h6>
+                            </Media>
+                            <Media heading>
+                                <h6>
+                                    <FontAwesomeIcon icon={faMapMarkerAlt} />{" "}
+                                    {job.description &&
+                                        job.description.location}
+                                </h6>
+                            </Media>
+
+                            {/* ?     <hr className='my-2' /> */}
+                            <div className='row m-0'>
+                                <div className='col-12 descr'>
+                                    <em style={{ fontSize: ".9rem" }}>
+                                        {job.description &&
+                                            job.description.line}
+                                    </em>
+                                </div>
+                            </div>
+                            <hr />
+                            {job.startDate && (
+                                <div className='row'>
+                                    {new Date(
+                                        job.startDate,
+                                    ).toLocaleTimeString()}
+                                </div>
+                            )}
+                            {job.endDate && (
+                                <div className='row'>
+                                    {new Date(job.endDate).toLocaleTimeString()}
+                                </div>
+                            )}
+
+                            <div className='col-12  px-0 '>
+                                <Badges
+                                    desc={job.description}
+                                    superSpecialization={
+                                        job.superSpecialization
+                                    }
+                                />
+                            </div>
+                        </Media>
                         <Media
-                            object
-                            src={hospital}
-                            style={{ maxHeight: "200px" }}
-                            alt='Generic placeholder image'
-                            className='img-fluid float-right pr-2 pr-lg-3'
-                        />
+                            left
+                            href='#'
+                            className='d-none d-md-block col-12 col-sm-3 my-auto mx-auto '>
+                            <Media
+                                object
+                                src={hospital}
+                                style={{ maxHeight: "200px" }}
+                                alt='Generic placeholder image'
+                                className='img-fluid float-right pr-2 pr-lg-3'
+                            />
+                        </Media>
                     </Media>
-                </Media>
+                </Link>
             </BounceIn>
             {user && (
                 <Modal
@@ -277,7 +291,7 @@ export default class JobSearch extends Component {
         this.state = {
             jobs: [],
             pageCount: 0,
-            pageSize: 2,
+            pageSize: 4,
             freelance: true,
             isZero: false,
             currentPage: 0,
@@ -294,6 +308,7 @@ export default class JobSearch extends Component {
             superSpecialization: [],
             startDate: "",
             endDate: "",
+            sortBy: "relevance",
             // isSticky:false
         };
         this.toggleTab = this.toggleTab.bind(this);
@@ -355,7 +370,9 @@ export default class JobSearch extends Component {
                 endDate: this.state.endDate,
                 limit: this.state.pageSize,
                 skip: skipNo ? skipNo : 0,
+                order: this.state.sortBy,
             };
+            console.log(query);
             axios
                 .post(`/api/job/allfreelance`, query)
                 .then(({ data }) => {
@@ -382,6 +399,7 @@ export default class JobSearch extends Component {
             const query = {
                 limit: this.state.pageSize,
                 skip: skipNo ? skipNo : 0,
+                order: this.state.sortBy,
             };
             console.log(query);
             axios
@@ -553,9 +571,7 @@ export default class JobSearch extends Component {
                     query[key].length === 0) &&
                 delete query[key],
         );
-        console.log("#################");
-        console.log(query);
-        console.log(this.state.freelance);
+        // console.log(this.state.freelance);
         if (Object.keys(query).length > 0) {
             if (!this.state.freelance) {
                 query = {
@@ -564,7 +580,9 @@ export default class JobSearch extends Component {
                     endDate: this.state.endDate,
                     limit: this.state.pageSize,
                     skip: skipNo ? skipNo : 0,
+                    order: this.state.sortBy,
                 };
+                console.log(query);
                 axios
                     .post(`/api/job/freelance`, query)
                     .then(({ data }) => {
@@ -600,7 +618,10 @@ export default class JobSearch extends Component {
                     ...query,
                     limit: this.state.pageSize,
                     skip: skipNo ? skipNo : 0,
+                    order: this.state.sortBy,
                 };
+                console.log(query);
+
                 axios
                     .post(`/api/job/search`, query)
                     .then(({ data }) => {
@@ -643,43 +664,11 @@ export default class JobSearch extends Component {
         return (
             <div className='row justify-content-center align-content-center mx-4 mx-lg-2 position-relative'>
                 <div
-                    className='col-12 col-lg-3  mt-md-4 position-sticky'
-                    style={{ top: 0, background: "white" }}>
+                    className='col-12 col-lg-3  mt-md-4 position-sticky '
+                    style={{ top: 0, background: "white", zIndex: 1000 }}>
                     <div className='sticky-filter pt-lg-2 d-none d-lg-block'>
                         {/* <div className='form-group'> */}
-                        <div className='form-group'>
-                            <div
-                                className='pb-2'
-                                style={{
-                                    height: "max-content",
-                                    textAlign: "center",
-                                }}>
-                                <span style={{ fontSize: "1.2rem" }}>
-                                    Freelance
-                                </span>
-                                <input
-                                    className='react-switch-checkbox'
-                                    id={`react-switch-new`}
-                                    type='checkbox'
-                                    ref={this.freelance}
-                                    //   checked={this.state.freelance}
-                                />
-
-                                <label
-                                    className='react-switch-label float-right'
-                                    htmlFor={`react-switch-new`}
-                                    onClick={() => {
-                                        this.setState({
-                                            freelance: this.state.current
-                                                ? this.freelance.current.checked
-                                                : !this.state.freelance,
-                                        });
-
-                                        // this.search(0);
-                                    }}>
-                                    <span className={`react-switch-button`} />
-                                </label>
-                            </div>
+                        <div className='form-group '>
                             <h5
                                 style={{
                                     textAlign: "center",
@@ -1038,7 +1027,7 @@ export default class JobSearch extends Component {
                         </div>
                     </div>
                     <div
-                        className=' pt-lg-2 d-block d-lg-none position-sticky my-4 pt-2 '
+                        className=' pt-lg-2 d-block d-lg-none position-sticky my-1 pt-2 '
                         style={{ top: 0, textAlign: "center" }}>
                         <h3>
                             Change{" "}
@@ -1058,15 +1047,18 @@ export default class JobSearch extends Component {
                         </ModalHeader>
                         <ModalBody>
                             <div className='form-group'>
-                                <div
-                                    className='pb-2 d-flex flex-row justify-content-center'
+                                {/* <div
+                                    className='pb-2 d-flex flex-row justify-content-between'
                                     style={{
                                         height: "max-content",
                                         textAlign: "center",
                                     }}>
                                     <span
                                         className='mr-3'
-                                        style={{ fontSize: "1.3rem" }}>
+                                        style={{
+                                            fontSize: "1.4rem",
+                                            fontFamily: "Montserrat",
+                                        }}>
                                         Freelance
                                     </span>
                                     <input
@@ -1078,7 +1070,7 @@ export default class JobSearch extends Component {
                                     />
 
                                     <label
-                                        className='react-switch-label float-right'
+                                        className='react-switch-label float-right mt-1'
                                         htmlFor={`react-switch-new`}
                                         onClick={() => {
                                             console.log(
@@ -1096,7 +1088,7 @@ export default class JobSearch extends Component {
                                             className={`react-switch-button`}
                                         />
                                     </label>
-                                </div>
+                                </div> */}
                                 <h5
                                     style={{
                                         textAlign: "center",
@@ -1111,7 +1103,7 @@ export default class JobSearch extends Component {
                                                 autosize={true}
                                                 placeholder='Location'
                                                 options={locationArray}
-                                                ref={this.location}
+                                                // ref={this.location}
                                                 defaultValue={{
                                                     label: this.state.location,
                                                     value: this.state.location,
@@ -1261,6 +1253,80 @@ export default class JobSearch extends Component {
                                                     </div>
                                                 </div>
                                             </div>
+                                            {!this.state.freelance && (
+                                                <div className='mt-3'>
+                                                    <div className='col-12'>
+                                                        <FormGroup>
+                                                            <Label
+                                                                className='pl-2'
+                                                                for='exampleDate'>
+                                                                Start -Date
+                                                            </Label>
+                                                            <Input
+                                                                type='date'
+                                                                name='date'
+                                                                id='exampleDate'
+                                                                placeholder='date placeholder'
+                                                                onChange={(
+                                                                    e,
+                                                                ) => {
+                                                                    console.log(
+                                                                        e
+                                                                            ? new Date(
+                                                                                  e.target.value,
+                                                                              ).toISOString()
+                                                                            : "",
+                                                                    );
+                                                                    this.setState(
+                                                                        {
+                                                                            startDate: e
+                                                                                ? new Date(
+                                                                                      e.target.value,
+                                                                                  ).toISOString()
+                                                                                : "",
+                                                                        },
+                                                                    );
+                                                                }}
+                                                            />
+                                                        </FormGroup>
+                                                    </div>
+                                                    <div className='col-12'>
+                                                        <FormGroup>
+                                                            <Label
+                                                                className='pl-2'
+                                                                for='exampleDate'>
+                                                                End - Date
+                                                            </Label>
+                                                            <Input
+                                                                type='date'
+                                                                name='date'
+                                                                id='exampleDate'
+                                                                placeholder='date placeholder'
+                                                                onChange={(
+                                                                    e,
+                                                                ) => {
+                                                                    console.log(
+                                                                        e
+                                                                            ? new Date(
+                                                                                  e.target.value,
+                                                                              ).toISOString()
+                                                                            : "",
+                                                                    );
+                                                                    this.setState(
+                                                                        {
+                                                                            startDate: e
+                                                                                ? new Date(
+                                                                                      e.target.value,
+                                                                                  ).toISOString()
+                                                                                : "",
+                                                                        },
+                                                                    );
+                                                                }}
+                                                            />
+                                                        </FormGroup>
+                                                    </div>
+                                                </div>
+                                            )}
                                         </Col>
                                     </Row>
                                 </TabPane>
@@ -1489,23 +1555,192 @@ export default class JobSearch extends Component {
                     <div className='col-12 col-lg-8 '></div>
                 )} */}
                 {
-                    <div className='col-12 col-lg-8 '>
+                    <div className='col-12 col-lg-8 position-relative'>
+                        <div
+                            className='sticky-filter p-1 row justify-content-between align-content-center'
+                            style={{
+                                top: 0,
+                                backgroundColor: "white",
+                                zIndex: 500,
+                            }}>
+                            <h5 className='mt-2 col-12 col-sm-3 py-1 py-sm-3 px-0'>
+                                {this.state.jobsFound}
+                            </h5>
+                            <div className='row col-12 col-sm-9 '>
+                                <div
+                                    className=' col-12 col-sm-7 mt-0 mt-sm-2 py-1  row  switch'
+                                    style={{
+                                        height: "max-content",
+                                    }}>
+                                    <span
+                                        className='py-2 pr-2'
+                                        style={{
+                                            fontSize: "1rem",
+                                        }}>
+                                        Day Jobs / Locum
+                                    </span>
+                                    <input
+                                        className='react-switch-checkbox'
+                                        id={`react-switch-new`}
+                                        type='checkbox'
+                                        ref={this.freelance}
+                                        //   checked={this.state.freelance}
+                                    />
+
+                                    <label
+                                        className='react-switch-label float-right mt-2'
+                                        htmlFor={`react-switch-new`}
+                                        onClick={() => {
+                                            this.setState({
+                                                freelance: this.state.current
+                                                    ? this.freelance.current
+                                                          .checked
+                                                    : !this.state.freelance,
+                                            });
+
+                                            // this.search(0);
+                                        }}>
+                                        <span
+                                            className={`react-switch-button`}
+                                        />
+                                    </label>
+                                </div>
+                                <InputGroup className='col-12 col-sm-5 mt-0 mt-sm-2 justify-content-end px-0'>
+                                    <div className='row w-100  pr-0 switch'>
+                                        <div className='col-4 col-sm-3 py-3 px-0 pr-1'>
+                                            <span>Sort By</span>
+                                        </div>
+                                        <div className='col-8 py-2 px-0'>
+                                            <Select
+                                                autosize={true}
+                                                placeholder='Sort parameter'
+                                                className='select-sort'
+                                                options={[
+                                                    {
+                                                        label: "revelance",
+                                                        value: "revelance",
+                                                    },
+                                                    {
+                                                        label: "New Jobs",
+                                                        value: "New",
+                                                    },
+                                                    {
+                                                        label: "Old Jobs",
+                                                        value: "Old",
+                                                    },
+                                                    {
+                                                        label:
+                                                            "Number of applicants",
+                                                        value:
+                                                            "Number of applicants",
+                                                    },
+                                                ]}
+                                                defaultValue={{
+                                                    label: "revelance",
+                                                    value: "revelance",
+                                                }}
+                                                // ref={this.location}
+                                                onChange={(e) => {
+                                                    console.log(e);
+                                                    this.setState({
+                                                        sortBy: e.value,
+                                                    });
+                                                    // this.setState({
+                                                    //     location: e ? e.value : "",
+                                                    // });
+                                                }}
+                                            />
+                                        </div>
+                                    </div>
+                                </InputGroup>
+                            </div>
+                            {/* <div
+                                className=' col-12 col-sm-4 mt-0 mt-sm-2 py-1  row  switch'
+                                style={{
+                                    height: "max-content",
+                                }}>
+                                <span
+                                    className='py-2 pr-2'
+                                    style={{
+                                        fontSize: "1rem",
+                                    }}>
+                                    Day Jobs / Locum
+                                </span>
+                                <input
+                                    className='react-switch-checkbox'
+                                    id={`react-switch-new`}
+                                    type='checkbox'
+                                    ref={this.freelance}
+                                    //   checked={this.state.freelance}
+                                />
+
+                                <label
+                                    className='react-switch-label float-right mt-2'
+                                    htmlFor={`react-switch-new`}
+                                    onClick={() => {
+                                        this.setState({
+                                            freelance: this.state.current
+                                                ? this.freelance.current.checked
+                                                : !this.state.freelance,
+                                        });
+
+                                        // this.search(0);
+                                    }}>
+                                    <span className={`react-switch-button`} />
+                                </label>
+                            </div>
+                            <InputGroup className='col-12 col-sm-4 mt-0 mt-sm-2 justify-content-end px-0'>
+                                <div className='row w-100  pr-0 switch'>
+                                    <div
+                                        className='col-4 col-sm-3 py-3 px-0 pr-1'>
+                                        <span>Sort By</span>
+                                    </div>
+                                    <div className='col-8 py-2 px-0'>
+                                        <Select
+                                            autosize={true}
+                                            placeholder='Sort parameter'
+                                            className='select-sort'
+                                            options={[
+                                                {
+                                                    label: "revelance",
+                                                    value: "revelance",
+                                                },
+                                                {
+                                                    label: "New Jobs",
+                                                    value: "New",
+                                                },
+                                                {
+                                                    label: "Old Jobs",
+                                                    value: "Old",
+                                                },
+                                                {
+                                                    label:
+                                                        "Number of applicants",
+                                                    value:
+                                                        "Number of applicants",
+                                                },
+                                            ]}
+                                            defaultValue={{
+                                                label: "revelance",
+                                                value: "revelance",
+                                            }}
+                                            // ref={this.location}
+                                            onChange={(e) => {
+                                                console.log(e);
+                                                // this.setState({
+                                                //     location: e ? e.value : "",
+                                                // });
+                                            }}
+                                        />
+                                    </div>
+                                </div>
+                            </InputGroup> */}
+                        </div>
+
                         {this.state.loaded ? (
                             this.state.jobs.length !== 0 &&
                             !this.state.isZero ? (
                                 <div className='position-relative '>
-                                    <div
-                                        className='sticky-filter p-1 d-flex justify-content-between align-content-center'
-                                        style={{
-                                            top: 0,
-                                            backgroundColor: "white",
-                                            zIndex: 500,
-                                        }}>
-                                        <h3 className='mt-2'>
-                                            {this.state.jobsFound}
-                                        </h3>
-                                    </div>
-
                                     {this.state.jobs.map((job) => {
                                         return (
                                             <Job

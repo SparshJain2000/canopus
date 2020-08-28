@@ -14,6 +14,7 @@ import Employer from "./components/employer.component";
 import JobApplications from "./components/jobApplications.component";
 import UpdateJob from "./components/updateJob.component";
 import ErrorPage from "./components/error.component";
+import SignupEmployer from "./components/signupEmployer.component";
 import axios from "axios";
 class App extends Component {
     constructor(props) {
@@ -77,6 +78,11 @@ class App extends Component {
                     />
                     <Route
                         exact
+                        path='/employer/signup'
+                        component={() => <SignupEmployer />}
+                    />
+                    <Route
+                        exact
                         path='/profile'
                         // render={(props) => <Profile {...props} />}
                         component={() => <Profile />}
@@ -95,7 +101,6 @@ class App extends Component {
                     />
                     {this.state.user && this.state.user.role === "Employer" && (
                         <Route
-                            exact
                             path='/employer/job/update/:id'
                             render={(props) => <UpdateJob {...props} />}
                         />
