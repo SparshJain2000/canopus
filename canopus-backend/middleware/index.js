@@ -30,11 +30,7 @@ middleware.checkFreelanceJobOwnership = (req, res, next) => {
               .catch((err) => res.status(400).json({ err: err }))
         : res.status(400).json({ err: "Not logged in" });
 };
-// middleware.checkSavedJobOwnership = (req ,res, next) =>{
-//     req.isAuthenticated()
-//         ? // Is authorized
 
-// }
 middleware.isEmployer = (req, res, next) => {
     req.isAuthenticated()
         ? req.user.role === "Employer"

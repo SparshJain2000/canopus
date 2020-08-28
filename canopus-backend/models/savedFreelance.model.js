@@ -13,6 +13,7 @@ module.exports = mongoose.model(
         superSpecialization:Array,
         address: Object,
         createdAt:Date,
+        createdBy:String,
         expireAt:Date,
         category:String,
         // {

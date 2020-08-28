@@ -13,6 +13,19 @@ module.exports = mongoose.model(
         resume: String,
         google: Object,
         facebook: Object,
+        validated:Boolean,
+        jobtier:{
+            allowed:Number,
+            saved:Number,
+            posted:Number,
+            closed:Number,
+        },
+        freelancetier:{
+            allowed:Number,
+            saved:Number,
+            posted:Number,
+            closed:Number,
+        },
         locumtier:{
             allowed:Number,
             saved:Number,
@@ -20,6 +33,32 @@ module.exports = mongoose.model(
             closed:Number,
         },
         locum: [
+            {
+                id: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "Freelance",
+                },
+                title: String,
+                sid:{
+                    type:mongoose.Schema.Types.ObjectId,
+                    ref:"savedFreelance"
+                },
+            },
+        ],
+        jobs: [
+            {
+                id: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "Jobs",
+                },
+                title: String,
+                sid:{
+                    type:mongoose.Schema.Types.ObjectId,
+                    ref:"savedJobs"
+                },
+            },
+        ],
+        freelanceJobs: [
             {
                 id: {
                     type: mongoose.Schema.Types.ObjectId,
