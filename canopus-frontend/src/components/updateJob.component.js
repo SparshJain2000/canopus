@@ -60,7 +60,7 @@ const UpdateJob = (props) => {
     const dateRef = useRef(null);
     const endTimeRef = useRef(null);
     const startTimeRef = useRef(null);
-    const [showDetail, setShowDetail] = useState(false);
+    const [showDetail, setShowDetail] = useState(true);
     const [showSkill, setShowSkill] = useState(false);
     const [showOtherDetail, setShowOtherDetail] = useState(false);
 
@@ -85,6 +85,8 @@ const UpdateJob = (props) => {
     const [startTime, setStartTime] = useState("");
     const [endTime, setEndTime] = useState("");
     const [date, setDate] = useState("");
+    const [type2, setType2] = useState("");
+    const [jobType, setJobType] = useState("");
 
     const toggleDetail = () => setShowDetail((prevState) => !prevState);
     const toggleSkill = () => setShowSkill((prevState) => !prevState);
@@ -98,13 +100,17 @@ const UpdateJob = (props) => {
     };
     const loc = useLocation();
     useEffect(() => {
-        console.log(props);
-        if (props.location.search === "?freelance") {
+        const [type2t, jobTypet] = props.location.search
+            .substring(1)
+            .split("&");
+        setType2(type2t);
+        setJobType(jobTypet);
+
+        if (type2t === "freelance") {
             setFreelance(true);
             console.log(data.startDate);
-
             axios
-                .get(`/api/job/freelance/${props.match.params.id}`)
+                .get(`/api/job/${jobTypet}/${type2t}/${props.match.params.id}`)
                 .then(({ data }) => {
                     setTitle(data.title);
                     setCompany(
@@ -191,7 +197,7 @@ const UpdateJob = (props) => {
                 });
         } else
             axios
-                .get(`/api/job/${props.match.params.id}`)
+                .get(`/api/job/${jobTypet}/${type2t}/${props.match.params.id}`)
                 .then(({ data }) => {
                     setTitle(data.title);
                     setCompany(
@@ -261,7 +267,10 @@ const UpdateJob = (props) => {
                     alert(err.response);
                 });
     }, []);
-    const submit = () => {
+    const save = () => {
+        // const jobType = "save";
+        // let type2;
+        // setJobType("save");
         let job = {
             title: title,
             profession: profession,
@@ -284,21 +293,6 @@ const UpdateJob = (props) => {
         if (freelance) {
             job.endDate = new Date(`${date} ${endTime}`).toISOString();
             job.startDate = new Date(`${date} ${startTime}`).toISOString();
-            axios
-                .put(`/api/job/freelancePost/${props.match.params.id}`, job)
-                .then((data) => {
-                    console.log(data);
-                    //    window.location = "/search-jobs";
-                    if (data.data.updated) {
-                        alert("job Updated");
-                        window.location = "/applications";
-                    }
-                })
-                .catch((err) => {
-                    console.log(err.response);
-                    alert("Unable to post job");
-                });
-            console.log(job);
         } else {
             job.expireAt =
                 endDate !== ""
@@ -306,9 +300,67 @@ const UpdateJob = (props) => {
                     : new Date(
                           new Date() + 45 * 24 * 60 * 60 * 1000,
                       ).toISOString();
+        }
+        axios
+            .put(`/api/job/${jobType}/${type2}/${props.match.params.id}`, job)
+            .then((data) => {
+                console.log(data);
+                if (data.data.updated) {
+                    alert("job saved");
+                    window.location = "/applications";
+                }
 
+                //  window.location = "/search-jobs";
+            })
+            .catch((err) => {
+                console.log(err.response);
+                const error = err.response.data ? err.response.data.err : "";
+                alert("Unable to save job : " + error);
+            });
+        console.log(job);
+    };
+    const submit = () => {
+        // setjobType
+        // let type2;
+        let job = {
+            title: title,
+            profession: profession,
+            specialization: specialization,
+            superSpecialization: superSpecialization.map((x) => x.value),
+
+            description: {
+                line: line.trim(),
+                about: line.trim(),
+                experience: experience,
+                incentives: incentives.map((x) => x.value),
+                type: type.map((x) => x.value),
+                location: location,
+                skills: skills.trim(),
+                salary: salary,
+                count: numberApp,
+                company: company,
+            },
+        };
+        if (freelance) {
+            // type2 = "freelance";
+            job.endDate = new Date(`${date} ${endTime}`).toISOString();
+            job.startDate = new Date(`${date} ${startTime}`).toISOString();
+        } else {
+            // type2 = "job";
+
+            job.expireAt =
+                endDate !== ""
+                    ? new Date(endDate).toISOString()
+                    : new Date(
+                          new Date() + 45 * 24 * 60 * 60 * 1000,
+                      ).toISOString();
+        }
+        if (jobType === "save")
             axios
-                .put(`/api/job/${props.match.params.id}`, job)
+                .put(
+                    `/api/job/${jobType}/${type2}/activate/${props.match.params.id}`,
+                    job,
+                )
                 .then((data) => {
                     console.log(data);
                     if (data.data.updated) {
@@ -320,10 +372,34 @@ const UpdateJob = (props) => {
                 })
                 .catch((err) => {
                     console.log(err.response);
-                    alert("Unable to post job");
+                    const error = err.response.data
+                        ? err.response.data.err
+                        : "";
+                    alert("Unable to post job : " + error);
                 });
-        }
-        console.log(job);
+        // console.log(job);
+        else
+            axios
+                .put(
+                    `/api/job/${jobType}/${type2}/${props.match.params.id}`,
+                    job,
+                )
+                .then((data) => {
+                    console.log(data);
+                    if (data.data.updated) {
+                        alert("job Posted");
+                        window.location = "/applications";
+                    }
+
+                    //  window.location = "/search-jobs";
+                })
+                .catch((err) => {
+                    console.log(err.response);
+                    const error = err.response.data
+                        ? err.response.data.err
+                        : "";
+                    alert("Unable to post job : " + error);
+                });
     };
     return (
         <div>
@@ -791,7 +867,16 @@ const UpdateJob = (props) => {
                         )}
                     </div>
                 )}
-                <FormGroup className='ml-auto mr-1 mt-3'>
+                <FormGroup className='ml-auto mr-1 mt-3 w-100 text-align-end'>
+                    {jobType === "save" && (
+                        <Button
+                            onClick={save}
+                            className='ml-1 w-25'
+                            color='info'>
+                            Save
+                        </Button>
+                    )}
+
                     <Button
                         onClick={submit}
                         className='ml-1 w-25'
