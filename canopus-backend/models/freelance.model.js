@@ -10,6 +10,7 @@ module.exports = mongoose.model(
         superSpecialization:Array,
         address: Object,
         createdAt:Date,
+        createdBy:String,
         expireAt:Date,
         category:String,
         // {
@@ -37,7 +38,7 @@ module.exports = mongoose.model(
         //     salary: Number,
         // },
         validated: String,
-        sponsored: Boolean,
+        sponsored: String,
         tag: Array,
         // date: Date,
         author: {
