@@ -151,7 +151,7 @@ router.post("/request",middleware.isUser,(req,res)=>{
         if(req.body.category=="Job")
         {
             console.log("if");
-            let job = new Job({
+            let job = new savedJob({
                 status:"Saved",
                 createdBy:"User",
                 title: req.body.title,
@@ -165,7 +165,7 @@ router.post("/request",middleware.isUser,(req,res)=>{
                 validated:user.validated,
             });
             console.log(job);
-            Job.create(job)
+            savedJob.create(job)
             .then((job) => {
                 job.author.username = req.user.username;
                 job.author.id = req.user._id;
