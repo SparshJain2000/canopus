@@ -131,7 +131,7 @@ const PostJob = () => {
                       ).toISOString();
         }
         axios
-            .post(`/api/job/${jobType}/${type2}`, job)
+            .post(`/api/employer/${jobType}/${type2}`, job)
             .then((data) => {
                 console.log(data);
                 if (data.status === 200) {
@@ -142,6 +142,9 @@ const PostJob = () => {
             })
             .catch((err) => {
                 console.log(err.response);
+                const error = err.response.data ? err.response.data.err : "";
+
+                alert("Unable to post job : " + error);
                 alert("Unable to post job");
             });
         console.log(job);
@@ -182,7 +185,7 @@ const PostJob = () => {
                       ).toISOString();
         }
         axios
-            .post(`/api/job/${jobType}/${type2}`, job)
+            .post(`/api/employer/${jobType}/${type2}`, job)
             .then((data) => {
                 console.log(data);
                 if (data.status === 200) alert("job Posted");
@@ -190,7 +193,9 @@ const PostJob = () => {
             })
             .catch((err) => {
                 console.log(err.response);
-                alert("Unable to post job");
+                const error = err.response.data ? err.response.data.err : "";
+
+                alert("Unable to post job : " + error);
             });
         console.log(job);
     };

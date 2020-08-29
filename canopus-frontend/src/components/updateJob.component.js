@@ -110,7 +110,9 @@ const UpdateJob = (props) => {
             setFreelance(true);
             console.log(data.startDate);
             axios
-                .get(`/api/job/${jobTypet}/${type2t}/${props.match.params.id}`)
+                .get(
+                    `/api/employer/${jobTypet}/${type2t}/${props.match.params.id}`,
+                )
                 .then(({ data }) => {
                     setTitle(data.title);
                     setCompany(
@@ -197,7 +199,9 @@ const UpdateJob = (props) => {
                 });
         } else
             axios
-                .get(`/api/job/${jobTypet}/${type2t}/${props.match.params.id}`)
+                .get(
+                    `/api/employer/${jobTypet}/${type2t}/${props.match.params.id}`,
+                )
                 .then(({ data }) => {
                     setTitle(data.title);
                     setCompany(
@@ -302,7 +306,10 @@ const UpdateJob = (props) => {
                       ).toISOString();
         }
         axios
-            .put(`/api/job/${jobType}/${type2}/${props.match.params.id}`, job)
+            .put(
+                `/api/employer/${jobType}/${type2}/${props.match.params.id}`,
+                job,
+            )
             .then((data) => {
                 console.log(data);
                 if (data.data.updated) {
@@ -358,7 +365,7 @@ const UpdateJob = (props) => {
         if (jobType === "save")
             axios
                 .put(
-                    `/api/job/${jobType}/${type2}/activate/${props.match.params.id}`,
+                    `/api/employer/${jobType}/${type2}/activate/${props.match.params.id}`,
                     job,
                 )
                 .then((data) => {
@@ -381,7 +388,7 @@ const UpdateJob = (props) => {
         else
             axios
                 .put(
-                    `/api/job/${jobType}/${type2}/${props.match.params.id}`,
+                    `/api/employer/${jobType}/${type2}/${props.match.params.id}`,
                     job,
                 )
                 .then((data) => {
