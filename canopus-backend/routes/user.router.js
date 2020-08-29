@@ -349,15 +349,18 @@ router.post("/post/freelance", middleware.isUser, (req, res) => {
         return res.status(400).json({err:"Max Jobs Posted"});
             update={"freelancetier.posted":1};
         }
-        else{
+        else if (req.body.category=="Locum"){
 		if(user.locumtier.allowed-user.locumtier.posted<=0)
         return res.status(400).json({err:"Max Jobs Posted"});
             update={"locumtier.posted":1};
         }
+        else 
+        return res.status(400).json({err:"Invalid job type"});
 		User.findByIdAndUpdate(req.user._id,{$inc:update}).then((user2) =>{
 	let freelance = new Freelance({
 		title: req.body.title,
-		profession: req.body.profession,
+        profession: req.body.profession,
+        category:req.body.category,
 		specialization: req.body.specialization,
         superSpecialization:req.body.superSpecialization,
 		description: req.body.description,
@@ -379,7 +382,8 @@ router.post("/post/freelance", middleware.isUser, (req, res) => {
 			console.log(job._id);
 			let sfreelance = new savedFreelance({
 				jobRef:job._id,
-				status:"Active",
+                status:"Active",
+                category:req.body.category,
 				title: req.body.title,
 				profession: req.body.profession,
 				specialization: req.body.specialization,
@@ -539,15 +543,18 @@ router.post("/save/freelance", middleware.isUser, (req, res) => {
             return res.status(400).json({err:"Max Jobs Posted"});
                 update={"freelancetier.saved":1};
             }
-            if(req.body.category=="Locum"){
-            if(user.locumtier.allowed-user.locumtier.posted<=0)
-            return res.status(400).json({err:"Max Jobs Posted"});
-                update={"locumtier.saved":1};
-            }
-		else User.findByIdAndUpdate(req.user._id,{$inc:update}).then((user2) =>{
+            else if (req.body.category=="Locum"){
+                if(user.locumtier.allowed-user.locumtier.posted<=0)
+                return res.status(400).json({err:"Max Jobs Posted"});
+                    update={"locumtier.saved":1};
+                }
+            else 
+            return res.status(400).json({err:"Invalid job type"});
+		User.findByIdAndUpdate(req.user._id,{$inc:update}).then((user2) =>{
 	let freelance = new savedFreelance({
-		status:"Saved",
-		title: req.body.title,
+        status:"Saved",
+        category:req.body.category,
+        title: req.body.title,
 		profession: req.body.profession,
 		specialization: req.body.specialization,
         superSpecialization:req.body.superSpecialization,
@@ -622,7 +629,8 @@ router.put("/save/job/activate/:id",middleware.isUser, (req,res) =>{
 					author:sjob.author,
 					title: sjob.title,
 					profession: sjob.profession,
-					specialization: sjob.specialization,
+                    specialization: sjob.specialization,
+                    category:sjob.category,
                     superSpecialization:sjob.superSpecialization,
 					description: sjob.description,
 					address: sjob.address,

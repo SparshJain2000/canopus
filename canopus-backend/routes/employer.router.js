@@ -351,11 +351,13 @@ router.post("/post/freelance", middleware.isEmployer, (req, res) => {
         return res.status(400).json({err:"Max Jobs Posted"});
             update={"freelancetier.posted":1};
         }
-        else{
-		if(employer.locumtier.allowed-employer.locumtier.posted<=0)
-        return res.status(400).json({err:"Max Jobs Posted"});
-            update={"locumtier.posted":1};
-        }
+        else if (req.body.category=="Locum"){
+            if(user.locumtier.allowed-user.locumtier.posted<=0)
+            return res.status(400).json({err:"Max Jobs Posted"});
+                update={"locumtier.posted":1};
+            }
+            else 
+            return res.status(400).json({err:"Invalid job type"});
 		Employer.findByIdAndUpdate(req.user._id,{$inc:update}).then((employer2) =>{
 	let freelance = new Freelance({
 		title: req.body.title,
@@ -541,12 +543,14 @@ router.post("/save/freelance", middleware.isEmployer, (req, res) => {
             return res.status(400).json({err:"Max Jobs Posted"});
                 update={"freelancetier.saved":1};
             }
-            if(req.body.category=="Locum"){
+            else if(req.body.category=="Locum"){
             if(employer.locumtier.allowed-employer.locumtier.posted<=0)
             return res.status(400).json({err:"Max Jobs Posted"});
                 update={"locumtier.saved":1};
             }
-		else Employer.findByIdAndUpdate(req.user._id,{$inc:update}).then((employer2) =>{
+            else 
+            return res.status(400).json({err:"Invalid job type"});
+		Employer.findByIdAndUpdate(req.user._id,{$inc:update}).then((employer2) =>{
 	let freelance = new savedFreelance({
 		status:"Saved",
 		title: req.body.title,

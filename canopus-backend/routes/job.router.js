@@ -482,7 +482,7 @@ router.post("/apply/job/:id", middleware.isUser, (req, res) => {
 			return item.id;
 		})
 		if(applicants.includes(req.params.id))
-		res.status(400).json({err:"Already applied to this job"});
+		return res.status(400).json({err:"Already applied to this job"});
         job.applicants = [
             ...job.applicants,
             {
@@ -534,7 +534,7 @@ router.post("/apply/freelance/:id", middleware.isUser, (req, res) => {
 			return item.id;
 		})
 		if(applicants.includes(req.params.id))
-		res.status(400).json({err:"Already applied to this job"});
+		return res.status(400).json({err:"Already applied to this job"});
 		job.applicants = [
 		...job.applicants,
 		{
@@ -578,6 +578,24 @@ router.post("/apply/freelance/:id", middleware.isUser, (req, res) => {
 	});
 	req.user;
 });
-
-
+// get job
+router.get("/job/:id", middleware.checkJobOwnership, (req, res) => {
+	Job.findById(req.params.id)
+	.then((job) => res.json({job:job}))
+	.catch((err) =>
+		   res.status(400).json({
+			   err: err,
+		   }),
+		   );
+	});
+// get freelance
+router.get("/freelance/:id", middleware.checkFreelanceJobOwnership, (req, res) => {
+	Freelance.findById(req.params.id)
+	.then((job) => res.json({job:job}))
+	.catch((err) =>
+		   res.status(400).json({
+			   err: err,
+		   }),
+		   );
+	});
 module.exports = router;
