@@ -8,6 +8,7 @@ module.exports = mongoose.model(
         firstName: String,
         lastName: String,
         password: String,
+        phone:String,
         role: String,
         type: String,
         address: Object,
@@ -18,6 +19,13 @@ module.exports = mongoose.model(
         //     pin: Number,
         // },
         //Employer Plan normal jobs
+        sponsors:Number,
+        locumtier:{
+            allowed:Number,
+            posted:Number,
+            saved:Number,
+            closed:Number,
+        },
         jobtier: {
             allowed: Number,
             posted: Number,

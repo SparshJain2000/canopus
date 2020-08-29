@@ -54,7 +54,10 @@ router.post("/alljobs", (req, res) => {
         },
         {
             $limit: limiter,
-        },
+		},
+		{
+			$project:{applicants:0}
+		},
     ])
         .then((jobs) =>
             res.json({
@@ -125,20 +128,6 @@ router.post("/allfreelance", (req, res) => {
         );
 });
 //===========================================================================
-//get jobs by user
-// router.get("/my", middleware.isLoggedIn, (req, res) => {
-//     Job.find()
-//         .then((jobs) => {
-//             // let userBlogs = [];
-//             const userBlogs = jobs.filter(
-//                 (job) => job.author.username === req.user.username,
-//             );
-//             res.json({ jobs: userBlogs, user: req.user });
-//         })
-//         .catch((err) => res.status(400).json({ err: err }));
-// });
-//===========================================================================
-
 
 //job search route ( not for freelance search)
 router.post("/search", async (req, res) => {
@@ -489,6 +478,11 @@ router.post("/freelanceSearch", async (req, res) => {
 //router.put("/:id",middleware.isLoggedIn())
 router.post("/apply/job/:id", middleware.isUser, (req, res) => {
     Job.findById(req.params.id).then((job) => {
+		const applicants=job.applicants.map(item=>{
+			return item.id;
+		})
+		if(applicants.includes(req.params.id))
+		res.status(400).json({err:"Already applied to this job"});
         job.applicants = [
             ...job.applicants,
             {
@@ -536,6 +530,11 @@ router.post("/apply/job/:id", middleware.isUser, (req, res) => {
 //router.put("/:id",middleware.isLoggedIn())
 router.post("/apply/freelance/:id", middleware.isUser, (req, res) => {
 	Freelance.findById(req.params.id).then((job) => {
+		const applicants=job.applicants.map(item=>{
+			return item.id;
+		})
+		if(applicants.includes(req.params.id))
+		res.status(400).json({err:"Already applied to this job"});
 		job.applicants = [
 		...job.applicants,
 		{

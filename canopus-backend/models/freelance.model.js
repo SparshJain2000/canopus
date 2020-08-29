@@ -38,7 +38,7 @@ module.exports = mongoose.model(
         //     salary: Number,
         // },
         validated: String,
-        sponsored: Boolean,
+        sponsored: String,
         tag: Array,
         // date: Date,
         author: {

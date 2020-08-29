@@ -7,6 +7,7 @@ module.exports = mongoose.model(
         firstName: String,
         lastName: String,
         password: String,
+        phone:String,
         role: String,
         image: String,
         description: String,
@@ -14,6 +15,7 @@ module.exports = mongoose.model(
         google: Object,
         facebook: Object,
         validated:Boolean,
+        sponsors:Number,
         jobtier:{
             allowed:Number,
             saved:Number,
