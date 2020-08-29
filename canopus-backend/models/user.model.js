@@ -73,6 +73,8 @@ module.exports = mongoose.model(
                 },
             },
         ],
+        savedJobs: Array,
+        savedFreelance: Array,
         experience: [
             {
                 title: String,
@@ -94,6 +96,7 @@ module.exports = mongoose.model(
                 title: String,
             },
         ],
+        
         //Resume fs upload
     }).plugin(passportLocalMongoose),
 );

@@ -579,7 +579,7 @@ router.post("/apply/freelance/:id", middleware.isUser, (req, res) => {
 	req.user;
 });
 // get job
-router.get("/job/:id", middleware.checkJobOwnership, (req, res) => {
+router.get("/:id", middleware.checkJobOwnership, (req, res) => {
 	Job.findById(req.params.id)
 	.then((job) => res.json({job:job}))
 	.catch((err) =>

@@ -118,101 +118,144 @@ router.get("/profile/:id", (req, res) => {
 
 
 router.post("/request",middleware.isUser,(req,res)=>{
-    if(req.body.jobtype=="Job")
+    if(req.body.endDate){
+    const expiry=new Date(req.body.endDate);
+    var days=(expiry-Date.now())/(1000*60*60*24);
+    if(days<0 || days>90 )
+    return res.status(400).send("Invalid time format");
+    }
+    if(req.body.category=="Job")
     update={jobtier: {
         allowed: 1,
-        posted: 0,
+        posted: 1,
         saved:0,
         closed: 0,
     }};
-    if(req.body.jobtype=="Freelance")
+    else if(req.body.category=="Day Job")
     update={freelancetier: {
         allowed: 1,
-        posted: 0,
+        posted: 1,
+        saved:0,
+        closed: 0,
+    }};
+    else if(req.body.category=="Locum")
+    update={locumtier: {
+        allowed: 1,
+        posted: 1,
         saved:0,
         closed: 0,
     }};
     else
-    update={locumtier: {
-        allowed: 1,
-        posted: 0,
-        saved:0,
-        closed: 0,
-    }};
+    return res.status(400).json({err:"Invalid job type"});
     User.findByIdAndUpdate(req.user._id,{$set:update}).then((user)=>{
-
-    }).catch((err)=>{res.status(400).json({err:"User not found"})});
-});
-// Apply for a locum job
-
-router.post("/locum",middleware.isUser,(req,res) =>{
-    User.findById(req.user._id).then((user) => {
-		if(user.locumtier.allowed-user.locumtier.posted<=0)
-		res.status(400).json({err:"Max Jobs Posted"});
-		else User.findByIdAndUpdate(req.user._id,{$inc:{"locumtier.saved":1}}).then((user2) =>{
-			const expiry=new Date(req.body.endDate);
-			var days=(expiry-Date.now())/(1000*60*60*24);
-			if(days<0 || days>90 )res.status(400).send("Invalid time format");
-	let freelance = new savedFreelance({
-        status:"Saved",
-        category:"Locum",
-		title: req.body.title,
-		profession: req.body.profession,
-		specialization: req.body.specialization,
-		description: req.body.description,
-		address: req.body.address,
-		startDate:req.body.startDate,
-		endDate:req.body.endDate,
-		createdAt:new Date(),
-		expireAt:expiry,
-		validated:user.validated,
-	});
-	savedFreelance.create(freelance)
-	.then((job) => {
-		job.author.username = req.user.username;
-		job.author.id = req.user._id;
-		console.log(job);
-		job.save()
-		.then((job) => {
-			User.findById(req.user._id).then((user) => {
-				user.locum=[
-					...user.locum,{
-                        title:req.body.title,
-                        sid:job._id
-                    },
-					];
-				user
-				.save()
-				.then((updatedUser) =>
-				      res.json({
-				      	job: job,
-				      	user: req.user,
-				      	updatedUser: updatedUser,
-				      }),
-				      )
-				.catch((err) =>
-				       res.status(400).json({
-				       	err: err,
-				       }),
-				       );
-			}).catch((err) => {res.status(400).json({err:"User not found"})});;
-		
-		})
-	}).catch((err) => {res.status(400).json({err:"Job not saved"})});
-	})
-	.catch((err) =>
-	       res.status(400).json({
-	       	err: err,
-	       	user: req.user,
-	       }),
-	       )
-	.catch((err) =>
-	       res.status(400).json({
-	       	err: err,
-	       	user: req.user,
-	       }),
-		   );
-		}).catch((err)=> res.status(400).json({err:err}));
+        if(req.body.category=="Job")
+        {
+            console.log("if");
+            let job = new Job({
+                status:"Saved",
+                createdBy:"User",
+                title: req.body.title,
+                profession: req.body.profession,
+                specialization: req.body.specialization,
+                superSpecialization:req.body.superSpecialization,
+                description: req.body.description,
+                address: req.body.address,
+                createdAt:new Date(),
+                expireAt:req.body.expireAt,
+                validated:user.validated,
+            });
+            console.log(job);
+            Job.create(job)
+            .then((job) => {
+                job.author.username = req.user.username;
+                job.author.id = req.user._id;
+                console.log(job);
+                job.save()
+                .then((job) => {
+                    console.log(job);
+                    User.findById(req.user._id).then((user) => {
+                    
+                        //console.log(job);
+                        //user.savedJobs[job._id]=job;
+                        user.savedJobs=[
+                        ...user.savedJobs,job._id
+                        
+                        ];
+                        user
+                        .save()
+                        .then((updatedUser) =>
+                              res.json({
+                                  job: job,
+                                  user: req.user,
+                                  updatedUser: updatedUser,
+                              }),
+                              )
+                        .catch((err) =>
+                               res.status(400).json({
+                                   err: err,
+                               }),
+                               );
+                    }).catch((err) => {res.status(400).json({err:"User not found"})});
+                }).catch((err) =>
+                       res.status(400).json({
+                           err: err,
+                           user: req.user,
+                       }),
+                       );           
+            }).catch((err)=>{res.status(400).json({err:err})});
+        }
+        else{
+        let freelance = new savedFreelance({
+            status:"Saved",
+            category:req.body.category,
+            createdby:"User",
+            title: req.body.title,
+            profession: req.body.profession,
+            specialization: req.body.specialization,
+            superSpecialization:req.body.superSpecialization,
+            description: req.body.description,
+            address: req.body.address,
+            startDate:req.body.startDate,
+            endDate:req.body.endDate,
+            createdAt:new Date(),
+            expireAt:expiry,
+            validated:user.validated,
+        });
+        console.log(freelance);
+        savedFreelance.create(freelance)
+        .then((job) => {
+            job.author.username = req.user.username;
+            job.author.id = req.user._id;
+            console.log(job);
+            job.save()
+            .then((job) => {
+                User.findById(req.user._id).then((user) => {
+                    user.locum=[
+                        ...user.locum,{
+                            title:req.body.title,
+                            sid:job._id
+                        },
+                        ];
+                    user
+                    .save()
+                    .then((updatedUser) =>
+                          res.json({
+                              job: job,
+                              user: req.user,
+                              updatedUser: updatedUser,
+                          }),
+                          )
+                    .catch((err) =>
+                           res.status(400).json({
+                               err: err,
+                           }),
+                           );
+                }).catch((err) => {res.status(400).json({err:"User not found"})});;
+            
+            })
+        }).catch((err) => {res.status(400).json({err:"Job not saved"})});
+    }
+     }).catch((err)=>{res.status(400).json({err:"User not found"})});     //  }).catch((err)=>{res.status(400).json({err:"User not found"})});
 });
 // User profile update
 
