@@ -22,14 +22,14 @@ function addQuery(query, path) {
     return abc;
 }
 
-function addQueryboost(query, path) {
+function addQueryboost(query, path,num) {
     let abc = {
         text: {
             query: `${query}`,
             path: `${path}`,
             score: {
                 "boost": {
-                    "value": 1
+                    "value": num
                 }
             }
         },
@@ -55,7 +55,9 @@ async function queryBuilder(req) {
     // init query parameters
     var query = {};
     query.mustquery = [],
-    query.shouldquery = [],
+    query.shouldquery = [];
+    var boostval=1,
+        boost=1;
     //search only validated jobs
 
     //query.mustquery.push(addQuery(true,"validated"));
@@ -66,13 +68,13 @@ async function queryBuilder(req) {
     if(req.body.coordinates){
         location =await geolocationAPI(req.body.coordinates);
         query.mustquery.push(addQuery(location, "description.location"));
-        query.shouldquery.push(addQueryboost(req.body.location, "description.location"));
+        query.shouldquery.push(addQueryboost(req.body.location, "description.location"),1);
     }
     if (req.body.location && req.body.location.length > 0) {
     location = await nearbyAPI(req.body.location);
     // building query
     query.mustquery.push(addQuery(location, "description.location"));
-    query.shouldquery.push(addQueryboost(req.body.location, "description.location"));
+    query.shouldquery.push(addQueryboost(req.body.location, "description.location",1));
     }
     // if (req.body.pin)
     //     query.shouldquery.push(addQuery(req.body.pin, "address.pin"));
@@ -89,32 +91,26 @@ async function queryBuilder(req) {
                 "superSpecialization",
             ),
         );
-        const num =2;
-        query.sponsoredskip = parseInt(req.body.skip)/parseInt(req.body.limit)*num || 0;
-        query.sponsoredlimiter =num;
-        query.mustquery.push(addQuery(1,"sponsored"));
-        query.sponsored={
-            $search:{
-                compound:{
-                    must:query.mustquery,
-                    should:query.shouldquery,
-                },
-            },
-        };
-        query.mustquery.pop();
-    if (req.body.incentives)
+    if (req.body.incentives){
         query.shouldquery.push(
             addQuery(req.body.incentives, "description.incentives"),
         );
-    if (req.body.type)
+        boost=boost+boostval;
+    }
+    if (req.body.type){
         query.shouldquery.push(
             addQuery(req.body.type, "description.type"),
         );
-    if (req.body.status)
+        boost=boost+boostval;
+    }
+    if (req.body.status){
         query.mustquery.push(
             addQuery(req.body.status, "description.status"),
         );
-        
+        boost=boost+boostval;
+    }
+        query.mustquery.push(addQuery(true,"validated"));
+        query.shouldquery.push(addQueryboost("true","sponsored",boost));
        if(query.mustquery.length!=0)
         query.search = {
             $search: {

@@ -13,10 +13,11 @@ module.exports = mongoose.model(
         type: String,
         address: Object,
         // {
-        //     line: String,
         //     city: String,
         //     state: String,
         //     pin: Number,
+                // lat:Number,
+                // long:Number,
         // },
         //Employer Plan normal jobs
         sponsors:Number,

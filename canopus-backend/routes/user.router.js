@@ -1,5 +1,9 @@
 const { searchController } = require("../controllers/search.controller");
+const mailController=require("../controllers/email.controller");
 const mongoose = require("mongoose");
+const crypto = require('crypto');
+const { promisify } = require('util');
+const asyncify = require('express-asyncify');
 const router = require("express").Router(),
     passport = require("passport"),
     middleware = require("../middleware/index"),
@@ -101,6 +105,69 @@ router.get("/current", (req, res) => {
     res.json({ user: req.user });
 });
 //===========================================================================
+//Forgot password route
+
+router.post('/forgot', async (req, res, next) => {
+    const token = (await promisify(crypto.randomBytes)(20)).toString('hex');
+    User.findOneAndUpdate({username:req.body.username},{$set:{resetPasswordToken:token,resetPasswordExpires:Date.now()+3600000}}).then((user)=>{;
+    console.log(token);
+    // if (!user) {
+    //   return res.redirect('/forgot');
+    // }
+//
+    const resetEmail = {
+      to: user.username,
+      from: 'postmaster@sandboxa6c1b3d7a13a4122aaa846d7cd3f96a2.mailgun.org',
+      subject: 'Node.js Password Reset',
+      html: `
+        You are receiving this because you (or someone else) have requested the reset of the password for your account.
+        Please click on the following link, or paste this into your browser to complete the process:
+
+
+        http://${req.headers.host}/reset/${token}
+
+        If you did not request this, please ignore this email and your password will remain unchanged.
+      `,
+    };
+    console.log(resetEmail)
+    mailController.transport.sendMail(resetEmail);
+    res.json({status:"Email has been sent"});
+    //res.redirect('/forgot');
+//}).catch((err)=>{res.json({err:"User not saved"})});
+    }).catch((err)=>{res.json({err:"User not found"})});
+});
+
+router.post('/reset/:token', async (req, res) => {
+    User.findOne({resetPasswordToken:req.params.token}).then((user)=>{
+      if(user.resetPasswordExpires>Date.now() &&
+      crypto.timingSafeEqual(Buffer.from(user.resetPasswordToken), Buffer.from(req.params.token)))
+
+       // console.log(user);
+    // if (!user) {
+    //   req.flash('error', 'Password reset token is invalid or has expired.');
+    //   return res.redirect('/forgot');
+    // }  
+    user.setPassword(req.body.password).then((user)=>{
+        //user.save();
+        user.save().then((user)=>{
+            User.findOneAndUpdate({resetPasswordToken:req.params.token},{$unset:{resetPasswordToken:1,resetPasswordExpires:1}}).then((user)=>{
+        const resetEmail = {
+            to: user.username,
+            from: 'postmaster@sandboxa6c1b3d7a13a4122aaa846d7cd3f96a2.mailgun.org',
+            subject: 'Your password has been changed',
+            text: `
+              This is a confirmation that the password for your account "${user.username}" has just been changed.
+            `,
+          };
+          mailController.transport.sendMail(resetEmail);
+          res.json({status:"Updated"});
+        }).catch((err)=>{res.status(400).json({err:"Fields not unset"})});
+        }).catch((err)=>{res.status(400).json({err:"Password not saved"})});
+    }).catch((err)=>{res.status(400).json({err:"Password not set"})});
+  //req.flash('success', `Success! Your password has been changed.`);
+ 
+  }).catch((err)=>{res.json({err:"User not found"})});
+});
 //Get user profile details
 
 router.get("/profile", middleware.isUser, (req, res) => {

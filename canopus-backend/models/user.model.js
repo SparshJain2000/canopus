@@ -4,6 +4,8 @@ module.exports = mongoose.model(
     "User",
     new mongoose.Schema({
         username: String,
+        resetPasswordToken:String,
+        resetPasswordExpires:Date,
         firstName: String,
         lastName: String,
         password: String,
