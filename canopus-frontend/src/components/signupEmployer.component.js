@@ -6,6 +6,7 @@ import {
     faMinus,
     faMinusCircle,
 } from "@fortawesome/free-solid-svg-icons";
+import InputMap from "./map.component";
 import Axios from "axios";
 const block = {
     borderRadius: " 0.25rem",
@@ -23,6 +24,7 @@ export default class SignupEmployer extends Component {
             lastName: "",
             password: "",
             email: "",
+            line: "",
             pin: "",
             city: "",
             state: "",
@@ -34,9 +36,18 @@ export default class SignupEmployer extends Component {
             employeeCount: 0,
             noLinks: 1,
             noYoutube: 1,
+            lat: null,
+            lng: null,
         };
         this.handleChange = this.handleChange.bind(this);
         this.signUp = this.signUp.bind(this);
+        this.setCoordinates = this.setCoordinates.bind(this);
+    }
+    setCoordinates(coords) {
+        this.setState({
+            lat: coords.lat,
+            lng: coords.lng,
+        });
     }
     handleChange(e, index) {
         console.log(index);
@@ -63,25 +74,26 @@ export default class SignupEmployer extends Component {
                 pin: this.state.pin,
                 city: this.state.city,
                 state: this.state.state,
+                coordinates: { lat: this.state.lat, lng: this.state.lng },
             },
             description: {
                 about: this.state.about,
             },
         };
         console.log(employer);
-        Axios.post(`/api/employer`, employer)
-            .then((data) => {
-                console.log(data);
-                if (data.status === 200) {
-                    alert("SignUp successful");
-                    window.location = "/employer";
-                }
-            })
-            .catch(({ response }) => alert(response.err));
+        // Axios.post(`/api/employer`, employer)
+        //     .then((data) => {
+        //         console.log(data);
+        //         if (data.status === 200) {
+        //             alert("SignUp successful");
+        //             window.location = "/employer";
+        //         }
+        //     })
+        //     .catch(({ response }) => alert(response.err));
     }
     render() {
         return (
-            <div className='m-2'>
+            <div className='m-2 mx-2 mx-lg-5'>
                 <div className=' p-4 m-3' style={block}>
                     <FormGroup>
                         <h4>Details</h4>
@@ -129,40 +141,85 @@ export default class SignupEmployer extends Component {
                     </FormGroup>
                 </div>
                 <div className='p-4 m-3' style={block}>
+                    {/* AIzaSyANIOnj2SfsuhCNZ9iqb4FMagPb7K_vdH0 */}
                     <FormGroup>
                         <h4>Address</h4>
                     </FormGroup>
-                    <FormGroup className='row'>
-                        <div className='col-12 col-sm-6 pr-1'>
-                            <Label>PIN</Label>
-                            <Input
-                                placeholder='PIN'
-                                name='pin'
-                                onChange={this.handleChange}
-                                defaultValue={this.state.pin}
-                            />
+                    <div className='row '>
+                        <div className='col-12 col-lg-6 pr-2 d-flex flex-column '>
+                            <FormGroup>
+                                <Label>Line</Label>
+                                <textarea
+                                    placeholder='Address Line'
+                                    name='line'
+                                    className='form-control'
+                                    rows='2'
+                                    onChange={this.handleChange}
+                                    defaultValue={this.state.line}
+                                />
+                            </FormGroup>
+                            <FormGroup className='row '>
+                                <div className='col-12 col-sm-6 pr-0 pr-sm-1 mb-2 mb-sm-0'>
+                                    <Label>PIN</Label>
+                                    <Input
+                                        placeholder='PIN'
+                                        name='pin'
+                                        onChange={this.handleChange}
+                                        defaultValue={this.state.pin}
+                                    />
+                                </div>
+                                <div className='col-12 col-sm-6 pl-0 pl-sm-1 mb-2 mb-sm-0'>
+                                    <Label>City</Label>
+                                    <Input
+                                        placeholder='city'
+                                        name='city'
+                                        onChange={this.handleChange}
+                                        defaultValue={this.state.city}
+                                    />
+                                </div>
+                            </FormGroup>
+                            <FormGroup>
+                                <Label>State</Label>
+                                <Input
+                                    placeholder='state'
+                                    name='state'
+                                    onChange={this.handleChange}
+                                    defaultValue={this.state.state}
+                                    // onChange={this.props.handleChange("email")}
+                                    // defaultValue={values.email}
+                                />
+                            </FormGroup>
+                            <FormGroup className='row '>
+                                {/* <div className='col-12 col-sm-6 pr-1'>
+                                    <Label>Latitude</Label>
+                                    <Input
+                                        placeholder='Latitude'
+                                        name='lat'
+                                        // onChange={this.handleChange}
+                                        value={this.state.lat}
+                                        disabled
+                                    />
+                                </div>
+                                <div className='col-12 col-sm-6 pl-1'>
+                                    <Label>Longitude</Label>
+                                    <Input
+                                        placeholder='longitude'
+                                        name='lng'
+                                        // onChange={this.handleChange}
+                                        value={this.state.lng}
+                                        disabled
+                                    />
+                                </div> */}
+                            </FormGroup>
                         </div>
-                        <div className='col-12 col-sm-6 pl-1'>
-                            <Label>City</Label>
-                            <Input
-                                placeholder='city'
-                                name='city'
-                                onChange={this.handleChange}
-                                defaultValue={this.state.city}
-                            />
+                        <div className='col-12 col-lg-6'>
+                            <FormGroup className='img-thumbnail'>
+                                <InputMap
+                                    setCoordinates={this.setCoordinates}
+                                />
+                            </FormGroup>
                         </div>
-                    </FormGroup>
-                    <FormGroup>
-                        <Label>State</Label>
-                        <Input
-                            placeholder='state'
-                            name='state'
-                            onChange={this.handleChange}
-                            defaultValue={this.state.state}
-                            // onChange={this.props.handleChange("email")}
-                            // defaultValue={values.email}
-                        />
-                    </FormGroup>
+                    </div>
                 </div>
                 <div className='p-4 m-3' style={block}>
                     <FormGroup>
