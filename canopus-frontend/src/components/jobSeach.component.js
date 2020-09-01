@@ -41,6 +41,39 @@ import Select from "react-select";
 import data from "../data";
 import { slideInRight } from "react-animations";
 import styled, { keyframes } from "styled-components";
+const customControlStyles = {
+    container: (provided, state) => ({
+        ...provided,
+        width: "130px",
+        textAlign: "end",
+        marginRight: 0,
+    }),
+    control: (provided, state) => ({
+        ...provided,
+
+        paddingTop: 0,
+    }),
+    valueContainer: (provided, state) => ({
+        ...provided,
+    }),
+    input: (provided, state) => ({
+        ...provided,
+        width: 50,
+        color: "red",
+        fontSize: "10px",
+    }),
+    singleValue: (provided, state) => ({
+        ...provided,
+        padding: ".01rem",
+        fontSize: ".9rem",
+    }),
+    // singleValue: (provided, state) => {
+    //     const opacity = state.isDisabled ? 0.5 : 1;
+    //     const transition = "opacity 300ms";
+
+    //     return { ...provided, opacity, transition };
+    // },
+};
 const BounceIn = styled.div`
     animation: 0.3s ${keyframes`${slideInRight}`} 0s;
 `;
@@ -135,8 +168,12 @@ const Job = ({ job, userId, user }) => {
                 <Link
                     to={{
                         pathname: `/job/${job._id}`,
-                        search: `?type=${
-                            job.startDate ? "freelance" : "normal"
+                        search: `?${job.startDate ? "freelance" : "job"}&${
+                            job.createdBy
+                                ? job.createdBy === "Employer"
+                                    ? "employer"
+                                    : "user"
+                                : "employer"
                         }`,
                     }}>
                     <Media
@@ -1027,17 +1064,61 @@ export default class JobSearch extends Component {
                         </div>
                     </div>
                     <div
-                        className=' pt-lg-2 d-block d-lg-none position-sticky my-1 pt-2 '
-                        style={{ top: 0, textAlign: "center" }}>
-                        <h3>
-                            Change{" "}
+                        className=' pt-lg-2 d-flex d-lg-none position-sticky my-1 pt-2  row'
+                        style={{
+                            top: 0,
+                            textAlign: "center",
+                        }}>
+                        <h5
+                            className='m-0  col-6 pr-1 py-1'
+                            style={{
+                                borderRight: "1px solid gray",
+                                fontSize: "1rem",
+                            }}>
+                            Edit{" "}
                             <span
                                 className='text-info'
                                 onClick={this.toggleModalFilter}
                                 style={{ cursor: "pointer" }}>
                                 Filters
                             </span>
-                        </h3>
+                        </h5>
+                        <div
+                            className=' col-6 row px-0 pl-1 py-1 switch justify-content-center'
+                            style={{
+                                height: "max-content",
+                            }}>
+                            <span
+                                className=' pr-1'
+                                style={{
+                                    fontSize: "0.8043rem",
+                                    fontFamily: "Montserrat",
+                                }}>
+                                Day/Locum Jobs
+                            </span>
+                            <input
+                                className='react-switch-checkbox'
+                                id={`react-switch-new`}
+                                type='checkbox'
+                                ref={this.freelance}
+                            />
+
+                            <label
+                                className='react-switch-label float-right my-auto '
+                                htmlFor={`react-switch-new`}
+                                onClick={() => {
+                                    this.setState({
+                                        freelance: this.state.current
+                                            ? this.freelance.current.checked
+                                            : !this.state.freelance,
+                                    });
+                                    this.freelance.current.checked = this.state.freelance;
+
+                                    // this.search(0);
+                                }}>
+                                <span className={`react-switch-button`} />
+                            </label>
+                        </div>
                     </div>
                     <Modal
                         isOpen={this.state.modalFilter}
@@ -1544,10 +1625,10 @@ export default class JobSearch extends Component {
                         backgroundColor: "#a9a9a9",
                     }}></div>
                 <hr
-                    className='horizontal'
+                    className='horizontal mt-1'
                     style={{
                         height: ".06rem",
-                        width: "120%",
+                        width: "120vw",
                         backgroundColor: "lightgrey",
                     }}
                 />
@@ -1563,19 +1644,23 @@ export default class JobSearch extends Component {
                                 backgroundColor: "white",
                                 zIndex: 500,
                             }}>
-                            <h5 className='mt-2 col-12 col-sm-3 py-1 py-sm-3 px-0'>
+                            <h4
+                                className='mt-1 col-7 col-sm-3 px-0 job-found'
+                                // py-1 py-sm-3
+                                // style={{ paddingTop: ".94rem" }}
+                            >
                                 {this.state.jobsFound}
-                            </h5>
-                            <div className='row col-12 col-sm-9 '>
+                            </h4>
+                            <div className='row col-5 px-0 col-sm-9 justify-content-end'>
                                 <div
-                                    className=' col-12 col-sm-7 mt-0 mt-sm-2 py-1  row  switch'
+                                    className='d-none d-lg-flex col-12 col-lg-7 mt-0 mt-sm-2 py-1  row  switch justify-content-end'
                                     style={{
                                         height: "max-content",
                                     }}>
                                     <span
-                                        className='py-2 pr-2'
+                                        className='py-2 pr-1'
                                         style={{
-                                            fontSize: "1rem",
+                                            fontSize: "1.1rem",
                                         }}>
                                         Day Jobs / Locum
                                     </span>
@@ -1588,16 +1673,20 @@ export default class JobSearch extends Component {
                                     />
 
                                     <label
-                                        className='react-switch-label float-right mt-2'
+                                        className='react-switch-label float-right my-auto'
                                         htmlFor={`react-switch-new`}
                                         onClick={() => {
+                                            console.log(
+                                                this.freelance.current.checked,
+                                            );
+
                                             this.setState({
                                                 freelance: this.state.current
                                                     ? this.freelance.current
                                                           .checked
                                                     : !this.state.freelance,
                                             });
-
+                                            this.freelance.current.checked = this.state.freelance;
                                             // this.search(0);
                                         }}>
                                         <span
@@ -1605,16 +1694,21 @@ export default class JobSearch extends Component {
                                         />
                                     </label>
                                 </div>
-                                <InputGroup className='col-12 col-sm-5 mt-0 mt-sm-2 justify-content-end px-0'>
-                                    <div className='row w-100  pr-0 switch'>
-                                        <div className='col-4 col-sm-3 py-3 px-0 pr-1'>
-                                            <span>Sort By</span>
+                                <InputGroup className='col-12 col-lg-5 mt-0 mt-sm-2 justify-content-end px-0'>
+                                    <div className='row w-100  pr-0 switch '>
+                                        <div
+                                            className=' px-0 pr-1 d-none d-lg-flex'
+                                            style={{ marginTop: ".9rem" }}>
+                                            <span className='pr-1'>
+                                                Sort By
+                                            </span>
                                         </div>
                                         <div className='col-8 py-2 px-0'>
                                             <Select
                                                 autosize={true}
                                                 placeholder='Sort parameter'
                                                 className='select-sort'
+                                                styles={customControlStyles}
                                                 options={[
                                                     {
                                                         label: "revelance",

@@ -59,7 +59,7 @@ const PostJob = () => {
     const dateRef = useRef(null);
     const endTimeRef = useRef(null);
     const startTimeRef = useRef(null);
-    const [showDetail, setShowDetail] = useState(false);
+    const [showDetail, setShowDetail] = useState(true);
     const [showSkill, setShowSkill] = useState(false);
     const [showOtherDetail, setShowOtherDetail] = useState(false);
 
@@ -95,7 +95,9 @@ const PostJob = () => {
     const handleChangeSelect = (name, value) => {
         eval(`set${name}`)(value);
     };
-    const submit = () => {
+    const save = () => {
+        const jobType = "save";
+        let type2;
         let job = {
             title: title,
             profession: profession,
@@ -116,36 +118,85 @@ const PostJob = () => {
             },
         };
         if (freelance) {
+            type2 = "freelance";
             job.endDate = new Date(`${date} ${endTime}`).toISOString();
             job.startDate = new Date(`${date} ${startTime}`).toISOString();
-            axios
-                .post(`/api/job/freelancePost`, job)
-                .then((data) => {
-                    console.log(data);
-                    //    window.location = "/search-jobs";
-                })
-                .catch((err) => console.log(err.response));
-            console.log(job);
         } else {
+            type2 = "job";
             job.expireAt =
                 endDate !== ""
                     ? new Date(endDate).toISOString()
                     : new Date(
                           new Date() + 45 * 24 * 60 * 60 * 1000,
                       ).toISOString();
-
-            axios
-                .post(`/api/job`, job)
-                .then((data) => {
-                    console.log(data);
-                    if (data.status === 200) alert("job Posted");
-                    //  window.location = "/search-jobs";
-                })
-                .catch((err) => {
-                    console.log(err.response);
-                    alert("Unable to post job");
-                });
         }
+        axios
+            .post(`/api/employer/${jobType}/${type2}`, job)
+            .then((data) => {
+                console.log(data);
+                if (data.status === 200) {
+                    alert("job Saved");
+                    window.location = "/search-jobs";
+                }
+                //  window.location = "/search-jobs";
+            })
+            .catch((err) => {
+                console.log(err.response);
+                const error = err.response.data ? err.response.data.err : "";
+
+                alert("Unable to post job : " + error);
+                alert("Unable to post job");
+            });
+        console.log(job);
+    };
+    const submit = () => {
+        const jobType = "post";
+        let type2;
+        let job = {
+            title: title,
+            profession: profession,
+            specialization: specialization,
+            superSpecialization: superSpecialization.map((x) => x.value),
+
+            description: {
+                line: line.trim(),
+                about: line.trim(),
+                experience: experience,
+                incentives: incentives.map((x) => x.value),
+                type: type.map((x) => x.value),
+                location: location,
+                skills: skills.trim(),
+                salary: salary,
+                count: numberApp,
+                company: company,
+            },
+        };
+        if (freelance) {
+            type2 = "freelance";
+            job.endDate = new Date(`${date} ${endTime}`).toISOString();
+            job.startDate = new Date(`${date} ${startTime}`).toISOString();
+        } else {
+            type2 = "job";
+            job.expireAt =
+                endDate !== ""
+                    ? new Date(endDate).toISOString()
+                    : new Date(
+                          new Date() + 45 * 24 * 60 * 60 * 1000,
+                      ).toISOString();
+        }
+        axios
+            .post(`/api/employer/${jobType}/${type2}`, job)
+            .then((data) => {
+                console.log(data);
+                if (data.status === 200) alert("job Posted");
+                //  window.location = "/search-jobs";
+            })
+            .catch((err) => {
+                console.log(err.response);
+                const error = err.response.data ? err.response.data.err : "";
+
+                alert("Unable to post job : " + error);
+            });
         console.log(job);
     };
     return (
@@ -609,12 +660,15 @@ const PostJob = () => {
                         </FormGroup>
                     )}
                 </div>
-                <FormGroup className='ml-auto mr-1 mt-3'>
+                <FormGroup className='ml-auto mr-1 mt-3 w-100 text-align-end'>
                     <Button
                         onClick={submit}
                         className='ml-1 w-25'
                         color='primary'>
                         Post
+                    </Button>
+                    <Button onClick={save} className='ml-1 w-25' color='info'>
+                        Save
                     </Button>
                 </FormGroup>
             </Form>

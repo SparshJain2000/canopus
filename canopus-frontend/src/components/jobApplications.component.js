@@ -73,7 +73,7 @@ const Badges = ({ desc, superSpecialization }) => {
     );
 };
 const Job = ({ job, jobType, type2 }) => {
-    const freelance = job.startDate ? true : false;
+    const freelance = type2 === "freelance" ? true : false;
     const [show, setShow] = useState(false);
     const showApplicants = () => {
         setShow(!show);
@@ -82,7 +82,7 @@ const Job = ({ job, jobType, type2 }) => {
         console.log("posted");
         if (type2 === "freelance")
             axios
-                .put(`/api/job/saveFreelance/activate/${job._id}`)
+                .put(`/api/employer/save/freelance/activate/${job._id}`)
                 .then((data) => {
                     console.log(data);
                     if (data.status === 200) alert("posted");
@@ -90,7 +90,7 @@ const Job = ({ job, jobType, type2 }) => {
                 .catch((err) => console.log(err.response));
         else
             axios
-                .put(`/api/job/saveJob/activate/${job._id}`)
+                .put(`/api/employer/save/job/activate/${job._id}`)
                 .then((data) => {
                     if (data.status === 200) alert("posted");
                 })
@@ -198,8 +198,8 @@ const Job = ({ job, jobType, type2 }) => {
                                     to={{
                                         pathname: `/employer/job/update/${job._id}`,
                                         search: freelance
-                                            ? "freelance"
-                                            : "normal",
+                                            ? "freelance&post"
+                                            : "job&post",
                                     }}
                                     params={{ freelance: freelance }}>
                                     <Button className='btn btn-primary w-100'>
@@ -224,8 +224,8 @@ const Job = ({ job, jobType, type2 }) => {
                                     to={{
                                         pathname: `/employer/job/update/${job._id}`,
                                         search: freelance
-                                            ? "freelance"
-                                            : "normal",
+                                            ? "freelance&save"
+                                            : "job&save",
                                     }}
                                     params={{ freelance: freelance }}>
                                     <Button className='btn btn-primary w-100'>
@@ -303,14 +303,14 @@ export default class JobApplications extends Component {
     }
     getClosedJobs() {
         axios
-            .get("/api/job/all/expiredJobs")
+            .get("/api/employer/all/expiredJobs")
             .then(({ data }) => {
                 console.log(data);
                 this.setState({ jobs: data.jobs });
             })
             .catch((err) => console.log(err.response));
         axios
-            .get("/api/job/all/expiredFreelance")
+            .get("/api/employer/all/expiredFreelance")
             .then(({ data }) => {
                 // console.log(data);
                 this.setState({ freelanceJobs: data.jobs });
@@ -320,14 +320,14 @@ export default class JobApplications extends Component {
     }
     getOpenJobs() {
         axios
-            .get("/api/job/all/jobs")
+            .get("/api/employer/all/jobs")
             .then(({ data }) => {
                 console.log(data.jobs);
                 this.setState({ jobs: data.jobs });
             })
             .catch((err) => console.log(err.response));
         axios
-            .get("/api/job/all/freelance")
+            .get("/api/employer/all/freelance")
             .then(({ data }) => {
                 console.log(data.jobs);
                 this.setState({ freelanceJobs: data.jobs });
@@ -336,14 +336,14 @@ export default class JobApplications extends Component {
     }
     getSavedJobs() {
         axios
-            .get("/api/job/all/savedJobs")
+            .get("/api/employer/all/savedJobs")
             .then(({ data }) => {
                 console.log(data.jobs);
                 this.setState({ jobs: data.jobs });
             })
             .catch((err) => console.log(err.response));
         axios
-            .get("/api/job/all/savedFreelance")
+            .get("/api/employer/all/savedFreelance")
             .then(({ data }) => {
                 console.log(data.jobs);
                 this.setState({ freelanceJobs: data.jobs });
@@ -407,7 +407,7 @@ export default class JobApplications extends Component {
                                         key={job._id}
                                         job={job}
                                         jobType={this.state.jobType}
-                                        type2='normal'
+                                        type2='job'
                                     />
                                 ),
                         )

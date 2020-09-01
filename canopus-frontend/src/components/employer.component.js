@@ -8,6 +8,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import JobApplications from "./jobApplications.component";
 import MarkdownIt from "markdown-it";
+import Overview from "./overview.component";
 import MdEditor from "react-markdown-editor-lite";
 // import style manually
 import "react-markdown-editor-lite/lib/index.css";
@@ -92,32 +93,8 @@ export default class Employer extends Component {
                 <TabContent activeTab={this.state.activeTab}>
                     <TabPane tabId='1'>
                         <Row>
-                            <Col sm='12'>
-                                {" "}
-                                <div
-                                    className='col-12 py-5 p-2'
-                                    style={{
-                                        backgroundImage: `linear-gradient(rgba(255, 255, 255, 0.8), rgba(255, 255, 255, 0.8)),url(${bg2})`,
-                                        backgroundAttachment: "contain",
-                                        backgroundSize: "cover",
-                                        backgroundRepeat: "no-repeat",
-                                        backgroundPosition: "center",
-                                    }}>
-                                    <h1>Overview</h1>
-                                    {/* <MdEditor
-                                        value=''
-                                        style={{ height: "500px" }}
-                                        renderHTML={(text) =>
-                                            mdParser.render(text)
-                                        }
-                                        value={this.state.text}
-                                        onChange={({ text, html }) => {
-                                            this.setState({ text: text });
-                                            console.log(text);
-                                            console.log(html);
-                                        }}
-                                    /> */}
-                                </div>
+                            <Col sm='12' className='px-0'>
+                                <Overview />
                             </Col>
                         </Row>
                     </TabPane>
