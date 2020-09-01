@@ -5,6 +5,10 @@ module.exports = mongoose.model(
     "Employer",
     new mongoose.Schema({
         username: String,
+        resetPasswordToken:String,
+        resetPasswordExpires:Date,
+        emailVerifiedToken:String,
+        emailVerified:Boolean,
         firstName: String,
         lastName: String,
         password: String,
@@ -13,13 +17,17 @@ module.exports = mongoose.model(
         type: String,
         address: Object,
         // {
-        //     line: String,
         //     city: String,
         //     state: String,
         //     pin: Number,
+                // lat:Number,
+                // long:Number,
         // },
         //Employer Plan normal jobs
-        sponsors:Number,
+        sponsors:{
+            allowed:Number,
+            posted:Number,
+        },
         locumtier:{
             allowed:Number,
             posted:Number,
@@ -55,6 +63,15 @@ module.exports = mongoose.model(
         // profile
         //Empoyer valid status
         validated: Boolean,
+        acceptedApplicants: [ 
+            {
+                id:{
+                    type:mongoose.Schema.Types.ObjectId,
+                    ref: "User",
+                },
+                username:String,
+            }
+        ],
         freelanceJobs: [
             {
                 id: {

@@ -52,6 +52,15 @@ module.exports = mongoose.model(
                 username: String,
             },
         ],
+        acceptedApplicants: [ 
+            {
+                id:{
+                    type:mongoose.Schema.Types.ObjectId,
+                    ref: "User",
+                },
+                username:String,
+            }
+        ],
         // likes: [
         //     {
         //         id: {

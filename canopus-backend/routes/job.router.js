@@ -155,25 +155,6 @@ router.post("/search", async (req, res) => {
                         else jobCount = jobNum[0];
                     },
                 );
-
-            Job.aggregate(
-                [
-                    query.sponsored,
-                    {
-                        $skip: query.sponsoredskip,
-                    },
-                    query.sort,
-                    {
-                        $limit: query.sponsoredlimiter,
-                    },
-                ],
-                (err, sponsored) => {
-                    if (err) sponsorFlag = 0;
-                    //console.log(err);
-                    else sponsoredJobs = sponsored;
-                },
-            );
-            console.log(sponsoredJobs);
             //const userid = '5f1d72e270ff602dc0250747';
             // console.log(userid);
             Job.aggregate(
@@ -191,7 +172,9 @@ router.post("/search", async (req, res) => {
                         $project: {
                             _id: 1,
                             title: 1,
-                            specialization: 1,
+                            sponsored:1,
+                            validated:1,
+                           // specialization: 1,
                             // applied: {
                             //     $cond: {
                             //         if: { $eq:['$applicants.id',userid]},
@@ -199,8 +182,7 @@ router.post("/search", async (req, res) => {
                             //         else: 0,
                             //     },
                             // },
-                            description: 1,
-                            applicants: 1,
+                         //   description: 1,
                             score: { $meta: "searchScore" },
                         },
                     },
@@ -211,13 +193,6 @@ router.post("/search", async (req, res) => {
                             err: err,
                         });
                     else {
-                        //Array.prototype.splice.apply(jobs, [query.limit/2,0].concat(sponsoredJobs));
-                        if (sponsoredJobs && sponsoredJobs.length > 0)
-                            jobs.splice(
-                                Math.floor(jobs.length / 2),
-                                0,
-                                ...sponsoredJobs,
-                            );
                         res.json({ jobs: jobs, count: jobCount });
                     }
                 },
@@ -390,37 +365,6 @@ router.post("/freelanceSearch", async (req, res) => {
             );
             Freelance.aggregate(
                 [
-                    query.sponsored,
-                    {
-                        $project: {
-                            _id: 1,
-                            superSpecialization: 1,
-                            tag: 1,
-                            title: 1,
-                            startDate: 1,
-                            endDate: 1,
-                            title: 1,
-                            profession: 1,
-                            startHour: { $hour: "$startDate" },
-                            endHour: { $hour: "$endDate" },
-                            dayOfWeek: { $dayOfWeek: "$startDate" },
-                        },
-                    },
-                    {
-                        $skip: query.sponsoredskip,
-                    },
-                    query.sort,
-                    {
-                        $limit: query.sponsoredlimiter,
-                    },
-                ],
-                (err, sponsored) => {
-                    if (err) console.log(err);
-                    else sponsoredJobs = sponsored;
-                },
-            );
-            Freelance.aggregate(
-                [
                     query.search,
                     {
                         $project: {
@@ -452,14 +396,7 @@ router.post("/freelanceSearch", async (req, res) => {
                             err: err,
                         });
                     else {
-                        if (sponsoredJobs.length != 0) {
-                            jobs.splice(
-                                Math.floor(jobs.length / 2),
-                                0,
-                                ...sponsoredJobs,
-                            );
-                        }
-                        console.log(jobs);
+                        //console.log(jobs);
                         res.json({ jobs: jobs, count: jobCount });
                     }
                 },
