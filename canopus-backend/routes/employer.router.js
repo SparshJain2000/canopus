@@ -1,8 +1,13 @@
 const { search } = require("./admin.router");
 const { searchController } = require("../controllers/search.controller");
+const mailController = require("../controllers/mail.controller");
 const { query: q } = require("express");
 const employerModel = require("../models/employer.model");
 const mongoose = require("mongoose");
+const Email = require("email-templates");
+require("dotenv").config();
+const admin = process.env.ADMIN_MAIL;
+const path=require('path');
 const router = require("express").Router(),
     passport = require("passport"),
     middleware = require("../middleware/index"),
@@ -105,7 +110,7 @@ router.post('/forgot', async (req, res, next) => {
       to: user.username,
       from: 'postmaster@sandboxa6c1b3d7a13a4122aaa846d7cd3f96a2.mailgun.org',
       subject: 'Node.js Password Reset',
-      html: `
+      text: `
         You are receiving this because you (or someone else) have requested the reset of the password for your account.
         Please click on the following link, or paste this into your browser to complete the process:
 
@@ -358,13 +363,16 @@ router.post("/post/job", middleware.isEmployer, (req, res) => {
 				// ];
 				employer
 				.save()
-				.then((updatedEmployer) =>
+				.then((updatedEmployer) =>{
+					// try{
+					// 	mailController.jobPostMail(employer,job);}
+					// 	catch(err){console.log(err);}
 				      res.json({
 				      	job: job,
 				      	user: req.user,
 				      	updatedEmployer: updatedEmployer,
-				      }),
-				      )
+				      });
+					 } )
 				.catch((err) =>
 				       res.status(400).json({
 				       	err: err,
@@ -552,13 +560,14 @@ router.post("/save/job", middleware.isEmployer, (req, res) => {
 				];
 				employer
 				.save()
-				.then((updatedEmployer) =>
+				.then((updatedEmployer) =>{
+					
 				      res.json({
 				      	job: job,
 				      	user: req.user,
 				      	updatedEmployer: updatedEmployer,
-				      }),
-				      )
+				      });
+					})
 				.catch((err) =>
 				       res.status(400).json({
 				       	err: err,

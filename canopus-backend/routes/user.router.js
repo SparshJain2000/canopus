@@ -1,5 +1,5 @@
 const { searchController } = require("../controllers/search.controller");
-const mailController=require("../controllers/email.controller");
+const {mailController}=require("../controllers/mail.controller");
 const mongoose = require("mongoose");
 const crypto = require('crypto');
 const { promisify } = require('util');

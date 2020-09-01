@@ -1,17 +1,50 @@
-const mailController=require("../controllers/email.controller");
+const mailController=require("../controllers/mail.controller");
 require("dotenv").config();
-   const ADMIN_MAIL=process.env.ADMIN_MAIL;
+   const admin=process.env.ADMIN_MAIL
+   const Email=require('email-templates');
+   const path=require('path');
 
-    const message = {
-        from: ADMIN_MAIL, // Sender address
-        to: 'example@gmail.com',         // List of recipients
-        subject: 'Design Your Model S | Tesla', // Subject line
-        text: 'Have the most fun you can in a car. Get your Tesla today!' // Plain text body
-    };
-    mailController.transport.sendMail(message, function(err, info) {
-        if (err) {
-          console.log(err)
-        } else {
-          console.log(info);
-        }
-    });
+   mailController.transporter.verify().then((success)=>{
+     console.log("server is ready");
+   const email = new Email({
+    views: {root:'./canopus-backend/', options: { extension: 'ejs' } },
+    message: {
+      from: admin,	
+    // attachments:
+    // [{
+    //   filename:'hello.txt',
+    //   path:'./server/files/hello.txt',
+    //   contentType:'text/plain'
+    // },
+    // {
+    //   filename:'sample.txt',
+    //   content:'sample attachement - content',
+    //   contentType:'text/plain'
+    // }]
+    },
+    preview:false,
+    send: true,
+    transport: mailController.transporter
+    //transport: {
+    //jsonTransport: true
+    //}
+    
+  });
+  console.log( path.join(__dirname, '../', 'views', 'JobPost'))
+  email.send({
+    template: path.join(__dirname, '../', 'views', 'JobPost'),
+    message: {
+      to: 'tmsusha@gmail.com'//,
+    },
+    locals: {
+      name:'Company XYZ',
+      available:'3',
+      title:'Heart Surgeon',
+      profession:'Surgeon',
+      specialization:'Cardio-Vascular Medicine',
+      expiry:'31st August 2020',
+    }
+  })
+  .then(console.log)
+  .catch(console.error);
+   }).catch((err)=>console.log(err));
