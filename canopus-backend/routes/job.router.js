@@ -414,19 +414,29 @@ router.post("/freelanceSearch", async (req, res) => {
 
 //router.put("/:id",middleware.isLoggedIn())
 router.post("/apply/job/:id", middleware.isUser, (req, res) => {
-    Job.findById(req.params.id).then((job) => {
-		const applicants=job.applicants.map(item=>{
-			return item.id;
-		})
-		if(applicants.includes(req.params.id))
-		return res.status(400).json({err:"Already applied to this job"});
-        job.applicants = [
+    User.findById(req.user._id).then((user)=>{
+        Job.findById(req.params.id).then((job) => {
+            //job validation
+            // if(job.profession=='Surgeon' || job.profession=='Physician')
+            //     if(job.specialization!=user.specialization)
+            //     return res.status(400).json(({err:"Specialization doesn't match, update your profile!"}));
+            // if(job.validated==false)
+            // return res.status(400).json({err:"Job not active"});
+            const applicants=job.applicants.map(item=>{
+                return mongoose.Types.ObjectId(item.id);
+            })
+            if(applicants.includes(req.params.id))
+            return res.status(400).json({err:"Already applied to this job"});
+            job.applicants = [
             ...job.applicants,
             {
                 id: req.user._id,
-                username: req.user.username,
+                name:`${User.salutation} ${User.firstName} ${User.lastName}`,
+                image:User.image,
+                username:User.username,
+                phone:User.phone
             },
-        ];
+            ];
         job.save()
             .then((updatedJob) => {
                 // res.json(updatedJob);
@@ -462,13 +472,22 @@ router.post("/apply/job/:id", middleware.isUser, (req, res) => {
             );
     });
     req.user;
+}).catch((err)=>{res.status(400).json({err:"Invalid user"})});
 });
 
 //router.put("/:id",middleware.isLoggedIn())
 router.post("/apply/freelance/:id", middleware.isUser, (req, res) => {
-	Freelance.findById(req.params.id).then((job) => {
+    User.findById(req.user._id).then((user)=>{
+    Freelance.findById(req.params.id).then((job) => {
+
+        // //job validation
+        // if(job.profession=='Surgeon' || job.profession=='Physician')
+        //         if(job.specialization!=user.specialization)
+        //         return res.status(400).json(({err:"Specialization doesn't match, update your profile!"}));
+        // if(job.validated==false)
+        // return res.status(400).json({err:"Job not active"});
 		const applicants=job.applicants.map(item=>{
-			return item.id;
+			return mongoose.Types.ObjectId(item.id);
 		})
 		if(applicants.includes(req.params.id))
 		return res.status(400).json({err:"Already applied to this job"});
@@ -476,11 +495,27 @@ router.post("/apply/freelance/:id", middleware.isUser, (req, res) => {
 		...job.applicants,
 		{
 			id: req.user._id,
-			username: req.user.username,
+			name:`${User.salutation} ${User.firstName} ${User.lastName}`,
+			image:User.image,
+			username:User.username,
+			phone:User.phone
 		},
 		];
 		job.save()
 		.then((updatedJob) => {
+            savedFreelance.findOne({jobRef:req.params.id}).then((freelance)=>{
+                freelance.applicants = [
+                    ...freelance.applicants,
+                    {
+                        id: req.user._id,
+                        name:`${User.salutation} ${User.firstName} ${User.lastName}`,
+                        image:User.image,
+                        username:User.username,
+                        phone:User.phone
+                    },
+                    ];
+                    freelance.save()
+                    .then((savedFreelance) => {
                 // res.json(updatedJob);
                 User.findById(req.user._id)
                 .then((user) => {
@@ -506,6 +541,8 @@ router.post("/apply/freelance/:id", middleware.isUser, (req, res) => {
                        	err: err,
                        }),
                        );
+                    })
+                    })
             })
 		.catch((err) =>
 		       res.status(400).json({
@@ -513,10 +550,11 @@ router.post("/apply/freelance/:id", middleware.isUser, (req, res) => {
 		       }),
 		       );
 	});
-	req.user;
+    req.user;
+}).catch((err)=>{res.status(400).json({err:"Invalid user"})});
 });
 // get job
-router.get("/:id", middleware.checkJobOwnership, (req, res) => {
+router.get("/:id", (req, res) => {
 	Job.findById(req.params.id)
 	.then((job) => res.json({job:job}))
 	.catch((err) =>
@@ -526,7 +564,7 @@ router.get("/:id", middleware.checkJobOwnership, (req, res) => {
 		   );
 	});
 // get freelance
-router.get("/freelance/:id", middleware.checkFreelanceJobOwnership, (req, res) => {
+router.get("/freelance/:id", (req, res) => {
 	Freelance.findById(req.params.id)
 	.then((job) => res.json({job:job}))
 	.catch((err) =>

@@ -58,6 +58,9 @@ module.exports = mongoose.model(
                     type:mongoose.Schema.Types.ObjectId,
                     ref: "User",
                 },
+                name:String,
+				image:String,
+				phone:String,
                 username:String,
             }
         ],

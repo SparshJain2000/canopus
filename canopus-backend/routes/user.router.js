@@ -30,6 +30,7 @@ router.route("/").get((req, res) => {
 router.post("/", (req, res) => {
     const user = new User({
         username: req.body.username,
+		salutation:req.body.salutation,
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         address: req.body.address,
