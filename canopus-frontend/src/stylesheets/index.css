@@ -100,3 +100,15 @@ a:hover {
 .text-align-end {
     text-align: end;
 }
+
+td {
+    text-align: center;
+}
+
+@media (min-width: 992px) {
+    .make-small {
+        width: 60vw;
+        margin-left: 20vw;
+        margin-right: 20vw;
+    }
+}
