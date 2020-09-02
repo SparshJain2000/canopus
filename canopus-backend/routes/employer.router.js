@@ -62,7 +62,7 @@ router.post("/", (req, res) => {
             closed:0,
         },
 		sponsors:{
-			allowed:1,
+			allowed:10,
 			posted:0
 		},
         validated: false,
@@ -380,6 +380,40 @@ router.put("/apply/freelance/:id",middleware.checkFreelanceJobOwnership, (req,re
 			}).catch((err) => { res.status(400).json({err:"Wrong Employer"})});
 		}).catch((err) => { res.status(400).json({err:"Wrong Job Id"})});
     }).catch((err) => { res.status(400).json({err:"Wrong user"})});
+});
+//sponsor a job
+router.put("/sponsor/job/:id",middleware.checkJobOwnership,(req,res)=>{
+	Employer.findById(req.user._id).then((employer)=>{
+		const Id=employer.jobs.map(item=>{
+			return mongoose.Types.ObjectId(item.id);
+		});
+	   if(!Id.includes(req.params.id))
+	   return res.status(400).json({err:"Incorrect job ID"});
+	   if(employer.sponsors.allowed-employer.sponsors.posted<=0)
+	   return res.status(400).json({err:"No sponsors remaining"});
+	   Employer.findByIdAndUpdate(req.user._id,{$inc:{'sponsors.posted':1}}).then((employer)=>{
+		   Job.findByIdAndUpdate(req.params.id,{$set:{sponsored:true}}).then((job)=>{
+			   res.json({job:job});
+		   }).catch((err)=>{res.status(400).json({err:"Job not updated"})});
+	   }).catch((err)=>{res.status(400).json({err:"Employer not found"})});
+	}).catch((err)=>{res.status(400).json({err:"Employer not found"})});
+});
+
+router.put("/sponsor/freelance/:id",middleware.checkFreelanceJobOwnership,(req,res)=>{
+   Employer.findById(req.user._id).then((employer)=>{
+	   const Id=employer.freelanceJobs.map(item=>{
+		   return mongoose.Types.ObjectId(item.id);
+	   });
+	  if(!Id.includes(req.params.id))
+	  return res.status(400).json({err:"Incorrect job ID"});
+	  if(employer.sponsors.allowed-employer.sponsors.posted<=0)
+	  return res.status(400).json({err:"No sponsors remaining"});
+	  Employer.findByIdAndUpdate(req.user._id,{$inc:{'sponsors.posted':1}}).then((employer)=>{
+		  Freelance.findByIdAndUpdate(req.params.id,{$set:{sponsored:true}}).then((job)=>{
+			  res.json({job:job});
+		  }).catch((err)=>{res.status(400).json({err:"Job not updated"})});
+	  }).catch((err)=>{res.status(400).json({err:"Employer not found"})});
+   }).catch((err)=>{res.status(400).json({err:"Employer not found"})});
 });
 //Job related stuff starts here
 //post a job
@@ -875,40 +909,7 @@ router.put("/save/freelance/activate/:id",middleware.isEmployer, (req,res) =>{
 	}).catch((err)=>{res.status(400).json({err:"Employer not found"})});
 });
 //===========================================================================
-//sponsor a job
-router.put("/sponsor/job/:id",middleware.checkJobOwnership,(req,res)=>{
-	 Employer.findById(req.user._id).then((employer)=>{
-         const Id=employer.jobs.map(item=>{
-             return mongoose.Types.ObjectId(item.id);
-         });
-        if(!Id.includes(req.params.id))
-        return res.status(400).json({err:"Incorrect job ID"});
-        if(employer.sponsors.allowed=employer.sponsors.posted<=0)
-        return res.status(400).json({err:"No sponsors remaining"});
-        Employer.findByIdAndUpdate(req.user._id,{$inc:{'sponsors.posted':1}}).then((employer)=>{
-            Job.findByIdAndUpdate(req.params.id,{$set:{sponsored:true}}).then((job)=>{
-                res.json({job:job});
-            }).catch((err)=>{res.status(400).json({err:"Job not updated"})});
-        }).catch((err)=>{res.status(400).json({err:"Employer not found"})});
-     }).catch((err)=>{res.status(400).json({err:"Employer not found"})});
-});
 
-router.put("/sponsor/freelance/:id",middleware.checkFreelanceJobOwnership,(req,res)=>{
-    Employer.findById(req.user._id).then((employer)=>{
-        const Id=employer.freelanceJobs.map(item=>{
-            return mongoose.Types.ObjectId(item.id);
-        });
-       if(!Id.includes(req.params.id))
-       return res.status(400).json({err:"Incorrect job ID"});
-	   if(employer.sponsors.allowed=employer.sponsors.posted<=0)
-       return res.status(400).json({err:"No sponsors remaining"});
-       Employer.findByIdAndUpdate(req.user._id,{$inc:{'sponsors.posted':1}}).then((employer)=>{
-           Freelance.findByIdAndUpdate(req.params.id,{$set:{sponsored:"True"}}).then((job)=>{
-               res.json({job:job});
-           }).catch((err)=>{res.status(400).json({err:"Job not updated"})});
-       }).catch((err)=>{res.status(400).json({err:"Employer not found"})});
-    }).catch((err)=>{res.status(400).json({err:"Employer not found"})});
-});
 //Update a job
 router.put("/post/job/:id",middleware.checkJobOwnership,async (req,res) =>{
     var query;

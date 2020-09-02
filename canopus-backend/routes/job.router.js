@@ -439,6 +439,17 @@ router.post("/apply/job/:id", middleware.isUser, (req, res) => {
             ];
         job.save()
             .then((updatedJob) => {
+                savedJob.findOne({jobRef:req.params.id}).then((sjob)=>{
+                    sjob.applicants = [
+                        ...sjob.applicants, {
+                            id: req.user._id,
+                            name:`${User.salutation} ${User.firstName} ${User.lastName}`,
+                            image:User.image,
+                            username:User.username,
+                            phone:User.phone
+                        },
+                    ];
+                    sjob.save().then((sjob)=>{
                 // res.json(updatedJob);
                 User.findById(req.user._id)
                     .then((user) => {
@@ -464,12 +475,13 @@ router.post("/apply/job/:id", middleware.isUser, (req, res) => {
                             err: err,
                         }),
                     );
+                    }).catch((err)=>{res.status(400).json({err:"Error saving job"})});
+                }).catch((err)=>{res.status(400).json({err:"Error finding saved job"})});
             })
             .catch((err) =>
                 res.status(400).json({
                     err: err,
-                }),
-            );
+                }),);
     });
     req.user;
 }).catch((err)=>{res.status(400).json({err:"Invalid user"})});
@@ -541,8 +553,8 @@ router.post("/apply/freelance/:id", middleware.isUser, (req, res) => {
                        	err: err,
                        }),
                        );
-                    })
-                    })
+                    }).catch((err)=>{res.status(400).json({err:"Error saving job"})});
+                }).catch((err)=>{res.status(400).json({err:"Error finding saved job"})});
             })
 		.catch((err) =>
 		       res.status(400).json({
