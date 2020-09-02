@@ -112,26 +112,7 @@ router.post('/forgot', async (req, res, next) => {
     const token = (await promisify(crypto.randomBytes)(20)).toString('hex');
     User.findOneAndUpdate({username:req.body.username},{$set:{resetPasswordToken:token,resetPasswordExpires:Date.now()+3600000}}).then((user)=>{;
     console.log(token);
-    // if (!user) {
-    //   return res.redirect('/forgot');
-    // }
-//
-    const resetEmail = {
-      to: user.username,
-      from: 'postmaster@sandboxa6c1b3d7a13a4122aaa846d7cd3f96a2.mailgun.org',
-      subject: 'Node.js Password Reset',
-      html: `
-        You are receiving this because you (or someone else) have requested the reset of the password for your account.
-        Please click on the following link, or paste this into your browser to complete the process:
-
-
-        http://${req.headers.host}/reset/${token}
-
-        If you did not request this, please ignore this email and your password will remain unchanged.
-      `,
-    };
-    console.log(resetEmail)
-    mailController.transport.sendMail(resetEmail);
+    mailController.forgotMail(req,user,token);
     res.json({status:"Email has been sent"});
     //res.redirect('/forgot');
 //}).catch((err)=>{res.json({err:"User not saved"})});
