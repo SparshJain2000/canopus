@@ -5,7 +5,7 @@ const ShowMap = ({ coordinates }) => {
         height: "370px",
         width: "100%",
     };
-
+    console.log(coordinates);
     const defaultCenter = {
         lat: 39.4,
         lng: 77.7,
@@ -41,11 +41,7 @@ const ShowMap = ({ coordinates }) => {
                 mapContainerStyle={mapStyles}
                 zoom={10}
                 center={coordinates}>
-                <Marker
-                    position={coordinates}
-                    // onDragEnd={(e) => onMarkerDragEnd(e)}
-                    // draggable={true}
-                />
+                <Marker position={coordinates} />
             </GoogleMap>
         </LoadScript>
     );
