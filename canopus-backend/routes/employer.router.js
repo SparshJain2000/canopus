@@ -314,24 +314,35 @@ router.put("/apply/job/:id",middleware.checkJobOwnership, (req,res)=>{
 			job.acceptedApplicants=[
 				...job.acceptedApplicants,
 				{
-					id:User._id,
-					name:`${User.salutation} ${User.firstName} ${User.lastName}`,
-					image:User.image,
-					username:User.username,
-					phone:User.phone
+					id:user._id,
+					name:`${user.salutation} ${user.firstName} ${user.lastName}`,
+					image:user.image,
+					username:user.username,
+					phone:user.phone
 				}
 			],
 			job.save().then((updatedJob)=>{
-				
+					savedJob.findOne({jobRef:req.params.id}).then((sjob)=>{
+						sjob.acceptedApplicants=[
+							...sjob.acceptedApplicants,
+							{
+								id:user._id,
+								name:`${user.salutation} ${user.firstName} ${user.lastName}`,
+								image:user.image,
+								username:user.username,
+								phone:user.phone
+							}
+						],
+						sjob.save().then((updatedsjob)=>{
 					if(updatedJob.description.number-updatedJob.acceptedApplicants.length==0){
 						Job.deleteOne({_id:req.params.id});
 						res.json({status:"Candidate Accepted and Job closed"})
 					}
 					else
 					res.json({status:"Candidate Accepted"});
-				//	}).catch((err)=>{res.status(400).json({err:"Employer not updated"})});
-				}).catch((err) => { res.status(400).json({err:"Job not updated"})});
-		//	}).catch((err) => { res.status(400).json({err:"Wrong Employer"})});
+					}).catch((err)=>{res.status(400).json({err:"Job not saved"})});
+				}).catch((err) => { res.status(400).json({err:"Saved Job not found"})});
+			}).catch((err) => { res.status(400).json({err:"Wrong Employer"})});
 		}).catch((err) => { res.status(400).json({err:"Wrong Job Id"})});
     }).catch((err) => { res.status(400).json({err:"Wrong user"})});
 });
@@ -350,22 +361,34 @@ router.put("/apply/freelance/:id",middleware.checkFreelanceJobOwnership, (req,re
 			freelance.acceptedApplicants=[
 				...freelance.acceptedApplicants,
 				{
-					id:User._id,
-					name:`${User.salutation} ${User.firstName} ${User.lastName}`,
-					image:User.image,
-					username:User.username,
-					phone:User.phone
+					id:user._id,
+					name:`${user.salutation} ${user.firstName} ${user.lastName}`,
+					image:user.image,
+					username:user.username,
+					phone:user.phone
 				}
 			],
 			freelance.save().then((freelance)=>{
+				savedFreelance.findOne({jobRef:req.params.id}).then((sjob)=>{
+					sjob.acceptedApplicants=[
+						...sjob.acceptedApplicants,
+						{
+							id:user._id,
+							name:`${user.salutation} ${user.firstName} ${user.lastName}`,
+							image:user.image,
+							username:user.username,
+							phone:user.phone
+						}
+					],
+					sjob.save().then((updatedsjob)=>{
 				Employer.findById(req.user._id).then((employer)=>{
 					employer.acceptedApplicants=[
 						{
-							id:User._id,
-							name:`${User.salutation} ${User.firstName} ${User.lastName}`,
-							image:User.image,
-							username:User.username,
-							phone:User.phone
+							id:user._id,
+							name:`${user.salutation} ${user.firstName} ${user.lastName}`,
+							image:user.image,
+							username:user.username,
+							phone:user.phone
 						}
 					],
 				employer.save().then((employer)=>{
@@ -376,6 +399,8 @@ router.put("/apply/freelance/:id",middleware.checkFreelanceJobOwnership, (req,re
 					else
 					res.json({status:"Candidate Accepted"});
 					}).catch((err)=>{res.status(400).json({err:"Employer not updated"})});
+				}).catch((err)=>{res.status(400).json({err:"Job not saved"})});
+			}).catch((err) => { res.status(400).json({err:"Saved Job not found"})});
 				}).catch((err) => { res.status(400).json({err:"Job not updated"})});
 			}).catch((err) => { res.status(400).json({err:"Wrong Employer"})});
 		}).catch((err) => { res.status(400).json({err:"Wrong Job Id"})});

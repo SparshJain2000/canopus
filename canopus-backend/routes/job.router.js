@@ -431,10 +431,10 @@ router.post("/apply/job/:id", middleware.isUser, (req, res) => {
             ...job.applicants,
             {
                 id: req.user._id,
-                name:`${User.salutation} ${User.firstName} ${User.lastName}`,
-                image:User.image,
-                username:User.username,
-                phone:User.phone
+                name:`${user.salutation} ${user.firstName} ${user.lastName}`,
+                image:user.image,
+                username:user.username,
+                phone:user.phone
             },
             ];
         job.save()
@@ -443,10 +443,10 @@ router.post("/apply/job/:id", middleware.isUser, (req, res) => {
                     sjob.applicants = [
                         ...sjob.applicants, {
                             id: req.user._id,
-                            name:`${User.salutation} ${User.firstName} ${User.lastName}`,
-                            image:User.image,
-                            username:User.username,
-                            phone:User.phone
+                            name:`${user.salutation} ${user.firstName} ${user.lastName}`,
+                            image:user.image,
+                            username:user.username,
+                            phone:user.phone
                         },
                     ];
                     sjob.save().then((sjob)=>{
@@ -506,11 +506,11 @@ router.post("/apply/freelance/:id", middleware.isUser, (req, res) => {
 		job.applicants = [
 		...job.applicants,
 		{
-			id: req.user._id,
-			name:`${User.salutation} ${User.firstName} ${User.lastName}`,
-			image:User.image,
-			username:User.username,
-			phone:User.phone
+			id: user._id,
+			name:`${user.salutation} ${user.firstName} ${user.lastName}`,
+			image:user.image,
+			username:user.username,
+			phone:user.phone
 		},
 		];
 		job.save()
@@ -520,10 +520,10 @@ router.post("/apply/freelance/:id", middleware.isUser, (req, res) => {
                     ...freelance.applicants,
                     {
                         id: req.user._id,
-                        name:`${User.salutation} ${User.firstName} ${User.lastName}`,
-                        image:User.image,
-                        username:User.username,
-                        phone:User.phone
+                        name:`${user.salutation} ${user.firstName} ${user.lastName}`,
+                        image:user.image,
+                        username:user.username,
+                        phone:user.phone
                     },
                     ];
                     freelance.save()
