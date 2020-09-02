@@ -17,6 +17,11 @@ function addQuery(query, path) {
         text: {
             query: `${query}`,
             path: `${path}`,
+            // score:{
+            //     "constant":{
+            //         "value":1
+            //     }
+            // }
         },
     };
     return abc;
@@ -110,7 +115,7 @@ async function queryBuilder(req) {
         boost=boost+boostval;
     }
         query.mustquery.push(addQuery(true,"validated"));
-        query.shouldquery.push(addQueryboost("true","sponsored",boost));
+        query.shouldquery.push(addQueryboost(true,"sponsored",boost));
        if(query.mustquery.length!=0)
         query.search = {
             $search: {

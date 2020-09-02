@@ -47,6 +47,7 @@ module.exports = mongoose.model(
             closed:Number,
         },
         //profile page related,
+        logo:String,
         links: Array,// link to website or to other resources
         youtube: Array, // links to youtube video
         image: Array,//multiple hostpial images
@@ -69,7 +70,10 @@ module.exports = mongoose.model(
                     type:mongoose.Schema.Types.ObjectId,
                     ref: "User",
                 },
+                name:String,
+                image:String,
                 username:String,
+                phone:String,
             }
         ],
         freelanceJobs: [

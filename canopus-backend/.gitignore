@@ -6,3 +6,4 @@ node_modules
 .idea
 models/canopy.code-workspace
 README.md
+views

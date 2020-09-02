@@ -10,11 +10,12 @@ const admin = process.env.ADMIN_MAIL;
 const path=require('path');
 const router = require("express").Router(),
     passport = require("passport"),
-    middleware = require("../middleware/index"),
+	middleware = require("../middleware/index"),
+	User = require("../models/user.model"),
     Job = require("../models/job.model"),
     Freelance = require("../models/freelance.model"),
     Employer = require("../models/employer.model"),
-    savedJob =require("../models/savedJobs.model"),
+	savedJob =require("../models/savedJobs.model"),
     savedFreelance = require("../models/savedFreelance.model");
 
 //===========================================================================
@@ -34,7 +35,7 @@ router.route("/").get((req, res) => {
 //Sign up route
 router.post("/", (req, res) => {
     const employer = new Employer({
-        username: req.body.username,
+		username: req.body.username,
         firstName: req.body.firstName,
         lastName: req.body.lastName,
         address: req.body.address,
@@ -60,7 +61,10 @@ router.post("/", (req, res) => {
             saved:0,
             closed:0,
         },
-        sponsors:1,
+		sponsors:{
+			allowed:10,
+			posted:0
+		},
         validated: false,
     });
     Employer.register(employer, req.body.password)
@@ -101,26 +105,8 @@ router.post("/login", function (req, res, next) {
 router.post('/forgot', async (req, res, next) => {
     const token = (await promisify(crypto.randomBytes)(20)).toString('hex');
     Employer.findOneAndUpdate({username:req.body.username},{$set:{resetPasswordToken:token,resetPasswordExpires:Date.now()+3600000}}).then((user)=>{;
-    console.log(token);
-    // if (!user) {
-    //   return res.redirect('/forgot');
-    // }
-//
-    const resetEmail = {
-      to: user.username,
-      from: 'postmaster@sandboxa6c1b3d7a13a4122aaa846d7cd3f96a2.mailgun.org',
-      subject: 'Node.js Password Reset',
-      text: `
-        You are receiving this because you (or someone else) have requested the reset of the password for your account.
-        Please click on the following link, or paste this into your browser to complete the process:
-
-
-        http://${req.headers.host}/reset/${token}
-
-        If you did not request this, please ignore this email and your password will remain unchanged.
-      `,
-    };
-    mailController.transport.sendMail(resetEmail);
+	console.log(token);
+	mailController.forgotMail(req,user,token);
     res.json({status:"Email has been sent"});
     //res.redirect('/forgot');
 //}).catch((err)=>{res.json({err:"User not saved"})});
@@ -297,6 +283,145 @@ router.put("/profile/update/", middleware.isEmployer, (req, res) => {
     );
 });
 
+router.put("/apply/job/:id",middleware.checkJobOwnership, (req,res)=>{
+    User.findById(req.body.id).then((user) =>{
+		Job.findById(req.params.id).then((job)=>{
+			if(job.description.count-job.acceptedApplicants.length==0)
+			return res.status(400).json({err:"Wrong Employer"});
+			const ids=job.acceptedApplicants.map(item=>{
+				return item.id;
+			})
+			if(ids.includes(req.body.id))
+			return res.status(400).json({err:"Candidate already accepted"});
+			job.acceptedApplicants=[
+				...job.acceptedApplicants,
+				{
+					id:user._id,
+					name:`${user.salutation} ${user.firstName} ${user.lastName}`,
+					image:user.image,
+					username:user.username,
+					phone:user.phone
+				}
+			],
+			job.save().then((updatedJob)=>{
+					savedJob.findOne({jobRef:req.params.id}).then((sjob)=>{
+						sjob.acceptedApplicants=[
+							...sjob.acceptedApplicants,
+							{
+								id:user._id,
+								name:`${user.salutation} ${user.firstName} ${user.lastName}`,
+								image:user.image,
+								username:user.username,
+								phone:user.phone
+							}
+						],
+						sjob.save().then((updatedsjob)=>{
+					if(updatedJob.description.number-updatedJob.acceptedApplicants.length==0){
+						Job.deleteOne({_id:req.params.id});
+						res.json({status:"Candidate Accepted and Job closed"})
+					}
+					else
+					res.json({status:"Candidate Accepted"});
+					}).catch((err)=>{res.status(400).json({err:"Job not saved"})});
+				}).catch((err) => { res.status(400).json({err:"Saved Job not found"})});
+			}).catch((err) => { res.status(400).json({err:"Wrong Employer"})});
+		}).catch((err) => { res.status(400).json({err:"Wrong Job Id"})});
+    }).catch((err) => { res.status(400).json({err:"Wrong user"})});
+});
+
+// Accept an day job applicant 
+router.put("/apply/freelance/:id",middleware.checkFreelanceJobOwnership, (req,res)=>{
+    User.findById(req.body.id).then((user) =>{
+		Freelance.findById(req.params.id).then((freelance)=>{
+			if(freelance.description.count-freelance.acceptedApplicants.length==0)
+			return res.status(400).json({err:"Wrong Employer"});
+			const ids=freelance.acceptedApplicants.map(item=>{
+				return item.id;
+			})
+			if(ids.includes(req.body.id))
+			return res.status(400).json({err:"Candidate already accepted"});
+			freelance.acceptedApplicants=[
+				...freelance.acceptedApplicants,
+				{
+					id:user._id,
+					name:`${user.salutation} ${user.firstName} ${user.lastName}`,
+					image:user.image,
+					username:user.username,
+					phone:user.phone
+				}
+			],
+			freelance.save().then((freelance)=>{
+				savedFreelance.findOne({jobRef:req.params.id}).then((sjob)=>{
+					sjob.acceptedApplicants=[
+						...sjob.acceptedApplicants,
+						{
+							id:user._id,
+							name:`${user.salutation} ${user.firstName} ${user.lastName}`,
+							image:user.image,
+							username:user.username,
+							phone:user.phone
+						}
+					],
+					sjob.save().then((updatedsjob)=>{
+				Employer.findById(req.user._id).then((employer)=>{
+					employer.acceptedApplicants=[
+						{
+							id:user._id,
+							name:`${user.salutation} ${user.firstName} ${user.lastName}`,
+							image:user.image,
+							username:user.username,
+							phone:user.phone
+						}
+					],
+				employer.save().then((employer)=>{
+					if(freelance.description.number-freelance.acceptedApplicants.length==0){
+						Freelance.deleteOne({_id:req.params.id});
+						res.json({status:"Candidate Accepted and Job closed"})
+					}
+					else
+					res.json({status:"Candidate Accepted"});
+					}).catch((err)=>{res.status(400).json({err:"Employer not updated"})});
+				}).catch((err)=>{res.status(400).json({err:"Job not saved"})});
+			}).catch((err) => { res.status(400).json({err:"Saved Job not found"})});
+				}).catch((err) => { res.status(400).json({err:"Job not updated"})});
+			}).catch((err) => { res.status(400).json({err:"Wrong Employer"})});
+		}).catch((err) => { res.status(400).json({err:"Wrong Job Id"})});
+    }).catch((err) => { res.status(400).json({err:"Wrong user"})});
+});
+//sponsor a job
+router.put("/sponsor/job/:id",middleware.checkJobOwnership,(req,res)=>{
+	Employer.findById(req.user._id).then((employer)=>{
+		const Id=employer.jobs.map(item=>{
+			return mongoose.Types.ObjectId(item.id);
+		});
+	   if(!Id.includes(req.params.id))
+	   return res.status(400).json({err:"Incorrect job ID"});
+	   if(employer.sponsors.allowed-employer.sponsors.posted<=0)
+	   return res.status(400).json({err:"No sponsors remaining"});
+	   Employer.findByIdAndUpdate(req.user._id,{$inc:{'sponsors.posted':1}}).then((employer)=>{
+		   Job.findByIdAndUpdate(req.params.id,{$set:{sponsored:true}}).then((job)=>{
+			   res.json({job:job});
+		   }).catch((err)=>{res.status(400).json({err:"Job not updated"})});
+	   }).catch((err)=>{res.status(400).json({err:"Employer not found"})});
+	}).catch((err)=>{res.status(400).json({err:"Employer not found"})});
+});
+
+router.put("/sponsor/freelance/:id",middleware.checkFreelanceJobOwnership,(req,res)=>{
+   Employer.findById(req.user._id).then((employer)=>{
+	   const Id=employer.freelanceJobs.map(item=>{
+		   return mongoose.Types.ObjectId(item.id);
+	   });
+	  if(!Id.includes(req.params.id))
+	  return res.status(400).json({err:"Incorrect job ID"});
+	  if(employer.sponsors.allowed-employer.sponsors.posted<=0)
+	  return res.status(400).json({err:"No sponsors remaining"});
+	  Employer.findByIdAndUpdate(req.user._id,{$inc:{'sponsors.posted':1}}).then((employer)=>{
+		  Freelance.findByIdAndUpdate(req.params.id,{$set:{sponsored:true}}).then((job)=>{
+			  res.json({job:job});
+		  }).catch((err)=>{res.status(400).json({err:"Job not updated"})});
+	  }).catch((err)=>{res.status(400).json({err:"Employer not found"})});
+   }).catch((err)=>{res.status(400).json({err:"Employer not found"})});
+});
 //Job related stuff starts here
 //post a job
 router.post("/post/job", middleware.isEmployer, (req, res) => {
@@ -307,6 +432,8 @@ router.post("/post/job", middleware.isEmployer, (req, res) => {
     else
     Employer.findById(req.user._id).then((employer) => {
 		//validation
+		if(employer.validated==false && employer.jobtier.posted>0)
+		return res.status(400).json({err:"You can only post one Job until you are validated"});
 		if(employer.jobtier.allowed-employer.jobtier.posted<=0)
 		return res.status(400).json({err:"Max Jobs Posted"});
 		else Employer.findByIdAndUpdate(req.user._id,{$inc:{"jobtier.posted":1}}).then((employer2)=>{
@@ -413,7 +540,9 @@ router.post("/post/freelance", middleware.isEmployer, (req, res) => {
     return res.status(400).json({err:"Invalid time format"});
     else
     Employer.findById(req.user._id).then((employer) => { 
-        var update={};
+		var update={};
+		if(employer.validated==false && employer.freelancetier.posted>0)
+		return res.status(400).json({err:"You can only post one Job until you are validated"});
         if(req.body.category=="Day Job"){
 		if(employer.freelancetier.allowed-employer.freelancetier.posted<=0)
         return res.status(400).json({err:"Max Jobs Posted"});
@@ -791,40 +920,7 @@ router.put("/save/freelance/activate/:id",middleware.isEmployer, (req,res) =>{
 	}).catch((err)=>{res.status(400).json({err:"Employer not found"})});
 });
 //===========================================================================
-//sponsor a job
-router.put("/sponsor/job/:id",middleware.checkJobOwnership,(req,res)=>{
-	 Employer.findById(req.user._id).then((employer)=>{
-         const Id=employer.jobs.map(item=>{
-             return mongoose.Types.ObjectId(item.id);
-         });
-        if(!Id.includes(req.params.id))
-        return res.status(400).json({err:"Incorrect job ID"});
-        if(employer.sponsors<=0)
-        return res.status(400).json({err:"No sponsors remaining"});
-        Employer.findByIdAndUpdate(req.user._id,{$inc:{sponsors:-1}}).then((employer)=>{
-            Job.findByIdAndUpdate(req.params.id,{$set:{sponsored:"True"}}).then((job)=>{
-                res.json({job:job});
-            }).catch((err)=>{res.status(400).json({err:"Job not updated"})});
-        }).catch((err)=>{res.status(400).json({err:"Employer not found"})});
-     }).catch((err)=>{res.status(400).json({err:"Employer not found"})});
-});
 
-router.put("/sponsor/freelance/:id",middleware.checkFreelanceJobOwnership,(req,res)=>{
-    Employer.findById(req.user._id).then((employer)=>{
-        const Id=employer.freelanceJobs.map(item=>{
-            return mongoose.Types.ObjectId(item.id);
-        });
-       if(!Id.includes(req.params.id))
-       return res.status(400).json({err:"Incorrect job ID"});
-       if(employer.sponsors<=0)
-       return res.status(400).json({err:"No sponsors remaining"});
-       Employer.findByIdAndUpdate(req.user._id,{$inc:{sponsors:-1}}).then((employer)=>{
-           Freelance.findByIdAndUpdate(req.params.id,{$set:{sponsored:"True"}}).then((job)=>{
-               res.json({job:job});
-           }).catch((err)=>{res.status(400).json({err:"Job not updated"})});
-       }).catch((err)=>{res.status(400).json({err:"Employer not found"})});
-    }).catch((err)=>{res.status(400).json({err:"Employer not found"})});
-});
 //Update a job
 router.put("/post/job/:id",middleware.checkJobOwnership,async (req,res) =>{
     var query;
@@ -945,12 +1041,6 @@ router.put("/save/freelance/:id",middleware.isEmployer,async (req,res) =>{
 	}).catch((err)=>{res.status(400).json({err:"Couldn't find employer"})});
 });
 
-router.put("/apply/freelance/:id"),middleware.checkFreelanceJobOwnership, (req,res)=>{
-    User.findById(req.body.id).then((user) =>{
-        //send mobile OTP
-        Freelance.deleteOne({_id:req.params.id}).then()
-    }).catch((err) => { res.status(400).json({err:"Wrong user"})});
-}
 
 //get multiple jobs
 router.get("/all/jobs",middleware.isEmployer,(req,res)=>{

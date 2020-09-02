@@ -35,7 +35,7 @@ module.exports = mongoose.model(
         //     salary: Number,
         // },
         validated: String,
-        sponsored: Boolean,
+        sponsored: String,
         tag: Array,// Covid ,urgent tgs
         // date: Date,
         author: {
@@ -53,6 +53,18 @@ module.exports = mongoose.model(
                 },
                 username: String,
             },
+        ],
+        acceptedApplicants: [ 
+            {
+                id:{
+                    type:mongoose.Schema.Types.ObjectId,
+                    ref: "User",
+                },
+                name:String,
+				image:String,
+				phone:String,
+                username:String,
+            }
         ],
         // likes: [
         //     {

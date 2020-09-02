@@ -17,6 +17,7 @@ module.exports = mongoose.model(
         phone:String,
         profession:String,
         specialization:String,
+        superSpecialization:String,
         role: String,
         image: String,
         description: String,

@@ -56,6 +56,12 @@ router.post("/validate",(req,res) => {
 router.post("/nuke/:id",(req,res)=>{
 
 })
+
+router.get("/analytics/profession",(req,res)=>{
+    Job.aggregate([
+        { $sortByCount: "$description.location" }
+    ]).then((results)=>{res.json({results:results})});
+})
 module.exports = router;
 //Testing valodation code this doesnt work but is more efficient
 // Employer.aggregate([{ $project:{"validated" :{ $cond: {
