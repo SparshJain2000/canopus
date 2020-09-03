@@ -36,6 +36,7 @@ router.post("/", (req, res) => {
         lastName: req.body.lastName,
         address: req.body.address,
         description: req.body.description,
+        createdAt:Date.now(),
         validated:false,
         jobtier: {
             allowed: 0,

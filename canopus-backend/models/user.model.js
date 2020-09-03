@@ -22,8 +22,18 @@ module.exports = mongoose.model(
         experience: [
             {
                 title: String,
-                time: String,
+                startDate:Date,
+                endDate:Date,
+                institute:String,
                 line: String,
+            },
+        ],
+        education: [
+            {
+                institute: String,
+                degree: String,
+                startTime: String,
+                endTime: String,
             },
         ],
         address: {
