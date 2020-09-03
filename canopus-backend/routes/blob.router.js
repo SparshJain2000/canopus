@@ -8,6 +8,13 @@ router.post("/", middleware.isLoggedIn, (req, res) => {
     const filename = content;
     res.send(blobController.generateSasToken('user-image',filename));
 
+});
+router.post("/employer", middleware.isLoggedIn, (req, res) => {
+    const content = req.body.context;
+    const id = req.user._id;
+    const filename = content;
+    res.send(blobController.generateSasToken('employer-image',filename));
+
 })
 
 // This route is for uploading from server without SAS

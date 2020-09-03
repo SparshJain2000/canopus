@@ -1,13 +1,7 @@
-const { search } = require("./admin.router");
 const { searchController } = require("../controllers/search.controller");
 const mailController = require("../controllers/mail.controller");
-const { query: q } = require("express");
-const employerModel = require("../models/employer.model");
 const mongoose = require("mongoose");
-const Email = require("email-templates");
 require("dotenv").config();
-const admin = process.env.ADMIN_MAIL;
-const path=require('path');
 const router = require("express").Router(),
     passport = require("passport"),
 	middleware = require("../middleware/index"),
@@ -62,7 +56,7 @@ router.post("/", (req, res) => {
             closed:0,
         },
 		sponsors:{
-			allowed:10,
+			allowed:1,
 			posted:0
 		},
         validated: false,
@@ -388,6 +382,12 @@ router.put("/apply/freelance/:id",middleware.checkFreelanceJobOwnership, (req,re
 		}).catch((err) => { res.status(400).json({err:"Wrong Job Id"})});
     }).catch((err) => { res.status(400).json({err:"Wrong user"})});
 });
+
+//extend a job
+router.put("/extend/job/:id",middleware.checkJobOwnership,(req,res)=>{
+	if(!req.body.expireAt)
+	return res.status(400).json({err:"Date parameter required"});
+})
 //sponsor a job
 router.put("/sponsor/job/:id",middleware.checkJobOwnership,(req,res)=>{
 	Employer.findById(req.user._id).then((employer)=>{

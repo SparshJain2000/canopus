@@ -112,10 +112,10 @@ router.post('/forgot', async (req, res, next) => {
     const token = (await promisify(crypto.randomBytes)(20)).toString('hex');
     User.findOneAndUpdate({username:req.body.username},{$set:{resetPasswordToken:token,resetPasswordExpires:Date.now()+3600000}}).then((user)=>{;
     console.log(token);
-    mailController.forgotMail(req,user,token);
+    mailController.forgotMail(req,user,token).then((response)=>{
     res.json({status:"Email has been sent"});
     //res.redirect('/forgot');
-//}).catch((err)=>{res.json({err:"User not saved"})});
+    }).catch((err)=>{res.json({err:"Mail not sent"})});
     }).catch((err)=>{res.json({err:"User not found"})});
 });
 
@@ -165,6 +165,38 @@ router.get("/profile/:id", (req, res) => {
         .catch((err) => res.status(400).json({ err: err }));
 });
 
+// User profile update
+
+router.put("/profile/update/", middleware.isEmployer, (req, res) => {
+    const user = new Employer({
+        ...(req.body.description && { description: req.body.description }),
+        ...(req.body.address && {
+            address: {
+                pin: req.body.address.pin,
+                city: req.body.address.city,
+                state: req.body.address.state,
+            },
+        }),
+    });
+    Employer.findByIdAndUpdate(
+        // the id of the item to find
+        req.user._id,
+        req.body,
+        { new: true },
+
+        // the callback function
+        (err, todo) => {
+			console.log(todo);
+            // Handle any possible database errors
+			if (err) return res.status(500).send(err);
+			req.login(todo,(err)=>{
+				if(err) return res.status(500).send(err);
+				return res.send(todo);
+			})
+            // return res.send(todo);
+        },
+    );
+});
 
 router.post("/request",middleware.isUser,(req,res)=>{
     if(req.body.endDate){
@@ -306,24 +338,7 @@ router.post("/request",middleware.isUser,(req,res)=>{
     }
      }).catch((err)=>{res.status(400).json({err:"User not found"})});     //  }).catch((err)=>{res.status(400).json({err:"User not found"})});
 });
-// User profile update
 
-router.put("/profile/update/", middleware.isUser, (req, res) => {
-    const user = new User(req.body);
-    User.findByIdAndUpdate(
-        // the id of the item to find
-        req.user._id,
-        user,
-        { new: true },
-
-        // the callback function
-        (err, todo) => {
-            // Handle any possible database errors
-            if (err) return res.status(500).send(err);
-            return res.send(todo);
-        },
-    );
-});
 router.post("/post/job", middleware.isUser, (req, res) => {
     const expiry=new Date(req.body.expireAt);
     var days=(expiry-Date.now())/(1000*60*60*24);
