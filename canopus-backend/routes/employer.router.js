@@ -446,6 +446,9 @@ router.post("/post/job", middleware.isEmployer, (req, res) => {
 	.then((job) => {
 		job.author.username = req.user.username;
 		job.author.id = req.user._id;
+		job.author.instituteName = req.user.instituteName;
+		job.author.photo = req.user.logo;
+		job.author.about = req.user.description.about;
 		console.log(job);
 		job.save()
 		.then((job) => {
@@ -567,6 +570,9 @@ router.post("/post/freelance", middleware.isEmployer, (req, res) => {
 	.then((job) => {
 		job.author.username = req.user.username;
 		job.author.id = req.user._id;
+		job.author.instituteName = req.user.instituteName;
+		job.author.photo = req.user.logo;
+		job.author.about = req.user.description.about;
 		//console.log(job);
 		job.save()
 		.then((job) => {
@@ -668,6 +674,9 @@ router.post("/save/job", middleware.isEmployer, (req, res) => {
 	.then((job) => {
 		job.author.username = req.user.username;
 		job.author.id = req.user._id;
+		job.author.instituteName = req.user.instituteName;
+		job.author.photo = req.user.logo;
+		job.author.about = req.user.description.about;
 		console.log(job);
 		job.save()
 		.then((job) => {
@@ -761,6 +770,9 @@ router.post("/save/freelance", middleware.isEmployer, (req, res) => {
 	.then((job) => {
 		job.author.username = req.user.username;
 		job.author.id = req.user._id;
+		job.author.instituteName = req.user.instituteName;
+		job.author.photo = req.user.logo;
+		job.author.about = req.user.description.about;
 		console.log(job);
 		job.save()
 		.then((job) => {

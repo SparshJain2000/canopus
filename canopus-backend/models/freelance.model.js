@@ -48,6 +48,9 @@ module.exports = mongoose.model(
                 ref: "Employer",
             },
             username: String,
+            instituteName:String,
+            photo:String,
+            about:String,
         },
         applicants: [
             {
