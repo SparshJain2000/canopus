@@ -15,6 +15,7 @@ export default class SignupUser extends Component {
         this.state = {
             step: 1,
             firstName: "",
+            salutation: "",
             lastName: "",
             email: "",
             password: "",
@@ -22,6 +23,9 @@ export default class SignupUser extends Component {
             pin: "",
             city: "",
             state: "",
+            country: "India",
+            gender: "male",
+            dob: "",
             experience: {
                 title: "",
                 name: "",
@@ -52,8 +56,11 @@ export default class SignupUser extends Component {
             lastName,
             email,
             salutation,
+            gender,
+            dob,
             age,
             city,
+            country,
             state,
             pin,
             password,
@@ -65,8 +72,11 @@ export default class SignupUser extends Component {
             age,
             city,
             salutation,
+            gender,
+            dob,
             state,
             pin,
+            country,
             password,
         };
         switch (step) {
