@@ -1,5 +1,6 @@
 const { searchController } = require("../controllers/search.controller");
 const {mailController}=require("../controllers/mail.controller");
+const { validationController } = require("../controllers/validation.controller");
 const mongoose = require("mongoose");
 const crypto = require('crypto');
 const { promisify } = require('util');
@@ -167,23 +168,9 @@ router.get("/profile/:id", (req, res) => {
 
 // User profile update
 
-router.put("/profile/update/", middleware.isEmployer, (req, res) => {
-    const user = new Employer({
-        ...(req.body.description && { description: req.body.description }),
-        ...(req.body.address && {
-            address: {
-                pin: req.body.address.pin,
-                city: req.body.address.city,
-                state: req.body.address.state,
-            },
-        }),
-    });
-    Employer.findByIdAndUpdate(
-        // the id of the item to find
-        req.user._id,
-        req.body,
-        { new: true },
-
+router.put("/profile/update/", middleware.isUser,async(req, res) => {
+	query = await validationController.UserProfileUpdateBuilder(req);
+	User.findByIdAndUpdate({_id:req.user._id},{$set:query.update},{new:true},
         // the callback function
         (err, todo) => {
 			console.log(todo);

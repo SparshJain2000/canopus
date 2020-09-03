@@ -10,6 +10,7 @@ module.exports = mongoose.model(
         emailVerified:Boolean,
         createdAt:Date,
         lastUpdated:Date,
+        role: String,
         salutation:String,
         firstName: String,
         lastName: String,
@@ -18,11 +19,22 @@ module.exports = mongoose.model(
         profession:String,
         specialization:String,
         superSpecialization:String,
-        role: String,
+        experience: [
+            {
+                title: String,
+                time: String,
+                line: String,
+            },
+        ],
+        address: {
+            pin: Number,
+            city: String,
+            state: String,
+        },
         image: String,
         description: String,
         resume: String,
-        Availability:Object, // for locum calendar
+        availability:Object, // for locum calendar
         google: Object,
         facebook: Object,
         validated:Boolean,
@@ -86,18 +98,6 @@ module.exports = mongoose.model(
         ],
         savedJobs: Array,
         savedFreelance: Array,
-        experience: [
-            {
-                title: String,
-                time: String,
-                line: String,
-            },
-        ],
-        address: {
-            pin: Number,
-            city: String,
-            state: String,
-        },
         applied: [
             {
                 id: {

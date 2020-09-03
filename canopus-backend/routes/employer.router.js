@@ -1,5 +1,6 @@
 const { searchController } = require("../controllers/search.controller");
-const mailController = require("../controllers/mail.controller");
+const { mailController } = require("../controllers/mail.controller");
+const { validationController } = require("../controllers/validation.controller");
 const mongoose = require("mongoose");
 require("dotenv").config();
 const router = require("express").Router(),
@@ -251,28 +252,20 @@ router.get("/profile", middleware.isEmployer, (req, res) => {
 //===========================================================================
 // Employer profile update
 
-router.put("/profile/update/", middleware.isEmployer, (req, res) => {
-    const user = new Employer({
-        ...(req.body.description && { description: req.body.description }),
-        ...(req.body.address && {
-            address: {
-                pin: req.body.address.pin,
-                city: req.body.address.city,
-                state: req.body.address.state,
-            },
-        }),
-    });
-    Employer.findByIdAndUpdate(
-        // the id of the item to find
-        req.employer._id,
-        req.body,
-        { new: true },
 
+router.put("/profile/update/", middleware.isEmployer,async(req, res) => {
+	query = await validationController.EmployerProfileUpdateBuilder(req);
+	Employer.findByIdAndUpdate({_id:req.user._id},{$set:query.update},{new:true},
         // the callback function
         (err, todo) => {
+			console.log(todo);
             // Handle any possible database errors
-            if (err) return res.status(500).send(err);
-            return res.send(todo);
+			if (err) return res.status(500).send(err);
+			req.login(todo,(err)=>{
+				if(err) return res.status(500).send(err);
+				return res.send(todo);
+			})
+            // return res.send(todo);
         },
     );
 });
