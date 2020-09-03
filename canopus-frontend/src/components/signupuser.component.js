@@ -2,12 +2,20 @@ import React, { Component } from "react";
 import UserDetails from "./signupComponent/userDetails.component";
 import PersonalDetails from "./signupComponent/personalDetails.component";
 import Confirmation from "./signupComponent/confirmation.component.js";
+const block = {
+    borderRadius: " 0.25rem",
+    border: "0.05rem solid lightgrey",
+    /* background-color: rgba(0, 0, 0, 0.15); */
+    // boxShadow: " 3px 3px 6px rgba(0, 0, 0, 0.3)",
+    transition: "0.3s ease-in-out",
+};
 export default class SignupUser extends Component {
     constructor(props) {
         super(props);
         this.state = {
             step: 1,
             firstName: "",
+            salutation: "",
             lastName: "",
             email: "",
             password: "",
@@ -15,6 +23,9 @@ export default class SignupUser extends Component {
             pin: "",
             city: "",
             state: "",
+            country: "India",
+            gender: "male",
+            dob: "",
             experience: {
                 title: "",
                 name: "",
@@ -44,8 +55,12 @@ export default class SignupUser extends Component {
             firstName,
             lastName,
             email,
+            salutation,
+            gender,
+            dob,
             age,
             city,
+            country,
             state,
             pin,
             password,
@@ -56,8 +71,12 @@ export default class SignupUser extends Component {
             email,
             age,
             city,
+            salutation,
+            gender,
+            dob,
             state,
             pin,
+            country,
             password,
         };
         switch (step) {

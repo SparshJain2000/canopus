@@ -53,6 +53,7 @@ const VideoCarousel = ({ items }) => {
             activeIndex={activeIndex}
             next={next}
             previous={previous}
+            interval={false}
             className='w-100'>
             <CarouselIndicators
                 items={items}

@@ -22,10 +22,12 @@ export default class Overview extends Component {
         };
     }
     componentDidMount() {
-        Axios.get("/api/employer/current").then(({ data }) => {
-            console.log(data.user);
-            this.setState({ employer: data.user });
-        });
+        Axios.get("/api/employer/profile")
+            .then(({ data }) => {
+                console.log(data);
+                this.setState({ employer: data });
+            })
+            .catch(({ response }) => console.log(response));
     }
     render() {
         return (
@@ -37,8 +39,8 @@ export default class Overview extends Component {
                                 <div className='col-12 col-md-3 col-lg-2 px-5 px-sm-0 text-align-center'>
                                     <img
                                         src={
-                                            this.state.logo
-                                                ? this.state.logo
+                                            this.state.employer.logo
+                                                ? this.state.employer.logo
                                                 : hospital
                                         }
                                         alt=''
@@ -48,12 +50,20 @@ export default class Overview extends Component {
                                 <div
                                     className='col-12 col-md-9 col-lg-10 px-3 px-md-5 my-3 my-md-auto'
                                     style={{ maxHeight: "max-content" }}>
-                                    <h3>{this.state.employer.firstName}</h3>
+                                    <h3>
+                                        {this.state.employer.description &&
+                                        this.state.employer.description
+                                            .organization
+                                            ? this.state.employer.description
+                                                  .organization
+                                            : this.state.employer.firstName}
+                                    </h3>
                                     <h6>
                                         {`${
-                                            this.state.employer.type
-                                                ? this.state.employer.type
-                                                : "Hospital"
+                                            this.state.employer.description.type
+                                                ? this.state.employer
+                                                      .description.type
+                                                : "type"
                                         } - ${
                                             this.state.employer.description &&
                                             this.state.employer.description
@@ -81,25 +91,22 @@ export default class Overview extends Component {
                                 <div className='col-4 text-align-center'>
                                     <h5>Beds</h5>
                                     {this.state.employer.description &&
-                                    this.state.employer.description.bedCount
-                                        ? this.state.employer.description
-                                              .bedCount
+                                    this.state.employer.description.beds
+                                        ? this.state.employer.description.beds
                                         : "-"}
                                 </div>
                                 <div className='col-4 text-align-center'>
                                     <h5>ICUs</h5>
                                     {this.state.employer.description &&
-                                    this.state.employer.description.ICUCount
-                                        ? this.state.employer.description
-                                              .ICUCount
+                                    this.state.employer.description.ICUs
+                                        ? this.state.employer.description.ICUs
                                         : "-"}
                                 </div>
                                 <div className='col-4 text-align-center'>
                                     <h5>OTs</h5>
                                     {this.state.employer.description &&
-                                    this.state.employer.description.OTCount
-                                        ? this.state.employer.description
-                                              .OTCount
+                                    this.state.employer.description.OTs
+                                        ? this.state.employer.description.OTs
                                         : "-"}
                                 </div>
                             </div>
@@ -110,17 +117,18 @@ export default class Overview extends Component {
                                 </p>
                                 <p className='col-12'>{`${this.state.employer.address.city}, ${this.state.employer.address.state}, ${this.state.employer.address.pin}`}</p>
                                 <div className='col-12'>
-                                    <ShowMap
-                                        coordinates={
-                                            this.state.employer.coordinates
-                                                ? this.state.employer
-                                                      .coordinates
-                                                : { lat: 22, lng: 77 }
-                                        }
-                                    />
+                                    {this.state.employer.address
+                                        .coordinates && (
+                                        <ShowMap
+                                            coordinates={
+                                                this.state.employer.address
+                                                    .coordinates
+                                            }
+                                        />
+                                    )}
                                 </div>
                             </div>
-                            {this.state.employer.image && (
+                            {this.state.employer.image.length !== 0 && (
                                 <div className='row p-3 m-2' style={block}>
                                     <h4>Images</h4>
                                     <ImageCarousel

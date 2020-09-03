@@ -15,6 +15,8 @@ import JobApplications from "./components/jobApplications.component";
 import UpdateJob from "./components/updateJob.component";
 import ErrorPage from "./components/error.component";
 import SignupEmployer from "./components/signupEmployer.component";
+import UpdateEmployer from "./components/updateEmployer.component";
+import data from "./data/data.json";
 import axios from "axios";
 class App extends Component {
     constructor(props) {
@@ -40,12 +42,14 @@ class App extends Component {
             });
     }
     componentDidMount() {
+        console.log(data);
         console.log(this.state.user);
         if (!this.state.user) {
             this.getUser();
         }
         const node = this.wrapper.current;
         console.log(node);
+        // axios.get("/json/data.json").then((data) => console.log(data.data));
     }
     wrapper = createRef();
     render() {
@@ -105,6 +109,14 @@ class App extends Component {
                             render={(props) => <UpdateJob {...props} />}
                         />
                     )}
+                    <Route
+                        exact
+                        path='/employer/update'
+                        // render={(props) => <Profile {...props} />}
+                        render={(props) => (
+                            <UpdateEmployer {...props} setUser={this.setUser} />
+                        )}
+                    />
                     <Route
                         exact
                         path='/employer'

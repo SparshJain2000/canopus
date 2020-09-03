@@ -49,10 +49,11 @@ export default class Profile extends Component {
         this.toggleAbout = this.toggleAbout.bind(this);
         this.toggleDetail = this.toggleDetail.bind(this);
         this.toggleExperience = this.toggleExperience.bind(this);
+        this.toggleEducation = this.toggleEducation.bind(this);
         this.uploadImage = this.uploadImage.bind(this);
         this.uploadResume = this.uploadResume.bind(this);
         this.update = this.update.bind(this);
-        this.setProgress = this.setProgress.bind(this);
+        // this.setProgress = this.setProgress.bind(this);
 
         this.uploadToStorage = this.uploadToStorage.bind(this);
     }
@@ -66,6 +67,7 @@ export default class Profile extends Component {
                     modalDetail: false,
                     modalAbout: false,
                     modalExperience: false,
+                    modalEducation: false,
                 });
             })
             .catch((err) => console.log(err));
@@ -81,16 +83,14 @@ export default class Profile extends Component {
     toggleExperience() {
         this.setState({ modalExperience: !this.state.modalExperience });
     }
+    toggleEducation() {
+        this.setState({ modalEducation: !this.state.modalEducation });
+    }
     // setProgress(e) {
     //     this.setState({
     //         progress: e,
     //     });
-    // }
-    setProgress = (state) => {
-        this.setState({
-            progress: parseInt(state.loadedBytes) / parseInt(10000),
-        });
-    };
+    // }\
     async uploadToStorage(storageAccountName, sas, file) {
         // console.log(file);
         try {
@@ -281,7 +281,7 @@ export default class Profile extends Component {
                     <div className='row my-3 mx-3 mx-lg-0 p-2 justify-content-center '>
                         <div className='col-12 col-lg-3'>
                             <div
-                                className='block row text-dark p-2 mt-3 mb-5 my-lg-0'
+                                className='block-noHover row text-dark p-2 mt-3 mb-5 my-lg-0'
                                 style={{
                                     height: "fit-content",
                                 }}>
@@ -338,7 +338,7 @@ export default class Profile extends Component {
                                                 <label
                                                     htmlFor='image'
                                                     style={{
-                                                        display: "inline-block",
+                                                        display: "inline-block-noHover",
                                                         margin: 0,
                                                         cursor: "pointer",
                                                         width: "100%",
@@ -429,7 +429,7 @@ export default class Profile extends Component {
                                     )}
                                 </div>
                             </div>
-                            <div className='p-4 block row mt-2 mt-lg-4 position-relative'>
+                            <div className='p-4 block-noHover row mt-2 mt-lg-4 position-relative'>
                                 {this.state.editable && (
                                     <button
                                         className='btn btn-info btn-sm m-2 btn-float'
@@ -446,7 +446,7 @@ export default class Profile extends Component {
                         </div>
 
                         <div className='col-12 col-lg-7 mt-5 mt-lg-0 ml-sm-0 ml-lg-5 '>
-                            <div className='p-4 block '>
+                            <div className='p-4 block-noHover '>
                                 <h2 className='position-relative'>
                                     Experience
                                     {this.state.editable && (
@@ -482,42 +482,47 @@ export default class Profile extends Component {
                                         ),
                                     )}
                             </div>
-                            {this.state.profile.education && (
-                                <div className='p-4 block mt-4'>
-                                    <h2>Education</h2>
-                                    {this.state.profile.education.map(
-                                        (data) => (
-                                            <div>
-                                                <hr />
-                                                <Media>
-                                                    <Media body>
-                                                        <Media heading>
-                                                            <h5>
-                                                                <strong>
-                                                                    {
-                                                                        data.institute
-                                                                    }
-                                                                </strong>
-                                                            </h5>
-                                                        </Media>
-                                                        <Media heading>
-                                                            <h6>
-                                                                {data.degree}
-                                                            </h6>
-                                                        </Media>
-                                                        <div>
-                                                            {data.startYear} -{" "}
-                                                            {data.endYear}
-                                                        </div>
-                                                    </Media>
-                                                </Media>
-                                            </div>
-                                        ),
+
+                            <div className='p-4 block-noHover mt-4'>
+                                <h2 className='position-relative'>
+                                    Education
+                                    {this.state.editable && (
+                                        <button
+                                            className='btn btn-info btn-sm m-2 btn-float'
+                                            style={{ borderRadius: "50%" }}
+                                            onClick={this.toggleEducation}>
+                                            <FontAwesomeIcon icon={faPen} />
+                                        </button>
                                     )}
-                                </div>
-                            )}
+                                </h2>
+
+                                {this.state.profile.education &&
+                                    this.state.profile.education.map((data) => (
+                                        <div>
+                                            <hr />
+                                            <Media>
+                                                <Media body>
+                                                    <Media heading>
+                                                        <h5>
+                                                            <strong>
+                                                                {data.institute}
+                                                            </strong>
+                                                        </h5>
+                                                    </Media>
+                                                    <Media heading>
+                                                        <h6>{data.degree}</h6>
+                                                    </Media>
+                                                    <div>
+                                                        {data.startTime} -{" "}
+                                                        {data.endTime}
+                                                    </div>
+                                                </Media>
+                                            </Media>
+                                        </div>
+                                    ))}
+                            </div>
                             {this.state.profile.certificates && (
-                                <div className='p-4 block mt-4'>
+                                <div className='p-4 block-noHover mt-4'>
                                     <h2>Certificates</h2>
                                     {this.state.profile.certificates.map(
                                         (certificate) => (
@@ -570,10 +575,12 @@ export default class Profile extends Component {
                                     )}
                                 </div>
                             )}
-                            <div className='block mt-4 p-2 p-sm-3'>
+                            <div className='block-noHover mt-4 p-2 p-sm-3'>
                                 <h3>Resume</h3>
 
-                                {this.state.profile.resume === "" &&
+                                {(typeof this.state.profile.resume ===
+                                    "undefined" ||
+                                    this.state.profile.resume === "") &&
                                 this.state.progress !== 1 ? (
                                     <div>
                                         <input
@@ -602,14 +609,16 @@ export default class Profile extends Component {
                                     </div>
                                 ) : this.state.uploaded ? (
                                     <div className='row'>
-                                        <div className='col-12 col-sm-4'>
-                                            <h5>Uploaded !</h5>
-                                        </div>
+                                        {this.state.editable && (
+                                            <div className='col-12 col-sm-4'>
+                                                <h5>Uploaded !</h5>
+                                            </div>
+                                        )}
                                         <div className='col-12 col-sm-8 row justify-content-between'>
                                             <a
                                                 href={`${this.state.profile.resume}`}
                                                 className='col-5 btn btn-info btn-sm mr-1'>
-                                                View PDF
+                                                View Resume
                                                 <FontAwesomeIcon
                                                     className='ml-2'
                                                     icon={faFileAlt}
@@ -620,23 +629,25 @@ export default class Profile extends Component {
                                                 className='btn btn-info btn-sm float-right mr-3'>
                                                 Change Resume
                                             </a> */}
-                                            <button
-                                                className='col-6 btn btn-sm btn-primary'
-                                                onClick={() => {
-                                                    let profile = this.state
-                                                        .profile;
-                                                    profile.resume = "";
-                                                    this.setState({
-                                                        profile: profile,
-                                                    });
-                                                    this.update();
-                                                }}>
-                                                Change Resume
-                                                <FontAwesomeIcon
-                                                    className='ml-2'
-                                                    icon={faPen}
-                                                />
-                                            </button>
+                                            {this.state.editable && (
+                                                <button
+                                                    className='col-6 btn btn-sm btn-primary'
+                                                    onClick={() => {
+                                                        let profile = this.state
+                                                            .profile;
+                                                        profile.resume = "";
+                                                        this.setState({
+                                                            profile: profile,
+                                                        });
+                                                        this.update();
+                                                    }}>
+                                                    Change Resume
+                                                    <FontAwesomeIcon
+                                                        className='ml-2'
+                                                        icon={faPen}
+                                                    />
+                                                </button>
+                                            )}
                                         </div>
                                     </div>
                                 ) : (
@@ -745,7 +756,7 @@ export default class Profile extends Component {
                                                         htmlFor='image'
                                                         style={{
                                                             display:
-                                                                "inline-block",
+                                                                "inline-block-noHover",
                                                             margin: 0,
                                                             cursor: "pointer",
                                                             width: "100%",
@@ -896,6 +907,235 @@ export default class Profile extends Component {
                                 <Button
                                     color='secondary'
                                     onClick={this.toggleDetail}>
+                                    Cancel
+                                </Button>
+                            </ModalFooter>
+                        </Modal>
+                        <Modal
+                            isOpen={this.state.modalEducation}
+                            toggle={this.toggleEducation}>
+                            <ModalHeader toggle={this.toggleEducation}>
+                                <h5>Edit Educations</h5>
+                            </ModalHeader>
+                            <ModalBody>
+                                <div className='experience'>
+                                    {this.state.profile.education &&
+                                        this.state.profile.education.map(
+                                            (data, i) => {
+                                                return (
+                                                    <div className='form-group'>
+                                                        <h6>
+                                                            {data.institute}
+                                                        </h6>
+                                                        <div className='form-group my-1 row'>
+                                                            <div className='col-2 col-form-label'>
+                                                                Institute
+                                                            </div>
+                                                            <input
+                                                                type='text'
+                                                                className='form-control col-10'
+                                                                value={
+                                                                    this.state
+                                                                        .profile
+                                                                        .education[
+                                                                        i
+                                                                    ].institute
+                                                                }
+                                                                onChange={(
+                                                                    e,
+                                                                ) => {
+                                                                    let profile = this
+                                                                        .state
+                                                                        .profile;
+                                                                    profile.education[
+                                                                        i
+                                                                    ] = {
+                                                                        ...profile
+                                                                            .education[
+                                                                            i
+                                                                        ],
+                                                                        institute:
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                    };
+                                                                    this.setState(
+                                                                        {
+                                                                            profile: profile,
+                                                                        },
+                                                                    );
+                                                                }}
+                                                            />
+                                                        </div>
+
+                                                        <div className='form-group my-1 row'>
+                                                            <div className='col-2 col-form-label'>
+                                                                Degree
+                                                            </div>
+                                                            <input
+                                                                type='text'
+                                                                className='form-control col-10'
+                                                                value={
+                                                                    this.state
+                                                                        .profile
+                                                                        .education[
+                                                                        i
+                                                                    ].degree
+                                                                }
+                                                                onChange={(
+                                                                    e,
+                                                                ) => {
+                                                                    let profile = this
+                                                                        .state
+                                                                        .profile;
+                                                                    profile.education[
+                                                                        i
+                                                                    ] = {
+                                                                        ...profile
+                                                                            .education[
+                                                                            i
+                                                                        ],
+                                                                        degree:
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                    };
+                                                                    this.setState(
+                                                                        {
+                                                                            profile: profile,
+                                                                        },
+                                                                    );
+                                                                }}
+                                                            />
+                                                        </div>
+
+                                                        <div className='form-group my-1 row'>
+                                                            <div className='col-2 col-form-label'>
+                                                                Start-Year
+                                                            </div>
+                                                            <input
+                                                                type='date'
+                                                                className='form-control col-10'
+                                                                value={
+                                                                    this.state
+                                                                        .profile
+                                                                        .education[
+                                                                        i
+                                                                    ].startTime
+                                                                }
+                                                                onChange={(
+                                                                    e,
+                                                                ) => {
+                                                                    let profile = this
+                                                                        .state
+                                                                        .profile;
+                                                                    profile.education[
+                                                                        i
+                                                                    ] = {
+                                                                        ...profile
+                                                                            .education[
+                                                                            i
+                                                                        ],
+                                                                        startTime:
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                    };
+                                                                    this.setState(
+                                                                        {
+                                                                            profile: profile,
+                                                                        },
+                                                                    );
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <div className='form-group my-1 row'>
+                                                            <div className='col-2 col-form-label'>
+                                                                End-Year
+                                                            </div>
+                                                            <input
+                                                                type='date'
+                                                                className='form-control col-10'
+                                                                value={
+                                                                    this.state
+                                                                        .profile
+                                                                        .education[
+                                                                        i
+                                                                    ].endTime
+                                                                }
+                                                                onChange={(
+                                                                    e,
+                                                                ) => {
+                                                                    let profile = this
+                                                                        .state
+                                                                        .profile;
+                                                                    profile.education[
+                                                                        i
+                                                                    ] = {
+                                                                        ...profile
+                                                                            .education[
+                                                                            i
+                                                                        ],
+                                                                        endTime:
+                                                                            e
+                                                                                .target
+                                                                                .value,
+                                                                    };
+                                                                    console.log(
+                                                                        profile,
+                                                                    );
+                                                                    this.setState(
+                                                                        {
+                                                                            profile: profile,
+                                                                        },
+                                                                    );
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <hr />
+                                                    </div>
+                                                );
+                                            },
+                                        )}
+                                </div>
+
+                                <div className='form-group'>
+                                    <button
+                                        className='btn btn-danger btn-sm m-2 float-right'
+                                        style={{ borderRadius: "50%" }}
+                                        onClick={() => {
+                                            let pro = this.state.profile;
+                                            pro.education = pro.education
+                                                ? [
+                                                      ...pro.education,
+                                                      {
+                                                          institute: "",
+                                                          degree: "",
+                                                          startTime: "",
+                                                          endTime: "",
+                                                      },
+                                                  ]
+                                                : [
+                                                      {
+                                                          institute: "",
+                                                          degree: "",
+                                                          startTime: "",
+                                                          endTime: "",
+                                                      },
+                                                  ];
+                                            this.setState({ profile: pro });
+                                        }}>
+                                        <FontAwesomeIcon icon={faPlus} />
+                                    </button>
+                                </div>
+                            </ModalBody>
+                            <ModalFooter>
+                                <Button color='primary' onClick={this.update}>
+                                    Update
+                                </Button>{" "}
+                                <Button
+                                    color='secondary'
+                                    onClick={this.toggleEducation}>
                                     Cancel
                                 </Button>
                             </ModalFooter>
