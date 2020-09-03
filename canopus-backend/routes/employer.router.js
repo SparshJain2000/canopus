@@ -1,13 +1,8 @@
-const { search } = require("./admin.router");
 const { searchController } = require("../controllers/search.controller");
-const mailController = require("../controllers/mail.controller");
-const { query: q } = require("express");
-const employerModel = require("../models/employer.model");
+const { mailController } = require("../controllers/mail.controller");
+const { validationController } = require("../controllers/validation.controller");
 const mongoose = require("mongoose");
-const Email = require("email-templates");
 require("dotenv").config();
-const admin = process.env.ADMIN_MAIL;
-const path=require('path');
 const router = require("express").Router(),
     passport = require("passport"),
 	middleware = require("../middleware/index"),
@@ -62,7 +57,7 @@ router.post("/", (req, res) => {
             closed:0,
         },
 		sponsors:{
-			allowed:10,
+			allowed:1,
 			posted:0
 		},
         validated: false,
@@ -257,28 +252,20 @@ router.get("/profile", middleware.isEmployer, (req, res) => {
 //===========================================================================
 // Employer profile update
 
-router.put("/profile/update/", middleware.isEmployer, (req, res) => {
-    const user = new Employer({
-        ...(req.body.description && { description: req.body.description }),
-        ...(req.body.address && {
-            address: {
-                pin: req.body.address.pin,
-                city: req.body.address.city,
-                state: req.body.address.state,
-            },
-        }),
-    });
-    Employer.findByIdAndUpdate(
-        // the id of the item to find
-        req.employer._id,
-        req.body,
-        { new: true },
 
+router.put("/profile/update/", middleware.isEmployer,async(req, res) => {
+	query = await validationController.EmployerProfileUpdateBuilder(req);
+	Employer.findByIdAndUpdate({_id:req.user._id},{$set:query.update},{new:true},
         // the callback function
         (err, todo) => {
+			console.log(todo);
             // Handle any possible database errors
-            if (err) return res.status(500).send(err);
-            return res.send(todo);
+			if (err) return res.status(500).send(err);
+			req.login(todo,(err)=>{
+				if(err) return res.status(500).send(err);
+				return res.send(todo);
+			})
+            // return res.send(todo);
         },
     );
 });
@@ -388,6 +375,12 @@ router.put("/apply/freelance/:id",middleware.checkFreelanceJobOwnership, (req,re
 		}).catch((err) => { res.status(400).json({err:"Wrong Job Id"})});
     }).catch((err) => { res.status(400).json({err:"Wrong user"})});
 });
+
+//extend a job
+router.put("/extend/job/:id",middleware.checkJobOwnership,(req,res)=>{
+	if(!req.body.expireAt)
+	return res.status(400).json({err:"Date parameter required"});
+})
 //sponsor a job
 router.put("/sponsor/job/:id",middleware.checkJobOwnership,(req,res)=>{
 	Employer.findById(req.user._id).then((employer)=>{
@@ -453,6 +446,9 @@ router.post("/post/job", middleware.isEmployer, (req, res) => {
 	.then((job) => {
 		job.author.username = req.user.username;
 		job.author.id = req.user._id;
+		job.author.instituteName = req.user.instituteName;
+		job.author.photo = req.user.logo;
+		job.author.about = req.user.description.about;
 		console.log(job);
 		job.save()
 		.then((job) => {
@@ -574,6 +570,9 @@ router.post("/post/freelance", middleware.isEmployer, (req, res) => {
 	.then((job) => {
 		job.author.username = req.user.username;
 		job.author.id = req.user._id;
+		job.author.instituteName = req.user.instituteName;
+		job.author.photo = req.user.logo;
+		job.author.about = req.user.description.about;
 		//console.log(job);
 		job.save()
 		.then((job) => {
@@ -675,6 +674,9 @@ router.post("/save/job", middleware.isEmployer, (req, res) => {
 	.then((job) => {
 		job.author.username = req.user.username;
 		job.author.id = req.user._id;
+		job.author.instituteName = req.user.instituteName;
+		job.author.photo = req.user.logo;
+		job.author.about = req.user.description.about;
 		console.log(job);
 		job.save()
 		.then((job) => {
@@ -768,6 +770,9 @@ router.post("/save/freelance", middleware.isEmployer, (req, res) => {
 	.then((job) => {
 		job.author.username = req.user.username;
 		job.author.id = req.user._id;
+		job.author.instituteName = req.user.instituteName;
+		job.author.photo = req.user.logo;
+		job.author.about = req.user.description.about;
 		console.log(job);
 		job.save()
 		.then((job) => {

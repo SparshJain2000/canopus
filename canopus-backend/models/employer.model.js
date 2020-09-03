@@ -9,6 +9,8 @@ module.exports = mongoose.model(
         resetPasswordExpires:Date,
         emailVerifiedToken:String,
         emailVerified:Boolean,
+        createdAt:Date,
+        lastUpdated:Date,
         firstName: String,
         lastName: String,
         password: String,
@@ -23,6 +25,24 @@ module.exports = mongoose.model(
                 // lat:Number,
                 // long:Number,
         // },
+        //profile page related,
+        logo:String,
+        links: Array,// link to website or to other resources
+        youtube: Array, // links to youtube video
+        image: Array,//multiple hostpial images
+        //description
+        institutename:String,
+        specialty:String,
+        description: Object,
+        //
+        // {
+        //     about: String //  about our company
+
+       //         about2: String // why join our company // descri
+        //     employeeCount: Number, // number of employees
+        //     //show location on profile also from address object
+        // }
+        // profile
         //Employer Plan normal jobs
         sponsors:{
             allowed:Number,
@@ -46,22 +66,7 @@ module.exports = mongoose.model(
             saved:Number,
             closed:Number,
         },
-        //profile page related,
-        logo:String,
-        links: Array,// link to website or to other resources
-        youtube: Array, // links to youtube video
-        image: Array,//multiple hostpial images
-        //description
-        description: Object,
-        //
-        // {
-        //     about: String //  about our company
-
-       //         about2: String // why join our company // descri
-        //     employeeCount: Number, // number of employees
-        //     //show location on profile also from address object
-        // }
-        // profile
+        
         //Empoyer valid status
         validated: Boolean,
         acceptedApplicants: [ 

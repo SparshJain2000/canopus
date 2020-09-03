@@ -16,6 +16,7 @@ module.exports = mongoose.model(
         createdBy:String,
         expireAt:Date,
         category:String,
+        extension:Number,
         // {
         //     line: String, //specific addresss
         //     city: String,
@@ -50,6 +51,9 @@ module.exports = mongoose.model(
                 ref: "Employer",
             },
             username: String,
+            instituteName:String,
+            photo:String,
+            about:String,
         },
         applicants: [
             {
