@@ -1,32 +1,37 @@
 import React, { useState, useEffect } from "react";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
-const InputMap = ({ setCoordinates }) => {
+const InputMap = ({ setCoordinates, coordinates }) => {
     const mapStyles = {
         height: "370px",
         width: "100%",
     };
 
-    const defaultCenter = {
-        lat: 39.4,
-        lng: 77.7,
-    };
-    const [currentPosition, setCurrentPosition] = useState(defaultCenter);
+    const defaultCenter =
+        coordinates === null
+            ? {
+                  lat: 120.4,
+                  lng: 120.7,
+              }
+            : coordinates;
+    const [currentPosition, setCurrentPosition] = useState(coordinates);
 
     const success = (position) => {
         const currentPosition = {
             lat: position.coords.latitude,
             lng: position.coords.longitude,
         };
-        console.log(currentPosition);
+        // console.log(currentPosition);
         setCoordinates(currentPosition);
         setCurrentPosition(currentPosition);
     };
     useEffect(() => {
-        navigator.geolocation.getCurrentPosition(success, (err) => {
-            console.log(err);
-            // setCurrentPosition({ lat: 29.4, lng: 77.7 });
-            // setCoordinates({ lat: 29.4, lng: 77.7 });
-        });
+        console.log(coordinates);
+        if (coordinates === null)
+            navigator.geolocation.getCurrentPosition(success, (err) => {
+                console.log(err);
+                // setCurrentPosition({ lat: 29.4, lng: 77.7 });
+                // setCoordinates({ lat: 29.4, lng: 77.7 });
+            });
     }, []);
     const onMarkerDragEnd = (e) => {
         const lat = e.latLng.lat();

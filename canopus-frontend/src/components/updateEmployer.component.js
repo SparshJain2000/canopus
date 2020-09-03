@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from "react";
-import { Label, Input, FormGroup, Form, Button } from "reactstrap";
+import { Label, Input, FormGroup, Form, Button, Progress } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faPlusCircle,
@@ -10,7 +10,7 @@ import InputMap from "./map.component";
 import Axios from "axios";
 import { BlobServiceClient } from "@azure/storage-blob";
 import imageCompression from "browser-image-compression";
-
+import ImageCarousel from "./imageCarousel.component";
 const block = {
     borderRadius: " 0.25rem",
     border: "0.05rem solid lightgrey",
@@ -32,19 +32,26 @@ export default class UpdateEmployer extends Component {
             pin: "",
             city: "",
             state: "",
+            organization: "",
+            type: "",
             links: [""],
             youtube: [""],
-            image: [],
+            image: [""],
             about: "",
-
             about2: "",
             employeeCount: 0,
             noLinks: 1,
             noYoutube: 1,
             lat: null,
             lng: null,
-            imageLoading: false,
             _id: null,
+            progress: 0,
+            loading: false,
+            uploadingLogo: false,
+            uploadingImage: false,
+            beds: 0,
+            OTs: 0,
+            ICUs: 0,
         };
         this.handleChange = this.handleChange.bind(this);
         this.update = this.update.bind(this);
@@ -88,6 +95,12 @@ export default class UpdateEmployer extends Component {
             },
             description: {
                 about: this.state.about,
+                ICUs: Number(this.state.ICUs),
+                OTs: Number(this.state.OTs),
+                beds: Number(this.state.beds),
+                employeeCount: Number(this.state.employeeCount),
+                organization: this.state.organization,
+                type: this.state.type,
             },
         };
 
@@ -98,7 +111,7 @@ export default class UpdateEmployer extends Component {
                 if (data.status === 200) {
                     alert("Update successful");
                     this.props.setUser(data.data);
-                    // window.location = "/employer";
+                    window.location = "/employer";
                 }
             })
             .catch(({ response }) => alert(response.err));
@@ -121,11 +134,23 @@ export default class UpdateEmployer extends Component {
                         city: user.address.city,
                         state: user.address.state,
                         _id: user._id,
-                        lat: user.address.coordinates.lat,
-                        lng: user.address.coordinates.lng,
+                        lat:
+                            user.address.coordinates &&
+                            user.address.coordinates.lat,
+                        lng:
+                            user.address.coordinates &&
+                            user.address.coordinates.lng,
 
                         about: user.description.about,
                         about2: user.description.about2,
+                        beds: Number(user.description.beds),
+                        OTs: user.description.OTs
+                            ? Number(user.description.OTs)
+                            : 0,
+                        ICUs: user.description.ICUs ? user.description.ICUs : 2,
+                        employeeCount: user.description.employeeCount
+                            ? Number(user.description.employeeCount)
+                            : 0,
                     });
             })
             .catch((err) => console.log(err));
@@ -182,12 +207,13 @@ export default class UpdateEmployer extends Component {
 
     uploadImage(e) {
         // console.log(this.image.current.value);
+        this.setState({ loading: true });
         const files = Array.from(e.target.files);
         if (files.length !== 0) {
-            this.setState({ imageLoading: true });
+            this.setState({ uploadingImage: true });
             let profile = this.state.profile;
             const options = {
-                maxSizeMB: 0.256, // (default: Number.POSITIVE_INFINITY)
+                maxSizeMB: 0.512, // (default: Number.POSITIVE_INFINITY)
                 maxWidthOrHeight: 1920,
             };
             imageCompression(files[0], options).then((file) => {
@@ -205,6 +231,7 @@ export default class UpdateEmployer extends Component {
                         name: `${this.state._id}_${file.name}`,
                         data: buffer,
                         mimeType: file.type,
+                        size: file.size,
                     };
                     console.log(image);
                     Axios.post(`/api/upload/employer`, {
@@ -214,20 +241,17 @@ export default class UpdateEmployer extends Component {
                             const sas = data.token;
                             this.uploadToStorage("canopus", sas, image).then(
                                 (res) => {
-                                    // console.log(res);
-                                    // profile.image =
                                     const url = `https://canopus.blob.core.windows.net/employer-image/${this.state._id}_${file.name}`;
-
                                     let imgs = this.state.image;
+                                    console.log(imgs);
                                     this.setState({
                                         image: [...imgs, url],
+                                        loading: false,
+                                        uploadingImage: false,
                                     });
                                     // console.log(profile);
                                     console.log(res);
-                                    this.setState({
-                                        profile: profile,
-                                        // imageLoading: false,
-                                    });
+                                    // this.update();
                                     // this.update();
                                 },
                             );
@@ -239,10 +263,12 @@ export default class UpdateEmployer extends Component {
     }
     uploadLogo(e) {
         // console.log(this.image.current.value);
+        this.setState({ loading: true });
+
         const files = Array.from(e.target.files);
         if (files.length !== 0) {
-            this.setState({ imageLoading: true });
-            let profile = this.state.profile;
+            this.setState({ uploadingLogo: true });
+            // let profile = this.state.profile;
             const options = {
                 maxSizeMB: 0.256, // (default: Number.POSITIVE_INFINITY)
                 maxWidthOrHeight: 1920,
@@ -262,6 +288,7 @@ export default class UpdateEmployer extends Component {
                         name: `${this.state._id}_${file.name}`,
                         data: buffer,
                         mimeType: file.type,
+                        size: file.size,
                     };
                     console.log(image);
                     Axios.post(`/api/upload/employer`, {
@@ -274,13 +301,16 @@ export default class UpdateEmployer extends Component {
                                     const url = `https://canopus.blob.core.windows.net/employer-image/${this.state._id}_${file.name}`;
                                     this.setState({
                                         logo: url,
+                                        loading: false,
+                                        uploadingLogo: false,
                                     });
 
                                     console.log(res);
-                                    this.setState({
-                                        profile: profile,
-                                        // imageLoading: false,
-                                    });
+                                    // this.update();
+                                    // this.setState({
+                                    //     profile: profile,
+                                    //     // imageLoading: false,
+                                    // });
                                     // this.update();
                                 },
                             );
@@ -298,34 +328,91 @@ export default class UpdateEmployer extends Component {
                         <h4>Details</h4>
                     </FormGroup>
                     <FormGroup className='row'>
-                        <div className='col-12 col-sm-6 p-0 pr-0 pr-sm-1 my-1'>
-                            <Label>First Name</Label>
-                            <Input
-                                placeholder='First Name'
-                                name='firstName'
-                                onChange={this.handleChange}
-                                defaultValue={this.state.firstName}
+                        <div className='col-12 col-md-3 text-align-center'>
+                            {/* <Label className='w-100'>Logo</Label> */}
+                            <img
+                                src={this.state.logo}
+                                className='img-fluid img-thumbnail'
+                                alt='logo'
                             />
+                            <div className='col-12'>
+                                {this.state.uploadingLogo &&
+                                    this.state.progress !== 1 &&
+                                    this.state.progress !== 0 && (
+                                        <Progress
+                                            animated
+                                            color='info'
+                                            value={this.state.progress * 100}>
+                                            <h6 className='m-0'>
+                                                {Math.round(
+                                                    this.state.progress * 100,
+                                                )}
+                                                {"%"}
+                                            </h6>
+                                        </Progress>
+                                    )}
+                            </div>
+                            <div className='mx-3 mx-sm-2'>
+                                <div className='my-1 mt-3'>
+                                    <div className=''>
+                                        <button
+                                            className='btn btn-info btn-sm m-2 btn-float'
+                                            // style={{
+                                            //     borderRadius: "50%",
+                                            // }}
+                                        >
+                                            <label
+                                                htmlFor='image'
+                                                style={{
+                                                    display: "inline-block",
+                                                    margin: 0,
+                                                    cursor: "pointer",
+                                                    width: "100%",
+                                                }}>
+                                                {/* <FontAwesomeIcon icon={faPen} /> */}
+                                                Upload Logo
+                                            </label>
+                                        </button>
+
+                                        <input
+                                            type='file'
+                                            style={{
+                                                // position: "absolute",
+                                                zIndex: "-1",
+                                                overflow: "hidden",
+                                                opacity: 0,
+                                                cursor: "pointer",
+                                            }}
+                                            id='image'
+                                            accept='image/*'
+                                            // ref={this.image}
+                                            onChange={this.uploadLogo}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <div className='col-12 col-sm-6 p-0 pl-0 pl-sm-1 my-1'>
-                            {" "}
-                            <Label>Last Name</Label>
-                            <Input
-                                placeholder='Last Name'
-                                name='lastName'
-                                onChange={this.handleChange}
-                                defaultValue={this.state.lastName}
-                            />
-                        </div>
-                        <div className='col-12 col-sm-6 p-0 pl-0 pl-sm-1 my-1'>
-                            <Label>Logo</Label>
-                            <input
-                                type='file'
-                                class='file'
-                                // ref={this.image}
-                                // accept='.pdf,.doc'
-                                onChange={this.uploadLogo}
-                            />
+
+                        <div className='col-12 col-md-9 px-2'>
+                            <div className='col-12  p-0 pr-0  my-1'>
+                                <Label>First Name</Label>
+                                <Input
+                                    placeholder='First Name'
+                                    name='firstName'
+                                    onChange={this.handleChange}
+                                    defaultValue={this.state.firstName}
+                                />
+                            </div>
+                            <div className='col-12  p-0 pl-0  my-1'>
+                                {" "}
+                                <Label>Last Name</Label>
+                                <Input
+                                    placeholder='Last Name'
+                                    name='lastName'
+                                    onChange={this.handleChange}
+                                    defaultValue={this.state.lastName}
+                                />
+                            </div>
                         </div>
                     </FormGroup>
                 </div>
@@ -427,6 +514,68 @@ export default class UpdateEmployer extends Component {
                     <FormGroup>
                         <h4>About Organization</h4>
                     </FormGroup>
+                    <FormGroup className='row'>
+                        <div className='col-12 col-sm-6 pr-0 pr-sm-1'>
+                            <Label>Oranization Name</Label>
+                            <Input
+                                placeholder='Organization name'
+                                name='organization'
+                                onChange={this.handleChange}
+                                defaultValue={this.state.oraganization}
+                            />
+                        </div>
+                        <div className='col-12 col-sm-6 pr-0 pl-sm-1 my-sm-2'>
+                            <Label>Organization Type</Label>
+                            <Input
+                                placeholder='Organization Type'
+                                name='type'
+                                onChange={this.handleChange}
+                                defaultValue={this.state.type}
+                            />
+                        </div>
+                    </FormGroup>
+                    <FormGroup className='row'>
+                        <div className='col-12 col-sm-3 pr-0 pr-sm-1'>
+                            <Label>Beds</Label>
+                            <Input
+                                type='number'
+                                placeholder='Number of beds'
+                                name='beds'
+                                onChange={this.handleChange}
+                                defaultValue={this.state.beds}
+                            />
+                        </div>
+                        <div className='col-12 col-sm-3 pr-0 pr-sm-1'>
+                            <Label>ICUs</Label>
+                            <Input
+                                type='number'
+                                placeholder='Number of ICUs'
+                                name='ICUs'
+                                onChange={this.handleChange}
+                                defaultValue={Number(this.state.ICUs)}
+                            />
+                        </div>
+                        <div className='col-12 col-sm-3 pr-0 pr-sm-1'>
+                            <Label>OTs</Label>
+                            <Input
+                                type='number'
+                                placeholder='Number of OTs'
+                                name='OTs'
+                                onChange={this.handleChange}
+                                defaultValue={Number(this.state.OTs)}
+                            />
+                        </div>
+                        <div className='col-12 col-sm-3 pr-0 pr-sm-1'>
+                            <Label>Employee count</Label>
+                            <Input
+                                type='number'
+                                placeholder='Number of OTs'
+                                name='employeeCount'
+                                onChange={this.handleChange}
+                                defaultValue={Number(this.state.employeeCount)}
+                            />
+                        </div>
+                    </FormGroup>
                     <FormGroup>
                         <Label className='row'>
                             <h5 className='col-9  col-sm-11 pl-0'>Links</h5>
@@ -457,7 +606,7 @@ export default class UpdateEmployer extends Component {
                                 />
                                 <FontAwesomeIcon
                                     icon={faMinusCircle}
-                                    className='text-danger my-auto col-3 col-sm-2 col-md-1'
+                                    className='text-danger my-auto col-3 col-sm-1 col-md-1'
                                     size='lg'
                                     style={{ cursor: "pointer" }}
                                     onClick={(e) => {
@@ -465,6 +614,87 @@ export default class UpdateEmployer extends Component {
                                         links.splice(i, 1);
                                         this.setState({
                                             links: links,
+                                        });
+                                    }}
+                                />
+                            </div>
+                        ))}
+                        <hr />
+                        <Label className='row mt-2'>
+                            <h5 className='col-9 col-sm-11 pl-0'>Image</h5>
+                            <div className='col-3 col-sm-1'>
+                                <div className='my-1 mt-3'>
+                                    <button
+                                        className='btn btn-info btn-sm m-2 btn-float'
+                                        // style={{
+                                        //     borderRadius: "50%",
+                                        // }}
+                                    >
+                                        <label
+                                            htmlFor='image'
+                                            style={{
+                                                display: "inline-block",
+                                                margin: 0,
+                                                cursor: "pointer",
+                                                width: "100%",
+                                            }}>
+                                            {/* <FontAwesomeIcon icon={faPen} /> */}
+                                            Add
+                                        </label>
+                                    </button>
+
+                                    <input
+                                        type='file'
+                                        style={{
+                                            // position: "absolute",
+                                            zIndex: "-1",
+                                            overflow: "hidden",
+                                            opacity: 0,
+                                            cursor: "pointer",
+                                        }}
+                                        id='image'
+                                        accept='image/*'
+                                        // ref={this.image}
+                                        onChange={this.uploadImage}
+                                    />
+                                </div>
+                            </div>
+                        </Label>
+                        {this.state.uploadingImage && (
+                            <Progress
+                                animated
+                                color='info'
+                                value={this.state.progress * 100}>
+                                <h6 className='m-0'>
+                                    {Math.round(this.state.progress * 100)}
+                                    {"%"}
+                                </h6>
+                            </Progress>
+                        )}
+                        <ImageCarousel
+                            className='col-12 text-align-center'
+                            items={this.state.image}
+                        />
+                        {this.state.image.map((x, i) => (
+                            <div className='my-1 row'>
+                                <Input
+                                    id={i}
+                                    placeholder='Youtube Links'
+                                    name='youtube'
+                                    onChange={(e) => this.handleChange(e, i)}
+                                    value={this.state.image[i]}
+                                    className='col-10 col-sm-10 col-md-11'
+                                />
+                                <FontAwesomeIcon
+                                    icon={faMinusCircle}
+                                    className='text-danger col-2 col-sm-2 col-md-1 my-auto'
+                                    size='lg'
+                                    style={{ cursor: "pointer" }}
+                                    onClick={(e) => {
+                                        let image = this.state.image;
+                                        image.splice(i, 1);
+                                        this.setState({
+                                            image: image,
                                         });
                                     }}
                                 />
@@ -497,11 +727,11 @@ export default class UpdateEmployer extends Component {
                                     name='youtube'
                                     onChange={(e) => this.handleChange(e, i)}
                                     value={this.state.youtube[i]}
-                                    className='col-9 col-sm-10 col-md-11'
+                                    className='col-10 col-sm-10 col-md-11'
                                 />
                                 <FontAwesomeIcon
                                     icon={faMinusCircle}
-                                    className='text-danger col-3 col-sm-2 col-md-1 my-auto'
+                                    className='text-danger col-2 col-sm-2 col-md-1 my-auto'
                                     size='lg'
                                     style={{ cursor: "pointer" }}
                                     onClick={(e) => {
@@ -529,13 +759,26 @@ export default class UpdateEmployer extends Component {
                     </FormGroup>
                 </div>
                 <div className='p-4 m-3 mx-lg-4 d-flex justify-content-end'>
-                    <Button
-                        onClick={this.update}
-                        // className='w-25'
-                        size='lg'
-                        color='primary'>
-                        Update
-                    </Button>
+                    {this.state.loading ? (
+                        <Button
+                            // onClick={this.update}
+                            // className='w-25'
+                            size='lg'
+                            color='primary'>
+                            Uploading Image
+                            <div class='spinner-border ml-2' role='status'>
+                                <span class='sr-only'>Loading...</span>
+                            </div>
+                        </Button>
+                    ) : (
+                        <Button
+                            onClick={this.update}
+                            // className='w-25'
+                            size='lg'
+                            color='primary'>
+                            Update
+                        </Button>
+                    )}
                 </div>
             </div>
         );
