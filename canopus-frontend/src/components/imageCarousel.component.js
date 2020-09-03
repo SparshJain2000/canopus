@@ -56,7 +56,9 @@ const ImageCarousel = ({ items }) => {
             <CarouselItem
                 onExiting={() => setAnimating(false)}
                 onExited={() => setAnimating(false)}
-                key={i}>
+                interval={false}
+                key={i}
+                className='text-align-center'>
                 <img src={item} alt={"Image"} className='img-fluid' />
                 {/* <CarouselCaption
                     captionText={"Image"}
