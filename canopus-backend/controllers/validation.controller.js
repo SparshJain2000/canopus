@@ -41,6 +41,7 @@ async function UserProfileUpdateBuilder(req){
     if(req.body.address) query.update["address"]=req.body.address;
     if(req.body.description) query.update["description"]=req.body.description;
     if(req.body.availability) query.update["availability"]=req.body.availability;
+    if(req.body.education) query.update["education"]=req.body.education;
     query.update["lastUpdated"]=Date.now();
     //console.log(query.update);
 

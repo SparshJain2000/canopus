@@ -22,8 +22,18 @@ module.exports = mongoose.model(
         experience: [
             {
                 title: String,
-                time: String,
+                startDate:Date,
+                endDate:Date,
+                institute:String,
                 line: String,
+            },
+        ],
+        education: [
+            {
+                institute: String,
+                degree: String,
+                startTime: String,
+                endTime: String,
             },
         ],
         address: {
@@ -57,19 +67,6 @@ module.exports = mongoose.model(
             posted:Number,
             closed:Number,
         },
-        locum: [
-            {
-                id: {
-                    type: mongoose.Schema.Types.ObjectId,
-                    ref: "Freelance",
-                },
-                title: String,
-                sid:{
-                    type:mongoose.Schema.Types.ObjectId,
-                    ref:"savedFreelance"
-                },
-            },
-        ],
         jobs: [
             {
                 id: {

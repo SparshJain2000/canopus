@@ -60,7 +60,8 @@ router.post("/", (req, res) => {
 			allowed:1,
 			posted:0
 		},
-        validated: false,
+		validated: false,
+		createdAt:Date.now()
     });
     Employer.register(employer, req.body.password)
         .then((employer) => {
