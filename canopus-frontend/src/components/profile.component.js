@@ -385,8 +385,8 @@ export default class Profile extends Component {
                                                 icon={faBriefcaseMedical}
                                                 className='ml-2 mr-3'
                                             />
-                                            {this.state.profile.headline &&
-                                                this.state.profile.headline}
+                                            {this.state.profile.profession &&
+                                                this.state.profile.profession}
                                         </h6>
                                     </div>
                                     {this.state.profile.address && (
@@ -823,6 +823,31 @@ export default class Profile extends Component {
                                                 }}
                                             />
                                         </div>
+                                        <h6 className='col-12 py-1'>
+                                            Profession
+                                        </h6>
+
+                                        <div className='col-12'>
+                                            <Input
+                                                type='text'
+                                                className='form-control '
+                                                placeholder='Profession'
+                                                ref={this.lastName}
+                                                value={
+                                                    this.state.profile
+                                                        .profession
+                                                }
+                                                onChange={(e) => {
+                                                    let profile = this.state
+                                                        .profile;
+                                                    profile.profession =
+                                                        e.target.value;
+                                                    this.setState({
+                                                        profile: profile,
+                                                    });
+                                                }}
+                                            />
+                                        </div>
                                     </div>
                                     <hr />
                                     <h6 className='px-1'>Address</h6>
@@ -928,12 +953,12 @@ export default class Profile extends Component {
                                                             {data.institute}
                                                         </h6>
                                                         <div className='form-group my-1 row'>
-                                                            <div className='col-2 col-form-label'>
+                                                            <div className='col-3 col-form-label'>
                                                                 Institute
                                                             </div>
                                                             <input
                                                                 type='text'
-                                                                className='form-control col-10'
+                                                                className='form-control col-9'
                                                                 value={
                                                                     this.state
                                                                         .profile
@@ -969,12 +994,12 @@ export default class Profile extends Component {
                                                         </div>
 
                                                         <div className='form-group my-1 row'>
-                                                            <div className='col-2 col-form-label'>
+                                                            <div className='col-3 col-form-label'>
                                                                 Degree
                                                             </div>
                                                             <input
                                                                 type='text'
-                                                                className='form-control col-10'
+                                                                className='form-control col-9'
                                                                 value={
                                                                     this.state
                                                                         .profile
@@ -1010,12 +1035,12 @@ export default class Profile extends Component {
                                                         </div>
 
                                                         <div className='form-group my-1 row'>
-                                                            <div className='col-2 col-form-label'>
+                                                            <div className='col-3 col-form-label'>
                                                                 Start-Year
                                                             </div>
                                                             <input
                                                                 type='date'
-                                                                className='form-control col-10'
+                                                                className='form-control col-9'
                                                                 value={
                                                                     this.state
                                                                         .profile
@@ -1050,12 +1075,12 @@ export default class Profile extends Component {
                                                             />
                                                         </div>
                                                         <div className='form-group my-1 row'>
-                                                            <div className='col-2 col-form-label'>
+                                                            <div className='col-3 col-form-label'>
                                                                 End-Year
                                                             </div>
                                                             <input
                                                                 type='date'
-                                                                className='form-control col-10'
+                                                                className='form-control col-9'
                                                                 value={
                                                                     this.state
                                                                         .profile
