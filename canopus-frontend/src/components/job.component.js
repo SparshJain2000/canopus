@@ -226,9 +226,10 @@ export default class Job extends Component {
     }
     applyJob() {
         // this.toggle();
-
+        console.log(this.state.job);
+        const type = this.state.job.startDate ? "freelance" : "job";
         axios
-            .post(`/api/job/apply/${this.state.job._id}`)
+            .post(`/api/job/apply/${type}/${this.state.job._id}`)
             .then(({ data }) => {
                 console.log(data);
                 // setApplied(true);
@@ -237,6 +238,7 @@ export default class Job extends Component {
             .catch(({ response }) => {
                 console.log(response);
                 this.setState({ err: response.data.err });
+                this.toggle();
             });
     }
     toggle() {
