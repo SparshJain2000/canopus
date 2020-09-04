@@ -67,19 +67,6 @@ module.exports = mongoose.model(
             posted:Number,
             closed:Number,
         },
-        locum: [
-            {
-                id: {
-                    type: mongoose.Schema.Types.ObjectId,
-                    ref: "Freelance",
-                },
-                title: String,
-                sid:{
-                    type:mongoose.Schema.Types.ObjectId,
-                    ref:"savedFreelance"
-                },
-            },
-        ],
         jobs: [
             {
                 id: {
