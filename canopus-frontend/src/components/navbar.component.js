@@ -78,12 +78,10 @@ const NavbarComponent = (props) => {
                 history.push("/search-jobs");
             })
             .catch((err) => {
+                console.log(err.response);
                 setShowError(true);
-                if (
-                    err.response &&
-                    err.response.data.err.name === "IncorrectPasswordError"
-                )
-                    setError("Invalid Credentials");
+                if (err.response && err.response.data && err.response.data.err)
+                    setError(err.response.data.err.message);
             });
     };
     const submitEmployer = () => {
@@ -103,11 +101,8 @@ const NavbarComponent = (props) => {
             .catch((err) => {
                 console.log(err.response);
                 setShowError(true);
-                if (
-                    err.response &&
-                    err.response.data.err.name === "IncorrectPasswordError"
-                )
-                    setError("Invalid Credentials");
+                if (err.response && err.response.data && err.response.data.err)
+                    setError(err.response.data.err.message);
             });
     };
     // if (props.user) {
@@ -351,13 +346,13 @@ const NavbarComponent = (props) => {
                             </p>
                             <div className='text-center social-btn'>
                                 <a
-                                    href={`${process.env.REACT_APP_API_URL}/auth/facebook`}
+                                    href={`${process.env.REACT_APP_API_URL}auth/facebook`}
                                     className='btn btn-primary mx-2'>
                                     <FontAwesomeIcon icon={faFacebook} />
                                     &nbsp; Facebook
                                 </a>
                                 <a
-                                    href={`${process.env.REACT_APP_API_URL}/auth/google`}
+                                    href={`${process.env.REACT_APP_API_URL}auth/google`}
                                     className='btn btn-danger mx-2'>
                                     <FontAwesomeIcon icon={faGoogle} />
                                     &nbsp; Google

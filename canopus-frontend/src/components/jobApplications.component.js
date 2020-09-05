@@ -9,6 +9,10 @@ import {
     faUser,
     faPen,
     faArrowRight,
+    faArrowDown,
+    faArrowUp,
+    faCheck,
+    faCheckCircle,
 } from "@fortawesome/free-solid-svg-icons";
 import hospital from "../images/hospital.svg";
 import "../stylesheets/jobApplications.css";
@@ -78,6 +82,33 @@ const Job = ({ job, jobType, type2 }) => {
     const showApplicants = () => {
         setShow(!show);
     };
+    const sponsor = () => {
+        axios
+            .put(`/api/employer/sponsor/${type2}/${job._id}`)
+            .then((data) => {
+                console.log(data);
+                alert("Sponsored !");
+            })
+            .catch((err) => {
+                console.log(err.response);
+                if (err.response.data && err.response.data.err)
+                    alert(err.response.data.err);
+            });
+    };
+    const accept = (id) => {
+        console.log(id);
+        axios
+            .put(`/api/employer/apply/${type2}/${job._id}`, { id })
+            .then((data) => {
+                console.log(data);
+                alert("accepted");
+            })
+            .catch((err) => {
+                console.log(err.response);
+                if (err.response.data && err.response.data.err)
+                    alert(err.response.data.err);
+            });
+    };
     const post = () => {
         console.log("posted");
         if (type2 === "freelance")
@@ -102,9 +133,47 @@ const Job = ({ job, jobType, type2 }) => {
                 className={`row  justify-content-center m-2 m-md-3 p-2 px-md-3  ${
                     job.sponsored ? "block-info" : "block"
                 }`}>
-                <Media body className='col-12 py-1 px-2'>
-                    <Media heading>
-                        <h5>{job.title}</h5>
+                <Media body className='col-12 p-1'>
+                    <Media heading className='row'>
+                        <div className='col-8 px-0'>
+                            <h5>{job.title}</h5>
+                            <h6>
+                                <FontAwesomeIcon icon={faMapMarkerAlt} />{" "}
+                                {job.description && job.description.location}
+                            </h6>
+                        </div>
+                        <div className='col-4  mt-0 p-0 '>
+                            {jobType === "Saved" && (
+                                <Link
+                                    to={{
+                                        pathname: `/employer/job/update/${job._id}`,
+                                        search: freelance
+                                            ? "freelance&save"
+                                            : "job&save",
+                                    }}
+                                    params={{ freelance: freelance }}>
+                                    <Button
+                                        size={"sm"}
+                                        className='btn btn-primary w-100'>
+                                        Edit JOB
+                                    </Button>
+                                </Link>
+                            )}
+                            {jobType === "Open" && (
+                                <Link
+                                    to={{
+                                        pathname: `/employer/job/update/${job._id}`,
+                                        search: freelance
+                                            ? "freelance&post"
+                                            : "job&post",
+                                    }}
+                                    params={{ freelance: freelance }}>
+                                    <Button className='btn btn-primary w-100'>
+                                        Edit JOB
+                                    </Button>
+                                </Link>
+                            )}
+                        </div>
                     </Media>
 
                     {/* <Media heading>
@@ -115,12 +184,7 @@ const Job = ({ job, jobType, type2 }) => {
                                 : "Company"}
                         </h6>
                     </Media> */}
-                    <Media heading>
-                        <h6>
-                            <FontAwesomeIcon icon={faMapMarkerAlt} />{" "}
-                            {job.description && job.description.location}
-                        </h6>
-                    </Media>
+                    <Media heading></Media>
                     <hr />
                     <div className='row m-0'>
                         <div className='col-12 desc'>
@@ -185,15 +249,37 @@ const Job = ({ job, jobType, type2 }) => {
                     </div>
                     {jobType === "Open" && (
                         <div className='row w-100 justify-content-start mt-3'>
-                            <div className='col-6  my-auto p-0 p-md-2 pr-1'>
+                            <div className='col-12 col-sm-6  my-auto px-1 py-1 py-sm-0'>
                                 <Button
-                                    color={`info`}
-                                    onClick={showApplicants}
-                                    className={`w-100 `}>
-                                    Applicants
+                                    className='w-100'
+                                    color={"info"}
+                                    onClick={sponsor}>
+                                    Sponsor
                                 </Button>
                             </div>
-                            <div className='col-6  my-auto p-0 p-md-2 pl-1'>
+                            <div className='col-12 col-sm-6  my-auto px-1 py-1 py-sm-0'>
+                                <Button
+                                    color={`primary`}
+                                    // style={{
+                                    //     backgroundColor: "rgba(0, 0, 0, 0)",
+                                    //     color: "black",
+                                    //     border: "0px solid transparent",
+                                    // }}
+                                    onClick={showApplicants}
+                                    className='w-100 '>
+                                    Applicants
+                                    <span className='float-right'>
+                                        {show ? (
+                                            <FontAwesomeIcon icon={faArrowUp} />
+                                        ) : (
+                                            <FontAwesomeIcon
+                                                icon={faArrowDown}
+                                            />
+                                        )}
+                                    </span>
+                                </Button>
+                            </div>
+                            {/* <div className='col-6  my-auto p-0 p-md-2 pl-1'>
                                 <Link
                                     to={{
                                         pathname: `/employer/job/update/${job._id}`,
@@ -206,20 +292,20 @@ const Job = ({ job, jobType, type2 }) => {
                                         Edit JOB
                                     </Button>
                                 </Link>
-                            </div>
+                            </div> */}
                         </div>
                     )}
                     {jobType === "Saved" && (
                         <div className='row w-100 justify-content-start mt-3'>
-                            <div className='col-6  my-auto p-0 p-md-2 pr-1'>
+                            <div className='col-12  my-auto p-0 p-md-2 pr-1'>
                                 <Button
                                     color={`info`}
                                     onClick={post}
-                                    className={`w-100 `}>
+                                    className='w-100'>
                                     Post
                                 </Button>
                             </div>
-                            <div className='col-6  my-auto p-0 p-md-2 pl-1'>
+                            {/* <div className='col-6  my-auto p-0 p-md-2 pl-1'>
                                 <Link
                                     to={{
                                         pathname: `/employer/job/update/${job._id}`,
@@ -232,7 +318,7 @@ const Job = ({ job, jobType, type2 }) => {
                                         Edit JOB
                                     </Button>
                                 </Link>
-                            </div>
+                            </div> */}
                         </div>
                     )}
                 </Media>
@@ -265,10 +351,17 @@ const Job = ({ job, jobType, type2 }) => {
                                     {applicant.username}
                                     <Link
                                         to={`/profile/${applicant.id}`}
-                                        className='btn btn-primary btn-sm float-right'
+                                        className='btn btn-primary btn-sm float-right mx-1'
                                         style={{ borderRadius: "50%" }}>
                                         <FontAwesomeIcon icon={faArrowRight} />
                                     </Link>
+                                    <Button
+                                        color='success'
+                                        className='btn btn-primary btn-sm float-right mx-1'
+                                        onClick={() => accept(applicant.id)}
+                                        style={{ borderRadius: "50%" }}>
+                                        <FontAwesomeIcon icon={faCheck} />
+                                    </Button>
                                 </ListGroupItem>
                             ))}
                         </ListGroup>

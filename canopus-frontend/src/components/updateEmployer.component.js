@@ -36,7 +36,7 @@ export default class UpdateEmployer extends Component {
             type: "",
             links: [""],
             youtube: [""],
-            image: [""],
+            image: [],
             about: "",
             about2: "",
             employeeCount: 0,
@@ -44,7 +44,7 @@ export default class UpdateEmployer extends Component {
             noYoutube: 1,
             lat: null,
             lng: null,
-            _id: null,
+            id: null,
             progress: 0,
             loading: false,
             uploadingLogo: false,
@@ -120,9 +120,14 @@ export default class UpdateEmployer extends Component {
         Axios.get("/api/employer/profile")
             .then(({ data }) => {
                 const user = data;
+                console.log(user._id);
                 console.log(user);
-                if (user)
+                if (user) {
                     this.setState({
+                        id: user._id,
+                        // });
+                        // this.setState({
+                        //     id: user._id,
                         firstName: user.firstName,
                         logo: user.logo,
                         lastName: user.lastName,
@@ -133,13 +138,13 @@ export default class UpdateEmployer extends Component {
                         pin: user.address.pin,
                         city: user.address.city,
                         state: user.address.state,
-                        _id: user._id,
-                        lat:
-                            user.address.coordinates &&
-                            user.address.coordinates.lat,
-                        lng:
-                            user.address.coordinates &&
-                            user.address.coordinates.lng,
+
+                        lat: user.address.coordinates
+                            ? user.address.coordinates.lat
+                            : null,
+                        lng: user.address.coordinates
+                            ? user.address.coordinates.lng
+                            : null,
 
                         about: user.description.about,
                         about2: user.description.about2,
@@ -147,11 +152,14 @@ export default class UpdateEmployer extends Component {
                         OTs: user.description.OTs
                             ? Number(user.description.OTs)
                             : 0,
-                        ICUs: user.description.ICUs ? user.description.ICUs : 2,
+                        ICUs: user.description.ICUs ? user.description.ICUs : 0,
                         employeeCount: user.description.employeeCount
                             ? Number(user.description.employeeCount)
                             : 0,
+                        organization: user.description.organization,
+                        type: user.description.type,
                     });
+                }
             })
             .catch((err) => console.log(err));
     }
@@ -228,20 +236,20 @@ export default class UpdateEmployer extends Component {
                     );
                     var buffer = new Buffer(matches[2], "base64");
                     const image = {
-                        name: `${this.state._id}_${file.name}`,
+                        name: `${this.state.id}_${file.name}`,
                         data: buffer,
                         mimeType: file.type,
                         size: file.size,
                     };
                     console.log(image);
                     Axios.post(`/api/upload/employer`, {
-                        context: `${this.state._id}_${file.name}`,
+                        context: `${this.state.id}_${file.name}`,
                     })
                         .then(({ data }) => {
                             const sas = data.token;
                             this.uploadToStorage("canopus", sas, image).then(
                                 (res) => {
-                                    const url = `https://canopus.blob.core.windows.net/employer-image/${this.state._id}_${file.name}`;
+                                    const url = `https://canopus.blob.core.windows.net/employer-image/${this.state.id}_${file.name}`;
                                     let imgs = this.state.image;
                                     console.log(imgs);
                                     this.setState({
@@ -264,7 +272,7 @@ export default class UpdateEmployer extends Component {
     uploadLogo(e) {
         // console.log(this.image.current.value);
         this.setState({ loading: true });
-
+        console.log(this.state);
         const files = Array.from(e.target.files);
         if (files.length !== 0) {
             this.setState({ uploadingLogo: true });
@@ -285,20 +293,20 @@ export default class UpdateEmployer extends Component {
                     );
                     var buffer = new Buffer(matches[2], "base64");
                     const image = {
-                        name: `${this.state._id}_${file.name}`,
+                        name: `${this.state.id}_${file.name}`,
                         data: buffer,
                         mimeType: file.type,
                         size: file.size,
                     };
                     console.log(image);
                     Axios.post(`/api/upload/employer`, {
-                        context: `${this.state._id}_${file.name}`,
+                        context: `${this.state.id}_${file.name}`,
                     })
                         .then(({ data }) => {
                             const sas = data.token;
                             this.uploadToStorage("canopus", sas, image).then(
                                 (res) => {
-                                    const url = `https://canopus.blob.core.windows.net/employer-image/${this.state._id}_${file.name}`;
+                                    const url = `https://canopus.blob.core.windows.net/employer-image/${this.state.id}_${file.name}`;
                                     this.setState({
                                         logo: url,
                                         loading: false,
@@ -330,11 +338,13 @@ export default class UpdateEmployer extends Component {
                     <FormGroup className='row'>
                         <div className='col-12 col-md-3 text-align-center'>
                             {/* <Label className='w-100'>Logo</Label> */}
-                            <img
-                                src={this.state.logo}
-                                className='img-fluid img-thumbnail'
-                                alt='logo'
-                            />
+                            {this.state.logo && this.state.logo !== "" && (
+                                <img
+                                    src={this.state.logo}
+                                    className='img-fluid img-thumbnail'
+                                    alt='logo'
+                                />
+                            )}
                             <div className='col-12'>
                                 {this.state.uploadingLogo &&
                                     this.state.progress !== 1 &&
@@ -466,7 +476,7 @@ export default class UpdateEmployer extends Component {
                                 />
                             </FormGroup>
                             <FormGroup className='row '>
-                                {/* <div className='col-12 col-sm-6 pr-1'>
+                                <div className='col-12 col-sm-6 pr-1'>
                                     <Label>Latitude</Label>
                                     <Input
                                         placeholder='Latitude'
@@ -485,13 +495,13 @@ export default class UpdateEmployer extends Component {
                                         value={this.state.lng}
                                         disabled
                                     />
-                                </div> */}
+                                </div>
                             </FormGroup>
                         </div>
 
                         <div className='col-12 col-lg-6'>
                             <FormGroup className='img-thumbnail'>
-                                {this.state.lat && (
+                                {this.state.lat && this.state.lng ? (
                                     <InputMap
                                         setCoordinates={this.setCoordinates}
                                         coordinates={{
@@ -499,8 +509,7 @@ export default class UpdateEmployer extends Component {
                                             lng: this.state.lng,
                                         }}
                                     />
-                                )}
-                                {!this.state.lat && (
+                                ) : (
                                     <InputMap
                                         setCoordinates={this.setCoordinates}
                                         coordinates={null}
@@ -515,13 +524,13 @@ export default class UpdateEmployer extends Component {
                         <h4>About Organization</h4>
                     </FormGroup>
                     <FormGroup className='row'>
-                        <div className='col-12 col-sm-6 pr-0 pr-sm-1'>
+                        <div className='col-12 col-sm-6 pr-0 pr-sm-1 my-sm-2'>
                             <Label>Oranization Name</Label>
                             <Input
                                 placeholder='Organization name'
                                 name='organization'
                                 onChange={this.handleChange}
-                                defaultValue={this.state.oraganization}
+                                defaultValue={this.state.organization}
                             />
                         </div>
                         <div className='col-12 col-sm-6 pr-0 pl-sm-1 my-sm-2'>
@@ -541,8 +550,9 @@ export default class UpdateEmployer extends Component {
                                 type='number'
                                 placeholder='Number of beds'
                                 name='beds'
-                                onChange={this.handleChange}
                                 defaultValue={this.state.beds}
+                                onChange={this.handleChange}
+                                // defaultValue={`${this.state.beds}`}
                             />
                         </div>
                         <div className='col-12 col-sm-3 pr-0 pr-sm-1'>

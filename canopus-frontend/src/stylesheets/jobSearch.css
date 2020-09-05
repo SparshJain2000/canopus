@@ -100,7 +100,7 @@
     border-radius: 40px;
     position: relative;
     transition: background-color .2s;
-    transform: scale(0.75);
+    transform: scale(0.8);
 }
 
 .react-switch-checkbox {
@@ -162,3 +162,15 @@ width: 110px;
 
 }
 */
+
+.job-found {
+    padding-top: .94rem;
+    font-size: 1.25rem
+}
+
+@media (max-width: 576px) {
+    .job-found {
+        padding-top: 0.5rem;
+        font-size: 1.2rem;
+    }
+}

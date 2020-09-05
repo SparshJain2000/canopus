@@ -27,7 +27,13 @@ export default class Overview extends Component {
                 console.log(data);
                 this.setState({ employer: data });
             })
-            .catch(({ response }) => console.log(response));
+            .catch(({ response }) => {
+                console.log(response);
+                if (response.data) {
+                    alert(response.data.err);
+                    window.location = "/";
+                }
+            });
     }
     render() {
         return (
@@ -60,6 +66,7 @@ export default class Overview extends Component {
                                     </h3>
                                     <h6>
                                         {`${
+                                            this.state.employer.description &&
                                             this.state.employer.description.type
                                                 ? this.state.employer
                                                       .description.type
@@ -113,44 +120,58 @@ export default class Overview extends Component {
                             <div className='row p-3 m-2' style={block}>
                                 <h4 className='col-12'>Location</h4>
                                 <p className='col-12'>
-                                    {this.state.employer.address.line}
+                                    {this.state.employer.address &&
+                                        this.state.employer.address.line}
                                 </p>
-                                <p className='col-12'>{`${this.state.employer.address.city}, ${this.state.employer.address.state}, ${this.state.employer.address.pin}`}</p>
+                                <p className='col-12'>
+                                    {this.state.employer.address &&
+                                        `${this.state.employer.address.city}, ${this.state.employer.address.state}, ${this.state.employer.address.pin}`}
+                                </p>
                                 <div className='col-12'>
-                                    {this.state.employer.address
-                                        .coordinates && (
-                                        <ShowMap
-                                            coordinates={
-                                                this.state.employer.address
-                                                    .coordinates
-                                            }
-                                        />
-                                    )}
+                                    {this.state.employer.address &&
+                                        this.state.employer.address
+                                            .coordinates && (
+                                            <ShowMap
+                                                coordinates={
+                                                    this.state.employer.address
+                                                        .coordinates
+                                                }
+                                            />
+                                        )}
                                 </div>
                             </div>
-                            {this.state.employer.image.length !== 0 && (
-                                <div className='row p-3 m-2' style={block}>
-                                    <h4>Images</h4>
-                                    <ImageCarousel
-                                        style={{ minHeight: "360px" }}
-                                        items={this.state.employer.image}
-                                    />
-                                </div>
-                            )}
-                            {this.state.employer.youtube && (
-                                <div className='row p-3 m-2' style={block}>
-                                    <h4>Videos</h4>
+                            {this.state.employer.image &&
+                                this.state.employer.image.length !== 0 &&
+                                !(
+                                    this.state.employer.image.length === 1 &&
+                                    this.state.employer.image[0] === ""
+                                ) && (
+                                    <div className='row p-3 m-2' style={block}>
+                                        <h4>Images</h4>
+                                        <ImageCarousel
+                                            style={{ minHeight: "360px" }}
+                                            items={this.state.employer.image}
+                                        />
+                                    </div>
+                                )}
+                            {this.state.employer.youtube &&
+                                !(
+                                    this.state.employer.youtube.length === 1 &&
+                                    this.state.employer.youtube[0] === ""
+                                ) && (
+                                    <div className='row p-3 m-2' style={block}>
+                                        <h4>Videos</h4>
 
-                                    <VideoCarousel
-                                        className='w-100'
-                                        items={this.state.employer.youtube}
-                                    />
-                                    {/* <ReactPlayer
+                                        <VideoCarousel
+                                            className='w-100'
+                                            items={this.state.employer.youtube}
+                                        />
+                                        {/* <ReactPlayer
                                         className='w-100'
                                         url='https://www.youtube.com/watch?v=b_lHyhTRb-8&list=RDv2-9rIL_f4w&index=34'
                                     /> */}
-                                </div>
-                            )}
+                                    </div>
+                                )}
                         </div>
                         <div
                             className='col-12 col-sm-5 col-md-4  row p-3 pt-4'
@@ -240,7 +261,7 @@ export default class Overview extends Component {
                                             <td>
                                                 {this.state.employer.sponsors
                                                     ? this.state.employer
-                                                          .sponsors
+                                                          .sponsors.posted
                                                     : "-"}
                                             </td>
                                             <td>0</td>

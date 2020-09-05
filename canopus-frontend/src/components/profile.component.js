@@ -575,96 +575,105 @@ export default class Profile extends Component {
                                     )}
                                 </div>
                             )}
-                            <div className='block-noHover mt-4 p-2 p-sm-3'>
-                                <h3>Resume</h3>
+                            {(this.state.editable ||
+                                !(
+                                    typeof this.state.profile.resume ===
+                                        "undefined" ||
+                                    this.state.profile.resume === ""
+                                )) && (
+                                <div className='block-noHover mt-4 p-2 p-sm-3'>
+                                    <h3>Resume</h3>
 
-                                {(typeof this.state.profile.resume ===
-                                    "undefined" ||
-                                    this.state.profile.resume === "") &&
-                                this.state.progress !== 1 ? (
-                                    <div>
-                                        <input
-                                            type='file'
-                                            class='file'
-                                            ref={this.resume}
-                                            accept='.pdf,.doc'
-                                            onChange={this.uploadResume}
-                                        />
-                                        <div className='my-1 mt-3'>
-                                            <Progress
-                                                animated
-                                                color='info'
-                                                value={
-                                                    this.state.progress * 100
-                                                }>
-                                                <h6 className='m-0'>
-                                                    {Math.round(
+                                    {(typeof this.state.profile.resume ===
+                                        "undefined" ||
+                                        this.state.profile.resume === "") &&
+                                    this.state.progress !== 1 ? (
+                                        <div>
+                                            <input
+                                                type='file'
+                                                class='file'
+                                                ref={this.resume}
+                                                accept='.pdf,.doc'
+                                                onChange={this.uploadResume}
+                                            />
+                                            <div className='my-1 mt-3'>
+                                                <Progress
+                                                    animated
+                                                    color='info'
+                                                    value={
                                                         this.state.progress *
-                                                            100,
-                                                    )}
-                                                    {"%"}
-                                                </h6>
-                                            </Progress>
-                                        </div>
-                                    </div>
-                                ) : this.state.uploaded ? (
-                                    <div className='row'>
-                                        {this.state.editable && (
-                                            <div className='col-12 col-sm-4'>
-                                                <h5>Uploaded !</h5>
+                                                        100
+                                                    }>
+                                                    <h6 className='m-0'>
+                                                        {Math.round(
+                                                            this.state
+                                                                .progress * 100,
+                                                        )}
+                                                        {"%"}
+                                                    </h6>
+                                                </Progress>
                                             </div>
-                                        )}
-                                        <div className='col-12 col-sm-8 row justify-content-between'>
-                                            <a
-                                                href={`${this.state.profile.resume}`}
-                                                className='col-5 btn btn-info btn-sm mr-1'>
-                                                View Resume
-                                                <FontAwesomeIcon
-                                                    className='ml-2'
-                                                    icon={faFileAlt}
-                                                />
-                                            </a>
-                                            {/* <a
+                                        </div>
+                                    ) : this.state.uploaded ? (
+                                        <div className='row'>
+                                            {this.state.editable && (
+                                                <div className='col-12 col-sm-4'>
+                                                    <h5>Uploaded !</h5>
+                                                </div>
+                                            )}
+                                            <div className='col-12 col-sm-8 row justify-content-between'>
+                                                <a
+                                                    href={`${this.state.profile.resume}`}
+                                                    className='col-5 btn btn-info btn-sm mr-1'>
+                                                    View Resume
+                                                    <FontAwesomeIcon
+                                                        className='ml-2'
+                                                        icon={faFileAlt}
+                                                    />
+                                                </a>
+                                                {/* <a
                                                 href={`${this.state.profile.resume}`}
                                                 className='btn btn-info btn-sm float-right mr-3'>
                                                 Change Resume
                                             </a> */}
-                                            {this.state.editable && (
-                                                <button
-                                                    className='col-6 btn btn-sm btn-primary'
-                                                    onClick={() => {
-                                                        let profile = this.state
-                                                            .profile;
-                                                        profile.resume = "";
-                                                        this.setState({
-                                                            profile: profile,
-                                                        });
-                                                        this.update();
-                                                    }}>
-                                                    Change Resume
-                                                    <FontAwesomeIcon
-                                                        className='ml-2'
-                                                        icon={faPen}
-                                                    />
-                                                </button>
-                                            )}
+                                                {this.state.editable && (
+                                                    <button
+                                                        className='col-6 btn btn-sm btn-primary'
+                                                        onClick={() => {
+                                                            let profile = this
+                                                                .state.profile;
+                                                            profile.resume = "";
+                                                            this.setState({
+                                                                profile: profile,
+                                                            });
+                                                            this.update();
+                                                        }}>
+                                                        Change Resume
+                                                        <FontAwesomeIcon
+                                                            className='ml-2'
+                                                            icon={faPen}
+                                                        />
+                                                    </button>
+                                                )}
+                                            </div>
                                         </div>
-                                    </div>
-                                ) : (
-                                    <Loader
-                                        type='Rings'
-                                        color='#17a2b8'
-                                        className='mx-auto my-2 my-auto w-100 '
-                                        style={{
-                                            textAlign: "center",
-                                            height: "100%",
-                                            background: "rgba(255,255,255,.7)",
-                                        }}
-                                        height={160}
-                                        width={220}
-                                    />
-                                )}
-                            </div>
+                                    ) : (
+                                        <Loader
+                                            type='Rings'
+                                            color='#17a2b8'
+                                            className='mx-auto my-2 my-auto w-100 '
+                                            style={{
+                                                textAlign: "center",
+                                                height: "100%",
+                                                background:
+                                                    "rgba(255,255,255,.7)",
+                                            }}
+                                            height={160}
+                                            width={220}
+                                        />
+                                    )}
+                                </div>
+                            )}
                         </div>
                         <Modal
                             isOpen={this.state.modalAbout}

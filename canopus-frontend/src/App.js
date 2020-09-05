@@ -121,7 +121,13 @@ class App extends Component {
                         exact
                         path='/employer'
                         // render={(props) => <Profile {...props} />}
-                        component={() => <Employer />}
+                        render={(props) => (
+                            <Employer
+                                {...props}
+                                // user={this.state.user}
+                                setUser={this.setUser}
+                            />
+                        )}
                     />
 
                     <Route

@@ -621,7 +621,7 @@ export default class JobSearch extends Component {
                 };
                 console.log(query);
                 axios
-                    .post(`/api/job/freelance`, query)
+                    .post(`/api/job/freelanceSearch`, query)
                     .then(({ data }) => {
                         console.log(data);
                         this.setState({
@@ -661,29 +661,35 @@ export default class JobSearch extends Component {
 
                 axios
                     .post(`/api/job/search`, query)
-                    .then(({ data }) => {
-                        console.log(data);
+                    .then((res) => {
+                        console.log(res);
+                        const data = res.data;
                         this.setState({
                             jobs: data.jobs,
-                            isZero: data.jobs.length === 0,
+                            isZero: data.jobs ? data.jobs.length === 0 : true,
                             loaded: true,
-                            pageCount:
-                                data.jobs.length === 0
+                            pageCount: data.jobs
+                                ? data.jobs.length === 0
                                     ? 0
                                     : Math.ceil(
-                                          data.count
+                                          (data.count
                                               ? data.count.jobCount
-                                              : 0 / this.state.pageSize,
-                                      ),
+                                              : 0) / this.state.pageSize,
+                                      )
+                                : 0,
 
-                            jobsFound: `${
-                                data.jobs.length === 0 ? 0 : data.count.jobCount
-                            } ${this.state.profession}${
-                                this.state.profession !== "" &&
-                                this.state.specialization != ""
-                                    ? " / "
-                                    : ""
-                            }${this.state.specialization} jobs found`,
+                            jobsFound: data.jobs
+                                ? `${
+                                      data.jobs.length === 0
+                                          ? 0
+                                          : data.count.jobCount
+                                  } ${this.state.profession}${
+                                      this.state.profession !== "" &&
+                                      this.state.specialization != ""
+                                          ? " / "
+                                          : ""
+                                  }${this.state.specialization} jobs found`
+                                : "",
                         });
                         console.log("----------------");
                         console.log(this.state.isZero);
@@ -693,6 +699,7 @@ export default class JobSearch extends Component {
                         console.log(err);
                         console.log(err.response);
                         this.setState({ loaded: true });
+                        alert(err.response.data.err);
                     });
             }
         } else this.getAllJobs(skipNo);
@@ -1632,123 +1639,114 @@ export default class JobSearch extends Component {
                         backgroundColor: "lightgrey",
                     }}
                 />
-                {/* {!this.state.freelance && (
-                    <div className='col-12 col-lg-8 '></div>
-                )} */}
-                {
-                    <div className='col-12 col-lg-8 position-relative'>
-                        <div
-                            className='sticky-filter p-1 row justify-content-between align-content-center'
-                            style={{
-                                top: 0,
-                                backgroundColor: "white",
-                                zIndex: 500,
-                            }}>
-                            <h4
-                                className='mt-1 col-7 col-sm-3 px-0 job-found'
-                                // py-1 py-sm-3
-                                // style={{ paddingTop: ".94rem" }}
-                            >
-                                {this.state.jobsFound}
-                            </h4>
-                            <div className='row col-5 px-0 col-sm-9 justify-content-end'>
-                                <div
-                                    className='d-none d-lg-flex col-12 col-lg-7 mt-0 mt-sm-2 py-1  row  switch justify-content-end'
+                <div className='col-12 col-lg-8 position-relative'>
+                    <div
+                        className='sticky-filter p-1 row justify-content-between align-content-center'
+                        style={{
+                            top: 0,
+                            backgroundColor: "white",
+                            zIndex: 500,
+                        }}>
+                        <h4
+                            className='mt-1 col-7 col-sm-3 px-0 job-found'
+                            // py-1 py-sm-3
+                            // style={{ paddingTop: ".94rem" }}
+                        >
+                            {this.state.jobsFound}
+                        </h4>
+                        <div className='row col-5 px-0 col-sm-9 justify-content-end'>
+                            <div
+                                className='d-none d-lg-flex col-12 col-lg-7 mt-0 mt-sm-2 py-1  row  switch justify-content-end'
+                                style={{
+                                    height: "max-content",
+                                }}>
+                                <span
+                                    className='py-2 pr-1'
                                     style={{
-                                        height: "max-content",
+                                        fontSize: "1.1rem",
                                     }}>
-                                    <span
-                                        className='py-2 pr-1'
-                                        style={{
-                                            fontSize: "1.1rem",
-                                        }}>
-                                        Day Jobs / Locum
-                                    </span>
-                                    <input
-                                        className='react-switch-checkbox'
-                                        id={`react-switch-new`}
-                                        type='checkbox'
-                                        ref={this.freelance}
-                                        //   checked={this.state.freelance}
-                                    />
+                                    Day Jobs / Locum
+                                </span>
+                                <input
+                                    className='react-switch-checkbox'
+                                    id={`react-switch-new`}
+                                    type='checkbox'
+                                    ref={this.freelance}
+                                    //   checked={this.state.freelance}
+                                />
 
-                                    <label
-                                        className='react-switch-label float-right my-auto'
-                                        htmlFor={`react-switch-new`}
-                                        onClick={() => {
-                                            console.log(
-                                                this.freelance.current.checked,
-                                            );
+                                <label
+                                    className='react-switch-label float-right my-auto'
+                                    htmlFor={`react-switch-new`}
+                                    onClick={() => {
+                                        console.log(
+                                            this.freelance.current.checked,
+                                        );
 
-                                            this.setState({
-                                                freelance: this.state.current
-                                                    ? this.freelance.current
-                                                          .checked
-                                                    : !this.state.freelance,
-                                            });
-                                            this.freelance.current.checked = this.state.freelance;
-                                            // this.search(0);
-                                        }}>
-                                        <span
-                                            className={`react-switch-button`}
-                                        />
-                                    </label>
-                                </div>
-                                <InputGroup className='col-12 col-lg-5 mt-0 mt-sm-2 justify-content-end px-0'>
-                                    <div className='row w-100  pr-0 switch '>
-                                        <div
-                                            className=' px-0 pr-1 d-none d-lg-flex'
-                                            style={{ marginTop: ".9rem" }}>
-                                            <span className='pr-1'>
-                                                Sort By
-                                            </span>
-                                        </div>
-                                        <div className='col-8 py-2 px-0'>
-                                            <Select
-                                                autosize={true}
-                                                placeholder='Sort parameter'
-                                                className='select-sort'
-                                                styles={customControlStyles}
-                                                options={[
-                                                    {
-                                                        label: "revelance",
-                                                        value: "revelance",
-                                                    },
-                                                    {
-                                                        label: "New Jobs",
-                                                        value: "New",
-                                                    },
-                                                    {
-                                                        label: "Old Jobs",
-                                                        value: "Old",
-                                                    },
-                                                    {
-                                                        label:
-                                                            "Number of applicants",
-                                                        value:
-                                                            "Number of applicants",
-                                                    },
-                                                ]}
-                                                defaultValue={{
+                                        this.setState({
+                                            freelance: this.state.current
+                                                ? this.freelance.current.checked
+                                                : !this.state.freelance,
+                                        });
+                                        this.freelance.current.checked = this.state.freelance;
+                                        // this.search(0);
+                                    }}>
+                                    <span className={`react-switch-button`} />
+                                </label>
+                            </div>
+                            <InputGroup className='col-12 col-lg-5 mt-0 mt-sm-2 justify-content-end px-0'>
+                                <div className='row w-100  pr-0 switch '>
+                                    <div
+                                        className=' px-0 pr-1 d-none d-lg-flex'
+                                        style={{ marginTop: ".9rem" }}>
+                                        <span className='pr-1'>Sort By</span>
+                                    </div>
+                                    <div className='col-8 py-2 px-0'>
+                                        <Select
+                                            autosize={true}
+                                            placeholder='Sort parameter'
+                                            className='select-sort'
+                                            styles={customControlStyles}
+                                            options={[
+                                                {
                                                     label: "revelance",
                                                     value: "revelance",
-                                                }}
-                                                // ref={this.location}
-                                                onChange={(e) => {
-                                                    console.log(e);
-                                                    this.setState({
-                                                        sortBy: e.value,
-                                                    });
-                                                    // this.setState({
-                                                    //     location: e ? e.value : "",
-                                                    // });
-                                                }}
-                                            />
-                                        </div>
+                                                },
+                                                {
+                                                    label: "New Jobs",
+                                                    value: "New",
+                                                },
+                                                {
+                                                    label: "Old Jobs",
+                                                    value: "Old",
+                                                },
+                                                {
+                                                    label:
+                                                        "Number of applicants",
+                                                    value:
+                                                        "Number of applicants",
+                                                },
+                                            ]}
+                                            defaultValue={{
+                                                label: "revelance",
+                                                value: "revelance",
+                                            }}
+                                            // ref={this.location}
+                                            onChange={(e) => {
+                                                console.log(e);
+                                                this.setState({
+                                                    sortBy: e.value,
+                                                });
+                                                // this.setState({
+                                                //     location: e ? e.value : "",
+                                                // });
+                                            }}
+                                        />
                                     </div>
-                                </InputGroup>
-                            </div>
-                            {/* <div
+                                </div>
+                            </InputGroup>
+                        </div>
+                        {/* <div
                                 className=' col-12 col-sm-4 mt-0 mt-sm-2 py-1  row  switch'
                                 style={{
                                     height: "max-content",
@@ -1829,109 +1827,135 @@ export default class JobSearch extends Component {
                                     </div>
                                 </div>
                             </InputGroup> */}
-                        </div>
-
-                        {this.state.loaded ? (
-                            this.state.jobs.length !== 0 &&
-                            !this.state.isZero ? (
-                                <div className='position-relative '>
-                                    {this.state.jobs.map((job) => {
-                                        return (
-                                            <Job
-                                                key={job._id}
-                                                job={job}
-                                                userId={
-                                                    this.props.user
-                                                        ? this.props.user._id
-                                                        : null
-                                                }
-                                                user={this.props.user}
-                                            />
-                                        );
-                                    })}
-                                </div>
-                            ) : (
-                                <h2
-                                    className='my-5'
-                                    style={{
-                                        textAlign: "center",
-                                        // marginTop: "10rem",
-                                    }}>
-                                    No results found
-                                </h2>
-                            )
-                        ) : (
-                            <div
-                                className='mx-auto my-auto'
-                                style={{ textAlign: "center" }}>
-                                <Loader
-                                    type='Bars'
-                                    color='#17a2b8'
-                                    height={300}
-                                    width={120}
-                                />
-                            </div>
-                        )}
                     </div>
-                }
-                <div className='pagination-wrapper'>
-                    <Pagination aria-label='Page navigation example'>
-                        <PaginationItem disabled={this.state.currentPage <= 0}>
-                            <PaginationLink
-                                onClick={(e) => {
-                                    this.setState({
-                                        currentPage: this.state.currentPage - 1,
-                                    });
-                                    this.search(
-                                        (this.state.currentPage - 1) *
-                                            this.state.pageSize,
-                                    );
-                                }}
-                                previous
-                                href='#'
-                            />
-                        </PaginationItem>
 
-                        {[...Array(this.state.pageCount)].map((page, i) => (
+                    {this.state.loaded ? (
+                        this.state.jobs.length !== 0 && !this.state.isZero ? (
+                            <div className='position-relative '>
+                                {this.state.jobs.map((job) => {
+                                    return (
+                                        <Job
+                                            key={job._id}
+                                            job={job}
+                                            userId={
+                                                this.props.user
+                                                    ? this.props.user._id
+                                                    : null
+                                            }
+                                            user={this.props.user}
+                                        />
+                                    );
+                                })}
+                            </div>
+                        ) : (
+                            <h2
+                                className='my-5'
+                                style={{
+                                    textAlign: "center",
+                                    // marginTop: "10rem",
+                                }}>
+                                No results found
+                            </h2>
+                        )
+                    ) : (
+                        <div
+                            className='mx-auto my-auto'
+                            style={{ textAlign: "center" }}>
+                            <Loader
+                                type='Bars'
+                                color='#17a2b8'
+                                height={300}
+                                width={120}
+                            />
+                        </div>
+                    )}
+                    <div className='pagination-wrapper w-100 text-align-center'>
+                        <Pagination aria-label='Page navigation example '>
                             <PaginationItem
-                                active={i === this.state.currentPage}
-                                key={i}>
+                                disabled={this.state.currentPage <= 0}>
                                 <PaginationLink
                                     onClick={(e) => {
                                         this.setState({
-                                            currentPage: i,
+                                            currentPage:
+                                                this.state.currentPage - 1,
                                         });
-                                        this.search(i * this.state.pageSize);
+                                        this.search(
+                                            (this.state.currentPage - 1) *
+                                                this.state.pageSize,
+                                        );
                                     }}
-                                    href='#'>
-                                    {i + 1}
-                                </PaginationLink>
+                                    previous
+                                    href='#'
+                                />
                             </PaginationItem>
-                        ))}
 
-                        <PaginationItem
-                            disabled={
-                                this.state.currentPage >=
-                                this.state.pageCount - 1
-                                // true
-                            }>
-                            <PaginationLink
-                                onClick={(e) => {
-                                    this.setState({
-                                        currentPage: this.state.currentPage + 1,
-                                    });
-                                    this.search(
-                                        (this.state.currentPage + 1) *
-                                            this.state.pageSize,
+                            {[...Array(this.state.pageCount)].map((page, i) => {
+                                if (i === this.state.currentPage - 3)
+                                    return (
+                                        <PaginationItem>
+                                            <PaginationLink>
+                                                {"..."}
+                                            </PaginationLink>
+                                        </PaginationItem>
                                     );
-                                }}
-                                next
-                                href='#'
-                            />
-                        </PaginationItem>
-                    </Pagination>
+                                if (
+                                    i <= this.state.currentPage + 2 &&
+                                    i >= this.state.currentPage - 2
+                                )
+                                    return (
+                                        <PaginationItem
+                                            active={
+                                                i === this.state.currentPage
+                                            }
+                                            key={i}>
+                                            <PaginationLink
+                                                onClick={(e) => {
+                                                    this.setState({
+                                                        currentPage: i,
+                                                    });
+                                                    this.search(
+                                                        i * this.state.pageSize,
+                                                    );
+                                                }}
+                                                href='#'>
+                                                {i + 1}
+                                            </PaginationLink>
+                                        </PaginationItem>
+                                    );
+                                if (i === this.state.currentPage + 3)
+                                    return (
+                                        <PaginationItem>
+                                            <PaginationLink>
+                                                {"..."}
+                                            </PaginationLink>
+                                        </PaginationItem>
+                                    );
+                            })}
+
+                            <PaginationItem
+                                disabled={
+                                    this.state.currentPage >=
+                                    this.state.pageCount - 1
+                                    // true
+                                }>
+                                <PaginationLink
+                                    onClick={(e) => {
+                                        this.setState({
+                                            currentPage:
+                                                this.state.currentPage + 1,
+                                        });
+                                        this.search(
+                                            (this.state.currentPage + 1) *
+                                                this.state.pageSize,
+                                        );
+                                    }}
+                                    next
+                                    href='#'
+                                />
+                            </PaginationItem>
+                        </Pagination>
+                    </div>
                 </div>
-                {/* </div> */}
             </div>
         );
     }

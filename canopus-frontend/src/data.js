@@ -1,3 +1,15 @@
+// import axios from "axios";
+// class Data {
+//     constructor() {
+//         axios.get("/json/data.json").then(({ data }) => {
+//             this.data = data;
+//         });
+//     }
+//     getData = () => {
+//         return this.data;
+//     };
+// }
+
 const data = {
     professions: [
         "Physician",
