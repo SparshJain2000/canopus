@@ -272,20 +272,21 @@ router.put("/profile/update/", middleware.isEmployer,async(req, res) => {
 });
 
 router.put("/apply/job/:id",middleware.checkJobOwnership, (req,res)=>{
-    User.findById(req.body.id).then((user) =>{
-		Job.findById(req.params.id).then((job)=>{
+    User.findById(req.body.id).then((user) => {
+		Job.findById(req.params.id).then((job) => {
 			if(job.description.count-job.acceptedApplicants.length==0)
 			return res.status(400).json({err:"Wrong Employer"});
 			const ids=job.acceptedApplicants.map(item=>{
-				return item.id;
+				return moongose.Types.ObjectId(item.id);
 			})
 			if(ids.includes(req.body.id))
 			return res.status(400).json({err:"Candidate already accepted"});
+			let name=`${user.salutation} ${user.firstName} ${user.lastName}`;
 			job.acceptedApplicants=[
 				...job.acceptedApplicants,
 				{
 					id:user._id,
-					name:`${user.salutation} ${user.firstName} ${user.lastName}`,
+					name:name,
 					image:user.image,
 					username:user.username,
 					phone:user.phone
@@ -297,7 +298,7 @@ router.put("/apply/job/:id",middleware.checkJobOwnership, (req,res)=>{
 							...sjob.acceptedApplicants,
 							{
 								id:user._id,
-								name:`${user.salutation} ${user.firstName} ${user.lastName}`,
+								name:name,
 								image:user.image,
 								username:user.username,
 								phone:user.phone
@@ -324,7 +325,7 @@ router.put("/apply/freelance/:id",middleware.checkFreelanceJobOwnership, (req,re
 			if(freelance.description.count-freelance.acceptedApplicants.length==0)
 			return res.status(400).json({err:"Wrong Employer"});
 			const ids=freelance.acceptedApplicants.map(item=>{
-				return item.id;
+				return mongoose.Types.ObjectId(item.id);
 			})
 			if(ids.includes(req.body.id))
 			return res.status(400).json({err:"Candidate already accepted"});
@@ -353,6 +354,7 @@ router.put("/apply/freelance/:id",middleware.checkFreelanceJobOwnership, (req,re
 					sjob.save().then((updatedsjob)=>{
 				Employer.findById(req.user._id).then((employer)=>{
 					employer.acceptedApplicants=[
+						...employer.acceptedApplicants,
 						{
 							id:user._id,
 							name:`${user.salutation} ${user.firstName} ${user.lastName}`,
@@ -562,6 +564,7 @@ router.post("/post/freelance", middleware.isEmployer, (req, res) => {
 		address: req.body.address,
 		startDate:req.body.startDate,
 		endDate:req.body.endDate,
+		attachedApplicants:req.body.attachedApplicants,
         createdAt:new Date(),
         createdBy:"Employer",
 		expireAt:expiry,
@@ -589,6 +592,7 @@ router.post("/post/freelance", middleware.isEmployer, (req, res) => {
 				address: req.body.address,
 				startDate:req.body.startDate,
 				endDate:req.body.endDate,
+				attachedApplicants:req.body.attachedApplicants,
                 createdAt:new Date(),
                 createdBy:"Employer",
 				expireAt:expiry,
@@ -761,7 +765,8 @@ router.post("/save/freelance", middleware.isEmployer, (req, res) => {
 		description: req.body.description,
 		address: req.body.address,
 		startDate:req.body.startDate,
-        endDate:expiry,
+		endDate:expiry,
+		attachedApplicants:req.body.attachedApplicants,
         createdAt:new Date(),
         createdBy:"Employer",
 		expireAt:expiry,
@@ -819,7 +824,9 @@ router.post("/save/freelance", middleware.isEmployer, (req, res) => {
 router.put("/save/job/activate/:id",middleware.isEmployer, (req,res) =>{
 	Employer.findById(req.user._id).then((employer)=>{
         if(!employer.savedJobs.includes(req.params.id))
-        return res.status(400).json({err:"Wrong job ID"});
+		return res.status(400).json({err:"Wrong job ID"});
+		if(employer.validated==false && employer.jobtier.posted>1)
+		return res.status(400).json({err:"Can only post one job until you are validated"});
 		savedJob.findById(req.params.id).then( (sjob) =>{
 			const expiry=sjob.expireAt;
 			var days=(expiry-Date.now())/(1000*60*60*24);
@@ -873,7 +880,9 @@ router.put("/save/job/activate/:id",middleware.isEmployer, (req,res) =>{
 router.put("/save/freelance/activate/:id",middleware.isEmployer, (req,res) =>{
 	Employer.findById(req.user._id).then((employer)=>{
         if(!employer.savedFreelance.includes(req.params.id))
-        return res.status(400).json({err:"Wrong job ID"});
+		return res.status(400).json({err:"Wrong job ID"});
+		if(employer.validated==false && employer.freelancetier.posted>1)
+		return res.status(400).json({err:"Can only post one job until you are validated"});
 		savedFreelance.findById(req.params.id).then( (sjob) =>{
 			const expiry=new Date(sjob.endDate);
 			var days=(expiry-Date.now())/(1000*60*60*24);
@@ -891,7 +900,8 @@ router.put("/save/freelance/activate/:id",middleware.isEmployer, (req,res) =>{
 					description: sjob.description,
 					address: sjob.address,
 					createdAt:new Date(),
-                    startDate:sjob.startDate,
+					startDate:sjob.startDate,
+					attachedApplicants:req.body.attachedApplicants,
                     createdBy:"Employer",
 					expireAt:expiry,
 					endDate:expiry,
@@ -964,6 +974,7 @@ router.put("/post/freelance/:id",middleware.checkFreelanceJobOwnership,async (re
 	Freelance.findById(req.params.id).then((job)=>{
 	if(req.body.startDate) query.update["startDate"]=req.body.startDate;
 	if(req.body.endDate) query.update["endDate"]=req.body.endDate;
+	if(req.body.attachedApplicants) query.update["attachedApplicants"]=req.body.attachedApplicants;
 	const expiry=new Date(req.body.endDate);
 		var days=(expiry-job.createdAt)/(1000*60*60*24) ;
 		if(days<0 || days>90 )
@@ -1025,6 +1036,8 @@ router.put("/save/freelance/:id",middleware.isEmployer,async (req,res) =>{
 	if(!employer.savedFreelance.includes(req.params.id))
 	return res.status(400).json({err:"Invalid Job"});
 	savedFreelance.findById(req.params.id).then((job)=>{
+
+	if(req.body.attachedApplicants) query.update["attachedApplicants"]=req.body.attachedApplicants;
 	if(req.body.endDate){
 	const expiry=new Date(req.body.endDate);
 		var days=(expiry-Date.now())/(1000*60*60*24) ;

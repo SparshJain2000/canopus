@@ -135,13 +135,13 @@ async function queryBuilder(req) {
         };
         //By default sort by Relevance
         query.sort = {$sort: { score: { $meta: "textScore" }} };
-                if ((req.body.order == "New"))
+                if ((req.body.order === "New"))
                     query.sort = {
                         $sort: {
                             _id: -1,
                         },
                     };
-                if ((req.body.order == "Old"))
+                if ((req.body.order === "Old"))
                     query.sort = {
                         $sort: {
                             _id: 1,

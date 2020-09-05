@@ -58,7 +58,10 @@ module.exports = mongoose.model(
                     type: mongoose.Schema.Types.ObjectId,
                     ref: "User",
                 },
-                username: String,
+                name:String,
+				image:String,
+				phone:String,
+                username:String,
             },
         ],
         acceptedApplicants: [ 
@@ -73,6 +76,18 @@ module.exports = mongoose.model(
                 username:String,
             }
         ],
+        attachedApplicants:[
+            {
+                id:{
+                    type:mongoose.Schema.Types.ObjectId,
+                    ref: "User",
+                },
+                name:String,
+				image:String,
+				phone:String,
+                username:String,
+            }
+        ]
         // likes: [
         //     {
         //         id: {

@@ -55,7 +55,10 @@ module.exports = mongoose.model(
                     type: mongoose.Schema.Types.ObjectId,
                     ref: "User",
                 },
-                username: String,
+                name:String,
+				image:String,
+				phone:String,
+                username:String,
             },
         ],
         acceptedApplicants: [ 
