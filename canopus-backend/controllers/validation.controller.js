@@ -33,7 +33,7 @@ async function UserProfileUpdateBuilder(req){
     if(req.body.lastname) query.update["lastname"]=req.body.lastname;
     if(req.body.phone) query.update["phone"]=req.body.phone;
     if(req.body.profession) query.update["profession"]=req.body.profession;
-    if(req.body.specialization) query.update["specialization"]=req.body.specialization
+    if(req.body.specialization) query.update["specialization"]=req.body.specialization;
     if(req.body.superSpecialization) query.update["superSpecialization"]=req.body.superSpecialization;
     if(req.body.experience) query.update["experience"]=req.body.experience;
     if(req.body.resume) query.update["resume"]=req.body.resume;
@@ -82,4 +82,4 @@ function userUpdateValidator(req){
     else return false;
 }
 const validationController={};
-exports.validationController={EmployerProfileUpdateBuilder};
+exports.validationController={EmployerProfileUpdateBuilder,UserProfileUpdateBuilder};

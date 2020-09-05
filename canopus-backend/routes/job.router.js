@@ -135,7 +135,7 @@ router.post("/search", async (req, res) => {
     const query = await searchController
         .queryBuilder(req)
         .then((query) => {
-            if (query.skip == 0)
+           // if (query.skip == 0)
                 Job.aggregate(
                     [
                         query.search,
@@ -196,7 +196,7 @@ router.post("/search", async (req, res) => {
                     }
                 },
             );
-                }).catch((err)=>{res.json({err:"Error"})});
+                }).catch((err)=>{res.status(400).json({err:"Error"})});
         })
         .catch(function (error) {
             // handle error
@@ -418,7 +418,7 @@ router.post("/apply/job/:id", middleware.isUser, (req, res) => {
             const applicants=job.applicants.map(item=>{
                 return mongoose.Types.ObjectId(item.id);
             })
-            if(applicants.includes(req.params.id))
+            if(applicants.includes(req.user._id))
             return res.status(400).json({err:"Already applied to this job"});
             job.applicants = [
             ...job.applicants,
@@ -494,7 +494,7 @@ router.post("/apply/freelance/:id", middleware.isUser, (req, res) => {
 		const applicants=job.applicants.map(item=>{
 			return mongoose.Types.ObjectId(item.id);
 		})
-		if(applicants.includes(req.params.id))
+		if(applicants.includes(req.user._id))
 		return res.status(400).json({err:"Already applied to this job"});
 		job.applicants = [
 		...job.applicants,
