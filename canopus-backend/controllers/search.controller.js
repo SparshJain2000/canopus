@@ -72,8 +72,9 @@ async function queryBuilder(req) {
     query.limiter = parseInt(req.body.limit) || 10;
     if(req.body.coordinates){
         location =await geolocationAPI(req.body.coordinates);
+        console.log(location);
         query.mustquery.push(addQuery(location, "description.location"));
-        query.shouldquery.push(addQueryboost(req.body.location, "description.location"),1);
+        //query.shouldquery.push(addQueryboost(req.body.location, "description.location",1));
     }
     if (req.body.location && req.body.location.length > 0) {
     location = await nearbyAPI(req.body.location);
@@ -82,6 +83,7 @@ async function queryBuilder(req) {
     query.shouldquery.push(addQueryboost(req.body.location, "description.location",1));
     }
     // if (req.body.pin)
+    
     //     query.shouldquery.push(addQuery(req.body.pin, "address.pin"));
     if (req.body.profession)
         query.mustquery.push(addQuery(req.body.profession, "profession"));
@@ -114,7 +116,7 @@ async function queryBuilder(req) {
         );
         boost=boost+boostval;
     }
-        query.mustquery.push(addQuery(true,"validated"));
+       // query.mustquery.push(addQuery(true,"validated"));
         query.shouldquery.push(addQueryboost(true,"sponsored",boost));
        if(query.mustquery.length!=0)
         query.search = {
@@ -134,6 +136,8 @@ async function queryBuilder(req) {
             },
         };
         //By default sort by Relevance
+        console.log(query.mustquery);
+    console.log(query.shouldquery);
         query.sort = {$sort: { score: { $meta: "textScore" }} };
                 if ((req.body.order === "New"))
                     query.sort = {

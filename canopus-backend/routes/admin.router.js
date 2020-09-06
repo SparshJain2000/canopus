@@ -1,6 +1,7 @@
 const router = require("express").Router(),
     middleware = require("../middleware/index"),
     Employer = require("../models/employer.model"),
+    User = require("../models/user.model"),
     Tag = require("../models/tag.model"),
     Job = require("../models/job.model"),
     Freelance = require("../models/freelance.model");
@@ -23,7 +24,7 @@ router.post("/tag",middleware.isAdmin, (req, res) => {
 });
 //===
 //Get unvalidated recruiters
-router.get("/validate",(req,res) => {
+router.get("/validate/employer",(req,res) => {
     Employer.aggregate([{ 
         $match:{
             validated:false
@@ -38,12 +39,42 @@ router.get("/validate",(req,res) => {
 
 });
 
-router.post("/validate",(req,res) => {
+router.post("/validate/employer",(req,res) => {
         ID=req.body.id;
         //console.log(ID);
 //         Job.updateMany({title:{$ne:""}},
 // {$set:{validated:"true"}}).then(console.log("Hello"));
         Employer.updateMany({_id:{$in:ID}},{$set:{validated:true}},{nModified:1}).then((employer) =>{
+            Job.updateMany({"author.id":{$in:ID}},{$set:{validated:true}}).then((jobs) =>{
+                Freelance.updateMany({"author.id":{$in:ID}},{$set:{validated:true}}).then((freelance) =>{
+                    res.json({employer:employer,jobs:jobs,freelance:freelance});
+                }).catch((err) => {res.json({err:err})});
+            }).catch((err) => {res.json({err:err})});
+            }).catch((err) => {res.json({err:err})});
+
+});
+
+router.get("/validate/user",(req,res) => {
+    User.aggregate([{ 
+        $match:{
+            validated:false
+        }
+     }],(err, employer) => {
+    if (err)
+        res.status(400).json({
+            err: err,
+        });
+    else res.json({ employer:employer});
+},);
+
+});
+
+router.post("/validate/user",(req,res) => {
+        ID=req.body.id;
+        //console.log(ID);
+//         Job.updateMany({title:{$ne:""}},
+// {$set:{validated:"true"}}).then(console.log("Hello"));
+        User.updateMany({_id:{$in:ID}},{$set:{validated:true}},{nModified:1}).then((employer) =>{
             Job.updateMany({"author.id":{$in:ID}},{$set:{validated:true}}).then((jobs) =>{
                 Freelance.updateMany({"author.id":{$in:ID}},{$set:{validated:true}}).then((freelance) =>{
                     res.json({employer:employer,jobs:jobs,freelance:freelance});

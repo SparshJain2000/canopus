@@ -383,7 +383,83 @@ router.put("/apply/freelance/:id",middleware.checkFreelanceJobOwnership, (req,re
 router.put("/extend/job/:id",middleware.checkJobOwnership,(req,res)=>{
 	if(!req.body.expireAt)
 	return res.status(400).json({err:"Date parameter required"});
+	const expiry=new Date(req.body.expireAt);
+    var days=(expiry-Date.now())/(1000*60*60*24);
+    if(days<0 || days>45 )
+    return res.status(400).json({err:"Invalid time format"});
+
+	Job.findById(req.params.id).then((job)=>{
+		if(job.extension==0)
+		return res.status(400).json({err:"Job cannot be extended again"});
+	job.extension=0;
+	job.expireAt=expiry;
+	//console.log(job);
+	job.save().then((job)=> {
+		//console.log(job._id);
+		savedJob.findOne({jobRef:req.params.id}).then((sjob)=>{
+			sjob.extension=0;
+			sjob.expireAt=expiry;
+			sjob.save().then((sjob)=>{
+				res.status(200).json({updated:"true"})
+	}).catch((err)=>{res.status(400).json({err:"Saved job not saved"})});
+	//}).catch((err)=>{res.status(400).json({err:"Employer not updated"})});
+}).catch((err)=>{res.status(400).json({err:"Job not saved"})});
+}).catch((err)=>{res.status(400).json({err:"Job not saved"})});
+}).catch((err)=>{res.status(400).json({err:"Job not found"})});
+
+	
 })
+//extend an expired job
+router.put("/extend/expired/:id",middleware.isEmployer,(req,res)=>{
+
+	if(!req.body.expireAt)
+	return res.status(400).json({err:"Date parameter required"});
+	const expiry=new Date(req.body.expireAt);
+    var days=(expiry-Date.now())/(1000*60*60*24);
+    if(days<0 || days>45 )
+    return res.status(400).json({err:"Invalid time format"});
+	Employer.findById(req.user._id).then((employer)=>{
+	savedJob.findById(req.params.id).then((sjob)=>{
+		if(sjob.extension==0)
+		return res.status(400).json({err:"Job cannot be extended again"});
+	let job = new Job({
+		author:sjob.author,
+		title: sjob.title,
+		profession: sjob.profession,
+		specialization: sjob.specialization,
+		superSpecialization:sjob.superSpecialization,
+		description: sjob.description,
+		address: sjob.address,
+		createdAt:new Date(),
+		expireAt:expiry,
+		validated:employer.validated,
+		extension:0,
+	});
+	//console.log(job);
+	job.save().then((job)=> {
+		//console.log(job._id);
+		employer.jobs = employer.jobs.filter(job => job.sid != req.params.id);
+		employer.jobs = [
+		...employer.jobs,
+		{
+			title: job.title,
+			id: job._id,
+			sid:sjob._id,
+		},
+		];
+		employer.save().then((employer)=>{
+			sjob.extension=0;
+			sjob.jobRef=job._id;
+			sjob.status="Active";
+			sjob.expireAt=expiry;
+			sjob.save().then((sjob)=>{
+				res.status(200).json({updated:"true"})
+	}).catch((err)=>{res.status(400).json({err:"Saved job not saved"})});
+	}).catch((err)=>{res.status(400).json({err:"Employer not updated"})});
+}).catch((err)=>{res.status(400).json({err:"job not saved"})});
+})
+	})
+});
 //sponsor a job
 router.put("/sponsor/job/:id",middleware.checkJobOwnership,(req,res)=>{
 	Employer.findById(req.user._id).then((employer)=>{
@@ -444,6 +520,7 @@ router.post("/post/job", middleware.isEmployer, (req, res) => {
         createdBy:"Employer",
 		expireAt:expiry,
 		validated:employer.validated,
+		extension:1,
 	});
 	Job.create(job)
 	.then((job) => {
@@ -469,6 +546,7 @@ router.post("/post/job", middleware.isEmployer, (req, res) => {
                 createdBy:"Employer",
 				expireAt:expiry,
 				validated:employer.validated,
+				extension:1,
 			});
 			savedJob.create(sjob).then((sjob) =>{
 			Employer.findById(req.user._id).then((employer) => {
@@ -846,6 +924,7 @@ router.put("/save/job/activate/:id",middleware.isEmployer, (req,res) =>{
 					createdAt:new Date(),
 					expireAt:sjob.expiry,
 					validated:employer.validated,
+					extension:1,
 				});
 				//console.log(job);
 				job.save().then((job)=> {
@@ -860,6 +939,7 @@ router.put("/save/job/activate/:id",middleware.isEmployer, (req,res) =>{
 					];
 					employer.savedJobs.splice (employer.savedJobs.indexOf(sjob._id),1);
 					employer.save().then((employer)=>{
+						sjob.extension=1;
 						sjob.jobRef=job._id;
 						sjob.status="Active";
 						sjob.createdAt=new Date;

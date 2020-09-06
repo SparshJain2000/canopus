@@ -33,7 +33,11 @@ router.post("/alljobs", (req, res) => {
     skip = parseInt(req.body.skip) || 0;
     limiter = parseInt(req.body.limit) || 10;
     Job.aggregate(
-        [
+        [   {
+                $match:{
+                    validated:"true"
+                }
+            },
             {
                 $group: {
                     _id: null,
@@ -49,6 +53,11 @@ router.post("/alljobs", (req, res) => {
         },
     );
     Job.aggregate([
+        {
+            $match:{
+                validated:"true"
+            }
+        },
         {
             $skip: skip,
         },
@@ -93,6 +102,11 @@ router.post("/allfreelance", (req, res) => {
     Freelance.aggregate(
         [
             {
+                $match:{
+                    validated:"true"
+                }
+            },
+            {
                 $group: {
                     _id: null,
                     jobCount: {
@@ -107,6 +121,11 @@ router.post("/allfreelance", (req, res) => {
         },
     );
     Freelance.aggregate([
+        {
+            $match:{
+                validated:"true"
+            }
+        },
         {
             $skip: skip,
         },
@@ -136,6 +155,7 @@ router.post("/search", async (req, res) => {
         .queryBuilder(req)
         .then((query) => {
            // if (query.skip == 0)
+           console.log(query.search);
                 Job.aggregate(
                     [
                         query.search,
@@ -355,7 +375,7 @@ router.post("/freelanceSearch", async (req, res) => {
                             },
                         },
                     },
-                ],).then((jobcount)=>{
+                ]).then((jobcount)=>{
             Freelance.aggregate(
                 [
                     query.search,
@@ -374,11 +394,11 @@ router.post("/freelanceSearch", async (req, res) => {
                             dayOfWeek: { $dayOfWeek: "$startDate" },
                         },
                     },
-                    query2,
+                    query2,query.sort,
                     {
                         $skip: query.skip,
                     },
-                    query.sort,
+                    
                     {
                         $limit: query.limiter,
                     },

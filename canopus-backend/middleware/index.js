@@ -40,7 +40,7 @@ middleware.isEmployer = (req, res, next) => {
 };
 middleware.isUser = (req, res, next) => {
     req.isAuthenticated()
-        ? req.user.role === "User" || "Admin"
+        ? req.user.role === "User"
             ? next()
             : res.status(400).json({ err: "Not User" })
         : res.status(400).json({ err: "Not Logged in" });
