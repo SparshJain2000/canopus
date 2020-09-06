@@ -130,19 +130,19 @@ const Job = ({ job, jobType, type2 }) => {
     return (
         <div className='col-12 col-md-6'>
             <Media
-                className={`row  justify-content-center m-2 m-md-3 p-2 px-md-3  ${
+                className={`row  justify-content-center m-2 m-md-3 p-2 px-md-2  ${
                     job.sponsored ? "block-info" : "block"
                 }`}>
                 <Media body className='col-12 p-1'>
                     <Media heading className='row'>
-                        <div className='col-8 px-0'>
+                        <div className='col-6 col-sm-8 px-0'>
                             <h5>{job.title}</h5>
                             <h6>
                                 <FontAwesomeIcon icon={faMapMarkerAlt} />{" "}
                                 {job.description && job.description.location}
                             </h6>
                         </div>
-                        <div className='col-4  mt-0 p-0 '>
+                        <div className='col-6 col-sm-4  mt-0 p-0 '>
                             {jobType === "Saved" && (
                                 <Link
                                     to={{
@@ -155,23 +155,44 @@ const Job = ({ job, jobType, type2 }) => {
                                     <Button
                                         size={"sm"}
                                         className='btn btn-primary w-100'>
-                                        Edit JOB
+                                        Edit
                                     </Button>
                                 </Link>
                             )}
                             {jobType === "Open" && (
-                                <Link
-                                    to={{
-                                        pathname: `/employer/job/update/${job._id}`,
-                                        search: freelance
-                                            ? "freelance&post"
-                                            : "job&post",
-                                    }}
-                                    params={{ freelance: freelance }}>
-                                    <Button className='btn btn-primary w-100'>
-                                        Edit JOB
-                                    </Button>
-                                </Link>
+                                <div className='row mx-0 px-0 justify-content-end'>
+                                    {!(
+                                        job.sponsored &&
+                                        job.sponsored === "true"
+                                    ) && (
+                                        <div className='col-7 px-0 pr-1'>
+                                            <Button
+                                                className='w-100'
+                                                size='sm'
+                                                color={"info"}
+                                                onClick={sponsor}>
+                                                Promote
+                                            </Button>
+                                        </div>
+                                    )}
+
+                                    <div className='col-5 px-0 pl-1'>
+                                        <Link
+                                            to={{
+                                                pathname: `/employer/job/update/${job._id}`,
+                                                search: freelance
+                                                    ? "freelance&post"
+                                                    : "job&post",
+                                            }}
+                                            params={{ freelance: freelance }}>
+                                            <Button
+                                                className='btn btn-primary w-100'
+                                                size='sm'>
+                                                Edit
+                                            </Button>
+                                        </Link>
+                                    </div>
+                                </div>
                             )}
                         </div>
                     </Media>
@@ -240,31 +261,35 @@ const Job = ({ job, jobType, type2 }) => {
                                 )}
                             </div>
                         </div>
-                        <div className='col-12  px-0 '>
-                            <Badges
-                                desc={job.description}
-                                superSpecialization={job.superSpecialization}
-                            />
-                        </div>
+                        {!freelance && (
+                            <div className='col-12  px-0 '>
+                                <Badges
+                                    desc={job.description}
+                                    superSpecialization={
+                                        job.superSpecialization
+                                    }
+                                />
+                            </div>
+                        )}
                     </div>
                     {jobType === "Open" && (
                         <div className='row w-100 justify-content-start mt-3'>
-                            <div className='col-12 col-sm-6  my-auto px-1 py-1 py-sm-0'>
+                            {/* <div className='col-12 col-sm-6  my-auto px-1 py-1 py-sm-0'>
                                 <Button
                                     className='w-100'
                                     color={"info"}
                                     onClick={sponsor}>
-                                    Sponsor
+                                    Promote
                                 </Button>
-                            </div>
-                            <div className='col-12 col-sm-6  my-auto px-1 py-1 py-sm-0'>
+                            </div> */}
+                            <div className='col-12 col-sm-12  my-auto px-1 py-1 py-sm-0'>
                                 <Button
                                     color={`primary`}
-                                    // style={{
-                                    //     backgroundColor: "rgba(0, 0, 0, 0)",
-                                    //     color: "black",
-                                    //     border: "0px solid transparent",
-                                    // }}
+                                    style={{
+                                        backgroundColor: "rgba(0, 0, 0, 0)",
+                                        color: "black",
+                                        border: "0px solid transparent",
+                                    }}
                                     onClick={showApplicants}
                                     className='w-100 '>
                                     Applicants
@@ -449,10 +474,16 @@ export default class JobApplications extends Component {
     }
     render() {
         return (
-            <div className='w-100'>
+            <div className='row pt-3 w-100'>
+                <div className='col-7 px-0 pl-3'>
+                    <h3 className='text-align-left   '>
+                        {this.state.jobType} Jobs
+                    </h3>
+                </div>
+
                 <div
-                    className='mt-2 mr-2 mr-md-3'
-                    style={{ textAlign: "right" }}>
+                    className='col-5 px-0 pr-3'
+                    style={{ textAlign: "right", width: "max-content" }}>
                     <Dropdown
                         isOpen={this.state.dropdownOpen}
                         toggle={() => {
@@ -488,8 +519,7 @@ export default class JobApplications extends Component {
                         </DropdownMenu>
                     </Dropdown>
                 </div>
-                <h3 className='text-align-center w-100'>Jobs</h3>
-                <div className='row'>
+                <div className='row px-2 w-100'>
                     {this.state.jobs !== null &&
                     this.state.jobs !== undefined ? (
                         this.state.jobs.length !== 0 &&
@@ -518,7 +548,7 @@ export default class JobApplications extends Component {
                     )}
 
                     <hr className='w-100' />
-                    <h3 className='text-align-center w-100'>Locum Jobs</h3>
+                    {/* <h3 className='text-align-center w-100'>Locum Jobs</h3> */}
 
                     <div className='row w-100'>
                         {this.state.freelanceJobs ? (
