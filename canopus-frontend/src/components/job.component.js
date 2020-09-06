@@ -38,12 +38,13 @@ const BounceIn = styled.div`
 
 const Badges = ({ desc, superSpecialization }) => {
     const superSp = superSpecialization ? superSpecialization : [];
-    let badges = [
-        desc.experience,
-        ...desc.type,
-        ...desc.incentives,
-        ...superSp,
-    ];
+    let badges = [...superSp];
+    if (desc) {
+        const type = desc.type ? desc.type : [];
+        const incentives = desc.incentives ? desc.incentives : [];
+
+        badges = [desc.experience, ...type, ...incentives, ...superSp];
+    }
     const number = badges.length - 5;
     badges = badges.slice(0, 3);
     console.log(badges);
@@ -221,14 +222,18 @@ export default class Job extends Component {
                     });
                     // this.toggle();
                 })
-                .catch(({ data }) => this.setState({ err: data.err }));
+                .catch((err) => {
+                    console.log(err);
+                    // this.setState({ err: response.data.err });
+                });
         } else this.toggle();
     }
     applyJob() {
         // this.toggle();
-
+        console.log(this.state.job);
+        const type = this.state.job.startDate ? "freelance" : "job";
         axios
-            .post(`/api/job/apply/${this.state.job._id}`)
+            .post(`/api/job/apply/${type}/${this.state.job._id}`)
             .then(({ data }) => {
                 console.log(data);
                 // setApplied(true);
@@ -237,6 +242,7 @@ export default class Job extends Component {
             .catch(({ response }) => {
                 console.log(response);
                 this.setState({ err: response.data.err });
+                this.toggle();
             });
     }
     toggle() {
@@ -525,7 +531,14 @@ export default class Job extends Component {
                                         )}
                                         <hr />
                                         <em>
-                                            {this.state.user.description}
+                                            {this.state.user.description
+                                                ? this.state.user.description
+                                                      .about
+                                                    ? this.state.user
+                                                          .description.about
+                                                    : this.state.user
+                                                          .description
+                                                : ""}
                                             Lorem ipsum dolor sit amet
                                             consectetur adipisicing elit. Saepe,
                                             repudiandae vitae, earum maerat

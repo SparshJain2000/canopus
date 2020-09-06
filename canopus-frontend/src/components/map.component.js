@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { GoogleMap, LoadScript, Marker } from "@react-google-maps/api";
 const InputMap = ({ setCoordinates, coordinates }) => {
+    console.log("coordinates");
+    console.log(coordinates);
     const mapStyles = {
         height: "370px",
         width: "100%",
@@ -26,12 +28,13 @@ const InputMap = ({ setCoordinates, coordinates }) => {
     };
     useEffect(() => {
         console.log(coordinates);
-        if (coordinates === null)
+        if (!coordinates) {
             navigator.geolocation.getCurrentPosition(success, (err) => {
                 console.log(err);
-                // setCurrentPosition({ lat: 29.4, lng: 77.7 });
-                // setCoordinates({ lat: 29.4, lng: 77.7 });
+                setCurrentPosition({ lat: 29.4, lng: 77.7 });
+                setCoordinates({ lat: 29.4, lng: 77.7 });
             });
+        }
     }, []);
     const onMarkerDragEnd = (e) => {
         const lat = e.latLng.lat();

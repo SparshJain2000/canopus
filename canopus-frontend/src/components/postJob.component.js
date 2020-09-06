@@ -59,6 +59,7 @@ const PostJob = () => {
     const dateRef = useRef(null);
     const endTimeRef = useRef(null);
     const startTimeRef = useRef(null);
+    const categoryRef = useRef(null);
     const [showDetail, setShowDetail] = useState(true);
     const [showSkill, setShowSkill] = useState(false);
     const [showOtherDetail, setShowOtherDetail] = useState(false);
@@ -84,6 +85,7 @@ const PostJob = () => {
     const [startTime, setStartTime] = useState("");
     const [endTime, setEndTime] = useState("");
     const [date, setDate] = useState("");
+    const [category, setCategory] = useState("");
 
     const toggleDetail = () => setShowDetail((prevState) => !prevState);
     const toggleSkill = () => setShowSkill((prevState) => !prevState);
@@ -103,7 +105,6 @@ const PostJob = () => {
             profession: profession,
             specialization: specialization,
             superSpecialization: superSpecialization.map((x) => x.value),
-
             description: {
                 line: line.trim(),
                 about: line.trim(),
@@ -121,6 +122,7 @@ const PostJob = () => {
             type2 = "freelance";
             job.endDate = new Date(`${date} ${endTime}`).toISOString();
             job.startDate = new Date(`${date} ${startTime}`).toISOString();
+            job.category = category;
         } else {
             type2 = "job";
             job.expireAt =
@@ -175,6 +177,7 @@ const PostJob = () => {
             type2 = "freelance";
             job.endDate = new Date(`${date} ${endTime}`).toISOString();
             job.startDate = new Date(`${date} ${startTime}`).toISOString();
+            job.category = category;
         } else {
             type2 = "job";
             job.expireAt =
@@ -201,9 +204,9 @@ const PostJob = () => {
     };
     return (
         <div>
-            <Form className='border-block p-3 p-md-4 mx-2 mx-sm-4 m-3'>
+            <Form className='border-block p-3 px-3 p-md-5 mx-2 mx-md-5 m-3 '>
                 <h2>Post a Job</h2>
-                <div className='block-card p-2 p-sm-3 mt-4'>
+                <div className=' p-2 p-sm-3 mt-4'>
                     <div className='row justify-content-between'>
                         <h4 className='col-9 col-sm-10'>Job Details</h4>
                         <Button
@@ -295,7 +298,7 @@ const PostJob = () => {
                 </div>
 
                 <hr />
-                <div className='block-card p-2 p-sm-3'>
+                <div className=' p-2 p-sm-3'>
                     <div className='row justify-content-between'>
                         <h4 className='col-9 col-sm-10'>Requried Skills</h4>
                         <Button
@@ -417,7 +420,7 @@ const PostJob = () => {
                 </div>
 
                 <hr />
-                <div className='block-card p-2 p-sm-3'>
+                <div className=' p-2 p-sm-3'>
                     <div className='row justify-content-between'>
                         <h4 className='col-9 col-sm-10'>Other Details</h4>
                         <Button
@@ -571,7 +574,7 @@ const PostJob = () => {
                 </div>
                 <hr />
                 <div
-                    className=' block-card p-2 p-sm-3'
+                    className='  p-2 p-sm-3'
                     style={{
                         height: "max-content",
                     }}>
@@ -637,9 +640,9 @@ const PostJob = () => {
                                     onChange={handleChange}
                                 />
                             </InputGroup>
-                            <FormGroup className='col-12 row my-1 my-md-2'>
+                            <InputGroup className='col-12 col-sm-6 row my-1 my-md-2 pr-1'>
                                 <Label
-                                    className='pr-2 col-12 col-md-1'
+                                    className='pr-2 col-12 col-md-2'
                                     for='exampleDate'
                                     style={{ fontSize: "1.3rem" }}>
                                     Date
@@ -650,13 +653,45 @@ const PostJob = () => {
                                     id='exampleDate'
                                     placeholder='date placeholder'
                                     ref={dateRef}
-                                    className='col-12 px-3 col-md-11'
+                                    className='col-12 px-3 col-md-10'
                                     onChange={handleChange}
                                     // defaultValue={endDate}
                                     // ref={endDateRef}
                                     // onChange={handleChange}
                                 />
-                            </FormGroup>
+                            </InputGroup>
+                            <InputGroup className='col-12 col-sm-6 row my-1 my-md-2 pl-1'>
+                                <Label
+                                    className='pr-2 col-12 col-md-3'
+                                    for='exampleDate'
+                                    style={{ fontSize: "1.3rem" }}>
+                                    Category
+                                </Label>
+                                <Select
+                                    // type='date'
+                                    className='col-12 col-md-9'
+                                    // onChange={(opt) => console.log(opt)}
+                                    // isMulti
+                                    autosize={true}
+                                    placeholder='Category'
+                                    options={[
+                                        { label: "Day Job", value: "Day Job" },
+                                        { label: "Locum", value: "Locum" },
+                                    ]}
+                                    // className='basic-multi-select'
+                                    // classNamePrefix='select'
+                                    ref={categoryRef}
+                                    name='Category'
+                                    defaultValue={category}
+                                    onChange={(e) => {
+                                        console.log(e);
+                                        handleChangeSelect(
+                                            "Category",
+                                            e ? e.value : "",
+                                        );
+                                    }}
+                                />
+                            </InputGroup>
                         </FormGroup>
                     )}
                 </div>
