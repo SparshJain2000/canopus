@@ -119,6 +119,15 @@ module.exports = mongoose.model(
                 title: String,
             },
         ],
+        appliedFreelance: [
+            {
+                id: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "Freelance",
+                },
+                title: String,
+            },
+        ],
         
         //Resume fs upload
     }).plugin(passportLocalMongoose),

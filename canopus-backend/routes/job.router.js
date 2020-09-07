@@ -46,12 +46,18 @@ router.post("/alljobs", (req, res) => {
                     },
                 },
             },
-        ],
-        (err, jobNum) => {
-            if (err) jobCount = 0;
-            else jobCount = jobNum[0];
-        },
-    );
+        ]
+    ).then((jobcount)=>{
+        var userid; 
+        try{
+            userid=req.user.applied.map(item=>{
+                return mongoose.Types.ObjectId(item.id);
+            });
+            console.log(userid);
+        }
+        catch(err){
+             userid=["null"];
+        }
     Job.aggregate([
         {
             $match:{
@@ -63,16 +69,38 @@ router.post("/alljobs", (req, res) => {
         },
         {
             $limit: limiter,
-		},
-		{
-			$project:{applicants:0}
-		},
+        },
+                    
+                    {
+                        $project: {
+                            _id: 1,
+                            title: 1,
+                            sponsored:1,
+                            validated:1,
+                            specialization: 1,
+                            superSpecialization:1,
+                            address:1,
+                            description:1,
+                            author:1,
+                            createdBy:1,
+                            applied: {
+                                $cond: {
+                                    if: { $in:['$_id',userid]},
+                                    then: 1,
+                                    else: 0,
+                                },
+                            },
+                            //'applied':{$eq:['$applicants.id',userid]},
+                            score: { $meta: "searchScore" },
+                        },
+                    },
+                   
+                   
     ])
         .then((jobs) =>
             res.json({
                 jobs: jobs,
-                count: jobCount,
-                user: req.user,
+                count: jobcount[0],
             }),
         )
         .catch((err) =>
@@ -80,6 +108,7 @@ router.post("/alljobs", (req, res) => {
                 err: err,
             }),
         );
+}).catch((err)=>res.status(400).json({err:"Error searching jobs"}));
 });
 //get all freelance jobs
 router.post("/allfreelance", (req, res) => {
@@ -114,12 +143,18 @@ router.post("/allfreelance", (req, res) => {
                     },
                 },
             },
-        ],
-        (err, jobNum) => {
-            if (err) jobCount = 0;
-            else jobCount = jobNum[0];
-        },
-    );
+        ]
+        ).then((jobcount)=>{
+            var userid; 
+                   try{
+                       userid=req.user.appliedFreelance.map(item=>{
+                           return mongoose.Types.ObjectId(item.id);
+                       });
+                       console.log(userid);
+                   }
+                   catch(err){
+                        userid=["null"];
+                   }
     Freelance.aggregate([
         {
             $match:{
@@ -132,12 +167,37 @@ router.post("/allfreelance", (req, res) => {
         {
             $limit: limiter,
         },
+        {
+            $project:{
+                _id: 1,
+                            title: 1,
+                            sponsored:1,
+                            validated:1,
+                            specialization: 1,
+                            superSpecialization:1,
+                            address:1,
+                            description:1,
+                            startDate: 1,
+                            endDate: 1,
+                            author:1,
+                            category:1,
+                            createdBy:1,  
+                            applied: {
+                                $cond: {
+                                    if: { $in:['$_id',userid]},
+                                    then: 1,
+                                    else: 0,
+                                },
+                            },
+
+                            score: { $meta: "searchScore" },
+            }
+        }
     ])
         .then((jobs) =>
             res.json({
                 jobs: jobs,
-                count: jobCount,
-                user: req.user,
+                count: jobcount[0],
             }),
         )
         .catch((err) =>
@@ -145,6 +205,7 @@ router.post("/allfreelance", (req, res) => {
                 err: err,
             }),
         );
+        }).catch((err)=>{res.status(400).json({err:"Error"})});
 });
 //===========================================================================
 
@@ -168,14 +229,17 @@ router.post("/search", async (req, res) => {
                             },
                         },
                     ],
-                    // (err, jobNum) => {
-                    //     if (err) jobCount = 0;
-                    //     else jobCount = jobNum[0];
-                    // },
                 ).then((jobcount)=>{
-                    console.log(jobcount);
-            //const userid = '5f1d72e270ff602dc0250747';
-            // console.log(userid);
+                    var userid; 
+                    try{
+                        userid=req.user.applied.map(item=>{
+                            return mongoose.Types.ObjectId(item.id);
+                        });
+                        console.log(userid);
+                    }
+                    catch(err){
+                         userid=["null"];
+                    }
             Job.aggregate(
                 [
                     query.search,
@@ -186,25 +250,31 @@ router.post("/search", async (req, res) => {
                     {
                         $limit: query.limiter,
                     },
-                    //{$sort: { score: { $meta: "textScore" }} },
                     {
                         $project: {
                             _id: 1,
                             title: 1,
                             sponsored:1,
                             validated:1,
-                           // specialization: 1,
-                            // applied: {
-                            //     $cond: {
-                            //         if: { $eq:['$applicants.id',userid]},
-                            //         then: 1,
-                            //         else: 0,
-                            //     },
-                            // },
-                         //   description: 1,
+                            profession:1,
+                            specialization: 1,
+                            superSpecialization:1,
+                            address:1,
+                            description:1,
+                            author:1,
+                            createdBy:1,
+                            applied: {
+                                $cond: {
+                                    if: { $in:['$_id',userid]},
+                                    then: 1,
+                                    else: 0,
+                                },
+                            },
+                            //'applied':{$eq:['$applicants.id',userid]},
                             score: { $meta: "searchScore" },
                         },
                     },
+                   
                 ],
                 (err, jobs) => {
                     if (err)
@@ -278,13 +348,7 @@ router.post("/similar", (req, res) => {
                     _id: 1,
                     title: 1,
                     specialization: 1,
-                    // 	applied: {
-                    // 		$cond: {
-                    // 			if: { $in: ["$applicants.id", userid] },
-                    // 				then: 1,
-                    // 			else: 0,
-                    // 		},
-                    // },
+                    applicants:1,
                     description: 1,
                     applicants: 1,
                     score: { $meta: "searchScore" },
@@ -376,22 +440,38 @@ router.post("/freelanceSearch", async (req, res) => {
                         },
                     },
                 ]).then((jobcount)=>{
+                    var userid; 
+                   try{
+                       userid=req.user.appliedFreelance.map(item=>{
+                           return mongoose.Types.ObjectId(item.id);
+                       });
+                       console.log(userid);
+                   }
+                   catch(err){
+                        userid=["null"];
+                   }
             Freelance.aggregate(
                 [
                     query.search,
                     {
                         $project: {
                             _id: 1,
-                            superSpecialization: 1,
-                            tag: 1,
                             title: 1,
+                            sponsored:1,
+                            validated:1,
+                            profession: 1,
+                            specialization: 1,
+                            superSpecialization:1,
+                            address:1,
+                            description:1,
                             startDate: 1,
                             endDate: 1,
-                            title: 1,
-                            profession: 1,
                             startHour: { $hour: "$startDate" },
                             endHour: { $hour: "$endDate" },
-                            dayOfWeek: { $dayOfWeek: "$startDate" },
+                            dayOfWeek: { $dayOfWeek: "$startDate" },author:1,
+                            category:1,
+                            createdBy:1,  
+                            score: { $meta: "searchScore" },
                         },
                     },
                     query2,query.sort,
@@ -402,6 +482,34 @@ router.post("/freelanceSearch", async (req, res) => {
                     {
                         $limit: query.limiter,
                     },
+                    {
+                        $project: {
+                            _id: 1,
+                            title: 1,
+                            sponsored:1,
+                            validated:1,
+                            specialization: 1,
+                            superSpecialization:1,
+                            address:1,
+                            description:1,
+                            startDate: 1,
+                            endDate: 1,
+                            startHour:1,
+                            endHour:1,
+                            dayOfWeek:1,
+                            author:1,
+                            category:1,
+                            createdBy:1,  
+                            applied: {
+                                $cond: {
+                                    if: { $in:['$_id',userid]},
+                                    then: 1,
+                                    else: 0,
+                                },
+                            },
+                            score: { $meta: "searchScore" },
+                        },
+                   },
                 ],
                 (err, jobs) => {
                     if (err)
@@ -472,9 +580,9 @@ router.post("/apply/job/:id", middleware.isUser, (req, res) => {
                         });
                         user.save()
                             .then((updatedUser) => {
-                                res.json({
-                                    user: updatedUser,
-                                    job: job,
+                                req.login(updatedUser,(err)=>{
+                                    if(err) return res.status(500).send(err);
+                                    return res.json({status:"Applied"});
                                 });
                             })
                             .catch((err) =>
@@ -544,16 +652,17 @@ router.post("/apply/freelance/:id", middleware.isUser, (req, res) => {
                 // res.json(updatedJob);
                 User.findById(req.user._id)
                 .then((user) => {
-                	user.applied.push({
+                	user.appliedFreelance.push({
                 		id: updatedJob._id,
                 		title: updatedJob.title,
                 	});
                 	user.save()
                 	.then((updatedUser) => {
-                		res.json({
-                			user: updatedUser,
-                			job: job,
-                		});
+                        req.login(updatedUser,(err)=>{
+                            if(err) return res.status(500).send(err);
+                            return res.json({status:"Applied"});
+                        })
+                		
                 	})
                 	.catch((err) =>
                 	       res.status(400).json({
