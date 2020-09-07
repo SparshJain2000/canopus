@@ -8,6 +8,9 @@ import {
     InputGroup,
     InputGroupAddon,
     InputGroupText,
+    Modal,
+    ModalBody,
+    ModalFooter,
 } from "reactstrap";
 import axios from "axios";
 import Select from "react-select";
@@ -87,6 +90,10 @@ const PostJob = () => {
     const [date, setDate] = useState("");
     const [category, setCategory] = useState("");
 
+    const [modal, setModal] = useState(false);
+    const [mess, setMess] = useState("");
+
+    const toggle = () => setModal(!modal);
     const toggleDetail = () => setShowDetail((prevState) => !prevState);
     const toggleSkill = () => setShowSkill((prevState) => !prevState);
     const toggleOtherDetail = () =>
@@ -697,16 +704,60 @@ const PostJob = () => {
                 </div>
                 <FormGroup className='ml-auto mr-1 mt-3 w-100 text-align-end'>
                     <Button
-                        onClick={submit}
+                        onClick={(e) => {
+                            setMess("post");
+                            toggle();
+                        }}
                         className='ml-1 w-25'
                         color='primary'>
                         Post
                     </Button>
-                    <Button onClick={save} className='ml-1 w-25' color='info'>
+                    <Button
+                        onClick={(e) => {
+                            setMess("save");
+                            toggle();
+                        }}
+                        className='ml-1 w-25'
+                        color='info'>
                         Save
                     </Button>
                 </FormGroup>
             </Form>
+            <Modal isOpen={modal} toggle={toggle} style={{ marginTop: "20vh" }}>
+                <ModalBody>
+                    {mess === "post" &&
+                        "Are you sure you want to post this job ?"}
+                    {mess === "save" &&
+                        "Are you sure you want to save the job?"}
+                </ModalBody>
+                <ModalFooter>
+                    {mess === "post" && (
+                        <Button
+                            size='sm'
+                            color='primary'
+                            onClick={(e) => {
+                                toggle();
+                                submit();
+                            }}>
+                            Post
+                        </Button>
+                    )}
+                    {mess === "save" && (
+                        <Button
+                            size='sm'
+                            color='primary'
+                            onClick={(e) => {
+                                toggle();
+                                save();
+                            }}>
+                            Save
+                        </Button>
+                    )}
+                    <Button color='secondary' size='sm' onClick={toggle}>
+                        Cancel
+                    </Button>
+                </ModalFooter>
+            </Modal>
         </div>
     );
 };
