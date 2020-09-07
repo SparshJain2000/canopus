@@ -2,7 +2,15 @@ import React, { Component, useEffect, useState } from "react";
 import axios from "axios";
 import Loader from "react-loader-spinner";
 import { Link } from "react-router-dom";
-import { Media, Badge, Button } from "reactstrap";
+import {
+    Media,
+    Badge,
+    Button,
+    Modal,
+    ModalHeader,
+    ModalFooter,
+    ModalBody,
+} from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faMapMarkerAlt,
@@ -13,9 +21,12 @@ import {
     faArrowUp,
     faCheck,
     faCheckCircle,
+    faChartLine,
+    faRocket,
 } from "@fortawesome/free-solid-svg-icons";
 import hospital from "../images/hospital.svg";
 import "../stylesheets/jobApplications.css";
+import chartIcon from "../images/line-chart.svg";
 import {
     ListGroup,
     ListGroupItem,
@@ -31,7 +42,17 @@ import {
     Row,
     Col,
 } from "reactstrap";
-
+const chart = {
+    prefix: "fas",
+    iconName: "chart",
+    icon: [
+        512,
+        512,
+        [],
+        "f0000",
+        "m21.5 23h-19c-1.379 0-2.5-1.122-2.5-2.5v-17c0-1.378 1.121-2.5 2.5-2.5h19c1.379 0 2.5 1.122 2.5 2.5v17c0 1.378-1.121 2.5-2.5 2.5zm-19-21c-.827 0-1.5.673-1.5 1.5v17c0 .827.673 1.5 1.5 1.5h19c.827 0 1.5-.673 1.5-1.5v-17c0-.827-.673-1.5-1.5-1.5z m23.5 6h-23c-.276 0-.5-.224-.5-.5s.224-.5.5-.5h23c.276 0 .5.224.5.5s-.224.5-.5.5z m7.5 17c-.128 0-.256-.049-.354-.146-.195-.195-.195-.512 0-.707l3.5-3.5c.151-.153.385-.19.577-.094l1.678.839 3.245-3.245c.195-.195.512-.195.707 0s.195.512 0 .707l-3.5 3.5c-.152.152-.385.191-.577.094l-1.678-.839-3.245 3.245c-.097.097-.225.146-.353.146z m16.5 14c-.276 0-.5-.224-.5-.5v-2.5h-2.5c-.276 0-.5-.224-.5-.5s.224-.5.5-.5h3c.276 0 .5.224.5.5v3c0 .276-.224.5-.5.5z",
+    ],
+};
 const ApplicantDetails = ({ applicant }) => {
     const [data, setData] = useState(null);
     const [error, setError] = useState(false);
@@ -76,9 +97,20 @@ const Badges = ({ desc, superSpecialization }) => {
         </div>
     );
 };
-const Job = ({ job, jobType, type2 }) => {
+const Job = ({
+    job,
+    jobType,
+    type2,
+    getClosedJobs,
+    getOpenJobs,
+    getSavedJobs,
+}) => {
     const freelance = type2 === "freelance" ? true : false;
     const [show, setShow] = useState(false);
+    const [modal, setModal] = useState(false);
+    const [mess, setMess] = useState("");
+
+    const toggle = () => setModal(!modal);
     const showApplicants = () => {
         setShow(!show);
     };
@@ -88,6 +120,7 @@ const Job = ({ job, jobType, type2 }) => {
             .then((data) => {
                 console.log(data);
                 alert("Sponsored !");
+                getOpenJobs();
             })
             .catch((err) => {
                 console.log(err.response);
@@ -116,7 +149,10 @@ const Job = ({ job, jobType, type2 }) => {
                 .put(`/api/employer/save/freelance/activate/${job._id}`)
                 .then((data) => {
                     console.log(data);
-                    if (data.status === 200) alert("posted");
+                    if (data.status === 200) {
+                        alert("posted");
+                        getSavedJobs();
+                    }
                 })
                 .catch((err) => console.log(err.response));
         else
@@ -164,19 +200,43 @@ const Job = ({ job, jobType, type2 }) => {
                                     {!(
                                         job.sponsored &&
                                         job.sponsored === "true"
-                                    ) && (
-                                        <div className='col-7 px-0 pr-1'>
+                                    ) ? (
+                                        <div className='col-8 px-0 pr-1'>
                                             <Button
                                                 className='w-100'
                                                 size='sm'
                                                 color={"info"}
-                                                onClick={sponsor}>
+                                                onClick={(e) => {
+                                                    setMess("promote");
+                                                    toggle();
+                                                }}>
                                                 Promote
+                                                <FontAwesomeIcon
+                                                    icon={chartIcon}
+                                                    className='ml-1'
+                                                    size='sm'
+                                                />
+                                                {/* <span>{chartIcon}</span> */}
+                                            </Button>
+                                        </div>
+                                    ) : (
+                                        <div className='col-8 px-0 pr-1'>
+                                            <Button
+                                                className='w-100 px-0'
+                                                size='sm'
+                                                color={"info"}
+                                                disabled>
+                                                Promoted
+                                                <FontAwesomeIcon
+                                                    icon={faCheck}
+                                                    size='sm'
+                                                    className='ml-1'
+                                                />
                                             </Button>
                                         </div>
                                     )}
 
-                                    <div className='col-5 px-0 pl-1'>
+                                    <div className='col-4 px-0 pl-1'>
                                         <Link
                                             to={{
                                                 pathname: `/employer/job/update/${job._id}`,
@@ -206,7 +266,7 @@ const Job = ({ job, jobType, type2 }) => {
                         </h6>
                     </Media> */}
                     <Media heading></Media>
-                    <hr />
+                    <hr className='mt-0 mb-2' />
                     <div className='row m-0'>
                         <div className='col-12 desc'>
                             <em>{job.description && job.description.line}</em>
@@ -282,7 +342,8 @@ const Job = ({ job, jobType, type2 }) => {
                                     Promote
                                 </Button>
                             </div> */}
-                            <div className='col-12 col-sm-12  my-auto px-1 py-1 py-sm-0'>
+                            <hr className='col-12 my-1' />
+                            <div className='col-12 col-sm-12  my-auto pl-0 pr-1 py-1 py-sm-0'>
                                 <Button
                                     color={`primary`}
                                     style={{
@@ -291,8 +352,8 @@ const Job = ({ job, jobType, type2 }) => {
                                         border: "0px solid transparent",
                                     }}
                                     onClick={showApplicants}
-                                    className='w-100 '>
-                                    Applicants
+                                    className='w-100 text-align-left px-0'>
+                                    {`${job.applicants.length} `}Applications
                                     <span className='float-right'>
                                         {show ? (
                                             <FontAwesomeIcon icon={faArrowUp} />
@@ -325,7 +386,10 @@ const Job = ({ job, jobType, type2 }) => {
                             <div className='col-12  my-auto p-0 p-md-2 pr-1'>
                                 <Button
                                     color={`info`}
-                                    onClick={post}
+                                    onClick={(e) => {
+                                        setMess("post");
+                                        toggle();
+                                    }}
                                     className='w-100'>
                                     Post
                                 </Button>
@@ -376,17 +440,26 @@ const Job = ({ job, jobType, type2 }) => {
                                     {applicant.username}
                                     <Link
                                         to={`/profile/${applicant.id}`}
+                                        title='View Profile'
                                         className='btn btn-primary btn-sm float-right mx-1'
                                         style={{ borderRadius: "50%" }}>
                                         <FontAwesomeIcon icon={faArrowRight} />
                                     </Link>
-                                    <Button
-                                        color='success'
-                                        className='btn btn-primary btn-sm float-right mx-1'
-                                        onClick={() => accept(applicant.id)}
-                                        style={{ borderRadius: "50%" }}>
-                                        <FontAwesomeIcon icon={faCheck} />
-                                    </Button>
+                                    {freelance && (
+                                        <Button
+                                            color='success'
+                                            title='Accept'
+                                            className='btn btn-primary btn-sm float-right mx-1'
+                                            onClick={() => {
+                                                setMess(
+                                                    `accept_${applicant.id}`,
+                                                );
+                                                toggle();
+                                            }}
+                                            style={{ borderRadius: "50%" }}>
+                                            <FontAwesomeIcon icon={faCheck} />
+                                        </Button>
+                                    )}
                                 </ListGroupItem>
                             ))}
                         </ListGroup>
@@ -396,6 +469,57 @@ const Job = ({ job, jobType, type2 }) => {
                         </h6>
                     ))}
             </Media>
+            <Modal isOpen={modal} toggle={toggle} style={{ marginTop: "20vh" }}>
+                {/* <ModalHeader toggle={toggle}>
+                    {mess === "promote" && "Promote"}
+                </ModalHeader> */}
+                <ModalBody>
+                    {mess === "promote" &&
+                        "Are you sure you want to promote this job ?"}
+                    {mess.split("_")[0] === "accept" &&
+                        "Are you sure you want to accept  ?"}
+                    {mess === "post" &&
+                        "Are you sure you want to post the job?"}
+                </ModalBody>
+                <ModalFooter>
+                    {mess === "promote" && (
+                        <Button
+                            size='sm'
+                            color='primary'
+                            onClick={(e) => {
+                                toggle();
+                                sponsor();
+                            }}>
+                            Promote
+                        </Button>
+                    )}
+                    {mess === "post" && (
+                        <Button
+                            size='sm'
+                            color='primary'
+                            onClick={(e) => {
+                                toggle();
+                                post();
+                            }}>
+                            Post
+                        </Button>
+                    )}
+                    {mess.split("_")[0] === "accept" && (
+                        <Button
+                            size='sm'
+                            color='primary'
+                            onClick={(e) => {
+                                toggle();
+                                accept(mess.split("_")[1]);
+                            }}>
+                            Accept
+                        </Button>
+                    )}
+                    <Button color='secondary' size='sm' onClick={toggle}>
+                        Cancel
+                    </Button>
+                </ModalFooter>
+            </Modal>
         </div>
     );
 };
@@ -531,6 +655,9 @@ export default class JobApplications extends Component {
                                         job={job}
                                         jobType={this.state.jobType}
                                         type2='job'
+                                        getOpenJobs={this.getOpenJobs}
+                                        getClosedJobs={this.getClosedJobs}
+                                        getSavedJobs={this.getSavedJobs}
                                     />
                                 ),
                         )
@@ -561,6 +688,9 @@ export default class JobApplications extends Component {
                                             job={job}
                                             jobType={this.state.jobType}
                                             type2='freelance'
+                                            getOpenJobs={this.getOpenJobs}
+                                            getClosedJobs={this.getClosedJobs}
+                                            getSavedJobs={this.getSavedJobs}
                                         />
                                     ),
                             )
