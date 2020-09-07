@@ -2,6 +2,7 @@
 const blobController=require("../controllers/blob.controller.js");
 const router = require("express").Router(),
     middleware = require("../middleware/index");
+
 router.post("/", middleware.isLoggedIn, (req, res) => {
     const content = req.body.context;
     const id = req.user._id;
@@ -9,6 +10,7 @@ router.post("/", middleware.isLoggedIn, (req, res) => {
     res.send(blobController.generateSasToken('user-image',filename));
 
 });
+
 router.post("/employer", middleware.isLoggedIn, (req, res) => {
     const content = req.body.context;
     const id = req.user._id;

@@ -48,7 +48,10 @@ module.exports = mongoose.model(
         google: Object,
         facebook: Object,
         validated:Boolean,
-        sponsors:Number,
+        sponsors:{
+            allowed:Number,
+            posted:Number,
+        },
         jobtier:{
             allowed:Number,
             saved:Number,
@@ -67,6 +70,18 @@ module.exports = mongoose.model(
             posted:Number,
             closed:Number,
         },
+        acceptedApplicants: [ 
+            {
+                id:{
+                    type:mongoose.Schema.Types.ObjectId,
+                    ref: "User",
+                },
+                name:String,
+                image:String,
+                username:String,
+                phone:String,
+            }
+        ],
         jobs: [
             {
                 id: {
@@ -100,6 +115,15 @@ module.exports = mongoose.model(
                 id: {
                     type: mongoose.Schema.Types.ObjectId,
                     ref: "Job",
+                },
+                title: String,
+            },
+        ],
+        appliedFreelance: [
+            {
+                id: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "Freelance",
                 },
                 title: String,
             },

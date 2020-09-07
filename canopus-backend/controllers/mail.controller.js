@@ -1,9 +1,47 @@
 require("dotenv").config();
+const mailgun = require("mailgun-js");
+const DOMAIN = "sandboxa6c1b3d7a13a4122aaa846d7cd3f96a2.mailgun.org";
+const api=process.env.MG_API;
 const ADMIN_MAIL=process.env.ADMIN_MAIL;
-const smtp_pass=process.env.MG_SMTP_PASSWORD;
-const nodemailer=require('nodemailer');
-const Email=require('email-templates');
-const path=require('path');
+const mg = mailgun({apiKey: api, domain: DOMAIN});
+const mailController={}
+// const data = {
+// 	from: "postmaster@sandboxa6c1b3d7a13a4122aaa846d7cd3f96a2.mailgun.org",
+// 	to: "sushant.krishnan2000@gmail.com",
+// 	subject: "Hello",
+// 	template: "forgot",
+// //	'h:X-Mailgun-Variables': {reset_url: "test"}
+// };
+// mg.messages().send(data, function (error, body) {
+    
+    
+//     console.log(body);
+// })
+
+async function forgotMail(req,user,token){
+    
+    const data = {
+        from: ADMIN_MAIL,
+        to: "example@gmail.com",
+        subject: "Hello",
+        template: "forgot2",
+        //v:reset_url:`https://${req.headers.host}/reset/${token}`
+        //h:X-Mailgun-Variables:
+        'h:X-Mailgun-Variables': JSON.stringify({
+            test:'http://localhost:3000/reset',
+           
+          })
+    };
+    mg.messages().send(data, function (error, body) {
+    
+            if(error)
+            return error;
+            else
+            return body;
+        })
+    }
+
+    exports.mailController={forgotMail};
 // const sgMail = require('@sendgrid/mail');
 // sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 // const msg = {
