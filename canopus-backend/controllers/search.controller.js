@@ -72,7 +72,7 @@ async function queryBuilder(req) {
     query.limiter = parseInt(req.body.limit) || 10;
     if(req.body.coordinates){
         location =await geolocationAPI(req.body.coordinates);
-        console.log(location);
+       // console.log(location);
         query.mustquery.push(addQuery(location, "description.location"));
         //query.shouldquery.push(addQueryboost(req.body.location, "description.location",1));
     }
@@ -136,8 +136,8 @@ async function queryBuilder(req) {
             },
         };
         //By default sort by Relevance
-        console.log(query.mustquery);
-    console.log(query.shouldquery);
+        //console.log(query.mustquery);
+    //console.log(query.shouldquery);
         query.sort = {$sort: { score: { $meta: "textScore" }} };
                 if ((req.body.order === "New"))
                     query.sort = {
