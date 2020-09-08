@@ -1351,11 +1351,11 @@ router.delete("/post/job/:id", middleware.checkJobOwnership, (req, res) => {
 			return item.sid;
 		});
 		console.log(id);
-		savedFreelance.findByIdAndDelete(id).then((del)=>{
-			Freelance.findByIdAndDelete(req.params.id).then((del)=>{
+		savedJob.findByIdAndDelete(id).then((del)=>{
+			Job.findByIdAndDelete(req.params.id).then((del)=>{
 		employer.jobs = employer.jobs.filter(job => job.id != req.params.id);
 			employer.save()
-.then(() => res.json("Freelance Job deleted successfully !"))
+.then(() => res.json("Job deleted successfully !"))
 .catch((err) =>
        res.status(400).json({
            err: err,
