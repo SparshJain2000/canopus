@@ -1345,37 +1345,65 @@ Freelance.findById(req.params.id)
 //delete a job
 
 router.delete("/post/job/:id", middleware.checkJobOwnership, (req, res) => {
-Job.findByIdAndDelete(req.params.id)
-.then(() => res.json("Job deleted successfully !"))
-.catch((err) =>
-       res.status(400).json({
-           err: err,
-       }),
-       );
-});
-//delete a job
-
-router.delete("/save/job/:id", middleware.isEmployer, (req, res) => {
-    Employer.findById(req.user._id).then((employer)=>{
-        if(employer.savedJobs.includes(req.params.id))
-            savedJob.findByIdAndDelete(req.params.id)
-            .then(() => res.json("Saved Job deleted successfully !"))
-            .catch((err) =>
-                 res.status(400).json({
-                 err: err,
-                 }),);
-    }).catch((err)=>{res.json({err:"Job doesn't belong to you"})});
-});
-//delete a job
-
-router.delete("/post/freelance/:id", middleware.checkFreelanceJobOwnership, (req, res) => {
-Freelance.findByIdAndDelete(req.params.id)
+	Employer.findById(req.user._id).then((employer)=>{
+		const id=employer.jobs.map(item=>{
+			if(item.id==req.params.id)
+			return item.sid;
+		});
+		console.log(id);
+		savedFreelance.findByIdAndDelete(id).then((del)=>{
+			Freelance.findByIdAndDelete(req.params.id).then((del)=>{
+		employer.jobs = employer.jobs.filter(job => job.id != req.params.id);
+			employer.save()
 .then(() => res.json("Freelance Job deleted successfully !"))
 .catch((err) =>
        res.status(400).json({
            err: err,
        }),
-       );
+	   );
+	}).catch((err)=>{res.json({err:"Job doesn't belong to you"})});
+}).catch((err)=>{res.json({err:"Job doesn't belong to you"})});
+}).catch((err)=>{res.json({err:"Job doesn't belong to you"})});
+});
+//delete a job
+
+router.delete("/save/job/:id", middleware.isEmployer, (req, res) => {
+	Employer.findById(req.user._id).then((employer)=>{
+		if(!employer.savedJobs.includes(req.params.id))
+		return res.status(400).json({err:"Job doesn't belong to you/ Incorrect job ID"});
+		employer.savedJobs.splice (employer.savedJobs.indexOf(mongoose.Types.ObjectId(req.params.id)),1);
+		employer.save().then((semployer)=>{
+        savedJob.findByIdAndDelete(req.params.id)
+.then(() => res.json("Saved Job deleted successfully !"))
+.catch((err) =>
+       res.status(400).json({
+           err: err,
+       }),
+       ); }).catch((err)=>{res.json({err:"Error Saving Employer"})});
+    }).catch((err)=>{res.json({err:"Job doesn't belong to you"})});
+});
+//delete a job
+
+router.delete("/post/freelance/:id", middleware.checkFreelanceJobOwnership, (req, res) => {
+	Employer.findById(req.user._id).then((employer)=>{
+		const id=employer.freelanceJobs.map(item=>{
+			if(item.id==req.params.id)
+			return item.sid;
+		});
+		console.log(id);
+		savedFreelance.findByIdAndDelete(id).then((del)=>{
+			Freelance.findByIdAndDelete(req.params.id).then((del)=>{
+		employer.freelanceJobs = employer.freelanceJobs.filter(job => job.id != req.params.id);
+			employer.save()
+.then(() => res.json("Freelance Job deleted successfully !"))
+.catch((err) =>
+       res.status(400).json({
+           err: err,
+       }),
+	   );
+	}).catch((err)=>{res.json({err:"Job doesn't belong to you"})});
+}).catch((err)=>{res.json({err:"Job doesn't belong to you"})});
+}).catch((err)=>{res.json({err:"Job doesn't belong to you"})});
 });
 //delete a job
 
