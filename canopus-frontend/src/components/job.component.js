@@ -293,11 +293,15 @@ export default class Job extends Component {
                             <div className='row '>
                                 <div className='col-7 col-md-10 my-auto'>
                                     <h5>{job.title}</h5>
-                                    <h6 className='text-info'>
-                                        {job.description.company
-                                            ? job.description.company
-                                            : "Company"}
-                                    </h6>
+                                    <Link
+                                        to={`/employer/profile/${job.author.id}`}>
+                                        <h6 className='text-info'>
+                                            {job.description.company
+                                                ? job.description.company
+                                                : "Company"}
+                                        </h6>
+                                    </Link>
+
                                     <h6>
                                         <FontAwesomeIcon
                                             icon={faMapMarkerAlt}
