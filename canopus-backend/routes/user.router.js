@@ -248,7 +248,8 @@ router.post("/request",middleware.isUser,(req,res)=>{
                 createdAt:new Date(),
                 createdBy:"User",
                 expireAt:expiry,
-                validated:user.validated,
+				validated:user.validated,
+				extension:1,
             });
             Job.create(job)
             .then((job) => {
@@ -273,7 +274,8 @@ router.post("/request",middleware.isUser,(req,res)=>{
                         createdAt:new Date(),
                         createdBy:"User",
                         expireAt:expiry,
-                        validated:user.validated,
+						validated:user.validated,
+						extension:1,
                     });
                     savedJob.create(sjob).then((sjob) =>{
                     User.findById(req.user._id).then((user) => {
@@ -341,7 +343,8 @@ router.post("/request",middleware.isUser,(req,res)=>{
                 createdAt:new Date(),
                 createdBy:"User",
                 expireAt:expiry,
-                validated:user.validated,
+				validated:user.validated,
+				extension:1,
             });
             Freelance.create(freelance)
             .then((job) => {
@@ -369,7 +372,8 @@ router.post("/request",middleware.isUser,(req,res)=>{
                         createdAt:new Date(),
                         createdBy:"User",
                         expireAt:expiry,
-                        validated:user.validated,
+						validated:user.validated,
+						extension:1,
                     });
                     savedFreelance.create(sfreelance).then((sjob) =>{
                     User.findById(req.user._id).then((user) => {
