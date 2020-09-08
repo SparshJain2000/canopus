@@ -53,7 +53,7 @@ router.post("/alljobs", (req, res) => {
             userid=req.user.applied.map(item=>{
                 return mongoose.Types.ObjectId(item.id);
             });
-            console.log(userid);
+           // console.log(userid);
         }
         catch(err){
              userid=["null"];
@@ -150,7 +150,7 @@ router.post("/allfreelance", (req, res) => {
                        userid=req.user.appliedFreelance.map(item=>{
                            return mongoose.Types.ObjectId(item.id);
                        });
-                       console.log(userid);
+                      // console.log(userid);
                    }
                    catch(err){
                         userid=["null"];
@@ -216,7 +216,7 @@ router.post("/search", async (req, res) => {
         .queryBuilder(req)
         .then((query) => {
            // if (query.skip == 0)
-           console.log(query.search);
+           //console.log(query.search);
                 Job.aggregate(
                     [
                         query.search,
@@ -235,7 +235,7 @@ router.post("/search", async (req, res) => {
                         userid=req.user.applied.map(item=>{
                             return mongoose.Types.ObjectId(item.id);
                         });
-                        console.log(userid);
+                       // console.log(userid);
                     }
                     catch(err){
                          userid=["null"];
@@ -445,7 +445,7 @@ router.post("/freelanceSearch", async (req, res) => {
                        userid=req.user.appliedFreelance.map(item=>{
                            return mongoose.Types.ObjectId(item.id);
                        });
-                       console.log(userid);
+                       //console.log(userid);
                    }
                    catch(err){
                         userid=["null"];
@@ -541,8 +541,8 @@ router.post("/apply/job/:id", middleware.isUser, (req, res) => {
             // if(job.profession=='Surgeon' || job.profession=='Physician')
             //     if(job.specialization!=user.specialization)
             //     return res.status(400).json(({err:"Specialization doesn't match, update your profile!"}));
-            // if(job.validated==false)
-            // return res.status(400).json({err:"Job not active"});
+            if(job.validated==false)
+            return res.status(400).json({err:"Job not active"});
             const applicants=job.applicants.map(item=>{
                 return mongoose.Types.ObjectId(item.id);
             })
@@ -617,8 +617,8 @@ router.post("/apply/freelance/:id", middleware.isUser, (req, res) => {
         // if(job.profession=='Surgeon' || job.profession=='Physician')
         //         if(job.specialization!=user.specialization)
         //         return res.status(400).json(({err:"Specialization doesn't match, update your profile!"}));
-        // if(job.validated==false)
-        // return res.status(400).json({err:"Job not active"});
+        if(job.validated==false)
+        return res.status(400).json({err:"Job not active"});
 		const applicants=job.applicants.map(item=>{
 			return mongoose.Types.ObjectId(item.id);
 		})

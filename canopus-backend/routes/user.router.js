@@ -154,6 +154,21 @@ router.post('/reset/:token', async (req, res) => {
  
   }).catch((err)=>{res.json({err:"User not found"})});
 });
+
+//verify email
+
+
+//regenerate mail verify token
+router.post('/forgot', async (req, res, next) => {
+    const token = (await promisify(crypto.randomBytes)(20)).toString('hex');
+    User.findOneAndUpdate({username:req.body.username},{$set:{resetPasswordToken:token,resetPasswordExpires:Date.now()+3600000}}).then((user)=>{;
+    console.log(token);
+    mailController.forgotMail(req,user,token).then((response)=>{
+    res.json({status:"Email has been sent"});
+    //res.redirect('/forgot');
+    }).catch((err)=>{res.json({err:"Mail not sent"})});
+    }).catch((err)=>{res.json({err:"User not found"})});
+});
 //Get user profile details
 
 router.get("/profile", middleware.isUser, (req, res) => {
@@ -233,7 +248,8 @@ router.post("/request",middleware.isUser,(req,res)=>{
                 createdAt:new Date(),
                 createdBy:"User",
                 expireAt:expiry,
-                validated:user.validated,
+				validated:user.validated,
+				extension:1,
             });
             Job.create(job)
             .then((job) => {
@@ -258,7 +274,8 @@ router.post("/request",middleware.isUser,(req,res)=>{
                         createdAt:new Date(),
                         createdBy:"User",
                         expireAt:expiry,
-                        validated:user.validated,
+						validated:user.validated,
+						extension:1,
                     });
                     savedJob.create(sjob).then((sjob) =>{
                     User.findById(req.user._id).then((user) => {
@@ -326,7 +343,8 @@ router.post("/request",middleware.isUser,(req,res)=>{
                 createdAt:new Date(),
                 createdBy:"User",
                 expireAt:expiry,
-                validated:user.validated,
+				validated:user.validated,
+				extension:1,
             });
             Freelance.create(freelance)
             .then((job) => {
@@ -354,7 +372,8 @@ router.post("/request",middleware.isUser,(req,res)=>{
                         createdAt:new Date(),
                         createdBy:"User",
                         expireAt:expiry,
-                        validated:user.validated,
+						validated:user.validated,
+						extension:1,
                     });
                     savedFreelance.create(sfreelance).then((sjob) =>{
                     User.findById(req.user._id).then((user) => {
