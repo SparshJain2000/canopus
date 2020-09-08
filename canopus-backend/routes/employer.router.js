@@ -251,6 +251,42 @@ router.get("/profile", middleware.isEmployer, (req, res) => {
 });
 
 //===========================================================================
+
+// public profile get
+
+router.get("/profile/:id",(req,res)=>{
+	Employer.findOne({_id:req.params.id},{hash:0,salt:0,jobtier:0,freelancetier:0,locumtier:0,savedJobs:0,savedFreelance:0,username:0,firstName:0,lastName:0})
+	.then((employer)=>{res.json(employer)})
+	.catch((err)=>{res.status(404).json({err:"Couldn't find employer"})});
+})
+
+
+// public jobs 
+//get multiple jobs
+router.get("/profile/:id/jobs",(req,res)=>{
+	Employer.findById(req.params.id).then((employer)=>{
+		const id=employer.jobs.map(job=>{
+			return job.id;
+		});
+		console.log(id);
+		Job.find({_id:{$in:id}},{applicants:0,acceptedApplicants:0}).then((jobs)=>{
+			res.json({jobs:jobs});
+		}).catch((err)=>{res.json({err:"Jobs not found"})});
+	}).catch((err)=>{res.json({err:"Employer not found"})});
+	});
+	
+	//get multiple freelance jobs
+	router.get("/profile/:id/freelance",(req,res)=>{
+	Employer.findById(req.params.id).then((employer)=>{
+		const id=employer.freelanceJobs.map(job=>{
+			return job.id;
+		});
+		console.log(id);
+		Freelance.find({_id:{$in:id}},{applicants:0,acceptedApplicants:0}).then((jobs)=>{
+			res.json({jobs:jobs});
+		}).catch((err)=>{res.json({err:"Jobs not found"})});
+	}).catch((err)=>{res.json({err:"Employer not found"})});
+	});
 // Employer profile update
 
 
@@ -1345,14 +1381,17 @@ Freelance.findByIdAndDelete(req.params.id)
 
 router.delete("/save/freelance/:id", middleware.isEmployer, (req, res) => {
     Employer.findById(req.user._id).then((employer)=>{
-        if(employer.savedJobs.includes(req.params.id))
-            savedFreelance.findByIdAndDelete(req.params.id)
+		if(!employer.savedFreelance.includes(req.params.id))
+		return res.status(400).json({err:"Job doesn't belong to you/ Incorrect job ID"});
+		employer.savedFreelance.splice (employer.savedFreelance.indexOf(mongoose.Types.ObjectId(req.params.id)),1);
+		employer.save().then((semployer)=>{
+        savedFreelance.findByIdAndDelete(req.params.id)
 .then(() => res.json("Saved Freelance Job deleted successfully !"))
 .catch((err) =>
        res.status(400).json({
            err: err,
        }),
-       );
+       ); }).catch((err)=>{res.json({err:"Error Saving Employer"})});
     }).catch((err)=>{res.json({err:"Job doesn't belong to you"})});
 });
 
