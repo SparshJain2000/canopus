@@ -9,6 +9,7 @@ const asyncify = require('express-asyncify');
 require("dotenv").config();
 const GOOGLE_ANALYTICS=process.env.GOOGLE_ANALYTICS;
 var ua = require("universal-analytics");
+const e = require("express");
 var visitor = ua(GOOGLE_ANALYTICS);
 const router = require("express").Router(),
     passport = require("passport"),
@@ -1324,13 +1325,12 @@ router.get("/save/job/:id",middleware.isEmployer,(req,res)=>{
 			//if(item.sid==req.params.id)
 			return item.sid;
 		});
-		if(id.includes(req.params.id) && employer.savedJobs.includes(req.params.id))
-		return res.status(400).json({err:"Job doesnt belong to you"});
-
+		if(id.includes(req.params.id) || employer.savedJobs.includes(req.params.id))
 		savedJob.findById(req.params.id)
 .then((job) =>{
     res.json(job);
 	}).catch((err) =>res.status(400).json({err:"Job not found"}));
+	else 	return res.status(400).json({err:"Job doesnt belong to you"});
 }).catch((err) =>res.status(400).json({err:"Not employer"}));
 });
 //get saved freelance job
@@ -1340,13 +1340,15 @@ router.get("/save/freelance/:id",middleware.isEmployer,(req,res)=>{
 			//if(item.sid==req.params.id)
 			return item.sid;
 		});
-		if(id.includes(req.params.id) && employer.savedJobs.includes(req.params.id))
-		return res.status(400).json({err:"Job doesnt belong to you"});
+		if(id.includes(req.params.id) || employer.savedJobs.includes(req.params.id))
+	//	return res.status(400).json({err:"Job doesnt belong to you"});
 savedFreelance.findById(req.params.id)
 .then((job) =>{
     res.json(job);
 })
 .catch((err) =>res.status(400).json({err:"Job not found"}));
+
+else 	return res.status(400).json({err:"Job doesnt belong to you"});
 }).catch((err) =>res.status(400).json({err:"Not employer"}));
 
 });
