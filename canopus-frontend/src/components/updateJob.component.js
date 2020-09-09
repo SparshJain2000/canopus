@@ -1,14 +1,21 @@
 import React, { useRef, useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, Link, useHistory } from "react-router-dom";
 import {
     Form,
     Label,
     FormGroup,
+    Nav,
+    NavItem,
+    NavLink,
     Button,
     Input,
     InputGroup,
     InputGroupAddon,
     InputGroupText,
+    Modal,
+    ModalBody,
+    ModalFooter,
+    ModalHeader,
 } from "reactstrap";
 import axios from "axios";
 import Select from "react-select";
@@ -20,6 +27,7 @@ import {
     faUser,
     faEnvelope,
     faArrowAltCircleDown,
+    faPen,
     faArrowAltCircleUp,
     // faShareAlt,
 } from "@fortawesome/free-solid-svg-icons";
@@ -42,6 +50,7 @@ const experienceArray = data.experience.map((opt) => ({
 }));
 
 const UpdateJob = (props) => {
+    const history = useHistory();
     const titleRef = useRef(null);
     const professionRef = useRef(null);
     const specializationRef = useRef(null);
@@ -87,6 +96,15 @@ const UpdateJob = (props) => {
     const [date, setDate] = useState("");
     const [type2, setType2] = useState("");
     const [jobType, setJobType] = useState("");
+    const [modal, setModal] = useState(false);
+    const [mess, setMess] = useState("");
+    const [id, setId] = useState("");
+
+    const [modalError, setModalError] = useState(false);
+    const [messError, setMessError] = useState("");
+
+    const toggle = () => setModal(!modal);
+    const toggleError = () => setModalError(!modalError);
 
     const toggleDetail = () => setShowDetail((prevState) => !prevState);
     const toggleSkill = () => setShowSkill((prevState) => !prevState);
@@ -111,9 +129,12 @@ const UpdateJob = (props) => {
             console.log(data.startDate);
             axios
                 .get(
-                    `/api/employer/${jobTypet}/${type2t}/${props.match.params.id}`,
+                    `/api/employer/${
+                        jobTypet === "close" ? "save" : jobTypet
+                    }/${type2t}/${props.match.params.id}`,
                 )
                 .then(({ data }) => {
+                    setId(data._id);
                     setTitle(data.title);
                     setCompany(
                         data.description.company
@@ -194,15 +215,24 @@ const UpdateJob = (props) => {
                     // setTitle(data.title);
                 })
                 .catch((err) => {
-                    console.log(err);
-                    alert(err.response);
+                    console.log(err.response);
+                    // alert(err.response);
+                    err.response.data
+                        ? setMessError(err.response.data.err)
+                        : setMessError("Error getting job");
+
+                    toggleError();
                 });
         } else
             axios
                 .get(
-                    `/api/employer/${jobTypet}/${type2t}/${props.match.params.id}`,
+                    `/api/employer/${
+                        jobTypet === "close" ? "save" : jobTypet
+                    }/${type2t}/${props.match.params.id}`,
                 )
                 .then(({ data }) => {
+                    setId(data._id);
+
                     setTitle(data.title);
                     setCompany(
                         data.description.company
@@ -268,7 +298,12 @@ const UpdateJob = (props) => {
                     // setTitle(data.title);
                 })
                 .catch((err) => {
-                    alert(err.response);
+                    // alert(err.response);
+                    err.response.data
+                        ? setMessError(err.response.data.err)
+                        : setMessError("Error getting job");
+
+                    toggleError();
                 });
     }, []);
     const save = () => {
@@ -313,7 +348,8 @@ const UpdateJob = (props) => {
             .then((data) => {
                 console.log(data);
                 if (data.data.updated) {
-                    alert("job saved");
+                    setMessError("Updated Successfully !");
+                    toggleError();
                     window.location = "/applications";
                 }
 
@@ -322,13 +358,19 @@ const UpdateJob = (props) => {
             .catch((err) => {
                 console.log(err.response);
                 const error = err.response.data ? err.response.data.err : "";
-                alert("Unable to save job : " + error);
+                // alert("Unable to save job : " + error);
+                err.response.data
+                    ? setMessError(err.response.data.err)
+                    : setMessError("Error updating job");
+
+                toggleError();
             });
         console.log(job);
     };
     const submit = () => {
         // setjobType
         // let type2;
+        setModal(false);
         let job = {
             title: title,
             profession: profession,
@@ -371,7 +413,8 @@ const UpdateJob = (props) => {
                 .then((data) => {
                     console.log(data);
                     if (data.data.updated) {
-                        alert("job Posted");
+                        setMessError("Posted Successfully !");
+                        toggleError();
                         window.location = "/applications";
                     }
 
@@ -382,7 +425,12 @@ const UpdateJob = (props) => {
                     const error = err.response.data
                         ? err.response.data.err
                         : "";
-                    alert("Unable to post job : " + error);
+                    // alert("Unable to post job : " + error);
+                    err.response.data
+                        ? setMessError(err.response.data.err)
+                        : setMessError("Error posting job");
+
+                    toggleError();
                 });
         // console.log(job);
         else
@@ -394,7 +442,8 @@ const UpdateJob = (props) => {
                 .then((data) => {
                     console.log(data);
                     if (data.data.updated) {
-                        alert("job Posted");
+                        setMessError("Posted Successfully !");
+                        toggleError();
                         window.location = "/applications";
                     }
 
@@ -405,11 +454,91 @@ const UpdateJob = (props) => {
                     const error = err.response.data
                         ? err.response.data.err
                         : "";
-                    alert("Unable to post job : " + error);
+                    // alert("Unable to post job : " + error);
+                    err.response.data
+                        ? setMessError(err.response.data.err)
+                        : setMessError("Error posting job");
+
+                    toggleError();
                 });
+    };
+    const discard = () => {
+        axios
+            .delete(
+                `/api/employer/${jobType}/${type2}/${props.match.params.id}`,
+            )
+            .then((data) => {
+                console.log(data);
+                setMessError(
+                    `Job ${jobType === "post" ? "closed" : "discarded"}`,
+                );
+                toggleError();
+                window.location = "/applications";
+            })
+            .catch((err) => {
+                console.log(err.response);
+                const error = err.response.data ? err.response.data.err : "";
+                // alert("Unable to post job : " + error);
+                err.response.data
+                    ? setMessError(err.response.data.err)
+                    : setMessError("Error posting job");
+
+                toggleError();
+            });
     };
     return (
         <div>
+            <Nav tabs className='justify-content-between '>
+                <div className='row justify-content-start col-6 col-sm-7'>
+                    <NavItem className='mx-1 mx-sm-2'>
+                        <NavLink
+                            href='/employer'
+                            // onClick={() => {
+                            //     this.toggleTab("1");
+                            // }}
+                            className={`p-1 p-sm-2`}>
+                            <h6>Overview</h6>
+                        </NavLink>
+                    </NavItem>
+                    <NavItem className='mx-1 mx-sm-2'>
+                        <NavLink href='/applications' className={`p-1 p-sm-2`}>
+                            <h6>Jobs</h6>
+                        </NavLink>
+                    </NavItem>
+                </div>
+                <div className='col-6 col-sm-5 row pr-2 pr-sm-3 justify-content-end'>
+                    <div className='col-12 col-sm-5 px-0 pr-0 pr-sm-1'>
+                        <Link to='/employer/update'>
+                            <Button
+                                className=' mt-2 my-1 px-2 w-100'
+                                size='sm'
+                                style={{ textAlign: "center" }}
+                                color='info'>
+                                Update Profile
+                                <FontAwesomeIcon
+                                    icon={faPen}
+                                    className='ml-2'
+                                />
+                            </Button>
+                        </Link>
+                    </div>
+                    <div className='col-12 col-sm-5 px-0 pl-0 pl-sm-1'>
+                        <Link to='/post'>
+                            <Button
+                                className=' mt-2 my-1 px-2 w-100'
+                                size='sm'
+                                style={{ textAlign: "center" }}
+                                color='primary'>
+                                Post a Job{" "}
+                                <FontAwesomeIcon
+                                    icon={faPen}
+                                    className='ml-2'
+                                />
+                            </Button>
+                        </Link>
+                    </div>
+                </div>
+            </Nav>
             <Form className='border-block p-3 p-md-4 mx-2 mx-sm-4 m-3'>
                 <h2>Edit a Job</h2>
                 <div className='block-card p-2 p-sm-3 mt-4'>
@@ -450,6 +579,7 @@ const UpdateJob = (props) => {
                                     name='Title'
                                     defaultValue={title}
                                     onChange={handleChange}
+                                    disabled={jobType === "close"}
                                     required
                                 />
                             </div>
@@ -463,6 +593,7 @@ const UpdateJob = (props) => {
                                     defaultValue={company}
                                     className='form-control'
                                     ref={companyRef}
+                                    disabled={jobType === "close"}
                                     onChange={handleChange}
                                     required
                                 />
@@ -479,6 +610,7 @@ const UpdateJob = (props) => {
                                     defaultValue={Number(numberApp)}
                                     name='NumberApp'
                                     onChange={handleChange}
+                                    disabled={jobType === "close"}
                                     required
                                 />
                             </div>
@@ -494,7 +626,9 @@ const UpdateJob = (props) => {
                                         placeholder='date placeholder'
                                         name='EndDate'
                                         defaultValue={endDate}
+                                        disabled={jobType === "close"}
                                         ref={endDateRef}
+                                        disabled={jobType === "close"}
                                         onChange={handleChange}
                                     />
                                 </div>
@@ -537,6 +671,10 @@ const UpdateJob = (props) => {
                                     autosize={true}
                                     isClearable={true}
                                     placeholder='Profession'
+                                    isDisabled={
+                                        jobType === "post" ||
+                                        jobType === "close"
+                                    }
                                     defaultValue={
                                         profession !== "" && {
                                             value: profession,
@@ -566,6 +704,10 @@ const UpdateJob = (props) => {
                                     autosize={true}
                                     isClearable={true}
                                     placeholder='Specialization'
+                                    isDisabled={
+                                        jobType === "post" ||
+                                        jobType === "close"
+                                    }
                                     defaultValue={
                                         specialization !== "" && {
                                             value: specialization,
@@ -600,6 +742,7 @@ const UpdateJob = (props) => {
                                         ref={superSpecializationRef}
                                         name='SuperSpecialization'
                                         defaultValue={superSpecialization}
+                                        isDisabled={jobType === "close"}
                                         onChange={(e) => {
                                             console.log(e);
                                             handleChangeSelect(
@@ -616,6 +759,7 @@ const UpdateJob = (props) => {
                                     ref={skillsRef}
                                     className='form-control'
                                     rows='3'
+                                    disabled={jobType === "close"}
                                     name='Skills'
                                     onChange={handleChange}
                                     defaultValue={skills}
@@ -666,6 +810,7 @@ const UpdateJob = (props) => {
                                                 label: experience,
                                             }
                                         }
+                                        isDisabled={jobType === "close"}
                                         // className='basic-multi-select'
                                         // classNamePrefix='select'
                                         ref={experienceRef}
@@ -687,6 +832,7 @@ const UpdateJob = (props) => {
                                         autosize={true}
                                         placeholder='Type'
                                         options={typeArray}
+                                        isDisabled={jobType === "close"}
                                         // className='basic-multi-select'
                                         // classNamePrefix='select'
                                         ref={typeRef}
@@ -715,6 +861,7 @@ const UpdateJob = (props) => {
                                                 label: location,
                                             }
                                         }
+                                        isDisabled={jobType === "close"}
                                         onChange={(e) => {
                                             console.log(e);
                                             handleChangeSelect(
@@ -735,6 +882,7 @@ const UpdateJob = (props) => {
                                         defaultValue={Number(salary)}
                                         name='Salary'
                                         onChange={handleChange}
+                                        disabled={jobType === "close"}
                                         required
                                     />
                                     <InputGroupAddon addonType='append'>
@@ -757,6 +905,7 @@ const UpdateJob = (props) => {
                                         ref={incentivesRef}
                                         name='Incentives'
                                         defaultValue={incentives}
+                                        isDisabled={jobType === "close"}
                                         onChange={(e) => {
                                             console.log(e);
                                             handleChangeSelect("Incentives", e);
@@ -773,6 +922,7 @@ const UpdateJob = (props) => {
                                     name='Line'
                                     onChange={handleChange}
                                     defaultValue={line}
+                                    disabled={jobType === "close"}
                                 />
                             </InputGroup>
                         </FormGroup>
@@ -874,24 +1024,150 @@ const UpdateJob = (props) => {
                         )}
                     </div>
                 )}
-                <FormGroup className='ml-auto mr-1 mt-3 w-100 text-align-end'>
+                <FormGroup className='ml-auto mr-1 mt-3 w-100 text-align-end row justify-content-end'>
+                    {jobType === "post" && (
+                        <div className='col-3 col-md-2 px-1'>
+                            <Button
+                                onClick={(e) => {
+                                    setMess("discard");
+                                    // history.push({
+                                    //     pathname: "/post",
+                                    //     state: { id, type2, jobType },
+                                    // });
+                                    toggle();
+                                }}
+                                className='w-100'
+                                color='danger'>
+                                Close
+                            </Button>
+                        </div>
+                    )}
                     {jobType === "save" && (
+                        <div className='col-3 col-md-2 px-1'>
+                            <Button
+                                onClick={(e) => {
+                                    setMess("save");
+                                    toggle();
+                                }}
+                                className='w-100'
+                                color='info'>
+                                Save
+                            </Button>
+                        </div>
+                    )}
+                    {jobType === "save" && (
+                        <div className='col-3 col-md-2 px-1'>
+                            <Button
+                                onClick={(e) => {
+                                    setMess("discard");
+                                    toggle();
+                                }}
+                                className='w-100'
+                                color='danger'>
+                                Discard
+                            </Button>
+                        </div>
+                    )}
+                    {(jobType === "close" || jobType === "post") && (
+                        <div className='col-3 col-md-2 px-1'>
+                            <Link
+                                to={{
+                                    pathname: "/post",
+                                    state: { id, type2, jobType },
+                                }}>
+                                <Button className='w-100' color='info'>
+                                    Copy
+                                </Button>
+                            </Link>
+                        </div>
+                    )}
+                    {(jobType === "post" || jobType === "save") && (
+                        <div className='col-3 col-md-2 px-1'>
+                            <Button
+                                onClick={(e) => {
+                                    setMess("post");
+                                    toggle();
+                                }}
+                                className='w-100'
+                                color='primary'>
+                                {jobType === "post" ? "Update" : "Post"}
+                            </Button>
+                        </div>
+                    )}
+                </FormGroup>
+            </Form>
+            <Modal isOpen={modal} toggle={toggle} style={{ marginTop: "20vh" }}>
+                <ModalHeader toggle={toggle} className='py-1'>
+                    {mess === "save" && "Confirm Save"}
+                    {mess === "post" && "Confirm Publish"}
+                    {mess === "discard" && "Confirm Discard"}
+
+                    {/* {mess.split("_")[0] === "accept" && "Confirm Accept"} */}
+                </ModalHeader>
+                {/* <ModalHeader toggle={toggle}>
+                    {mess === "promote" && "Promote"}
+                </ModalHeader> */}
+                <ModalBody>
+                    {mess === "post" &&
+                        "Are you sure you want to publish this job ?"}
+
+                    {mess === "save" &&
+                        "Are you sure you want to save the job?"}
+                    {mess === "discard" &&
+                        "Are you sure you want to discard the job?"}
+                </ModalBody>
+                <ModalFooter>
+                    {mess === "post" && (
                         <Button
-                            onClick={save}
-                            className='ml-1 w-25'
-                            color='info'>
-                            Save
+                            size='sm'
+                            color='primary'
+                            onClick={(e) => {
+                                toggle();
+                                submit();
+                            }}>
+                            Yes
+                        </Button>
+                    )}
+                    {mess === "save" && (
+                        <Button
+                            size='sm'
+                            color='primary'
+                            onClick={(e) => {
+                                toggle();
+                                save();
+                            }}>
+                            Yes
+                        </Button>
+                    )}
+                    {mess === "discard" && (
+                        <Button
+                            size='sm'
+                            color='primary'
+                            onClick={(e) => {
+                                toggle();
+                                discard();
+                            }}>
+                            Yes
                         </Button>
                     )}
 
-                    <Button
-                        onClick={submit}
-                        className='ml-1 w-25'
-                        color='primary'>
-                        Post
+                    <Button color='secondary' size='sm' onClick={toggle}>
+                        No
                     </Button>
-                </FormGroup>
-            </Form>
+                </ModalFooter>
+            </Modal>
+            <Modal
+                isOpen={modalError}
+                toggle={toggleError}
+                style={{ marginTop: "20vh" }}>
+                <ModalHeader toggle={toggleError} className='py-1'>
+                    Error !
+                </ModalHeader>
+                {/* <ModalHeader toggle={toggle}>
+                    {mess === "promote" && "Promote"}
+                </ModalHeader> */}
+                <ModalBody>{messError}</ModalBody>
+            </Modal>
         </div>
     );
 };
