@@ -139,8 +139,8 @@ router.post('/reset/:token', async (req, res) => {
             text: `
               This is a confirmation that the password for your account "${user.username}" has just been changed.
             `,
-          };
-          mailController.transport.sendMail(resetEmail);
+		  };
+		  mailController.transport.sendMail(resetEmail);
           res.json({status:"Updated"});
         }).catch((err)=>{res.status(400).json({err:"Fields not unset"})});
         }).catch((err)=>{res.status(400).json({err:"Password not saved"})});
@@ -1336,11 +1336,11 @@ router.get("/save/job/:id",middleware.isEmployer,(req,res)=>{
 //get saved freelance job
 router.get("/save/freelance/:id",middleware.isEmployer,(req,res)=>{
 	Employer.findById(req.user._id).then((employer)=>{
-		const id=employer.jobs.map(item=>{
+		const id=employer.freelanceJobs.map(item=>{
 			//if(item.sid==req.params.id)
 			return item.sid;
 		});
-		if(id.includes(req.params.id) || employer.savedJobs.includes(req.params.id))
+		if(id.includes(req.params.id) || employer.savedFreelance.includes(req.params.id))
 	//	return res.status(400).json({err:"Job doesnt belong to you"});
 savedFreelance.findById(req.params.id)
 .then((job) =>{
