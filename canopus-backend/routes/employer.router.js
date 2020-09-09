@@ -1397,6 +1397,7 @@ router.delete("/save/job/:id", middleware.isEmployer, (req, res) => {
 		if(!employer.savedJobs.includes(req.params.id))
 		return res.status(400).json({err:"Job doesn't belong to you/ Incorrect job ID"});
 		employer.savedJobs.splice (employer.savedJobs.indexOf(mongoose.Types.ObjectId(req.params.id)),1);
+		employer.jobtier.saved+=-1;
 		employer.save().then((semployer)=>{
         savedJob.findByIdAndDelete(req.params.id)
 .then(() => res.json("Saved Job deleted successfully !"))
@@ -1437,6 +1438,7 @@ router.delete("/save/freelance/:id", middleware.isEmployer, (req, res) => {
 		if(!employer.savedFreelance.includes(req.params.id))
 		return res.status(400).json({err:"Job doesn't belong to you/ Incorrect job ID"});
 		employer.savedFreelance.splice (employer.savedFreelance.indexOf(mongoose.Types.ObjectId(req.params.id)),1);
+		employer.freelancetier.saved+=-1;
 		employer.save().then((semployer)=>{
         savedFreelance.findByIdAndDelete(req.params.id)
 .then(() => res.json("Saved Freelance Job deleted successfully !"))
