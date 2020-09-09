@@ -720,7 +720,7 @@ router.post("/apply/freelance/:id", middleware.isUser, (req, res) => {
     });
 });
 // get job
-router.get("/:id", (req, res) => {
+router.get("view/job/:id", (req, res) => {
   Job.findById(req.params.id)
     .then((job) => res.json({ job: job }))
     .catch((err) =>
@@ -730,7 +730,7 @@ router.get("/:id", (req, res) => {
     );
 });
 // get freelance
-router.get("/freelance/:id", (req, res) => {
+router.get("view/freelance/:id", (req, res) => {
   Freelance.findById(req.params.id)
     .then((job) => res.json({ job: job }))
     .catch((err) =>
