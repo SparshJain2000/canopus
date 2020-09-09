@@ -5,7 +5,7 @@ body {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     overflow-x: hidden;
-    width: '100vw'
+    width: "100vw";
 }
 
 html[data-theme="dark"] {
@@ -86,11 +86,11 @@ a:hover {
     display: -webkit-box;
     white-space: normal;
     -webkit-box-orient: vertical;
-    -webkit-line-clamp: 1;
+    -webkit-line-clamp: 2;
     /* number of lines to show */
     line-height: 1.3em;
     /* fallback */
-    max-height: 1.3em;
+    max-height: 2.6em;
     text-overflow: ellipsis;
 }
 
@@ -102,8 +102,21 @@ a:hover {
     text-align: end;
 }
 
-td {
-    text-align: center;
+.text-align-left {
+    text-align: start;
+}
+
+td,
+th {
+    text-align: end;
+    padding: 50px;
+}
+
+.table td,
+.table th {
+    padding: 0.5rem;
+    vertical-align: top;
+    border-top: 1px solid #dee2e6;
 }
 
 @media (min-width: 992px) {
