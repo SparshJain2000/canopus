@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
     Form,
     Label,
@@ -8,7 +8,15 @@ import {
     InputGroup,
     InputGroupAddon,
     InputGroupText,
+    Modal,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+    Nav,
+    NavItem,
+    NavLink,
 } from "reactstrap";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import Select from "react-select";
 import data from "../data";
@@ -17,6 +25,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faMapMarkerAlt,
     faUser,
+    faPen,
     faEnvelope,
     faArrowAltCircleDown,
     faArrowAltCircleUp,
@@ -40,7 +49,7 @@ const experienceArray = data.experience.map((opt) => ({
     value: opt,
 }));
 
-const PostJob = () => {
+const PostJob = (props) => {
     const titleRef = useRef(null);
     const professionRef = useRef(null);
     const specializationRef = useRef(null);
@@ -87,6 +96,15 @@ const PostJob = () => {
     const [date, setDate] = useState("");
     const [category, setCategory] = useState("");
 
+    const [modal, setModal] = useState(false);
+    const [mess, setMess] = useState("");
+
+    const [modalError, setModalError] = useState(false);
+    const [messError, setMessError] = useState("");
+
+    const toggleError = () => setModalError(!modalError);
+
+    const toggle = () => setModal(!modal);
     const toggleDetail = () => setShowDetail((prevState) => !prevState);
     const toggleSkill = () => setShowSkill((prevState) => !prevState);
     const toggleOtherDetail = () =>
@@ -138,7 +156,7 @@ const PostJob = () => {
                 console.log(data);
                 if (data.status === 200) {
                     alert("job Saved");
-                    window.location = "/search-jobs";
+                    window.location = "/applications";
                 }
                 //  window.location = "/search-jobs";
             })
@@ -146,8 +164,13 @@ const PostJob = () => {
                 console.log(err.response);
                 const error = err.response.data ? err.response.data.err : "";
 
-                alert("Unable to post job : " + error);
-                alert("Unable to post job");
+                // alert("Unable to post job : " + error);
+                // alert("Unable to post job");
+                err.response.data
+                    ? setMessError(err.response.data.err)
+                    : setMessError("Error saving job");
+
+                toggleError();
             });
         console.log(job);
     };
@@ -192,18 +215,283 @@ const PostJob = () => {
             .then((data) => {
                 console.log(data);
                 if (data.status === 200) alert("job Posted");
-                //  window.location = "/search-jobs";
+                window.location = "/applications";
             })
             .catch((err) => {
                 console.log(err.response);
                 const error = err.response.data ? err.response.data.err : "";
 
-                alert("Unable to post job : " + error);
+                // alert("Unable to post job : " + error);
+                err.response.data
+                    ? setMessError(err.response.data.err)
+                    : setMessError("Error posting job");
+
+                toggleError();
             });
         console.log(job);
     };
+    useEffect(() => {
+        console.log("====================================");
+        console.log(props.location.state);
+        if (props.location.state !== undefined) {
+            // const [type2t, jobTypet] = props.location.search
+            //     .substring(1)
+            //     .split("&");
+            // setType2(type2t);
+            // setJobType(jobTypet);
+            const type2t = props.location.state.type2;
+            const jobTypet = props.location.state.jobType;
+            if (type2t === "freelance") {
+                setFreelance(true);
+                console.log(data.startDate);
+                axios
+                    .get(
+                        `/api/employer/${
+                            jobTypet === "close" ? "save" : jobTypet
+                        }/${type2t}/${props.location.state.id}`,
+                    )
+                    .then(({ data }) => {
+                        // setId(data._id);
+                        setTitle(data.title);
+                        setCompany(
+                            data.description.company
+                                ? data.description.company
+                                : "",
+                        );
+
+                        setNumberApp(
+                            data.description.count ? data.description.count : 0,
+                        );
+                        data.startDate &&
+                            setDate(
+                                `${new Date(data.startDate).getFullYear()}-${(
+                                    "0" +
+                                    (new Date(data.startDate).getMonth() + 1)
+                                ).slice(-2)}-${(
+                                    "0" + new Date(data.startDate).getDate()
+                                ).slice(-2)}`,
+                            );
+                        data.startDate &&
+                            setStartTime(
+                                new Date(data.startDate).toLocaleTimeString(
+                                    [],
+                                    {
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                        hour12: false,
+                                    },
+                                ),
+                            );
+                        data.endDate &&
+                            setEndTime(
+                                new Date(data.endDate).toLocaleTimeString([], {
+                                    hour: "2-digit",
+                                    minute: "2-digit",
+                                    hour12: false,
+                                }),
+                            );
+                        setSkills(
+                            data.description.skills
+                                ? data.description.skills
+                                : "",
+                        );
+                        setLine(
+                            data.description.line ? data.description.line : "",
+                        );
+                        setProfession(data.profession);
+                        setSpecialization(data.specialization);
+                        setExperience(
+                            data.description.experience
+                                ? data.description.experience
+                                : "",
+                        );
+                        setLocation(
+                            data.description.location
+                                ? data.description.location
+                                : "",
+                        );
+                        setSalary(
+                            data.description.salary
+                                ? data.description.salary
+                                : 0,
+                        );
+                        setIncentives(
+                            data.description.incentives
+                                ? data.description.incentives.map((x) => {
+                                      return { value: x, label: x };
+                                  })
+                                : [],
+                        );
+                        setType(
+                            data.description.type
+                                ? data.description.type.map((x) => {
+                                      return { value: x, label: x };
+                                  })
+                                : [],
+                        );
+                        setSuperSpecialization(
+                            data.superSpecialization
+                                ? data.superSpecialization.map((x) => {
+                                      return { value: x, label: x };
+                                  })
+                                : [],
+                        );
+
+                        // console.log(endDate);
+                        // setTitle(data.title);
+                    })
+                    .catch((err) => {
+                        console.log(err.response);
+                        // alert(err.response);
+                        err.response.data
+                            ? setMessError(err.response.data.err)
+                            : setMessError("Error getting job");
+
+                        toggleError();
+                    });
+            } else
+                axios
+                    .get(
+                        `/api/employer/${
+                            jobTypet === "close" ? "save" : jobTypet
+                        }/${type2t}/${props.location.state.id}`,
+                    )
+                    .then(({ data }) => {
+                        // setId(data._id);
+
+                        setTitle(data.title);
+                        setCompany(
+                            data.description.company
+                                ? data.description.company
+                                : "",
+                        );
+
+                        setNumberApp(
+                            data.description.count ? data.description.count : 0,
+                        );
+                        data.expireAt &&
+                            setEndDate(
+                                `${new Date(data.expireAt).getFullYear()}-${(
+                                    "0" +
+                                    (new Date(data.expireAt).getMonth() + 1)
+                                ).slice(-2)}-${(
+                                    "0" + new Date(data.expireAt).getDate()
+                                ).slice(-2)}`,
+                            );
+
+                        setSkills(
+                            data.description.skills
+                                ? data.description.skills
+                                : "",
+                        );
+                        setLine(
+                            data.description.line ? data.description.line : "",
+                        );
+                        setProfession(data.profession);
+                        setSpecialization(data.specialization);
+                        setExperience(
+                            data.description.experience
+                                ? data.description.experience
+                                : "",
+                        );
+                        setLocation(
+                            data.description.location
+                                ? data.description.location
+                                : "",
+                        );
+                        setSalary(
+                            data.description.salary
+                                ? data.description.salary
+                                : 0,
+                        );
+                        setIncentives(
+                            data.description.incentives
+                                ? data.description.incentives.map((x) => {
+                                      return { value: x, label: x };
+                                  })
+                                : [],
+                        );
+                        setType(
+                            data.description.type
+                                ? data.description.type.map((x) => {
+                                      return { value: x, label: x };
+                                  })
+                                : [],
+                        );
+                        setSuperSpecialization(
+                            data.superSpecialization
+                                ? data.superSpecialization.map((x) => {
+                                      return { value: x, label: x };
+                                  })
+                                : [],
+                        );
+
+                        console.log(endDate);
+                        // setTitle(data.title);
+                    })
+                    .catch((err) => {
+                        console.log(err.response);
+                        err.response && err.response.data
+                            ? setMessError(err.response.data.err)
+                            : setMessError("Error getting job");
+
+                        toggleError();
+                    });
+        }
+    }, []);
     return (
         <div>
+            <Nav tabs className='justify-content-between '>
+                <div className='row justify-content-start col-6 col-sm-7'>
+                    <NavItem className='mx-1 mx-sm-2'>
+                        <NavLink
+                            href='/employer'
+                            // onClick={() => {
+                            //     this.toggleTab("1");
+                            // }}
+                            className={`p-1 p-sm-2`}>
+                            <h6>Overview</h6>
+                        </NavLink>
+                    </NavItem>
+                    <NavItem className='mx-1 mx-sm-2'>
+                        <NavLink href='/applications' className={`p-1 p-sm-2`}>
+                            <h6>Jobs</h6>
+                        </NavLink>
+                    </NavItem>
+                </div>
+                <div className='col-6 col-sm-5 row pr-2 pr-sm-3 justify-content-end'>
+                    <div className='col-12 col-sm-5 px-0 pr-0 pr-sm-1'>
+                        <Link to='/employer/update'>
+                            <Button
+                                className=' mt-2 my-1 px-2 w-100'
+                                size='sm'
+                                style={{ textAlign: "center" }}
+                                color='info'>
+                                Update Profile
+                                <FontAwesomeIcon
+                                    icon={faPen}
+                                    className='ml-2'
+                                />
+                            </Button>
+                        </Link>
+                    </div>
+                    {/* <div className='col-12 col-sm-5 px-0 pl-0 pl-sm-1'>
+                        <Link to='/post'>
+                            <Button
+                                className=' mt-2 my-1 px-2 w-100'
+                                size='sm'
+                                style={{ textAlign: "center" }}
+                                color='primary'>
+                                Post a Job{" "}
+                                <FontAwesomeIcon
+                                    icon={faPen}
+                                    className='ml-2'
+                                />
+                            </Button>
+                        </Link>
+                    </div> */}
+                </div>
+            </Nav>
             <Form className='border-block p-3 px-3 p-md-5 mx-2 mx-md-5 m-3 '>
                 <h2>Post a Job</h2>
                 <div className=' p-2 p-sm-3 mt-4'>
@@ -695,18 +983,84 @@ const PostJob = () => {
                         </FormGroup>
                     )}
                 </div>
-                <FormGroup className='ml-auto mr-1 mt-3 w-100 text-align-end'>
-                    <Button
-                        onClick={submit}
-                        className='ml-1 w-25'
-                        color='primary'>
-                        Post
-                    </Button>
-                    <Button onClick={save} className='ml-1 w-25' color='info'>
-                        Save
-                    </Button>
+
+                <FormGroup className='ml-auto mr-1 mt-3 w-100 text-align-end row justify-content-end'>
+                    <div className='col-3 col-md-2 px-1'>
+                        <Button
+                            onClick={(e) => {
+                                setMess("post");
+                                toggle();
+                            }}
+                            className='w-100'
+                            color='primary'>
+                            Post
+                        </Button>
+                    </div>
+                    <div className='col-3 col-md-2 px-1'>
+                        <Button
+                            onClick={(e) => {
+                                setMess("save");
+                                toggle();
+                            }}
+                            className='w-100'
+                            color='info'>
+                            Save
+                        </Button>
+                    </div>
                 </FormGroup>
             </Form>
+            <Modal isOpen={modal} toggle={toggle} style={{ marginTop: "20vh" }}>
+                <ModalHeader toggle={toggle} className='py-1'>
+                    {mess === "save" && "Confirm Save"}
+                    {mess === "post" && "Confirm Publish"}
+                    {/* {mess.split("_")[0] === "accept" && "Confirm Accept"} */}
+                </ModalHeader>
+                <ModalBody className='py-3'>
+                    {mess === "post" &&
+                        "Are you sure you want to post this job ?"}
+                    {mess === "save" &&
+                        "Are you sure you want to save the job?"}
+                </ModalBody>
+                <ModalFooter className='py-1'>
+                    {mess === "post" && (
+                        <Button
+                            size='sm'
+                            color='primary'
+                            onClick={(e) => {
+                                toggle();
+                                submit();
+                            }}>
+                            Post
+                        </Button>
+                    )}
+                    {mess === "save" && (
+                        <Button
+                            size='sm'
+                            color='primary'
+                            onClick={(e) => {
+                                toggle();
+                                save();
+                            }}>
+                            Save
+                        </Button>
+                    )}
+                    <Button color='secondary' size='sm' onClick={toggle}>
+                        Cancel
+                    </Button>
+                </ModalFooter>
+            </Modal>
+            <Modal
+                isOpen={modalError}
+                toggle={toggleError}
+                style={{ marginTop: "20vh" }}>
+                <ModalHeader toggle={toggleError} className='py-1'>
+                    Error !
+                </ModalHeader>
+                {/* <ModalHeader toggle={toggle}>
+                    {mess === "promote" && "Promote"}
+                </ModalHeader> */}
+                <ModalBody>{messError}</ModalBody>
+            </Modal>
         </div>
     );
 };

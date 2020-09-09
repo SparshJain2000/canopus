@@ -1,8 +1,16 @@
 import React, { Component, useEffect, useState } from "react";
 import axios from "axios";
 import Loader from "react-loader-spinner";
-import { Link } from "react-router-dom";
-import { Media, Badge, Button } from "reactstrap";
+import { Link, useHistory } from "react-router-dom";
+import {
+    Media,
+    Badge,
+    Button,
+    Modal,
+    ModalHeader,
+    ModalFooter,
+    ModalBody,
+} from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faMapMarkerAlt,
@@ -13,9 +21,12 @@ import {
     faArrowUp,
     faCheck,
     faCheckCircle,
+    faChartLine,
+    faRocket,
 } from "@fortawesome/free-solid-svg-icons";
 import hospital from "../images/hospital.svg";
 import "../stylesheets/jobApplications.css";
+import chartIcon from "../images/line-chart.svg";
 import {
     ListGroup,
     ListGroupItem,
@@ -31,7 +42,17 @@ import {
     Row,
     Col,
 } from "reactstrap";
-
+const chart = {
+    prefix: "fas",
+    iconName: "chart",
+    icon: [
+        512,
+        512,
+        [],
+        "f0000",
+        "m21.5 23h-19c-1.379 0-2.5-1.122-2.5-2.5v-17c0-1.378 1.121-2.5 2.5-2.5h19c1.379 0 2.5 1.122 2.5 2.5v17c0 1.378-1.121 2.5-2.5 2.5zm-19-21c-.827 0-1.5.673-1.5 1.5v17c0 .827.673 1.5 1.5 1.5h19c.827 0 1.5-.673 1.5-1.5v-17c0-.827-.673-1.5-1.5-1.5z m23.5 6h-23c-.276 0-.5-.224-.5-.5s.224-.5.5-.5h23c.276 0 .5.224.5.5s-.224.5-.5.5z m7.5 17c-.128 0-.256-.049-.354-.146-.195-.195-.195-.512 0-.707l3.5-3.5c.151-.153.385-.19.577-.094l1.678.839 3.245-3.245c.195-.195.512-.195.707 0s.195.512 0 .707l-3.5 3.5c-.152.152-.385.191-.577.094l-1.678-.839-3.245 3.245c-.097.097-.225.146-.353.146z m16.5 14c-.276 0-.5-.224-.5-.5v-2.5h-2.5c-.276 0-.5-.224-.5-.5s.224-.5.5-.5h3c.276 0 .5.224.5.5v3c0 .276-.224.5-.5.5z",
+    ],
+};
 const ApplicantDetails = ({ applicant }) => {
     const [data, setData] = useState(null);
     const [error, setError] = useState(false);
@@ -76,9 +97,26 @@ const Badges = ({ desc, superSpecialization }) => {
         </div>
     );
 };
-const Job = ({ job, jobType, type2 }) => {
+const Job = ({
+    job,
+    jobType,
+    type2,
+    getClosedJobs,
+    getOpenJobs,
+    getSavedJobs,
+}) => {
+    const history = useHistory();
     const freelance = type2 === "freelance" ? true : false;
     const [show, setShow] = useState(false);
+    const [modal, setModal] = useState(false);
+    const [mess, setMess] = useState("");
+
+    const [modalError, setModalError] = useState(false);
+    const [messError, setMessError] = useState("");
+
+    const toggleError = () => setModalError(!modalError);
+
+    const toggle = () => setModal(!modal);
     const showApplicants = () => {
         setShow(!show);
     };
@@ -87,12 +125,16 @@ const Job = ({ job, jobType, type2 }) => {
             .put(`/api/employer/sponsor/${type2}/${job._id}`)
             .then((data) => {
                 console.log(data);
-                alert("Sponsored !");
+                setMessError("Job Promoted Successfully !");
+                toggleError();
+                getOpenJobs();
             })
             .catch((err) => {
                 console.log(err.response);
-                if (err.response.data && err.response.data.err)
-                    alert(err.response.data.err);
+                if (err.response.data && err.response.data.err) {
+                    setMessError(err.response.data.err);
+                    toggleError();
+                }
             });
     };
     const accept = (id) => {
@@ -101,12 +143,17 @@ const Job = ({ job, jobType, type2 }) => {
             .put(`/api/employer/apply/${type2}/${job._id}`, { id })
             .then((data) => {
                 console.log(data);
-                alert("accepted");
+                setMessError(
+                    "Thank you for accepting the job, we will get back to you with more details on your registerd mobile no",
+                );
+                toggleError();
             })
             .catch((err) => {
                 console.log(err.response);
-                if (err.response.data && err.response.data.err)
-                    alert(err.response.data.err);
+                if (err.response.data && err.response.data.err) {
+                    setMessError(err.response.data.err);
+                    toggleError();
+                }
             });
     };
     const post = () => {
@@ -116,62 +163,187 @@ const Job = ({ job, jobType, type2 }) => {
                 .put(`/api/employer/save/freelance/activate/${job._id}`)
                 .then((data) => {
                     console.log(data);
-                    if (data.status === 200) alert("posted");
+                    if (data.status === 200) {
+                        setMessError("Posted Successfully !");
+                        toggleError();
+                        getSavedJobs();
+                    }
                 })
                 .catch((err) => console.log(err.response));
         else
             axios
                 .put(`/api/employer/save/job/activate/${job._id}`)
                 .then((data) => {
-                    if (data.status === 200) alert("posted");
+                    if (data.status === 200) {
+                        setMessError("Posted Successfully !");
+                        toggleError();
+                    }
                 })
                 .catch((err) => console.log(err.response));
+    };
+    const discard = () => {
+        axios
+            .delete(
+                `/api/employer/${
+                    jobType === "Saved" ? "save" : "post"
+                }/${type2}/${job._id}`,
+            )
+            .then((data) => {
+                console.log(data);
+                setMessError("Discarded Successfully");
+                toggleError();
+            })
+            .catch((err) => {
+                console.log(err.response);
+                if (err.response.data && err.response.data.err)
+                    setMessError(err.response.data.err);
+                toggleError();
+            });
     };
     return (
         <div className='col-12 col-md-6'>
             <Media
-                className={`row  justify-content-center m-2 m-md-3 p-2 px-md-3  ${
+                className={`row  justify-content-center m-2 m-md-3 p-2 px-md-2  ${
                     job.sponsored ? "block-info" : "block"
                 }`}>
                 <Media body className='col-12 p-1'>
                     <Media heading className='row'>
-                        <div className='col-8 px-0'>
+                        <div className='col-6 col-sm-8 px-0'>
                             <h5>{job.title}</h5>
                             <h6>
                                 <FontAwesomeIcon icon={faMapMarkerAlt} />{" "}
                                 {job.description && job.description.location}
                             </h6>
                         </div>
-                        <div className='col-4  mt-0 p-0 '>
+                        <div className='col-6 col-sm-4  mt-0 p-0 '>
                             {jobType === "Saved" && (
-                                <Link
-                                    to={{
-                                        pathname: `/employer/job/update/${job._id}`,
-                                        search: freelance
-                                            ? "freelance&save"
-                                            : "job&save",
-                                    }}
-                                    params={{ freelance: freelance }}>
-                                    <Button
-                                        size={"sm"}
-                                        className='btn btn-primary w-100'>
-                                        Edit JOB
-                                    </Button>
-                                </Link>
+                                <div className='row mx-0 px-0 justify-content-end'>
+                                    <div className='col-8 px-0 pr-1'>
+                                        <Button
+                                            size={"sm"}
+                                            color='danger'
+                                            onClick={(e) => {
+                                                setMess("discard");
+                                                toggle();
+                                            }}
+                                            className='w-100'>
+                                            Discard
+                                        </Button>
+                                    </div>
+                                    <div className='col-4 px-0 pl-1'>
+                                        <Link
+                                            to={{
+                                                pathname: `/employer/job/update/${job._id}`,
+                                                search: freelance
+                                                    ? "freelance&save"
+                                                    : "job&save",
+                                            }}
+                                            params={{ freelance: freelance }}>
+                                            <Button
+                                                size={"sm"}
+                                                className='btn btn-primary w-100'>
+                                                Edit
+                                            </Button>
+                                        </Link>
+                                    </div>
+                                </div>
+                            )}
+                            {jobType === "Closed" && (
+                                <div className='row mx-0 px-0 justify-content-end'>
+                                    <div className='col-5 px-0 pr-1'>
+                                        <Button
+                                            color='primary'
+                                            size={"sm"}
+                                            className='w-100'
+                                            onClick={(e) => {
+                                                history.push({
+                                                    pathname: "/post",
+                                                    state: {
+                                                        id: job._id,
+                                                        type2,
+                                                        jobType: "close",
+                                                    },
+                                                });
+                                            }}>
+                                            Copy
+                                        </Button>
+                                    </div>
+                                    <div className='col-4 px-0 pl-1'>
+                                        <Link
+                                            to={{
+                                                pathname: `/employer/job/update/${job._id}`,
+                                                search: freelance
+                                                    ? "freelance&close"
+                                                    : "job&close",
+                                            }}
+                                            params={{ freelance: freelance }}>
+                                            <Button
+                                                size={"sm"}
+                                                className='btn btn-primary w-100'>
+                                                Edit
+                                            </Button>
+                                        </Link>
+                                    </div>
+                                </div>
                             )}
                             {jobType === "Open" && (
-                                <Link
-                                    to={{
-                                        pathname: `/employer/job/update/${job._id}`,
-                                        search: freelance
-                                            ? "freelance&post"
-                                            : "job&post",
-                                    }}
-                                    params={{ freelance: freelance }}>
-                                    <Button className='btn btn-primary w-100'>
-                                        Edit JOB
-                                    </Button>
-                                </Link>
+                                <div className='row mx-0 px-0 justify-content-end'>
+                                    {!(
+                                        job.sponsored &&
+                                        job.sponsored === "true"
+                                    ) ? (
+                                        <div className='col-8 px-0 pr-1'>
+                                            <Button
+                                                className='w-100'
+                                                size='sm'
+                                                color={"info"}
+                                                onClick={(e) => {
+                                                    setMess("promote");
+                                                    toggle();
+                                                }}>
+                                                Promote
+                                                <FontAwesomeIcon
+                                                    icon={chartIcon}
+                                                    className='ml-1'
+                                                    size='sm'
+                                                />
+                                                {/* <span>{chartIcon}</span> */}
+                                            </Button>
+                                        </div>
+                                    ) : (
+                                        <div className='col-8 px-0 pr-1'>
+                                            <Button
+                                                className='w-100 px-0'
+                                                size='sm'
+                                                color={"info"}
+                                                disabled>
+                                                Promoted
+                                                <FontAwesomeIcon
+                                                    icon={faCheck}
+                                                    size='sm'
+                                                    className='ml-1'
+                                                />
+                                            </Button>
+                                        </div>
+                                    )}
+
+                                    <div className='col-4 px-0 pl-1'>
+                                        <Link
+                                            to={{
+                                                pathname: `/employer/job/update/${job._id}`,
+                                                search: freelance
+                                                    ? "freelance&post"
+                                                    : "job&post",
+                                            }}
+                                            params={{ freelance: freelance }}>
+                                            <Button
+                                                className='btn btn-primary w-100'
+                                                size='sm'>
+                                                Edit
+                                            </Button>
+                                        </Link>
+                                    </div>
+                                </div>
                             )}
                         </div>
                     </Media>
@@ -185,7 +357,7 @@ const Job = ({ job, jobType, type2 }) => {
                         </h6>
                     </Media> */}
                     <Media heading></Media>
-                    <hr />
+                    <hr className='mt-0 mb-2' />
                     <div className='row m-0'>
                         <div className='col-12 desc'>
                             <em>{job.description && job.description.line}</em>
@@ -240,34 +412,38 @@ const Job = ({ job, jobType, type2 }) => {
                                 )}
                             </div>
                         </div>
-                        <div className='col-12  px-0 '>
-                            <Badges
-                                desc={job.description}
-                                superSpecialization={job.superSpecialization}
-                            />
-                        </div>
+                        {!freelance && (
+                            <div className='col-12  px-0 '>
+                                <Badges
+                                    desc={job.description}
+                                    superSpecialization={
+                                        job.superSpecialization
+                                    }
+                                />
+                            </div>
+                        )}
                     </div>
                     {jobType === "Open" && (
                         <div className='row w-100 justify-content-start mt-3'>
-                            <div className='col-12 col-sm-6  my-auto px-1 py-1 py-sm-0'>
+                            {/* <div className='col-12 col-sm-6  my-auto px-1 py-1 py-sm-0'>
                                 <Button
                                     className='w-100'
                                     color={"info"}
                                     onClick={sponsor}>
-                                    Sponsor
+                                    Promote
                                 </Button>
-                            </div>
-                            <div className='col-12 col-sm-6  my-auto px-1 py-1 py-sm-0'>
-                                <Button
-                                    color={`primary`}
-                                    // style={{
-                                    //     backgroundColor: "rgba(0, 0, 0, 0)",
-                                    //     color: "black",
-                                    //     border: "0px solid transparent",
-                                    // }}
+                            </div> */}
+                            <hr className='col-12 my-1' />
+                            <div className='col-12 col-sm-12  my-auto pl-0 pr-1 py-1 py-sm-0'>
+                                <button
+                                    style={{
+                                        backgroundColor: "rgba(0, 0, 0, 0)",
+                                        color: "black",
+                                        border: "0px solid transparent",
+                                    }}
                                     onClick={showApplicants}
-                                    className='w-100 '>
-                                    Applicants
+                                    className='w-100 text-align-left px-0 btn btn-transparent'>
+                                    {`${job.applicants.length} `}Applications
                                     <span className='float-right'>
                                         {show ? (
                                             <FontAwesomeIcon icon={faArrowUp} />
@@ -277,7 +453,7 @@ const Job = ({ job, jobType, type2 }) => {
                                             />
                                         )}
                                     </span>
-                                </Button>
+                                </button>
                             </div>
                             {/* <div className='col-6  my-auto p-0 p-md-2 pl-1'>
                                 <Link
@@ -295,17 +471,20 @@ const Job = ({ job, jobType, type2 }) => {
                             </div> */}
                         </div>
                     )}
-                    {jobType === "Saved" && (
+                    {/* {jobType === "Saved" && (
                         <div className='row w-100 justify-content-start mt-3'>
                             <div className='col-12  my-auto p-0 p-md-2 pr-1'>
                                 <Button
                                     color={`info`}
-                                    onClick={post}
+                                    onClick={(e) => {
+                                        setMess("post");
+                                        toggle();
+                                    }}
                                     className='w-100'>
                                     Post
                                 </Button>
                             </div>
-                            {/* <div className='col-6  my-auto p-0 p-md-2 pl-1'>
+                            <div className='col-6  my-auto p-0 p-md-2 pl-1'>
                                 <Link
                                     to={{
                                         pathname: `/employer/job/update/${job._id}`,
@@ -318,9 +497,9 @@ const Job = ({ job, jobType, type2 }) => {
                                         Edit JOB
                                     </Button>
                                 </Link>
-                            </div> */}
+                            </div>
                         </div>
-                    )}
+                    )} */}
                 </Media>
 
                 <Media
@@ -351,17 +530,26 @@ const Job = ({ job, jobType, type2 }) => {
                                     {applicant.username}
                                     <Link
                                         to={`/profile/${applicant.id}`}
+                                        title='View Profile'
                                         className='btn btn-primary btn-sm float-right mx-1'
                                         style={{ borderRadius: "50%" }}>
                                         <FontAwesomeIcon icon={faArrowRight} />
                                     </Link>
-                                    <Button
-                                        color='success'
-                                        className='btn btn-primary btn-sm float-right mx-1'
-                                        onClick={() => accept(applicant.id)}
-                                        style={{ borderRadius: "50%" }}>
-                                        <FontAwesomeIcon icon={faCheck} />
-                                    </Button>
+                                    {freelance && (
+                                        <Button
+                                            color='success'
+                                            title='Accept'
+                                            className='btn btn-primary btn-sm float-right mx-1'
+                                            onClick={() => {
+                                                setMess(
+                                                    `accept_${applicant.id}`,
+                                                );
+                                                toggle();
+                                            }}
+                                            style={{ borderRadius: "50%" }}>
+                                            <FontAwesomeIcon icon={faCheck} />
+                                        </Button>
+                                    )}
                                 </ListGroupItem>
                             ))}
                         </ListGroup>
@@ -371,6 +559,85 @@ const Job = ({ job, jobType, type2 }) => {
                         </h6>
                     ))}
             </Media>
+            <Modal isOpen={modal} toggle={toggle} style={{ marginTop: "20vh" }}>
+                <ModalHeader toggle={toggle} className='py-1'>
+                    {mess === "promote" && "Confirm Promote"}
+                    {mess === "post" && "Confirm Publish"}
+                    {mess === "discard" && "Confirm Discard"}
+                    {mess.split("_")[0] === "accept" && "Confirm Accept"}
+                </ModalHeader>
+                <ModalBody className='py-3'>
+                    {mess === "promote" &&
+                        "Are you sure you want to promote this job ?"}
+                    {mess.split("_")[0] === "accept" &&
+                        "Are you sure you want to accept  ?"}
+                    {mess === "post" &&
+                        "Are you sure you want to publish the job?"}
+                    {mess === "discard" &&
+                        "Are you sure you want to discard the job?"}
+                </ModalBody>
+                <ModalFooter className='py-1'>
+                    {mess === "promote" && (
+                        <Button
+                            size='sm'
+                            color='primary'
+                            onClick={(e) => {
+                                toggle();
+                                sponsor();
+                            }}>
+                            Yes
+                        </Button>
+                    )}
+                    {mess === "post" && (
+                        <Button
+                            size='sm'
+                            color='primary'
+                            onClick={(e) => {
+                                toggle();
+                                post();
+                            }}>
+                            Yes
+                        </Button>
+                    )}
+                    {mess === "discard" && (
+                        <Button
+                            size='sm'
+                            color='primary'
+                            onClick={(e) => {
+                                toggle();
+                                discard();
+                            }}>
+                            Yes
+                        </Button>
+                    )}
+                    {mess.split("_")[0] === "accept" && (
+                        <Button
+                            size='sm'
+                            color='primary'
+                            onClick={(e) => {
+                                toggle();
+                                accept(mess.split("_")[1]);
+                            }}>
+                            Yes
+                        </Button>
+                    )}
+                    <Button color='secondary' size='sm' onClick={toggle}>
+                        No
+                    </Button>
+                </ModalFooter>
+            </Modal>
+            <Modal
+                isOpen={modalError}
+                toggle={toggleError}
+                style={{ marginTop: "20vh" }}>
+                <ModalHeader toggle={toggleError} className='py-1'>
+                    Message
+                </ModalHeader>
+                {/* <ModalHeader toggle={toggle}>
+                    {mess === "promote" && "Promote"}
+                </ModalHeader> */}
+                <ModalBody>{messError}</ModalBody>
+            </Modal>
         </div>
     );
 };
@@ -449,10 +716,16 @@ export default class JobApplications extends Component {
     }
     render() {
         return (
-            <div className='w-100'>
+            <div className='row pt-3 w-100'>
+                <div className='col-7 px-0 pl-3'>
+                    {/* <h3 className='text-align-left   '>
+                        {this.state.jobType} Jobs
+                    </h3> */}
+                </div>
+
                 <div
-                    className='mt-2 mr-2 mr-md-3'
-                    style={{ textAlign: "right" }}>
+                    className='col-5 px-0 pr-3'
+                    style={{ textAlign: "right", width: "max-content" }}>
                     <Dropdown
                         isOpen={this.state.dropdownOpen}
                         toggle={() => {
@@ -461,7 +734,12 @@ export default class JobApplications extends Component {
                             });
                         }}>
                         <DropdownToggle
-                            style={{ textTransform: "capitalize" }}
+                            style={{
+                                textTransform: "capitalize",
+                                backgroundColor: "transparent",
+                                color: "black",
+                                border: "0px solid transparent",
+                            }}
                             caret>{`${this.state.jobType} jobs`}</DropdownToggle>
                         <DropdownMenu right>
                             <DropdownItem
@@ -488,8 +766,8 @@ export default class JobApplications extends Component {
                         </DropdownMenu>
                     </Dropdown>
                 </div>
-                <h3 className='text-align-center w-100'>Jobs</h3>
-                <div className='row'>
+                <div className='row px-2 w-100'>
+                    <h3 className='col-12 px-2 px-sm-3'>Regular Jobs</h3>
                     {this.state.jobs !== null &&
                     this.state.jobs !== undefined ? (
                         this.state.jobs.length !== 0 &&
@@ -501,6 +779,9 @@ export default class JobApplications extends Component {
                                         job={job}
                                         jobType={this.state.jobType}
                                         type2='job'
+                                        getOpenJobs={this.getOpenJobs}
+                                        getClosedJobs={this.getClosedJobs}
+                                        getSavedJobs={this.getSavedJobs}
                                     />
                                 ),
                         )
@@ -518,9 +799,11 @@ export default class JobApplications extends Component {
                     )}
 
                     <hr className='w-100' />
-                    <h3 className='text-align-center w-100'>Locum Jobs</h3>
+                    {/* <h3 className='text-align-center w-100'>Locum Jobs</h3> */}
 
                     <div className='row w-100'>
+                        <h3 className='col-12 px-2 px-sm-3'>Locum/Day Jobs</h3>
+
                         {this.state.freelanceJobs ? (
                             this.state.freelanceJobs.length !== 0 &&
                             this.state.freelanceJobs.map(
@@ -531,6 +814,9 @@ export default class JobApplications extends Component {
                                             job={job}
                                             jobType={this.state.jobType}
                                             type2='freelance'
+                                            getOpenJobs={this.getOpenJobs}
+                                            getClosedJobs={this.getClosedJobs}
+                                            getSavedJobs={this.getSavedJobs}
                                         />
                                     ),
                             )

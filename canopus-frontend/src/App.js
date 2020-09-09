@@ -18,6 +18,7 @@ import SignupEmployer from "./components/signupEmployer.component";
 import UpdateEmployer from "./components/updateEmployer.component";
 import data from "./data/data.json";
 import axios from "axios";
+import EmployerProfile from "./components/employerProfile.component";
 class App extends Component {
     constructor(props) {
         super(props);
@@ -119,6 +120,12 @@ class App extends Component {
                     />
                     <Route
                         exact
+                        path='/employer/profile/:id'
+                        // render={(props) => <Profile {...props} />}
+                        render={(props) => <EmployerProfile {...props} />}
+                    />
+                    <Route
+                        exact
                         path='/employer'
                         // render={(props) => <Profile {...props} />}
                         render={(props) => (
@@ -134,7 +141,7 @@ class App extends Component {
                         exact
                         path='/post'
                         // render={(props) => <Profile {...props} />}
-                        component={() => <PostJob />}
+                        render={(props) => <PostJob {...props} />}
                     />
                     <Route
                         exact

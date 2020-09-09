@@ -254,12 +254,14 @@ export default class Job extends Component {
             .substring(1)
             .split("&");
         // console.log(arr);
+        console.log(jobType);
+        console.log(author);
         axios
-            .get(`/api/${author}/post/${jobType}/${id}`)
-            .then(({ data }) => {
-                // console.log(data);
+            .get(`/api/job/view/${jobType}/${id}`)
+            .then((data) => {
+                console.log(data);
                 this.setState({
-                    job: data,
+                    job: data.data.job,
                 });
                 console.log(this.state.job);
             })
@@ -293,11 +295,15 @@ export default class Job extends Component {
                             <div className='row '>
                                 <div className='col-7 col-md-10 my-auto'>
                                     <h5>{job.title}</h5>
-                                    <h6 className='text-info'>
-                                        {job.description.company
-                                            ? job.description.company
-                                            : "Company"}
-                                    </h6>
+                                    <Link
+                                        to={`/employer/profile/${job.author.id}`}>
+                                        <h6 className='text-info'>
+                                            {job.description.company
+                                                ? job.description.company
+                                                : "Company"}
+                                        </h6>
+                                    </Link>
+
                                     <h6>
                                         <FontAwesomeIcon
                                             icon={faMapMarkerAlt}

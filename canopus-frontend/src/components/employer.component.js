@@ -81,23 +81,8 @@ export default class Employer extends Component {
                             </NavLink>
                         </NavItem>
                     </div>
-                    <div className='col-6 col-sm-5 row pr-2 pr-sm-3 justify-content-around'>
-                        <div className='col-12 col-sm-6 px-0 pr-0 pr-sm-1'>
-                            <Link to='/post'>
-                                <Button
-                                    className=' mt-2 my-1 px-2 w-100'
-                                    size='sm'
-                                    style={{ textAlign: "center" }}
-                                    color='primary'>
-                                    Post a Job{" "}
-                                    <FontAwesomeIcon
-                                        icon={faPen}
-                                        className='ml-2'
-                                    />
-                                </Button>
-                            </Link>
-                        </div>
-                        <div className='col-12 col-sm-6 px-0 pl-0 pl-sm-1'>
+                    <div className='col-6 col-sm-5 row pr-2 pr-sm-3 justify-content-end'>
+                        <div className='col-12 col-sm-5 px-0 pr-0 pr-sm-1'>
                             <Link to='/employer/update'>
                                 <Button
                                     className=' mt-2 my-1 px-2 w-100'
@@ -105,6 +90,21 @@ export default class Employer extends Component {
                                     style={{ textAlign: "center" }}
                                     color='info'>
                                     Update Profile
+                                    <FontAwesomeIcon
+                                        icon={faPen}
+                                        className='ml-2'
+                                    />
+                                </Button>
+                            </Link>
+                        </div>
+                        <div className='col-12 col-sm-5 px-0 pl-0 pl-sm-1'>
+                            <Link to='/post'>
+                                <Button
+                                    className=' mt-2 my-1 px-2 w-100'
+                                    size='sm'
+                                    style={{ textAlign: "center" }}
+                                    color='primary'>
+                                    Post a Job{" "}
                                     <FontAwesomeIcon
                                         icon={faPen}
                                         className='ml-2'

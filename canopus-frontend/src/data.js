@@ -27,6 +27,21 @@ const data = {
         "5-10 years",
         "More than 10 years",
     ],
+    orgType: [
+        "Business organization",
+        "NGO",
+        "Pharmaceutical and Biotechnology Company",
+        "Government org",
+        "other",
+    ],
+    speciality: [
+        "Multi Speciality Hospital",
+        "Single Speciality Hospital",
+        "Primary Health care center",
+        "tertiary care institute",
+        "single speciality diagnostic",
+        "multi speciality diagnostic",
+    ],
     specializations: [
         "Anaesthesiology",
         "Ear, Nose and Throat",
