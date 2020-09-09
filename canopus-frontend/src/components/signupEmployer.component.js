@@ -1,5 +1,13 @@
 import React, { Component, Fragment } from "react";
-import { Label, Input, FormGroup, Form, Button } from "reactstrap";
+import {
+    Label,
+    Input,
+    FormGroup,
+    Form,
+    FormText,
+    Button,
+    FormFeedback,
+} from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faPlusCircle,
@@ -38,10 +46,15 @@ export default class SignupEmployer extends Component {
             noYoutube: 1,
             lat: null,
             lng: null,
+            validate: {
+                email: false,
+                password: false,
+            },
         };
         this.handleChange = this.handleChange.bind(this);
         this.signUp = this.signUp.bind(this);
         this.setCoordinates = this.setCoordinates.bind(this);
+        this.check = this.check.bind(this);
     }
     setCoordinates(coords) {
         this.setState({
@@ -50,7 +63,15 @@ export default class SignupEmployer extends Component {
         });
     }
     handleChange(e, index) {
+        // console.log(this.state);
         console.log(index);
+        let { validate } = this.state;
+        validate = {
+            ...validate,
+            [e.target.name]: e.target.value === "" ? false : true,
+        };
+        this.setState({ validate });
+        console.log(validate);
         if (index !== undefined) {
             let links = this.state[e.target.name];
             links[index] = e.target.value;
@@ -62,39 +83,63 @@ export default class SignupEmployer extends Component {
                 [e.target.name]: e.target.value,
             });
     }
-    signUp() {
+    check(e) {
+        const validate = {
+            email: this.state.email === "" ? false : true,
+            password: this.state.password === "" ? false : true,
+        };
+        console.log(validate);
+        this.setState({ validate: validate });
+    }
+    signUp(e) {
+        e.preventDefault();
+        // if ((this.state.email !== "") & (this.state.password !== ""))
+        //     this.setState({ valid: true });
+
         const employer = {
             username: this.state.email,
             password: this.state.password,
         };
         console.log(employer);
-        Axios.post(`/api/employer`, employer)
-            .then((data) => {
-                console.log(data);
-                if (data.status === 200) {
-                    alert("SignUp successful");
-                    window.location = "/employer/update";
-                }
-            })
-            .catch(({ response }) => alert(response.err));
+        if (this.state.validate.email && this.state.validate.password)
+            Axios.post(`/api/employer`, employer)
+                .then((data) => {
+                    console.log(data);
+                    if (data.status === 200) {
+                        // alert("SignUp successful");
+                        window.location = "/employer/update";
+                    }
+                })
+                .catch(({ response }) => {
+                    console.log(response);
+                    alert(response.data.err.message);
+                });
     }
     render() {
         return (
             <div className='make-small'>
-                <div className=' p-4 m-3 mx-lg-5' style={block}>
+                <Form className=' p-4 m-3 mx-lg-5' style={block} noValidate>
                     <FormGroup>
                         <h4>Sign Up</h4>
                     </FormGroup>
 
                     <FormGroup>
-                        <Label>Email Address</Label>
+                        <Label>Email</Label>
                         <Input
                             type='email'
                             placeholder='Email Address'
                             name='email'
-                            onChange={this.handleChange}
+                            onChange={(e) => {
+                                this.handleChange(e);
+                                // this.check(e);
+                            }}
                             defaultValue={this.state.email}
+                            required
+                            invalid={!this.state.validate.email}
                         />
+                        <FormFeedback invalid>
+                            Please input a correct email.
+                        </FormFeedback>
                     </FormGroup>
                     <FormGroup>
                         <Label>Password</Label>
@@ -102,19 +147,28 @@ export default class SignupEmployer extends Component {
                             type='password'
                             placeholder='Password'
                             name='password'
-                            onChange={this.handleChange}
+                            onChange={(e) => {
+                                this.handleChange(e);
+                                // this.check(e);
+                            }}
                             defaultValue={this.state.password}
+                            invalid={!this.state.validate.password}
+                            required
                         />
                     </FormGroup>
                     <div className=' d-flex justify-content-end'>
                         <Button
                             onClick={this.signUp}
                             // className='w-25'
+                            disabled={
+                                this.state.validate.email === false ||
+                                this.state.validate.password === false
+                            }
                             color='primary'>
                             Sign Up
                         </Button>
                     </div>
-                </div>
+                </Form>
             </div>
         );
     }
