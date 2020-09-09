@@ -141,7 +141,7 @@ class App extends Component {
                         exact
                         path='/post'
                         // render={(props) => <Profile {...props} />}
-                        component={() => <PostJob />}
+                        render={(props) => <PostJob {...props} />}
                     />
                     <Route
                         exact
