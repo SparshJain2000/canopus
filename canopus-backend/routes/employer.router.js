@@ -2,7 +2,14 @@ const { searchController } = require("../controllers/search.controller");
 const { mailController } = require("../controllers/mail.controller");
 const { validationController } = require("../controllers/validation.controller");
 const mongoose = require("mongoose");
+
+const crypto = require('crypto');
+const { promisify } = require('util');
+const asyncify = require('express-asyncify');
 require("dotenv").config();
+const GOOGLE_ANALYTICS=process.env.GOOGLE_ANALYTICS;
+var ua = require("universal-analytics");
+var visitor = ua(GOOGLE_ANALYTICS);
 const router = require("express").Router(),
     passport = require("passport"),
 	middleware = require("../middleware/index"),
@@ -89,7 +96,8 @@ router.post("/login", function (req, res, next) {
         req.logIn(employer, function (err) {
             if (err) {
                 return res.status(400).json({ err: err });
-            }
+			}
+			visitor.event("Employer", "Login").send()
             return res.json({
                 employer: req.user,
                 message: `${req.user.username} Logged in`,
@@ -564,7 +572,7 @@ router.post("/post/job", middleware.isEmployer, (req, res) => {
 		job.author.id = req.user._id;
 		job.author.instituteName = req.user.instituteName;
 		job.author.photo = req.user.logo;
-		job.author.about = req.user.description.about;
+		// job.author.about = req.user.description.about;
 		console.log(job);
 		job.save()
 		.then((job) => {
@@ -690,7 +698,7 @@ router.post("/post/freelance", middleware.isEmployer, (req, res) => {
 		job.author.id = req.user._id;
 		job.author.instituteName = req.user.instituteName;
 		job.author.photo = req.user.logo;
-		job.author.about = req.user.description.about;
+		// job.author.about = req.user.description.about;
 		//console.log(job);
 		job.save()
 		.then((job) => {
@@ -795,7 +803,7 @@ router.post("/save/job", middleware.isEmployer, (req, res) => {
 		job.author.id = req.user._id;
 		job.author.instituteName = req.user.instituteName;
 		job.author.photo = req.user.logo;
-		job.author.about = req.user.description.about;
+		// job.author.about = req.user.description.about;
 		console.log(job);
 		job.save()
 		.then((job) => {
@@ -892,7 +900,7 @@ router.post("/save/freelance", middleware.isEmployer, (req, res) => {
 		job.author.id = req.user._id;
 		job.author.instituteName = req.user.instituteName;
 		job.author.photo = req.user.logo;
-		job.author.about = req.user.description.about;
+		// job.author.about = req.user.description.about;
 		console.log(job);
 		job.save()
 		.then((job) => {
@@ -1311,22 +1319,39 @@ Promise.all(promises)
 });
 //get saved job
 router.get("/save/job/:id",middleware.isEmployer,(req,res)=>{
-savedJob.findById(req.params.id)
+	Employer.findById(req.user._id).then((employer)=>{
+		const id=employer.jobs.map(item=>{
+			//if(item.sid==req.params.id)
+			return item.sid;
+		});
+		if(id.includes(req.params.id) && employer.savedJobs.includes(req.params.id))
+		return res.status(400).json({err:"Job doesnt belong to you"});
+
+		savedJob.findById(req.params.id)
 .then((job) =>{
     res.json(job);
-})
-.catch((err) =>res.status(400).json({err:"Job not found"}));
+	}).catch((err) =>res.status(400).json({err:"Job not found"}));
+}).catch((err) =>res.status(400).json({err:"Not employer"}));
 });
 //get saved freelance job
 router.get("/save/freelance/:id",middleware.isEmployer,(req,res)=>{
+	Employer.findById(req.user._id).then((employer)=>{
+		const id=employer.jobs.map(item=>{
+			//if(item.sid==req.params.id)
+			return item.sid;
+		});
+		if(id.includes(req.params.id) && employer.savedJobs.includes(req.params.id))
+		return res.status(400).json({err:"Job doesnt belong to you"});
 savedFreelance.findById(req.params.id)
 .then((job) =>{
     res.json(job);
 })
 .catch((err) =>res.status(400).json({err:"Job not found"}));
+}).catch((err) =>res.status(400).json({err:"Not employer"}));
+
 });
 //get a job by id
-router.get("/post/job/:id", (req, res) => {
+router.get("/post/job/:id", middleware.checkJobOwnership,(req, res) => {
 Job.findById(req.params.id)
     .then((job) => {
         res.json(job);
@@ -1334,7 +1359,7 @@ Job.findById(req.params.id)
     .catch((err) => res.status(400).json({ err: err }));
 });
 //get a freelance job by id
-router.get("/post/freelance/:id", (req, res) => {
+router.get("/post/freelance/:id", middleware.checkFreelanceJobOwnership,(req, res) => {
 Freelance.findById(req.params.id)
     .then((job) => {
         res.json(job);
@@ -1345,25 +1370,25 @@ Freelance.findById(req.params.id)
 //delete a job
 
 router.delete("/post/job/:id", middleware.checkJobOwnership, (req, res) => {
-	Employer.findById(req.user._id).then((employer)=>{
-		const id=employer.jobs.map(item=>{
-			if(item.id==req.params.id)
-			return item.sid;
-		});
-		console.log(id);
-		savedJob.findByIdAndDelete(id).then((del)=>{
-			Job.findByIdAndDelete(req.params.id).then((del)=>{
-		employer.jobs = employer.jobs.filter(job => job.id != req.params.id);
-			employer.save()
+	// Employer.findById(req.user._id).then((employer)=>{
+	// 	const id=employer.jobs.map(item=>{
+	// 		if(item.id==req.params.id)
+	// 		return item.sid;
+	// 	});
+	// 	console.log(id);
+	// 	savedJob.findByIdAndDelete(id).then((del)=>{
+			Job.findByIdAndDelete(req.params.id)//.then((del)=>{
+		// employer.jobs = employer.jobs.filter(job => job.id != req.params.id);
+		// 	employer.save()
 .then(() => res.json("Job deleted successfully !"))
 .catch((err) =>
        res.status(400).json({
            err: err,
        }),
 	   );
-	}).catch((err)=>{res.json({err:"Job doesn't belong to you"})});
-}).catch((err)=>{res.json({err:"Job doesn't belong to you"})});
-}).catch((err)=>{res.json({err:"Job doesn't belong to you"})});
+// 	}).catch((err)=>{res.json({err:"Job doesn't belong to you"})});
+// }).catch((err)=>{res.json({err:"Job doesn't belong to you"})});
+// }).catch((err)=>{res.json({err:"Job doesn't belong to you"})});
 });
 //delete a job
 
@@ -1385,25 +1410,25 @@ router.delete("/save/job/:id", middleware.isEmployer, (req, res) => {
 //delete a job
 
 router.delete("/post/freelance/:id", middleware.checkFreelanceJobOwnership, (req, res) => {
-	Employer.findById(req.user._id).then((employer)=>{
-		const id=employer.freelanceJobs.map(item=>{
-			if(item.id==req.params.id)
-			return item.sid;
-		});
-		console.log(id);
-		savedFreelance.findByIdAndDelete(id).then((del)=>{
-			Freelance.findByIdAndDelete(req.params.id).then((del)=>{
-		employer.freelanceJobs = employer.freelanceJobs.filter(job => job.id != req.params.id);
-			employer.save()
+	//Employer.findById(req.user._id).then((employer)=>{
+		// const id=employer.freelanceJobs.map(item=>{
+		// 	if(item.id==req.params.id)
+		// 	return item.sid;
+		// });
+		// console.log(id);
+		// savedFreelance.findByIdAndDelete(id).then((del)=>{
+			Freelance.findByIdAndDelete(req.params.id)//.then((del)=>{
+		//employer.freelanceJobs = employer.freelanceJobs.filter(job => job.id != req.params.id);
+			//employer.save()
 .then(() => res.json("Freelance Job deleted successfully !"))
 .catch((err) =>
        res.status(400).json({
            err: err,
        }),
 	   );
-	}).catch((err)=>{res.json({err:"Job doesn't belong to you"})});
-}).catch((err)=>{res.json({err:"Job doesn't belong to you"})});
-}).catch((err)=>{res.json({err:"Job doesn't belong to you"})});
+// 	}).catch((err)=>{res.json({err:"Job doesn't belong to you"})});
+// }).catch((err)=>{res.json({err:"Job doesn't belong to you"})});
+// }).catch((err)=>{res.json({err:"Job doesn't belong to you"})});
 });
 //delete a job
 

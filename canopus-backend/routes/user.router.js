@@ -1,6 +1,10 @@
 const { searchController } = require("../controllers/search.controller");
 const {mailController}=require("../controllers/mail.controller");
 const { validationController } = require("../controllers/validation.controller");
+require("dotenv").config();
+const GOOGLE_ANALYTICS=process.env.GOOGLE_ANALYTICS;
+var ua = require("universal-analytics");
+var visitor = ua(GOOGLE_ANALYTICS);
 const mongoose = require("mongoose");
 const crypto = require('crypto');
 const { promisify } = require('util');
@@ -79,7 +83,6 @@ router.post("/", (req, res) => {
 // router.post("/login", passport.authenticate("user"), (req, res) => {
 //     res.json({ user: req.user, message: `${req.user.username} Logged in` });
 // });
-
 router.post("/login", function (req, res, next) {
     passport.authenticate("user", (err, user, info) => {
         console.log(info);
@@ -93,6 +96,7 @@ router.post("/login", function (req, res, next) {
             if (err) {
                 return res.status(400).json({ err: err });
             }
+			visitor.event("User", "Login").send()
             return res.json({
                 user: req.user,
                 message: `${req.user.username} Logged in`,
@@ -257,7 +261,7 @@ router.post("/request",middleware.isUser,(req,res)=>{
                 job.author.id = req.user._id;
                 job.author.instituteName = req.user.instituteName;
                 job.author.photo = req.user.logo;
-                job.author.about = req.user.description.about;
+                // job.author.about = req.user.description.about;
                 console.log(job);
                 job.save()
                 .then((job) => {
@@ -352,7 +356,7 @@ router.post("/request",middleware.isUser,(req,res)=>{
                 job.author.id = req.user._id;
                 job.author.instituteName = req.user.instituteName;
                 job.author.photo = req.user.logo;
-                job.author.about = req.user.description.about;
+                // job.author.about = req.user.description.about;
                 //console.log(job);
                 job.save()
                 .then((job) => {
@@ -598,7 +602,7 @@ router.post("/post/job", middleware.isUser, (req, res) => {
 		job.author.id = req.user._id;
 		job.author.instituteName = req.user.instituteName;
 		job.author.photo = req.user.logo;
-		job.author.about = req.user.description.about;
+		// job.author.about = req.user.description.about;
 		console.log(job);
 		job.save()
 		.then((job) => {
@@ -723,7 +727,7 @@ router.post("/post/freelance", middleware.isUser, (req, res) => {
 		job.author.id = req.user._id;
 		job.author.instituteName = req.user.instituteName;
 		job.author.photo = req.user.logo;
-		job.author.about = req.user.description.about;
+		// job.author.about = req.user.description.about;
 		//console.log(job);
 		job.save()
 		.then((job) => {
@@ -828,7 +832,7 @@ router.post("/save/job", middleware.isUser, (req, res) => {
 		job.author.id = req.user._id;
 		job.author.instituteName = req.user.instituteName;
 		job.author.photo = req.user.logo;
-		job.author.about = req.user.description.about;
+		// job.author.about = req.user.description.about;
 		console.log(job);
 		job.save()
 		.then((job) => {
@@ -925,7 +929,7 @@ router.post("/save/freelance", middleware.isUser, (req, res) => {
 		job.author.id = req.user._id;
 		job.author.instituteName = req.user.instituteName;
 		job.author.photo = req.user.logo;
-		job.author.about = req.user.description.about;
+		// job.author.about = req.user.description.about;
 		console.log(job);
 		job.save()
 		.then((job) => {

@@ -1,6 +1,4 @@
 const { Console } = require("console");
-var ua = require("universal-analytics");
-const { lstat } = require("fs");
 
 const express = require("express"),
     app = express(),
@@ -21,6 +19,9 @@ const express = require("express"),
     FacebookStrategy = require("passport-facebook").Strategy,
     bodyParser = require("body-parser");
 require("dotenv").config();
+const GOOGLE_ANALYTICS=process.env.GOOGLE_ANALYTICS;
+var ua = require("universal-analytics");
+var visitor = ua(GOOGLE_ANALYTICS);
 //==========================================================================
 app.use(bodyParser.json({ limit: "5mb" }));
 app.use(cors());
@@ -34,6 +35,7 @@ app.use(function (req, res, next) {
     );
     next();
 });
+//app.use(ua.middleware(GOOGLE_ANALYTICS, {cookieName: '_ga'}));
 app.use(
     require("express-session")({
         secret: process.env.SECRET,
