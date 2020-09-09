@@ -11,6 +11,9 @@ import Axios from "axios";
 import { BlobServiceClient } from "@azure/storage-blob";
 import imageCompression from "browser-image-compression";
 import ImageCarousel from "./imageCarousel.component";
+import Select from "react-select";
+import data from "../data";
+
 const block = {
     borderRadius: " 0.25rem",
     border: "0.05rem solid lightgrey",
@@ -28,14 +31,17 @@ export default class UpdateEmployer extends Component {
             lastName: "",
             password: "",
             email: "",
+            username: "",
             line: "",
             pin: "",
             city: "",
             state: "",
+            speciality: "",
             organization: "",
             type: "",
             links: [""],
             youtube: [""],
+            phone: null,
             image: [],
             about: "",
             about2: "",
@@ -65,6 +71,13 @@ export default class UpdateEmployer extends Component {
             lng: coords.lng,
         });
     }
+    handleChangeSelect(name, value) {
+        console.log(value, name);
+        this.setState({
+            [name]: value,
+        });
+    }
+
     handleChange(e, index) {
         console.log(index);
         if (index !== undefined) {
@@ -86,6 +99,9 @@ export default class UpdateEmployer extends Component {
             image: this.state.image,
             links: this.state.links,
             youtube: this.state.youtube,
+            specialty: this.state.speciality,
+            phone: this.state.phone,
+            // username: this.state.username,
             address: {
                 line: this.state.line,
                 pin: this.state.pin,
@@ -125,6 +141,9 @@ export default class UpdateEmployer extends Component {
                 if (user) {
                     this.setState({
                         id: user._id,
+                    });
+                    this.setState({
+                        id: user._id,
                         // });
                         // this.setState({
                         //     id: user._id,
@@ -132,8 +151,11 @@ export default class UpdateEmployer extends Component {
                         logo: user.logo,
                         lastName: user.lastName,
                         links: user.links,
+                        username: user.username,
                         youtube: user.youtube,
                         image: user.image,
+                        speciality: user.specialty,
+                        phone: user.phone,
                         line: user.address.line,
                         pin: user.address.pin,
                         city: user.address.city,
@@ -402,28 +424,92 @@ export default class UpdateEmployer extends Component {
                                 </div>
                             </div>
                         </div>
-
-                        <div className='col-12 col-md-9 px-2'>
-                            <div className='col-12  p-0 pr-0  my-1'>
-                                <Label>First Name</Label>
+                        <div className='col-md-9 row'>
+                            <div className='col-12 col-sm-6 pr-0 pr-sm-1 my-1 my-sm-2'>
+                                <Label>Oranization Name</Label>
                                 <Input
-                                    placeholder='First Name'
-                                    name='firstName'
+                                    placeholder='Organization name'
+                                    name='organization'
                                     onChange={this.handleChange}
-                                    defaultValue={this.state.firstName}
+                                    defaultValue={this.state.organization}
                                 />
                             </div>
-                            <div className='col-12  p-0 pl-0  my-1'>
-                                {" "}
-                                <Label>Last Name</Label>
-                                <Input
-                                    placeholder='Last Name'
-                                    name='lastName'
-                                    onChange={this.handleChange}
-                                    defaultValue={this.state.lastName}
+                            <div className='col-12 col-sm-6 pr-0 pl-sm-1 my-1 my-sm-2'>
+                                <Label>Organization Type</Label>
+                                {/* <Input
+                                placeholder='Organization Type'
+                                name='type'
+                                onChange={this.handleChange}
+                                defaultValue={this.state.type}
+                            /> */}
+                                <Select
+                                    autosize={true}
+                                    isClearable={true}
+                                    placeholder='Organization Type'
+                                    value={
+                                        this.state.type !== "" && {
+                                            value: this.state.type,
+                                            label: this.state.type,
+                                        }
+                                    }
+                                    options={data.orgType.map((type) => {
+                                        return { label: type, value: type };
+                                    })}
+                                    onChange={(e) => {
+                                        console.log(e);
+                                        this.handleChangeSelect(
+                                            "type",
+                                            e ? e.value : "",
+                                        );
+                                    }}
                                 />
+                            </div>
+                            <div className='col-12  my-1 my-sm-2'>
+                                <Label>Speciality</Label>
+                                {/* <Input
+                                placeholder='Organization Type'
+                                name='type'
+                                onChange={this.handleChange}
+                                defaultValue={this.state.type}
+                            /> */}
+                                <Select
+                                    autosize={true}
+                                    isClearable={true}
+                                    placeholder='Organization Type'
+                                    value={
+                                        this.state.speciality !== "" && {
+                                            value: this.state.speciality,
+                                            label: this.state.speciality,
+                                        }
+                                    }
+                                    options={data.speciality.map((type) => {
+                                        return { label: type, value: type };
+                                    })}
+                                    onChange={(e) => {
+                                        console.log(e);
+                                        this.handleChangeSelect(
+                                            "speciality",
+                                            e ? e.value : "",
+                                        );
+                                    }}
+                                />
+                            </div>
+
+                            <div className='col-12  my-1'>
+                                <Label>Description</Label>
+
+                                <textarea
+                                    name=''
+                                    className='form-control'
+                                    name='about'
+                                    defaultValue={this.state.about}
+                                    onChange={this.handleChange}
+                                    rows='4'
+                                    placeholder='About Organization'></textarea>
                             </div>
                         </div>
+
+                        {/* <div className='col-12 col-md-9 px-2'></div> */}
                     </FormGroup>
                 </div>
                 <div className='p-4 my-3 mx-2 mx-lg-5' style={block}>
@@ -521,28 +607,9 @@ export default class UpdateEmployer extends Component {
                 </div>
                 <div className='p-4 my-3 mx-2 mx-lg-5' style={block}>
                     <FormGroup>
-                        <h4>About Organization</h4>
+                        <h4>Infrastructure</h4>
                     </FormGroup>
-                    <FormGroup className='row'>
-                        <div className='col-12 col-sm-6 pr-0 pr-sm-1 my-sm-2'>
-                            <Label>Oranization Name</Label>
-                            <Input
-                                placeholder='Organization name'
-                                name='organization'
-                                onChange={this.handleChange}
-                                defaultValue={this.state.organization}
-                            />
-                        </div>
-                        <div className='col-12 col-sm-6 pr-0 pl-sm-1 my-sm-2'>
-                            <Label>Organization Type</Label>
-                            <Input
-                                placeholder='Organization Type'
-                                name='type'
-                                onChange={this.handleChange}
-                                defaultValue={this.state.type}
-                            />
-                        </div>
-                    </FormGroup>
+
                     <FormGroup className='row'>
                         <div className='col-12 col-sm-3 pr-0 pr-sm-1'>
                             <Label>Beds</Label>
@@ -586,6 +653,7 @@ export default class UpdateEmployer extends Component {
                             />
                         </div>
                     </FormGroup>
+                    <hr />
                     <FormGroup>
                         <Label className='row'>
                             <h5 className='col-9  col-sm-11 pl-0'>Links</h5>
@@ -681,10 +749,13 @@ export default class UpdateEmployer extends Component {
                                 </h6>
                             </Progress>
                         )}
-                        <ImageCarousel
-                            className='col-12 text-align-center'
-                            items={this.state.image}
-                        />
+                        <div className='mx-auto' style={{ maxWidth: "600px" }}>
+                            <ImageCarousel
+                                className='col-12 text-align-center'
+                                items={this.state.image}
+                            />
+                        </div>
+
                         {this.state.image.map((x, i) => (
                             <div className='my-1 row'>
                                 <Input
@@ -765,6 +836,47 @@ export default class UpdateEmployer extends Component {
                                 onChange={this.handleChange}
                                 rows='4'
                                 placeholder='About Organization'></textarea>
+                        </FormGroup>
+                        <hr />
+                        <FormGroup className='row'>
+                            <h5 className='col-12'>Contact Detalis</h5>
+                            <div className='col-12 col-md-6  p-0 pr-1  my-1'>
+                                <Label>First Name</Label>
+                                <Input
+                                    placeholder='First Name'
+                                    name='firstName'
+                                    onChange={this.handleChange}
+                                    defaultValue={this.state.firstName}
+                                />
+                            </div>
+                            <div className='col-12 col-md-6  p-0 pl-1  my-1'>
+                                <Label>Last Name</Label>
+                                <Input
+                                    placeholder='Last Name'
+                                    name='lastName'
+                                    onChange={this.handleChange}
+                                    defaultValue={this.state.lastName}
+                                />
+                            </div>
+                            <div className='col-12 col-md-6  p-0 pr-1  my-1'>
+                                <Label>E-mail</Label>
+                                <Input
+                                    placeholder='Email'
+                                    // name='firstName'
+                                    // onChange={this.handleChange}
+                                    value={this.state.username}
+                                    disabled={true}
+                                />
+                            </div>
+                            <div className='col-12 col-md-6  p-0 pl-1  my-1'>
+                                <Label>Phone no.</Label>
+                                <Input
+                                    placeholder='Phone Number'
+                                    name='phone'
+                                    onChange={this.handleChange}
+                                    defaultValue={this.state.phone}
+                                />
+                            </div>
                         </FormGroup>
                     </FormGroup>
                 </div>

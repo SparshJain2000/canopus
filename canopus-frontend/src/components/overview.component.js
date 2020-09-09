@@ -8,7 +8,7 @@ import ImageCarousel from "./imageCarousel.component";
 import VideoCarousel from "./videoCarousel.component";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheck } from "@fortawesome/free-solid-svg-icons";
-
+import "../stylesheets/overview.css";
 const block = {
     borderRadius: " 0.25rem",
     border: "0.05rem solid #eeeeee",
@@ -85,24 +85,26 @@ export default class Overview extends Component {
                                         employees */}
                                     </h6>
                                     <h6>
-                                        {this.state.employer.speciality
-                                            ? this.state.employer.speciality
+                                        {this.state.employer.specialty
+                                            ? this.state.employer.specialty
                                             : "Speciality"}
                                     </h6>
                                     {this.state.employer.validated && (
                                         <Badge color='success'>
-                                            Verified
                                             <FontAwesomeIcon
                                                 icon={faCheck}
-                                                className='ml-2'
+                                                className='mr-2'
                                             />
+                                            Verified
                                         </Badge>
                                     )}
                                 </div>
                                 <div
                                     className='col-12 d-block d-sm-none'
                                     style={{ height: "max-content" }}>
-                                    <h4 className='text-align-center'>
+                                    <h4
+                                        className='text-blue'
+                                        className='text-align-center'>
                                         Subscription Details
                                     </h4>
                                     <Table
@@ -238,38 +240,40 @@ export default class Overview extends Component {
                                 </div>
                             </div>
                             <div className='row p-3 m-2' style={block}>
-                                <h4>About</h4>
+                                <h4 className='text-blue col-12'>About</h4>
                                 <p>
                                     {this.state.employer.description &&
                                         this.state.employer.description.about}
                                 </p>
                             </div>
                             <div className='row p-3 m-2' style={block}>
-                                <h4 className='col-12 mb-4'>Infrastructure</h4>
-                                <div className='col-4 text-align-center'>
+                                <h4 className='col-12 mb-4 text-blue'>
+                                    Infrastructure
+                                </h4>
+                                <div className='col-4 text-align-left'>
                                     <h6>No. of Beds</h6>
                                     {this.state.employer.description &&
                                     this.state.employer.description.beds
                                         ? this.state.employer.description.beds
-                                        : "-"}
+                                        : "NA"}
                                 </div>
-                                <div className='col-4 text-align-center'>
+                                <div className='col-4 text-align-left'>
                                     <h6>No. of ICUs</h6>
                                     {this.state.employer.description &&
                                     this.state.employer.description.ICUs
                                         ? this.state.employer.description.ICUs
-                                        : "-"}
+                                        : "NA"}
                                 </div>
-                                <div className='col-4 text-align-center'>
+                                <div className='col-4 text-align-left'>
                                     <h6>No. of OTs</h6>
                                     {this.state.employer.description &&
                                     this.state.employer.description.OTs
                                         ? this.state.employer.description.OTs
-                                        : "-"}
+                                        : "NA"}
                                 </div>
                             </div>
                             <div className='row p-3 m-2' style={block}>
-                                <h4 className='col-12'>Location</h4>
+                                <h4 className='text-blue col-12'>Location</h4>
                                 <p className='col-12'>
                                     {this.state.employer.address &&
                                         this.state.employer.address.line}
@@ -298,7 +302,7 @@ export default class Overview extends Component {
                                     this.state.employer.image[0] === ""
                                 ) && (
                                     <div className='row p-3 m-2' style={block}>
-                                        <h4>Images</h4>
+                                        <h4 className='text-blue'>Images</h4>
                                         <ImageCarousel
                                             style={{ minHeight: "360px" }}
                                             items={this.state.employer.image}
@@ -311,7 +315,7 @@ export default class Overview extends Component {
                                     this.state.employer.youtube[0] === ""
                                 ) && (
                                     <div className='row p-3 m-2' style={block}>
-                                        <h4>Videos</h4>
+                                        <h4 className='text-blue'>Videos</h4>
 
                                         <VideoCarousel
                                             className='w-100'
@@ -330,7 +334,7 @@ export default class Overview extends Component {
                             <div
                                 className='col-12 '
                                 style={{ height: "max-content" }}>
-                                <h4 className='text-align-center'>
+                                <h4 className='text-align-left'>
                                     Subscription Details
                                 </h4>
                                 <Table
@@ -431,7 +435,7 @@ export default class Overview extends Component {
                                             <th
                                                 scope='row'
                                                 className='text-align-left'>
-                                                Sponsored
+                                                Promoted
                                             </th>
                                             <td>
                                                 {this.state.employer.sponsors
