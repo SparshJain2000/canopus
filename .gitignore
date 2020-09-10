@@ -1,0 +1,10 @@
+.DS_Store
+node_modules
+.env
+.vscode
+.idea
+models/canopy.code-workspace
+# Elastic Beanstalk File
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
