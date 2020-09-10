@@ -580,7 +580,7 @@ router.put(
   }
 );
 
-//extend a job
+//extend a job not expired not closed	
 router.put("/extend/job/:id", middleware.isEmployer, (req, res) => {
   var expiry= new Date();
   expiry.setDate(expiry.getDate() + 45)
