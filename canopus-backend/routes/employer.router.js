@@ -19,7 +19,6 @@ const router = require("express").Router(),
   Employer = require("../models/employer.model"),
   savedJob = require("../models/savedJobs.model"),
   savedFreelance = require("../models/savedFreelance.model");
-
 //===========================================================================
 //get all employers
 router.route("/").get((req, res) => {
@@ -582,16 +581,15 @@ router.put(
 );
 
 //extend a job
-router.put("/extend/job/:id", middleware.checkJobOwnership, (req, res) => {
-  if (!req.body.expireAt)
-    return res.status(400).json({ err: "Date parameter required" });
-  const expiry = new Date(req.body.expireAt);
-  var days = (expiry - Date.now()) / (1000 * 60 * 60 * 24);
-  if (days < 0 || days > 45)
-    return res.status(400).json({ err: "Invalid time format" });
+router.put("/extend/job/:id", middleware.isEmployer, (req, res) => {
+  var expiry= new Date();
+  expiry.setDate(expiry.getDate() + 45)
 
-  Job.findById(req.params.id)
+  savedJob.findOne({jobRef:mongoose.Types.ObjectId(req.params.id)})
     .then((job) => {
+
+		if(job.status=="Closed")
+		return res.status(400).json({err:"Closed jobs cannot be extended"});
       if (job.extension == 0)
         return res.status(400).json({ err: "Job cannot be extended again" });
       job.extension = 0;
@@ -601,8 +599,8 @@ router.put("/extend/job/:id", middleware.checkJobOwnership, (req, res) => {
         .save()
         .then((job) => {
           //console.log(job._id);
-          savedJob
-            .findOne({ jobRef: req.params.id })
+          Job
+            .findById(req.params.id)
             .then((sjob) => {
               sjob.extension = 0;
               sjob.expireAt = expiry;
@@ -612,12 +610,12 @@ router.put("/extend/job/:id", middleware.checkJobOwnership, (req, res) => {
                   res.status(200).json({ updated: "true" });
                 })
                 .catch((err) => {
-                  res.status(400).json({ err: "Saved job not saved" });
+                  res.status(400).json({ err: "Job not saved" });
                 });
               //}).catch((err)=>{res.status(400).json({err:"Employer not updated"})});
             })
             .catch((err) => {
-              res.status(400).json({ err: "Job not saved" });
+              res.status(400).json({ err: "Saved Job not saved" });
             });
         })
         .catch((err) => {
@@ -630,22 +628,28 @@ router.put("/extend/job/:id", middleware.checkJobOwnership, (req, res) => {
 });
 //extend an expired job
 router.put("/extend/expired/:id", middleware.isEmployer, (req, res) => {
-  if (!req.body.expireAt)
-    return res.status(400).json({ err: "Date parameter required" });
-  const expiry = new Date(req.body.expireAt);
-  var days = (expiry - Date.now()) / (1000 * 60 * 60 * 24);
-  if (days < 0 || days > 45)
-    return res.status(400).json({ err: "Invalid time format" });
+//   if (!req.body.expireAt)
+//     return res.status(400).json({ err: "Date parameter required" });
+//   const expiry = new Date(req.body.expireAt);
+//   var days = (expiry - Date.now()) / (1000 * 60 * 60 * 24);
+//   if (days < 0 || days > 45)
+// 	return res.status(400).json({ err: "Invalid time format" });
+	var expiry= new Date();
+  expiry.setDate(expiry.getDate() + 45)
   Employer.findById(req.user._id).then((employer) => {
     savedJob.findById(req.params.id).then((sjob) => {
+	  if (sjob.status=="Closed")
+		return res.status(400).json({err:"Closed jobs cannot be extended"});
       if (sjob.extension == 0)
-        return res.status(400).json({ err: "Job cannot be extended again" });
+		return res.status(400).json({ err: "Job cannot be extended again" });
+	
       let job = new Job({
         author: sjob.author,
         title: sjob.title,
         profession: sjob.profession,
         specialization: sjob.specialization,
-        superSpecialization: sjob.superSpecialization,
+		superSpecialization: sjob.superSpecialization,
+		tag : sjob.tag,
         description: sjob.description,
         address: sjob.address,
         createdAt: new Date(),
@@ -810,9 +814,10 @@ router.post("/post/job", middleware.isEmployer, (req, res) => {
                   .then((job) => {
                     //let sJob= new savedJob()
                     let sjob = new savedJob({
-                      jobRef: job._id,
-                      status: "Active",
-                      title: req.body.title,
+					  jobRef: job._id,
+					  status: "Active",
+					  author:job.author,
+					  title:job.title,
                       profession: req.body.profession,
                       specialization: req.body.specialization,
                       superSpecialization: req.body.superSpecialization,
@@ -950,7 +955,8 @@ router.post("/post/freelance", middleware.isEmployer, (req, res) => {
                   console.log(job._id);
                   let sfreelance = new savedFreelance({
                     jobRef: job._id,
-                    status: "Active",
+					status: "Active",	
+					author:job.author,
                     title: req.body.title,
                     profession: req.body.profession,
                     specialization: req.body.specialization,
@@ -1851,6 +1857,9 @@ router.delete("/post/job/:id", middleware.checkJobOwnership, (req, res) => {
   // 		if(item.id==req.params.id)
   // 		return item.sid;
   // 	});
+  savedJob.findOne({jobRef:req.params.id}).then((sjob)=>{
+	  sjob.status="Closed";
+	  sjob.save().then((sjob)=>{
   // 	console.log(id);
   // 	savedJob.findByIdAndDelete(id).then((del)=>{
   Job.findByIdAndDelete(req.params.id) //.then((del)=>{
@@ -1862,8 +1871,8 @@ router.delete("/post/job/:id", middleware.checkJobOwnership, (req, res) => {
         err: err,
       })
     );
-  // 	}).catch((err)=>{res.json({err:"Job doesn't belong to you"})});
-  // }).catch((err)=>{res.json({err:"Job doesn't belong to you"})});
+   	}).catch((err)=>{res.json({err:"Job doesn't belong to you"})});
+   }).catch((err)=>{res.json({err:"Job doesn't belong to you"})});
   // }).catch((err)=>{res.json({err:"Job doesn't belong to you"})});
 });
 //delete a job
@@ -1911,7 +1920,10 @@ router.delete(
     // 	if(item.id==req.params.id)
     // 	return item.sid;
     // });
-    // console.log(id);
+	// console.log(id);
+	savedFreelance.findOne({jobRef:req.params.id}).then((sjob)=>{
+		sjob.status="Closed";
+		sjob.save().then((sjob)=>{
     // savedFreelance.findByIdAndDelete(id).then((del)=>{
     Freelance.findByIdAndDelete(req.params.id) //.then((del)=>{
       //employer.freelanceJobs = employer.freelanceJobs.filter(job => job.id != req.params.id);
@@ -1922,8 +1934,8 @@ router.delete(
           err: err,
         })
       );
-    // 	}).catch((err)=>{res.json({err:"Job doesn't belong to you"})});
-    // }).catch((err)=>{res.json({err:"Job doesn't belong to you"})});
+    	}).catch((err)=>{res.json({err:"Job doesn't belong to you"})});
+    }).catch((err)=>{res.json({err:"Job doesn't belong to you"})});
     // }).catch((err)=>{res.json({err:"Job doesn't belong to you"})});
   }
 );
