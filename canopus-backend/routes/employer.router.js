@@ -770,11 +770,14 @@ router.put(
 //Job related stuff starts here
 //post a job
 router.post("/post/job", middleware.isEmployer, (req, res) => {
-  const expiry = new Date(req.body.expireAt);
-  var days = (expiry - Date.now()) / (1000 * 60 * 60 * 24);
-  if (days < 0 || days > 90)
-    return res.status(400).json({ err: "Invalid time format" });
-  else
+  // const expiry = new Date(req.body.expireAt);
+  // var days = (expiry - Date.now()) / (1000 * 60 * 60 * 24);
+  // if (days < 0 || days > 90)
+  //   return res.status(400).json({ err: "Invalid time format" });
+  //  else
+  var expiry= new Date();
+  expiry.setDate(expiry.getDate() + 45)
+  
     Employer.findById(req.user._id)
       .then((employer) => {
         //validation
@@ -1036,10 +1039,12 @@ router.post("/post/freelance", middleware.isEmployer, (req, res) => {
 
 //save a job
 router.post("/save/job", middleware.isEmployer, (req, res) => {
-  const expiry = new Date(req.body.expireAt);
-  var days = (expiry - Date.now()) / (1000 * 60 * 60 * 24);
-  if (days < 0 || days > 90)
-    return res.status(400).json({ err: "Invalid time format" });
+  // const expiry = new Date(req.body.expireAt);
+  // var days = (expiry - Date.now()) / (1000 * 60 * 60 * 24);
+  // if (days < 0 || days > 90)
+  //   return res.status(400).json({ err: "Invalid time format" });
+  var expiry= new Date();
+  expiry.setDate(expiry.getDate() + 45)
   Employer.findById(req.user._id)
     .then((employer) => {
       //validation
@@ -1231,10 +1236,12 @@ router.put("/save/job/activate/:id", middleware.isEmployer, (req, res) => {
       savedJob
         .findById(req.params.id)
         .then((sjob) => {
-          const expiry = sjob.expireAt;
-          var days = (expiry - Date.now()) / (1000 * 60 * 60 * 24);
-          if (days < 0 || days > 90)
-            return res.status(400).send("Invalid time range spcified");
+          // const expiry = sjob.expireAt;
+          // var days = (expiry - Date.now()) / (1000 * 60 * 60 * 24);
+          // if (days < 0 || days > 90)
+          //   return res.status(400).send("Invalid time range spcified");
+          var expiry= new Date();
+          expiry.setDate(expiry.getDate() + 45)
           if (employer.jobtier.allowed - employer.jobtier.saved <= 0)
             return res.status(400).send("Max Jobs Saved");
           else
