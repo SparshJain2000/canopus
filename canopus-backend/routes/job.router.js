@@ -1,7 +1,5 @@
-const { search } = require("./admin.router");
+
 const { searchController } = require("../controllers/search.controller");
-const { query: q } = require("express");
-const employerModel = require("../models/employer.model");
 const mongoose = require("mongoose");
 
 const router = require("express").Router(),

@@ -46,7 +46,7 @@ router.get("/validate/employer",(req,res) => {
 });
 
 router.post("/validate/employer",(req,res) => {
-        ID=req.body.id;
+        let ID=req.body.id;
         //console.log(ID);
 //         Job.updateMany({title:{$ne:""}},
 // {$set:{validated:"true"}}).then(console.log("Hello"));
@@ -310,83 +310,6 @@ router.post("/add/jobs" , async (req,res)=>{
                         }).catch((err) => res.status(400).json({ err: "Error generating token" }));
                // }).catch((err)=>console.log(err));
             });
-                // Employer.findOne({username:author}).then((employer)=>{
-                //     const expiry=new Date(req.body.jobs[i].expireAt);
-                //     var days=(expiry-Date.now())/(1000*60*60*24);
-                //     if(days<0 || days>90 )
-                //     return res.status(400).json({err:"Invalid time format"});
-                //     if(employer.jobtier.allowed-employer.jobtier.posted<=0)
-                //     return res.status(400).json({err:"Max Jobs Posted"});
-                //     var description={};
-                //     if(jobs[i].line)description.line=jobs[i].line;
-                //     if(jobs[i].about)description.about=jobs[i].about;
-                //     if(jobs[i].experience)description.experience=jobs[i].experience;
-                //     if(jobs[i].incentives)description.incentives=jobs[i].incentives;
-                //     if(jobs[i].type)description.type=jobs[i].type;
-                //     if(jobs[i].location)description.location=jobs[i].location;
-                //     if(jobs[i].skills)description.skills=jobs[i].skills;
-                //     if(jobs[i].salary)description.salary=jobs[i].salary;
-                //     if(jobs[i].count)description.count=jobs[i].count;
-                //     description.company=employer.instituteName;
-                //     let job = new Job({
-                //         title: req.body.jobs[i].title,
-                //         profession: req.body.jobs[i].profession,
-                //         specialization: req.body.jobs[i].specialization,
-                //         superSpecialization:req.body.jobs[i].superSpecialization,
-                //         description: description,
-                //        // address: req.body.jobs[i].address,
-                //         createdAt:new Date(),
-                //         createdBy:"Employer",
-                //         expireAt:expiry,
-                //         validated:employer.validated,
-                //         extension:1,
-                //     });
-                //     Job.create(job)
-                //     .then((job) => {
-                //         job.author.username = employer.username;
-                //         job.author.id = employer._id;
-                //         job.author.instituteName = employer.instituteName;
-                //         job.author.photo = employer.logo;
-                //         // job.author.about = employer.description.about;
-                //         console.log(job);
-                //         job.save()
-                //         .then((job) => {
-                //             //let sJob= new savedJob()
-                //             let sjob = new savedJob({
-                //                 jobRef:job._id,
-                //                 status:"Active",
-                //                 title: jobs[i].title,
-                //                 profession: jobs[i].profession,
-                //                 specialization: jobs[i].specialization,
-                //                 superSpecialization:jobs[i].superSpecialization,
-                //                 description: description,
-                //             // address: req.body.jobs[i].address,
-                //                 createdAt:new Date(),
-                //                 createdBy:"Employer",
-                //                 expireAt:expiry,
-                //                 validated:employer.validated,
-                //                 extension:1,
-                //             });
-                //             savedJob.create(sjob).then((sjob) =>{
-                //                 employer.jobtier.posted+=1;
-                //                 employer.jobs = [
-                //                 ...employer.jobs,
-                //                 {
-                //                     title: job.title,
-                //                     id: job._id,
-                //                     sid:sjob._id,
-                //                 },
-                //                 ];
-                //                 employer
-                //                 .save().then((updatedEmployer)=>{
-                //                     console.log(updatedEmployer);
-                //                     resolve("Done")
-                //                 }).catch((err)=>{res.status(500).json({err:"Employer email invalid"})});
-                //            // }).catch((err)=>{res.status(500).json({err:"Employer email invalid"})});
-                //             }).catch((err)=>{res.status(500).json({err:"Employer email invalid"})});
-                //         }).catch((err)=>{res.status(500).json({err:"Employer email invalid"})});
-                //     }).catch((err)=>{res.status(500).json({err:"Employer email invalid"})});
-                // }).catch((err)=>{res.status(500).json({err:"Employer email invalid"})});
             }),
         );
     }
@@ -398,8 +321,25 @@ router.post("/add/jobs" , async (req,res)=>{
     .catch((err) => res.json({ err:"Couldn't find employer" }));
 });
 // delete everything related to an employer
-router.post("/nuke/:id",(req,res)=>{
-
+router.put("/nuke/:id",(req,res)=>{
+    Employer.findById(req.params.id).then((employer)=>{
+        // const sjob_id = employer.jobs.map(item=>{
+        //     return item.sid;
+        // });
+        const job_id = employer.jobs.map(item=>{
+            return item.id;
+        });
+        const fjob_id = employer.freelanceJobs.map(item=>{
+            return item.id;
+        });
+        // const s_fjob_id = employer.freelanceJobs.map(item=>{
+        //     return item.sid;
+        // });
+        savedJob.deleteMany({jobRef:{$in:job_id}});
+        savedFreelance.deleteMany({jobRef:{$in:fjob_id}});
+        Job.deleteMany({_id:{$in:job_id}});
+        Freelance.deleteMany({_id:{$in:fjob_id}});
+    })
 })
 
 router.get("/analytics/profession",(req,res)=>{
