@@ -11,6 +11,8 @@ module.exports = mongoose.model(
         emailVerified:Boolean,
         createdAt:Date,
         lastUpdated:Date,
+        //Empoyer valid status
+        validated: Boolean,
         firstName: String,
         lastName: String,
         password: String,
@@ -66,9 +68,7 @@ module.exports = mongoose.model(
             saved:Number,
             closed:Number,
         },
-        
-        //Empoyer valid status
-        validated: Boolean,
+ 
         acceptedApplicants: [ 
             {
                 id:{

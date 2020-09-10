@@ -10,6 +10,7 @@ module.exports = mongoose.model(
         emailVerified:Boolean,
         createdAt:Date,
         lastUpdated:Date,
+        validated:Boolean,
         role: String,
         salutation:String,
         firstName: String,
@@ -47,7 +48,6 @@ module.exports = mongoose.model(
         availability:Object, // for locum calendar
         google: Object,
         facebook: Object,
-        validated:Boolean,
         sponsors:{
             allowed:Number,
             posted:Number,

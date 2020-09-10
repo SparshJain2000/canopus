@@ -4,16 +4,19 @@ const mongoose = require("mongoose"),
 module.exports = mongoose.model(
     "Freelance",
     new mongoose.Schema({
-        title: String,
-        profession: String,
-        specialization: String,
-        superSpecialization:Array,
-        address: Object,
+        validated: String,
+        sponsored: String,
         createdAt:Date,
         createdBy:String,
         expireAt:Date,
         category:String,
         extension:Number,
+        title: String,
+        profession: String,
+        specialization: String,
+        superSpecialization:Array,
+        tag: Array,
+        address: Object,
         // {
         //     line: String, //specific addresss
         //     city: String,
@@ -38,10 +41,6 @@ module.exports = mongoose.model(
         //     location: String,
         //     salary: Number,
         // },
-        validated: String,
-        sponsored: String,
-        tag: Array,
-        // date: Date,
         author: {
             id: {
                 type: mongoose.Schema.Types.ObjectId,

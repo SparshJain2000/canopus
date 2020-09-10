@@ -5,15 +5,18 @@ const mongoose = require("mongoose"),
 module.exports = mongoose.model(
     "Job",
     new mongoose.Schema({
-        title: String,
-        profession: String,
-        specialization: String,
-        superSpecialization:Array,
-        address: Object,
+        validated: String,
+        sponsored: String,
         createdAt:Date,
         createdBy:String,
         expireAt:Date,
         extension:Number,
+        title: String,
+        profession: String,
+        specialization: String,
+        superSpecialization:Array,
+        tag: Array,// Covid ,urgent tgs
+        address: Object,
         // {
         //     line: String, //specific addresss
         //     city: String,
@@ -33,10 +36,7 @@ module.exports = mongoose.model(
         //     location: String,
         //     salary: Number,
         // },
-        validated: String,
-        sponsored: String,
-        tag: Array,// Covid ,urgent tgs
-        // date: Date,
+
         author: {
             id: {
                 type: mongoose.Schema.Types.ObjectId,
@@ -71,14 +71,5 @@ module.exports = mongoose.model(
                 username:String,
             }
         ],
-        // likes: [
-        //     {
-        //         id: {
-        //             type: mongoose.Schema.Types.ObjectId,
-        //             ref: "User",
-        //         },
-        //         username: String,
-        //     },
-        // ],
     }).plugin(passportLocalMongoose),
 );

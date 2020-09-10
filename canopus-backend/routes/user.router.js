@@ -268,6 +268,27 @@ router.put("/profile/update/", middleware.isUser, async (req, res) => {
   );
 });
 
+// get user applied jobs
+router.get("/applied/jobs",middleware.isUser,(req ,res) =>{
+  let job_id=req.user.applied.map(item=>{
+    return item.id;
+  });
+  Job.find({_id:{$in:job_id}},{applicants:0,acceptedApplicants:0,'author.username':0}).then((jobs) =>{
+      res.json({jobs:jobs});
+  }).catch((err)=>{res.status(400).json({err:"No applied Jobs"})});
+});
+
+//get user applied freelance jobs
+router.get("/applied/freelance",middleware.isUser,(req ,res) =>{
+  let job_id=req.user.appliedFreelance.map(item=>{
+    return item.id;
+  });
+  Freelance.find({_id:{$in:job_id}},{applicants:0,acceptedApplicants:0,'author.username':0}).then((jobs) =>{
+      res.json({jobs:jobs});
+  }).catch((err)=>{res.status(400).json({err:"No applied Jobs"})});
+});
+
+// request to post jobs
 router.post("/request", middleware.isUser, (req, res) => {
   if (
     req.user.jobtier.allowed +
