@@ -1438,14 +1438,14 @@ router.put("/post/job/:id", middleware.checkJobOwnership, async (req, res) => {
   //console.log(query.updateQuery);
   Job.findById(req.params.id)
     .then((job) => {
-      if (req.body.expireAt) {
-        const expiry = new Date(req.body.expireAt);
-        var days = (expiry - job.createdAt) / (1000 * 60 * 60 * 24);
-        //console.log(days);
-        if (days < 0 || days > 90)
-          res.status(400).json({ err: "Invalid time format" });
-        else query.update["expireAt"] = expiry;
-      }
+      // if (req.body.expireAt) {
+      //   const expiry = new Date(req.body.expireAt);
+      //   var days = (expiry - job.createdAt) / (1000 * 60 * 60 * 24);
+      //   //console.log(days);
+      //   if (days < 0 || days > 90)
+      //     res.status(400).json({ err: "Invalid time format" });
+      //   else query.update["expireAt"] = expiry;
+      // }
       Job.findOneAndUpdate(
         { _id: req.params.id },
         { $set: query.update },
