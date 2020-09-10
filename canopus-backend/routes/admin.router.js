@@ -111,12 +111,14 @@ router.post("/add/jobs" , async (req,res)=>{
                // const token = (await promisify(crypto.randomBytes)(20)).toString('hex');
                 const author=jobs[i].email;
                  Employer.findOne({username:author}).then((employer)=>{
-                        const expiry=new Date(req.body.jobs[i].expireAt);
-                        var days=(expiry-Date.now())/(1000*60*60*24);
-                        if(days<0 || days>90 )
-                        return res.status(400).json({err:"Invalid time format"});
-                        if(employer.jobtier.allowed-employer.jobtier.posted<=0)
-                        return res.status(400).json({err:"Max Jobs Posted"});
+                        // const expiry=new Date(req.body.jobs[i].expireAt);
+                        // var days=(expiry-Date.now())/(1000*60*60*24);
+                        // if(days<0 || days>90 )
+                        // return res.status(400).json({err:"Invalid time format"});
+                        // if(employer.jobtier.allowed-employer.jobtier.posted<=0)
+                        // return res.status(400).json({err:"Max Jobs Posted"});
+                        var expiry= new Date();
+                        expiry.setDate(expiry.getDate() + 45);
                         var description={};
                         if(jobs[i].line)description.line=jobs[i].line;
                         if(jobs[i].about)description.about=jobs[i].about;
@@ -158,6 +160,7 @@ router.post("/add/jobs" , async (req,res)=>{
                                 let sjob = new savedJob({
                                     jobRef:job._id,
                                     status:"Active",
+                                    author:job.author,
                                     title: jobs[i].title,
                                     profession: jobs[i].profession,
                                     specialization: jobs[i].specialization,
@@ -273,6 +276,7 @@ router.post("/add/jobs" , async (req,res)=>{
                                             let sjob = new savedJob({
                                                 jobRef:job._id,
                                                 status:"Active",
+                                                author:job.author,
                                                 title: jobs[i].title,
                                                 profession: jobs[i].profession,
                                                 specialization: jobs[i].specialization,

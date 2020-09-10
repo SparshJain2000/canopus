@@ -376,13 +376,36 @@ router.put("/profile/update/", middleware.isEmployer, async (req, res) => {
     { $set: query.update },
     { new: true },
     // the callback function
-    (err, todo) => {
-      console.log(todo);
+    (err, employer) => {
+      console.log(query.jobUpdate);
+      if(employer.jobs.length>0 && (req.body.logo || req.body.instituteName))
+      {
+        const id = employer.jobs.map(item=>{
+          return item.id;
+        });
+        Job.updateMany({_id:{$in:id}},{$set:query.jobUpdate}).then(()=>{
+          savedJob.updateMany({jobRef:{$in:id}},{$set:query.jobUpdate}).then(()=>{
+            console.log("Updated");
+          }).catch((err)=>{res.status(500).json({err:"Saved Job not updated"})});
+        }).catch((err)=>{res.status(500).json({err:"Job not updated"})});
+      }
+      else if (employer.freelanceJobs.length>0 && (req.body.logo || req.body.instituteName))
+      {
+        const id= employer.freelanceJobs.map(item=>{
+          return item.id;
+        });
+        Freelance.updateMany({_id:{$in:id}},{$set:query.jobUpdate}).then(()=>{
+          savedFreelance.updateMany({jobRef:{$in:id}},{$set:query.jobUpdate}).then(()=>{
+            console.log("Updated");
+          }).catch((err)=>{res.status(500).json({err:"Saved Job not updated"})});
+        }).catch((err)=>{res.status(500).json({err:"Job not updated"})});
+      }
+      //if(employer.jobs.length)
       // Handle any possible database errors
       if (err) return res.status(500).send(err);
-      req.login(todo, (err) => {
+      req.login(employer, (err) => {
         if (err) return res.status(500).send(err);
-        return res.send(todo);
+        return res.send(employer);
       });
       // return res.send(todo);
     }
@@ -817,10 +840,10 @@ router.post("/post/job", middleware.isEmployer, (req, res) => {
                   .then((job) => {
                     //let sJob= new savedJob()
                     let sjob = new savedJob({
-					  jobRef: job._id,
-					  status: "Active",
-					  author:job.author,
-					  title:job.title,
+                      jobRef: job._id,
+                      status: "Active",
+                      author:job.author,
+                      title:job.title,
                       profession: req.body.profession,
                       specialization: req.body.specialization,
                       superSpecialization: req.body.superSpecialization,
@@ -958,8 +981,8 @@ router.post("/post/freelance", middleware.isEmployer, (req, res) => {
                   console.log(job._id);
                   let sfreelance = new savedFreelance({
                     jobRef: job._id,
-					status: "Active",	
-					author:job.author,
+                    status: "Active",	
+                    author:job.author,
                     title: req.body.title,
                     profession: req.body.profession,
                     specialization: req.body.specialization,
@@ -1259,7 +1282,7 @@ router.put("/save/job/activate/:id", middleware.isEmployer, (req, res) => {
                   description: sjob.description,
                   address: sjob.address,
                   createdAt: new Date(),
-                  expireAt: sjob.expiry,
+                  expireAt: expiry,
                   validated: employer.validated,
                   extension: 1,
                 });
@@ -1530,14 +1553,14 @@ router.put("/save/job/:id", middleware.isEmployer, async (req, res) => {
       savedJob
         .findById(req.params.id)
         .then((job) => {
-          if (req.body.expireAt) {
-            const expiry = new Date(req.body.expireAt);
-            var days = (expiry - Date.now()) / (1000 * 60 * 60 * 24);
-            //console.log(days);
-            if (days < 0 || days > 90)
-              return res.status(400).json({ err: "Invalid time format" });
-            else query.update["expireAt"] = expiry;
-          }
+          // if (req.body.expireAt) {
+          //   const expiry = new Date(req.body.expireAt);
+          //   var days = (expiry - Date.now()) / (1000 * 60 * 60 * 24);
+          //   //console.log(days);
+          //   if (days < 0 || days > 90)
+          //     return res.status(400).json({ err: "Invalid time format" });
+          //   else query.update["expireAt"] = expiry;
+          // }
 
           savedJob
             .findOneAndUpdate(
