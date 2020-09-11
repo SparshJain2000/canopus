@@ -184,6 +184,14 @@ router.post("/reset/:token", async (req, res) => {
       res.json({ err: "User not found" });
     });
 });
+
+router.post("/validate",middleware.isEmployer,(req,res)=>{
+
+});
+
+router.post("/validate/:token",(req,res)=>{
+
+})
 //Logout route
 router.get("/logout", (req, res) => {
   req.logout();
@@ -376,13 +384,36 @@ router.put("/profile/update/", middleware.isEmployer, async (req, res) => {
     { $set: query.update },
     { new: true },
     // the callback function
-    (err, todo) => {
-      console.log(todo);
+    (err, employer) => {
+      console.log(query.jobUpdate);
+      if(employer.jobs.length>0 && (req.body.logo || req.body.instituteName))
+      {
+        const id = employer.jobs.map(item=>{
+          return item.id;
+        });
+        Job.updateMany({_id:{$in:id}},{$set:query.jobUpdate}).then(()=>{
+          savedJob.updateMany({jobRef:{$in:id}},{$set:query.jobUpdate}).then(()=>{
+            console.log("Updated");
+          }).catch((err)=>{res.status(500).json({err:"Saved Job not updated"})});
+        }).catch((err)=>{res.status(500).json({err:"Job not updated"})});
+      }
+      else if (employer.freelanceJobs.length>0 && (req.body.logo || req.body.instituteName))
+      {
+        const id= employer.freelanceJobs.map(item=>{
+          return item.id;
+        });
+        Freelance.updateMany({_id:{$in:id}},{$set:query.jobUpdate}).then(()=>{
+          savedFreelance.updateMany({jobRef:{$in:id}},{$set:query.jobUpdate}).then(()=>{
+            console.log("Updated");
+          }).catch((err)=>{res.status(500).json({err:"Saved Job not updated"})});
+        }).catch((err)=>{res.status(500).json({err:"Job not updated"})});
+      }
+      //if(employer.jobs.length)
       // Handle any possible database errors
       if (err) return res.status(500).send(err);
-      req.login(todo, (err) => {
+      req.login(employer, (err) => {
         if (err) return res.status(500).send(err);
-        return res.send(todo);
+        return res.send(employer);
       });
       // return res.send(todo);
     }
@@ -583,7 +614,7 @@ router.put(
 //extend a job not expired not closed	
 router.put("/extend/job/:id", middleware.isEmployer, (req, res) => {
   var expiry= new Date();
-  expiry.setDate(expiry.getDate() + 45)
+  expiry.setDate(expiry.getDate() + 45);
 
   savedJob.findOne({jobRef:mongoose.Types.ObjectId(req.params.id)})
     .then((job) => {
@@ -780,6 +811,11 @@ router.post("/post/job", middleware.isEmployer, (req, res) => {
   
     Employer.findById(req.user._id)
       .then((employer) => {
+
+        let sponsored = "false";
+        if(req.body.sponsored=="true" && employer.sponsors.posted==employer.sponsors.allowed)
+        return res.status(400).json({err:"No more sponsors remaining"});
+        else {employer.sponsors.posted+=1; sponsored=req.body.sponsored;}
         //validation
         if (employer.validated == false && employer.jobtier.posted > 0)
           return res
@@ -804,6 +840,7 @@ router.post("/post/job", middleware.isEmployer, (req, res) => {
                 expireAt: expiry,
                 validated: employer.validated,
                 extension: 1,
+                sponsored:sponsored,
               });
               Job.create(job).then((job) => {
                 job.author.username = req.user.username;
@@ -817,10 +854,10 @@ router.post("/post/job", middleware.isEmployer, (req, res) => {
                   .then((job) => {
                     //let sJob= new savedJob()
                     let sjob = new savedJob({
-					  jobRef: job._id,
-					  status: "Active",
-					  author:job.author,
-					  title:job.title,
+                      jobRef: job._id,
+                      status: "Active",
+                      author:job.author,
+                      title:job.title,
                       profession: req.body.profession,
                       specialization: req.body.specialization,
                       superSpecialization: req.body.superSpecialization,
@@ -831,6 +868,7 @@ router.post("/post/job", middleware.isEmployer, (req, res) => {
                       expireAt: expiry,
                       validated: employer.validated,
                       extension: 1,
+                      sponsored:sponsored,
                     });
                     savedJob
                       .create(sjob)
@@ -913,6 +951,10 @@ router.post("/post/freelance", middleware.isEmployer, (req, res) => {
     Employer.findById(req.user._id)
       .then((employer) => {
         var update = {};
+        let sponsored = "false";
+        if(req.body.sponsored=="true" && employer.sponsors.posted==employer.sponsors.allowed)
+        return res.status(400).json({err:"No more sponsors remaining"});
+        else {employer.sponsors.posted+=1; sponsored=req.body.sponsored;}
         if (employer.validated == false && employer.freelancetier.posted > 0)
           return res
             .status(400)
@@ -941,10 +983,12 @@ router.post("/post/freelance", middleware.isEmployer, (req, res) => {
               startDate: req.body.startDate,
               endDate: req.body.endDate,
               attachedApplicants: req.body.attachedApplicants,
+              category:req.body.category,
               createdAt: new Date(),
               createdBy: "Employer",
               expireAt: expiry,
               validated: employer.validated,
+              sponsored:sponsored,
             });
             Freelance.create(freelance)
               .then((job) => {
@@ -958,8 +1002,8 @@ router.post("/post/freelance", middleware.isEmployer, (req, res) => {
                   console.log(job._id);
                   let sfreelance = new savedFreelance({
                     jobRef: job._id,
-					status: "Active",	
-					author:job.author,
+                    status: "Active",	
+                    author:job.author,
                     title: req.body.title,
                     profession: req.body.profession,
                     specialization: req.body.specialization,
@@ -971,8 +1015,10 @@ router.post("/post/freelance", middleware.isEmployer, (req, res) => {
                     attachedApplicants: req.body.attachedApplicants,
                     createdAt: new Date(),
                     createdBy: "Employer",
+                    category:req.body.category,
                     expireAt: expiry,
                     validated: employer.validated,
+                    sponsored:sponsored,
                   });
                   savedFreelance
                     .create(sfreelance)
@@ -1164,6 +1210,7 @@ router.post("/save/freelance", middleware.isEmployer, (req, res) => {
             attachedApplicants: req.body.attachedApplicants,
             createdAt: new Date(),
             createdBy: "Employer",
+            category:req.body.category,
             expireAt: expiry,
             validated: employer.validated,
           });
@@ -1259,7 +1306,7 @@ router.put("/save/job/activate/:id", middleware.isEmployer, (req, res) => {
                   description: sjob.description,
                   address: sjob.address,
                   createdAt: new Date(),
-                  expireAt: sjob.expiry,
+                  expireAt: expiry,
                   validated: employer.validated,
                   extension: 1,
                 });
@@ -1489,11 +1536,13 @@ router.put(
         if (req.body.endDate) query.update["endDate"] = req.body.endDate;
         if (req.body.attachedApplicants)
           query.update["attachedApplicants"] = req.body.attachedApplicants;
-        const expiry = new Date(req.body.endDate);
+       if(req.body.endDate){
+       const expiry = new Date(req.body.endDate);
         var days = (expiry - job.createdAt) / (1000 * 60 * 60 * 24);
         if (days < 0 || days > 90)
           return res.status(400).json({ err: "Invalid time format" });
         else query.update["expireAt"] = expiry;
+       }
         // if(req.body.sponsored) {
         // 	query.update["sponsored"]=true;
         // }
@@ -1508,6 +1557,7 @@ router.put(
           })
           .catch((err) => {
             res.status(400).json({ updated: "false" });
+          
           });
       })
       .catch((err) => {
@@ -1530,14 +1580,14 @@ router.put("/save/job/:id", middleware.isEmployer, async (req, res) => {
       savedJob
         .findById(req.params.id)
         .then((job) => {
-          if (req.body.expireAt) {
-            const expiry = new Date(req.body.expireAt);
-            var days = (expiry - Date.now()) / (1000 * 60 * 60 * 24);
-            //console.log(days);
-            if (days < 0 || days > 90)
-              return res.status(400).json({ err: "Invalid time format" });
-            else query.update["expireAt"] = expiry;
-          }
+          // if (req.body.expireAt) {
+          //   const expiry = new Date(req.body.expireAt);
+          //   var days = (expiry - Date.now()) / (1000 * 60 * 60 * 24);
+          //   //console.log(days);
+          //   if (days < 0 || days > 90)
+          //     return res.status(400).json({ err: "Invalid time format" });
+          //   else query.update["expireAt"] = expiry;
+          // }
 
           savedJob
             .findOneAndUpdate(
