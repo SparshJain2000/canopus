@@ -1,16 +1,24 @@
+const { searchController } = require("../controllers/search.controller");
+const { mailController } = require("../controllers/mail.controller");
+const { validationController } = require("../controllers/validation.controller");
+require("dotenv").config();
+const GOOGLE_ANALYTICS = process.env.GOOGLE_ANALYTICS;
+var ua = require("universal-analytics");
+var visitor = ua(GOOGLE_ANALYTICS);
+const mongoose = require("mongoose");
+const crypto = require("crypto");
+const { promisify } = require("util");
+const asyncify = require("express-asyncify");
 const router = require("express").Router(),
-    middleware = require("../middleware/index"),
-    Employer = require("../models/employer.model"),
-    User = require("../models/user.model"),
-    Tag = require("../models/tag.model"),
-    Job = require("../models/job.model"),
-    Freelance = require("../models/freelance.model"),
-	savedJob =require("../models/savedJobs.model"),
-    savedFreelance = require("../models/savedFreelance.model");
-
-const crypto = require('crypto');
-const { promisify } = require('util');
-const asyncify = require('express-asyncify');
+  passport = require("passport"),
+  middleware = require("../middleware/index"),
+  User = require("../models/user.model"),
+  Employer = require("../models/employer.model"),
+  Tag = require("../models/tag.model"),
+  Job = require("../models/job.model"),
+  Freelance = require("../models/freelance.model"),
+  savedJob = require("../models/savedJobs.model"),
+  savedFreelance = require("../models/savedFreelance.model");
 // add new tag
 
 //Work in progress TODO admin model
@@ -29,8 +37,44 @@ router.post("/tag",middleware.isAdmin, (req, res) => {
         .catch((err) => res.status(400).json({ err: err }));
 });
 //===
+// router.post("/", (req, res) => {
+//     const user = new User({
+//       username: req.body.username,
+//       role: "Admin",
+//     });
+//     User.register(user, req.body.password)
+//       .then((user) => {
+//         passport.authenticate("user")(req, res, () => {
+//           res.json({ user: user });
+//         });
+//       })
+//       .catch((err) => res.status(400).json({ err: err }));
+//   });
+
+router.post("/login", function (req, res, next) {
+    passport.authenticate("user", (err, user, info) => {
+      console.log(info);
+      if (err) {
+        return res.status(400).json({ err: err });
+      }
+      if (!user) {
+        return res.status(400).json({ err: info });
+      }
+      req.logIn(user, function (err) {
+        if (err) {
+          return res.status(400).json({ err: err });
+        }
+        //visitor.event("User", "Login").send();
+        return res.json({
+          user: req.user,
+          message: `${req.user.username} Logged in`,
+        });
+      });
+    })(req, res, next);
+  });
+
 //Get unvalidated recruiters
-router.get("/validate/employer",(req,res) => {
+router.get("/validate/employer",middleware.isAdmin,(req,res) => {
     Employer.aggregate([{ 
         $match:{
             validated:false
@@ -45,7 +89,7 @@ router.get("/validate/employer",(req,res) => {
 
 });
 
-router.post("/validate/employer",(req,res) => {
+router.post("/validate/employer",middleware.isAdmin,(req,res) => {
         let ID=req.body.id;
         //console.log(ID);
 //         Job.updateMany({title:{$ne:""}},
@@ -60,7 +104,7 @@ router.post("/validate/employer",(req,res) => {
 
 });
 
-router.get("/validate/user",(req,res) => {
+router.get("/validate/user",middleware.isAdmin,(req,res) => {
     User.aggregate([{ 
         $match:{
             validated:false
@@ -75,7 +119,7 @@ router.get("/validate/user",(req,res) => {
 
 });
 
-router.post("/validate/user",(req,res) => {
+router.post("/validate/user",middleware.isAdmin,(req,res) => {
         ID=req.body.id;
         //console.log(ID);
 //         Job.updateMany({title:{$ne:""}},
@@ -89,13 +133,30 @@ router.post("/validate/user",(req,res) => {
             }).catch((err) => {res.json({err:err})});
 
 });
+
+
+router.post("/updateSubscription/employer",middleware.isAdmin,(req,res) => {
+    var update = {};
+    if(req.body.job)
+    update['jobtier.allowed']=req.body.job;
+    if(req.body.freelance)
+    update['freelancetier.allowed']=req.body.freelance;
+    if(req.body.locum)
+    update['locumtier.allowed']=req.body.locum;
+    Employer.findOneAndUpdate({username:req.body.username},{$inc:update}).then((employer)=>{
+        res.json({employer:employer});
+    }).catch((err)=>{res.status(500).json({err:err})});
+});
+
 async function tokenGen(){
 
     const token = (await promisify(crypto.randomBytes)(20)).toString('hex');
     return token;
 }
+
+
 //add jobs for employer
-router.post("/add/jobs" , async (req,res)=>{
+router.post("/add/jobs" ,middleware.isAdmin, async (req,res)=>{
 
    // console.log(await tokenGen());
     //const token = (await promisify(crypto.randomBytes)(20)).toString('hex');
@@ -231,11 +292,13 @@ router.post("/add/jobs" , async (req,res)=>{
                    // const token = asyncify.promisify(crypto.randomBytes)(20).toString('hex').then((token)=>{
                     Employer.register(employer, token)
                         .then((employer) => {
-                            console.log(employer);
-                                    const expiry=new Date(req.body.jobs[i].expireAt);
-                                    var days=(expiry-Date.now())/(1000*60*60*24);
-                                    if(days<0 || days>90 )
-                                    return res.status(400).json({err:"Invalid time format"});
+                            // console.log(employer);
+                            //         const expiry=new Date(req.body.jobs[i].expireAt);
+                            //         var days=(expiry-Date.now())/(1000*60*60*24);
+                            //         if(days<0 || days>90 )
+                            //         return res.status(400).json({err:"Invalid time format"});
+                                    var expiry= new Date();
+                                    expiry.setDate(expiry.getDate() + 45);
                                     if(employer.jobtier.allowed-employer.jobtier.posted<=0)
                                     return res.status(400).json({err:"Max Jobs Posted"});
                                     var description={};
@@ -324,33 +387,51 @@ router.post("/add/jobs" , async (req,res)=>{
     })
     .catch((err) => res.json({ err:"Couldn't find employer" }));
 });
-// delete everything related to an employer
-router.put("/nuke/:id",(req,res)=>{
-    Employer.findById(req.params.id).then((employer)=>{
-        // const sjob_id = employer.jobs.map(item=>{
-        //     return item.sid;
-        // });
-        const job_id = employer.jobs.map(item=>{
-            return item.id;
-        });
-        const fjob_id = employer.freelanceJobs.map(item=>{
-            return item.id;
-        });
-        // const s_fjob_id = employer.freelanceJobs.map(item=>{
-        //     return item.sid;
-        // });
-        savedJob.deleteMany({jobRef:{$in:job_id}});
-        savedFreelance.deleteMany({jobRef:{$in:fjob_id}});
-        Job.deleteMany({_id:{$in:job_id}});
-        Freelance.deleteMany({_id:{$in:fjob_id}});
-    })
-})
 
-router.get("/analytics/profession",(req,res)=>{
+
+// delete everything related to an employer
+// TODO: not working
+// router.put("/nuke/:id",(req,res)=>{
+//     Employer.findById(req.params.id).then((employer)=>{
+//         // const sjob_id = employer.jobs.map(item=>{
+//         //     return item.sid;
+//         // });
+//         const job_id = employer.jobs.map(item=>{
+//             return item.id;
+//         });
+//         const fjob_id = employer.freelanceJobs.map(item=>{
+//             return item.id;
+//         });
+//         // const s_fjob_id = employer.freelanceJobs.map(item=>{
+//         //     return item.sid;
+//         // });
+//         savedJob.deleteMany({jobRef:{$in:job_id}});
+//         savedFreelance.deleteMany({jobRef:{$in:fjob_id}});
+//         Job.deleteMany({_id:{$in:job_id}});
+//         Freelance.deleteMany({_id:{$in:fjob_id}});
+//     })
+// })
+
+router.get("/analytics/location",middleware.isAdmin,(req,res)=>{
     Job.aggregate([
         { $sortByCount: "$description.location" }
     ]).then((results)=>{res.json({results:results})});
-})
+});
+router.get("/analytics/profession",middleware.isAdmin,(req,res)=>{
+    Job.aggregate([
+        { $sortByCount: "$profession" }
+    ]).then((results)=>{res.json({results:results})});
+});
+// router.get("/analytics/profession",(req,res)=>{
+//     Job.aggregate([
+//         { $sortByCount: "$description.location" }
+//     ]).then((results)=>{res.json({results:results})});
+// });
+// router.get("/analytics/profession",(req,res)=>{
+//     Job.aggregate([
+//         { $sortByCount: "$description.location" }
+//     ]).then((results)=>{res.json({results:results})});
+// });
 module.exports = router;
 //Testing valodation code this doesnt work but is more efficient
 // Employer.aggregate([{ $project:{"validated" :{ $cond: {
