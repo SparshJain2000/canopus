@@ -78,7 +78,7 @@ const PostJob = (props) => {
     const endTimeRef = useRef(null);
     const startTimeRef = useRef(null);
     const categoryRef = useRef(null);
-    const [showDetail, setShowDetail] = useState(true);
+    const [showDetail, setShowDetail] = useState(false);
     const [showSkill, setShowSkill] = useState(false);
     const [showOtherDetail, setShowOtherDetail] = useState(false);
 
@@ -139,6 +139,7 @@ const PostJob = (props) => {
             specialization: specialization,
             superSpecialization: superSpecialization.map((x) => x.value),
             sponsored: sponsored,
+            // instituteName: employer,
             description: {
                 line: line.trim(),
                 about: skills.trim(),
@@ -149,22 +150,38 @@ const PostJob = (props) => {
                 // skills: skills.trim(),
                 salary: salary,
                 count: numberApp,
-                company: company,
-                employer: employer,
+                company:
+                    employer === ""
+                        ? currentEmployer.description
+                            ? currentEmployer.description.organization
+                            : employer
+                        : "",
+                employer:
+                    employer === ""
+                        ? currentEmployer.description
+                            ? currentEmployer.description.organization
+                            : employer
+                        : "",
                 contact: contact,
                 procedure: procedure,
             },
         };
         if (type === "Day Job") {
-            console.log("day");
-            type2 = "freelance";
-            job.endDate = new Date(`${startDate} ${endTime}`).toISOString();
-            job.startDate = new Date(`${startDate} ${startTime}`).toISOString();
+            // type2 = "freelance";
+            if (endDate !== "")
+                job.endDate = new Date(`${startDate} ${endTime}`).toISOString();
+            if (startDate !== "")
+                job.startDate = new Date(
+                    `${startDate} ${startTime}`,
+                ).toISOString();
             job.category = type;
-        } else if (type === "Locum Position") {
-            type2 = "freelance";
-            job.endDate = new Date(`${startDate}`).toISOString();
-            job.startDate = new Date(`${endDate}`).toISOString();
+        }
+        if (type === "Locum Position") {
+            // type2 = "freelance";
+            if (endDate !== "")
+                job.endDate = new Date(`${endDate}`).toISOString();
+            if (startDate !== "")
+                job.startDate = new Date(`${startDate}`).toISOString();
             job.category = "Locum";
         } else {
             type2 = "job";
@@ -208,6 +225,8 @@ const PostJob = (props) => {
             specialization: specialization,
             superSpecialization: superSpecialization.map((x) => x.value),
             sponsored: sponsored,
+            // instituteName: employer,
+
             description: {
                 line: line.trim(),
                 about: skills.trim(),
@@ -218,22 +237,38 @@ const PostJob = (props) => {
                 // skills: skills.trim(),
                 salary: salary,
                 count: numberApp,
-                company: company,
-                employer: employer,
+                company:
+                    employer === ""
+                        ? currentEmployer.description
+                            ? currentEmployer.description.organization
+                            : employer
+                        : "",
+                employer:
+                    employer === ""
+                        ? currentEmployer.description
+                            ? currentEmployer.description.organization
+                            : employer
+                        : "",
                 contact: contact,
                 procedure: procedure,
             },
         };
         if (type === "Day Job") {
-            type2 = "freelance";
-            job.endDate = new Date(`${startDate} ${endTime}`).toISOString();
-            job.startDate = new Date(`${startDate} ${startTime}`).toISOString();
+            // type2 = "freelance";
+            if (endDate !== "")
+                job.endDate = new Date(`${startDate} ${endTime}`).toISOString();
+            if (startDate !== "")
+                job.startDate = new Date(
+                    `${startDate} ${startTime}`,
+                ).toISOString();
             job.category = type;
         }
         if (type === "Locum Position") {
-            type2 = "freelance";
-            job.endDate = new Date(`${startDate}`).toISOString();
-            job.startDate = new Date(`${endDate}`).toISOString();
+            // type2 = "freelance";
+            if (endDate !== "")
+                job.endDate = new Date(`${endDate}`).toISOString();
+            if (startDate !== "")
+                job.startDate = new Date(`${startDate}`).toISOString();
             job.category = "Locum";
         } else {
             type2 = "job";
@@ -254,11 +289,14 @@ const PostJob = (props) => {
                 }
             })
             .catch((err) => {
-                console.log(err.response);
-                const error = err.response.data ? err.response.data.err : "";
+                console.log(err);
+                const error =
+                    err.response && err.response.data
+                        ? err.response.data.err
+                        : "";
 
                 // alert("Unable to post job : " + error);
-                err.response.data
+                err.response && err.response.data
                     ? setMessError(err.response.data.err)
                     : setMessError("Error posting job");
 
@@ -395,7 +433,7 @@ const PostJob = (props) => {
                                   })
                                 : [],
                         );
-
+                        setShowDetail(true);
                         // console.log(endDate);
                         // setTitle(data.title);
                     })
@@ -502,6 +540,8 @@ const PostJob = (props) => {
                         );
 
                         console.log(endDate);
+                        setShowDetail(true);
+
                         // setTitle(data.title);
                     })
                     .catch((err) => {
@@ -512,7 +552,7 @@ const PostJob = (props) => {
 
                         toggleError();
                     });
-        }
+        } else setShowDetail(true);
     }, []);
     return (
         <div>
@@ -1044,6 +1084,10 @@ const PostJob = (props) => {
                                             name=''
                                             defaultValue={sponsored}
                                             className='float-right'
+                                            onChange={(e) =>
+                                                // console.log(e.target.checked)
+                                                setSponsored(e.target.checked)
+                                            }
                                         />
                                     </h5>
                                 </Label>
