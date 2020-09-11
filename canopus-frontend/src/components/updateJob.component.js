@@ -29,8 +29,17 @@ import {
     faArrowAltCircleDown,
     faPen,
     faArrowAltCircleUp,
+    faArrowDown,
+    faArrowUp,
     // faShareAlt,
 } from "@fortawesome/free-solid-svg-icons";
+const block = {
+    borderRadius: " 0.25rem",
+    border: "0.05rem solid #eeeeee",
+    /* background-color: rgba(0, 0, 0, 0.15); */
+    boxShadow: " 2px 2px 3px rgba(0, 0, 0, 0.1)",
+    transition: "0.3s ease-in-out",
+};
 const incentivesArray = data.incentive.map((opt) => ({
     label: opt,
     value: opt,
@@ -69,7 +78,7 @@ const UpdateJob = (props) => {
     const dateRef = useRef(null);
     const endTimeRef = useRef(null);
     const startTimeRef = useRef(null);
-    const [showDetail, setShowDetail] = useState(true);
+    const [showDetail, setShowDetail] = useState(false);
     const [showSkill, setShowSkill] = useState(false);
     const [showOtherDetail, setShowOtherDetail] = useState(false);
 
@@ -86,19 +95,27 @@ const UpdateJob = (props) => {
     const [location, setLocation] = useState("");
     const [experience, setExperience] = useState("");
     const [incentives, setIncentives] = useState([]);
-    const [type, setType] = useState([]);
+    const [type, setType] = useState("");
+
     const [salary, setSalary] = useState(0);
     const [line, setLine] = useState("");
 
     const [freelance, setFreelance] = useState(false);
     const [startTime, setStartTime] = useState("");
     const [endTime, setEndTime] = useState("");
+    const [startDate, setStartDate] = useState("");
+
     const [date, setDate] = useState("");
     const [type2, setType2] = useState("");
     const [jobType, setJobType] = useState("");
     const [modal, setModal] = useState(false);
     const [mess, setMess] = useState("");
     const [id, setId] = useState("");
+    const [category, setCategory] = useState("");
+    const [employer, setEmployer] = useState("");
+    const [contact, setContact] = useState("");
+    const [procedure, setProcedure] = useState("");
+    const [sponsored, setSponsored] = useState(false);
 
     const [modalError, setModalError] = useState(false);
     const [messError, setMessError] = useState("");
@@ -134,11 +151,35 @@ const UpdateJob = (props) => {
                     }/${type2t}/${props.match.params.id}`,
                 )
                 .then(({ data }) => {
+                    console.log(data);
                     setId(data._id);
                     setTitle(data.title);
                     setCompany(
                         data.description.company
                             ? data.description.company
+                            : "",
+                    );
+                    setEmployer(
+                        data.description.employer
+                            ? data.description.employer
+                            : "",
+                    );
+                    setSponsored(data.sponsored ? data.sponsored : false);
+                    setContact(
+                        data.description.contact
+                            ? data.description.contact
+                            : "",
+                    );
+                    setProcedure(
+                        data.description.procedure
+                            ? data.description.procedure
+                            : "",
+                    );
+                    setType(
+                        data.description.type
+                            ? Array.isArray(data.description.type)
+                                ? data.description.type[0]
+                                : data.description.type
                             : "",
                     );
 
@@ -171,7 +212,7 @@ const UpdateJob = (props) => {
                             }),
                         );
                     setSkills(
-                        data.description.skills ? data.description.skills : "",
+                        data.description.about ? data.description.about : "",
                     );
                     setLine(data.description.line ? data.description.line : "");
                     setProfession(data.profession);
@@ -198,10 +239,10 @@ const UpdateJob = (props) => {
                     );
                     setType(
                         data.description.type
-                            ? data.description.type.map((x) => {
-                                  return { value: x, label: x };
-                              })
-                            : [],
+                            ? Array.isArray(data.description.type)
+                                ? data.description.type[0]
+                                : data.description.type
+                            : "",
                     );
                     setSuperSpecialization(
                         data.superSpecialization
@@ -213,6 +254,8 @@ const UpdateJob = (props) => {
 
                     // console.log(endDate);
                     // setTitle(data.title);
+                    setShowDetail(true);
+                    console.log(data);
                 })
                 .catch((err) => {
                     console.log(err.response);
@@ -232,17 +275,41 @@ const UpdateJob = (props) => {
                 )
                 .then(({ data }) => {
                     setId(data._id);
-
                     setTitle(data.title);
                     setCompany(
                         data.description.company
                             ? data.description.company
                             : "",
                     );
-
+                    setEmployer(
+                        data.description.employer
+                            ? data.description.employer
+                            : "",
+                    );
+                    setSponsored(data.sponsored ? data.sponsored : false);
+                    setContact(
+                        data.description.contact
+                            ? data.description.contact
+                            : "",
+                    );
+                    setProcedure(
+                        data.description.procedure
+                            ? data.description.procedure
+                            : "",
+                    );
                     setNumberApp(
                         data.description.count ? data.description.count : 0,
                     );
+                    if (data.description.type === "Day Job") {
+                        setStartDate(
+                            `${new Date(data.startDate).getFullYear()}-${(
+                                "0" +
+                                (new Date(data.startDate).getMonth() + 1)
+                            ).slice(-2)}-${(
+                                "0" + new Date(data.startDate).getDate()
+                            ).slice(-2)}`,
+                        );
+                    }
                     data.expireAt &&
                         setEndDate(
                             `${new Date(data.expireAt).getFullYear()}-${(
@@ -254,9 +321,12 @@ const UpdateJob = (props) => {
                         );
 
                     setSkills(
-                        data.description.skills ? data.description.skills : "",
+                        data.description.about ? data.description.about : "",
                     );
                     setLine(data.description.line ? data.description.line : "");
+                    // setAbout(
+                    //     data.description.about ? data.description.about : "",
+                    // );
                     setProfession(data.profession);
                     setSpecialization(data.specialization);
                     setExperience(
@@ -281,10 +351,10 @@ const UpdateJob = (props) => {
                     );
                     setType(
                         data.description.type
-                            ? data.description.type.map((x) => {
-                                  return { value: x, label: x };
-                              })
-                            : [],
+                            ? Array.isArray(data.description.type)
+                                ? data.description.type[0]
+                                : data.description.type
+                            : "",
                     );
                     setSuperSpecialization(
                         data.superSpecialization
@@ -294,12 +364,16 @@ const UpdateJob = (props) => {
                             : [],
                     );
 
-                    console.log(endDate);
+                    setShowDetail(true);
+                    console.log(data);
+
+                    // setShowDetail(true);
+
                     // setTitle(data.title);
                 })
                 .catch((err) => {
-                    // alert(err.response);
-                    err.response.data
+                    console.log(err);
+                    err.response && err.response.data
                         ? setMessError(err.response.data.err)
                         : setMessError("Error getting job");
 
@@ -315,30 +389,49 @@ const UpdateJob = (props) => {
             profession: profession,
             specialization: specialization,
             superSpecialization: superSpecialization.map((x) => x.value),
+            instituteName: company,
 
             description: {
                 line: line.trim(),
-                about: line.trim(),
+                about: skills.trim(),
                 experience: experience,
                 incentives: incentives.map((x) => x.value),
-                type: type.map((x) => x.value),
-                location: location,
-                skills: skills.trim(),
+                // type: type.map((x) => x.value),
+                type: type,
+
                 salary: salary,
                 count: numberApp,
                 company: company,
+                employer: employer,
+                contact: contact,
+                procedure: procedure,
             },
         };
-        if (freelance) {
-            job.endDate = new Date(`${date} ${endTime}`).toISOString();
-            job.startDate = new Date(`${date} ${startTime}`).toISOString();
+        if (type === "Day Job") {
+            console.log("day");
+            type2 = "freelance";
+            if (startDate !== "")
+                job.endDate = new Date(`${startDate} ${endTime}`).toISOString();
+            if (startDate !== "")
+                job.startDate = new Date(
+                    `${startDate} ${startTime}`,
+                ).toISOString();
+            job.category = type;
+        } else if (type === "Locum Position") {
+            type2 = "freelance";
+            if (startDate !== "")
+                job.startDate = new Date(`${startDate}`).toISOString();
+            if (endDate !== "")
+                job.endDate = new Date(`${endDate}`).toISOString();
+            job.category = "Locum";
         } else {
-            job.expireAt =
-                endDate !== ""
-                    ? new Date(endDate).toISOString()
-                    : new Date(
-                          new Date() + 45 * 24 * 60 * 60 * 1000,
-                      ).toISOString();
+            type2 = "job";
+            //  job.expireAt =
+            //      endDate !== ""
+            //          ? new Date(endDate).toISOString()
+            //          : new Date(
+            //                new Date() + 45 * 24 * 60 * 60 * 1000,
+            //            ).toISOString();
         }
         axios
             .put(
@@ -376,33 +469,50 @@ const UpdateJob = (props) => {
             profession: profession,
             specialization: specialization,
             superSpecialization: superSpecialization.map((x) => x.value),
+            sponsored: sponsored,
+            instituteName: company,
 
             description: {
                 line: line.trim(),
-                about: line.trim(),
+                about: skills.trim(),
                 experience: experience,
                 incentives: incentives.map((x) => x.value),
-                type: type.map((x) => x.value),
+                type: type,
                 location: location,
-                skills: skills.trim(),
+                // skills: skills.trim(),
                 salary: salary,
                 count: numberApp,
                 company: company,
+                employer: employer,
+                contact: contact,
+                procedure: procedure,
             },
         };
-        if (freelance) {
+        if (type === "Day Job") {
             // type2 = "freelance";
-            job.endDate = new Date(`${date} ${endTime}`).toISOString();
-            job.startDate = new Date(`${date} ${startTime}`).toISOString();
+            if (endDate !== "")
+                job.endDate = new Date(`${startDate} ${endTime}`).toISOString();
+            if (startDate !== "")
+                job.startDate = new Date(
+                    `${startDate} ${startTime}`,
+                ).toISOString();
+            job.category = type;
+        }
+        if (type === "Locum Position") {
+            // type2 = "freelance";
+            if (endDate !== "")
+                job.endDate = new Date(`${endDate}`).toISOString();
+            if (startDate !== "")
+                job.startDate = new Date(`${startDate}`).toISOString();
+            job.category = "Locum";
         } else {
             // type2 = "job";
-
-            job.expireAt =
-                endDate !== ""
-                    ? new Date(endDate).toISOString()
-                    : new Date(
-                          new Date() + 45 * 24 * 60 * 60 * 1000,
-                      ).toISOString();
+            //   job.expireAt =
+            //       endDate !== ""
+            //           ? new Date(endDate).toISOString()
+            //           : new Date(
+            //                 new Date() + 45 * 24 * 60 * 60 * 1000,
+            //             ).toISOString();
         }
         if (jobType === "save")
             axios
@@ -541,36 +651,36 @@ const UpdateJob = (props) => {
             </Nav>
             <Form className='border-block p-3 p-md-4 mx-2 mx-sm-4 m-3'>
                 <h2>Edit a Job</h2>
-                <div className='block-card p-2 p-sm-3 mt-4'>
+                <div className=' p-2 p-sm-3 mt-4' style={block}>
                     <div className='row justify-content-between'>
                         <h4 className='col-9 col-sm-10'>Job Details</h4>
-                        <Button
+                        {/* <Button
                             onClick={toggleDetail}
                             className='col-3 col-sm-1'
                             style={{
                                 background: "rgba(0,0,0,0)",
                                 border: "0px solid transparent",
-                            }}>
-                            {showDetail ? (
-                                <FontAwesomeIcon
-                                    icon={faArrowAltCircleUp}
-                                    className='text-info'
-                                    size='lg'
-                                />
-                            ) : (
-                                <FontAwesomeIcon
-                                    icon={faArrowAltCircleDown}
-                                    className='text-info'
-                                    size='lg'
-                                />
-                            )}
-                        </Button>
+                            }}> */}
+
+                        <FontAwesomeIcon
+                            icon={showDetail ? faArrowUp : faArrowDown}
+                            className='text-info'
+                            size='md'
+                            onClick={toggleDetail}
+                            className='col-3 col-sm-1'
+                        />
+
+                        {/* </Button> */}
                     </div>
+
                     {showDetail && (
                         <div className='row p-2'>
-                            <div className='col-12 col-md-6 pr-md-2 my-1 w-100'>
+                            <div className='col-12 my-1 w-100'>
                                 <Label className='m-1'>
-                                    <h6>Title</h6>
+                                    <h6>
+                                        Title{" "}
+                                        <span className='text-danger'>*</span>
+                                    </h6>
                                 </Label>
                                 <input
                                     placeholder='Title'
@@ -579,13 +689,12 @@ const UpdateJob = (props) => {
                                     name='Title'
                                     defaultValue={title}
                                     onChange={handleChange}
-                                    disabled={jobType === "close"}
                                     required
                                 />
                             </div>
-                            <div className='col-12 col-md-6 pl-md-2 my-1 w-100'>
+                            {/* <div className='col-12 col-md-6 pr-md-2 my-1 w-100'>
                                 <Label className='m-1'>
-                                    <h6>Company</h6>
+                                    <h6>Institute Name</h6>
                                 </Label>
                                 <input
                                     placeholder='Company'
@@ -593,12 +702,48 @@ const UpdateJob = (props) => {
                                     defaultValue={company}
                                     className='form-control'
                                     ref={companyRef}
-                                    disabled={jobType === "close"}
                                     onChange={handleChange}
                                     required
                                 />
-                            </div>
-                            <div className='col-12 col-md-6 pr-md-2 my-1 w-100'>
+                            </div> */}
+                            <InputGroup className='col-12 col-sm-6 px-0 pr-md-2 my-1'>
+                                <Label className='m-1'>
+                                    <h6>
+                                        Type{" "}
+                                        <span className='text-danger'>*</span>
+                                    </h6>
+                                </Label>
+                                <div style={{ width: "100%" }}>
+                                    <Select
+                                        // isMulti
+
+                                        autosize={true}
+                                        placeholder='Type'
+                                        options={typeArray}
+                                        // className='basic-multi-select'
+                                        // classNamePrefix='select'
+                                        ref={typeRef}
+                                        name='Type'
+                                        defaultValue={
+                                            type !== ""
+                                                ? {
+                                                      value: type,
+                                                      label: type,
+                                                  }
+                                                : null
+                                        }
+                                        onChange={(e) => {
+                                            console.log(e);
+                                            handleChangeSelect(
+                                                "Type",
+                                                e ? e.value : "",
+                                            );
+                                        }}
+                                        isDisabled={true}
+                                    />
+                                </div>
+                            </InputGroup>
+                            {/* <div className='col-12 col-md-6 pl-md-2 my-1 w-100'>
                                 <Label className='m-1'>
                                     <h6>Number of Applicants</h6>
                                 </Label>
@@ -610,77 +755,56 @@ const UpdateJob = (props) => {
                                     defaultValue={Number(numberApp)}
                                     name='NumberApp'
                                     onChange={handleChange}
-                                    disabled={jobType === "close"}
                                     required
                                 />
-                            </div>
-                            {!freelance && (
-                                <div className='col-12 col-md-6 pl-md-2 my-1 w-100'>
-                                    <Label className='pl-2' for='exampleDate'>
-                                        <h6>End -Date</h6>
-                                    </Label>
-                                    <Input
-                                        type='date'
-                                        name='date'
-                                        id='exampleDate'
-                                        placeholder='date placeholder'
-                                        name='EndDate'
-                                        defaultValue={endDate}
-                                        disabled={jobType === "close"}
-                                        ref={endDateRef}
-                                        disabled={jobType === "close"}
-                                        onChange={handleChange}
+                            </div> */}
+                            <InputGroup className='col-12 col-sm-6 pl-md-2 my-1'>
+                                <Label className='m-1'>
+                                    <h6>
+                                        Location{" "}
+                                        <span className='text-danger'>*</span>
+                                    </h6>
+                                </Label>
+                                <div style={{ width: `100%` }} className=''>
+                                    <Select
+                                        autosize={true}
+                                        isClearable={true}
+                                        placeholder='Location'
+                                        options={locationArray}
+                                        // className='basic-multi-select'
+                                        // classNamePrefix='select'
+                                        ref={locationRef}
+                                        defaultValue={
+                                            location !== "" && {
+                                                value: location,
+                                                label: location,
+                                            }
+                                        }
+                                        onChange={(e) => {
+                                            console.log(e);
+                                            handleChangeSelect(
+                                                "Location",
+                                                e ? e.value : "",
+                                            );
+                                        }}
                                     />
                                 </div>
-                            )}
-                        </div>
-                    )}
-                </div>
-
-                <hr />
-                <div className='block-card p-2 p-sm-3'>
-                    <div className='row justify-content-between'>
-                        <h4 className='col-9 col-sm-10'>Requried Skills</h4>
-                        <Button
-                            onClick={toggleSkill}
-                            className='col-3 col-sm-1'
-                            style={{
-                                background: "rgba(0,0,0,0)",
-                                border: "0px solid transparent",
-                            }}>
-                            {showSkill ? (
-                                <FontAwesomeIcon
-                                    icon={faArrowAltCircleUp}
-                                    className='text-info'
-                                    size='lg'
-                                />
-                            ) : (
-                                <FontAwesomeIcon
-                                    icon={faArrowAltCircleDown}
-                                    className='text-info'
-                                    size='lg'
-                                />
-                            )}
-                        </Button>
-                    </div>
-                    {showSkill && (
-                        <FormGroup className='row p-2'>
+                            </InputGroup>
                             <div className='col-12 col-md-6 pr-md-2 my-1'>
-                                {/* <Label>Profession</Label> */}
+                                <Label className='m-1'>
+                                    <h6>
+                                        Profession{" "}
+                                        <span className='text-danger'>*</span>
+                                    </h6>
+                                </Label>
                                 <Select
                                     autosize={true}
                                     isClearable={true}
                                     placeholder='Profession'
-                                    isDisabled={
-                                        jobType === "post" ||
-                                        jobType === "close"
-                                    }
-                                    defaultValue={
-                                        profession !== "" && {
-                                            value: profession,
-                                            label: profession,
-                                        }
-                                    }
+                                    defaultValue={{
+                                        value: profession,
+                                        label: profession,
+                                    }}
                                     options={data.professions.map(
                                         (profession) => {
                                             return {
@@ -700,14 +824,16 @@ const UpdateJob = (props) => {
                                 />
                             </div>
                             <div className='col-12 col-md-6 pl-md-2 my-1'>
+                                <Label className='m-1'>
+                                    <h6>
+                                        Specialization{" "}
+                                        <span className='text-danger'>*</span>
+                                    </h6>
+                                </Label>
                                 <Select
                                     autosize={true}
                                     isClearable={true}
                                     placeholder='Specialization'
-                                    isDisabled={
-                                        jobType === "post" ||
-                                        jobType === "close"
-                                    }
                                     defaultValue={
                                         specialization !== "" && {
                                             value: specialization,
@@ -733,6 +859,9 @@ const UpdateJob = (props) => {
                                 />
                             </div>
                             <InputGroup className='col-12 my-1'>
+                                <Label className='m-1'>
+                                    <h6>Super-Specialization</h6>
+                                </Label>
                                 <div style={{ width: `100%` }}>
                                     <Select
                                         isMulti
@@ -742,7 +871,6 @@ const UpdateJob = (props) => {
                                         ref={superSpecializationRef}
                                         name='SuperSpecialization'
                                         defaultValue={superSpecialization}
-                                        isDisabled={jobType === "close"}
                                         onChange={(e) => {
                                             console.log(e);
                                             handleChangeSelect(
@@ -753,52 +881,14 @@ const UpdateJob = (props) => {
                                     />
                                 </div>
                             </InputGroup>
-                            <InputGroup className='col-12 my-1'>
-                                <textarea
-                                    placeholder='Other Skills ..'
-                                    ref={skillsRef}
-                                    className='form-control'
-                                    rows='3'
-                                    disabled={jobType === "close"}
-                                    name='Skills'
-                                    onChange={handleChange}
-                                    defaultValue={skills}
-                                />
-                            </InputGroup>
-                        </FormGroup>
-                    )}
-                </div>
-
-                <hr />
-                <div className='block-card p-2 p-sm-3'>
-                    <div className='row justify-content-between'>
-                        <h4 className='col-9 col-sm-10'>Other Details</h4>
-                        <Button
-                            onClick={toggleOtherDetail}
-                            className='col-3 col-sm-1'
-                            style={{
-                                background: "rgba(0,0,0,0)",
-                                border: "0px solid transparent",
-                            }}>
-                            {showOtherDetail ? (
-                                <FontAwesomeIcon
-                                    icon={faArrowAltCircleUp}
-                                    className='text-info'
-                                    size='lg'
-                                />
-                            ) : (
-                                <FontAwesomeIcon
-                                    icon={faArrowAltCircleDown}
-                                    className='text-info'
-                                    size='lg'
-                                />
-                            )}
-                        </Button>
-                    </div>
-                    {showOtherDetail && (
-                        <FormGroup className='row p-2'>
-                            <InputGroup className='col-12 col-sm-6'>
-                                <div style={{ width: `100%` }} className='m-1'>
+                            <InputGroup className='col-12 col-sm-6 pr-md-2 my-1'>
+                                <Label className='m-1'>
+                                    <h6>
+                                        Experience{" "}
+                                        <span className='text-danger'>*</span>
+                                    </h6>
+                                </Label>
+                                <div style={{ width: `100%` }} className=''>
                                     <Select
                                         autosize={true}
                                         placeholder='Experience'
@@ -810,7 +900,6 @@ const UpdateJob = (props) => {
                                                 label: experience,
                                             }
                                         }
-                                        isDisabled={jobType === "close"}
                                         // className='basic-multi-select'
                                         // classNamePrefix='select'
                                         ref={experienceRef}
@@ -825,55 +914,11 @@ const UpdateJob = (props) => {
                                 </div>
                             </InputGroup>
 
-                            <InputGroup className='col-12 col-sm-6'>
-                                <div style={{ width: `100%` }} className='m-1'>
-                                    <Select
-                                        isMulti
-                                        autosize={true}
-                                        placeholder='Type'
-                                        options={typeArray}
-                                        isDisabled={jobType === "close"}
-                                        // className='basic-multi-select'
-                                        // classNamePrefix='select'
-                                        ref={typeRef}
-                                        name='Type'
-                                        defaultValue={type}
-                                        onChange={(e) => {
-                                            console.log(e);
-                                            handleChangeSelect("Type", e);
-                                        }}
-                                    />
-                                </div>
-                            </InputGroup>
-                            <InputGroup className='col-12 col-sm-6'>
-                                <div style={{ width: `100%` }} className='m-1'>
-                                    <Select
-                                        autosize={true}
-                                        isClearable={true}
-                                        placeholder='Location'
-                                        options={locationArray}
-                                        // className='basic-multi-select'
-                                        // classNamePrefix='select'
-                                        ref={locationRef}
-                                        defaultValue={
-                                            location !== "" && {
-                                                value: location,
-                                                label: location,
-                                            }
-                                        }
-                                        isDisabled={jobType === "close"}
-                                        onChange={(e) => {
-                                            console.log(e);
-                                            handleChangeSelect(
-                                                "Location",
-                                                e ? e.value : "",
-                                            );
-                                        }}
-                                    />
-                                </div>
-                            </InputGroup>
-                            <InputGroup className='col-12 col-sm-6'>
-                                <InputGroup className='m-1'>
+                            <InputGroup className='col-12 col-sm-6 pl-md-1 my-1'>
+                                <Label className='m-1'>
+                                    <h6>Salary</h6>
+                                </Label>
+                                <InputGroup className=''>
                                     <input
                                         placeholder='salary'
                                         type='number'
@@ -882,7 +927,6 @@ const UpdateJob = (props) => {
                                         defaultValue={Number(salary)}
                                         name='Salary'
                                         onChange={handleChange}
-                                        disabled={jobType === "close"}
                                         required
                                     />
                                     <InputGroupAddon addonType='append'>
@@ -893,7 +937,10 @@ const UpdateJob = (props) => {
                                 </InputGroup>
                             </InputGroup>
                             <InputGroup className='col-12'>
-                                <div style={{ width: `100%` }} className='m-1'>
+                                <Label className='m-1'>
+                                    <h6>Incentives</h6>
+                                </Label>
+                                <div style={{ width: `100%` }} className=''>
                                     <Select
                                         onChange={(opt) => console.log(opt)}
                                         isMulti
@@ -905,7 +952,6 @@ const UpdateJob = (props) => {
                                         ref={incentivesRef}
                                         name='Incentives'
                                         defaultValue={incentives}
-                                        isDisabled={jobType === "close"}
                                         onChange={(e) => {
                                             console.log(e);
                                             handleChangeSelect("Incentives", e);
@@ -913,33 +959,183 @@ const UpdateJob = (props) => {
                                     />
                                 </div>
                             </InputGroup>
-                            <InputGroup className='col-12'>
-                                <textarea
-                                    placeholder='Job Responsibilities ..'
-                                    ref={lineRef}
-                                    className='form-control m-1'
-                                    rows='4'
-                                    name='Line'
-                                    onChange={handleChange}
-                                    defaultValue={line}
-                                    disabled={jobType === "close"}
-                                />
+                            {/* {!freelance && (
+                                <div className='col-12 col-md-6 pl-md-2 my-1 w-100'>
+                                    <Label className='pl-2' for='exampleDate'>
+                                        <h6>End -Date</h6>
+                                    </Label>
+                                    <Input
+                                        type='date'
+                                        name='date'
+                                        id='exampleDate'
+                                        placeholder='date placeholder'
+                                        name='EndDate'
+                                        defaultValue={endDate}
+                                        ref={endDateRef}
+                                        onChange={handleChange}
+                                    />
+                                </div>
+                            )} */}
+                        </div>
+                    )}
+                </div>
+
+                <hr />
+                <div className=' p-2 p-sm-3' style={block}>
+                    <div className='row justify-content-between'>
+                        <h4 className='col-9 col-sm-10'>Description</h4>
+                        <FontAwesomeIcon
+                            icon={showSkill ? faArrowUp : faArrowDown}
+                            className='text-info'
+                            size='md'
+                            onClick={toggleSkill}
+                            className='col-3 col-sm-1'
+                        />
+                    </div>
+                    {showSkill && (
+                        <FormGroup className='row p-2'>
+                            <InputGroup className='col-12 my-1'>
+                                <Label className='m-1'>
+                                    <h6>
+                                        Short Description{" "}
+                                        <span className='text-danger'>*</span>
+                                    </h6>
+                                </Label>
+                                <InputGroup className='w-100'>
+                                    <textarea
+                                        placeholder='Short Description ..'
+                                        ref={lineRef}
+                                        className='form-control m-1'
+                                        rows='4'
+                                        name='Line'
+                                        onChange={handleChange}
+                                        defaultValue={line === "" ? null : line}
+                                    />
+                                </InputGroup>
                             </InputGroup>
+                            {!freelance && (
+                                <InputGroup className='col-12 my-1'>
+                                    <Label className='m-1'>
+                                        <h6>Description</h6>
+                                    </Label>
+                                    <InputGroup className='w-100 '>
+                                        <textarea
+                                            placeholder='Description ..'
+                                            ref={skillsRef}
+                                            className='form-control m-1'
+                                            rows='3'
+                                            name='Skills'
+                                            onChange={(e) => {
+                                                console.log(e.target);
+                                                console.log(skills);
+                                                setSkills(e.target.value);
+                                            }}
+                                            defaultValue={skills}
+                                        />
+                                    </InputGroup>
+                                </InputGroup>
+                            )}
+                        </FormGroup>
+                    )}
+                </div>
+
+                <hr />
+                <div className=' p-2 p-sm-3' style={block}>
+                    <div className='row justify-content-between'>
+                        <h4 className='col-9 col-sm-10'>Other Details</h4>
+                        <FontAwesomeIcon
+                            icon={showOtherDetail ? faArrowUp : faArrowDown}
+                            className='text-info'
+                            size='md'
+                            onClick={toggleOtherDetail}
+                            className='col-3 col-sm-1'
+                        />
+                    </div>
+                    {showOtherDetail && (
+                        <FormGroup className='row p-2'>
+                            <div className='col-12 col-md-6 my-1 pr-md-2'>
+                                <Label className='m-1'>
+                                    <h6>Employer</h6>
+                                </Label>
+                                <input
+                                    placeholder='Employer'
+                                    className='form-control'
+                                    name='Employer'
+                                    defaultValue={
+                                        employer !== "" ? employer : null
+                                    }
+                                    onChange={handleChange}
+                                    required
+                                />
+                            </div>
+                            <div className='col-12 col-md-6 pl-md-2 my-1'>
+                                <Label className='m-1'>
+                                    <h6>Posted Day</h6>
+                                </Label>
+                                <Input
+                                    type='date'
+                                    // name='date'
+                                    // id='exampleDate'
+                                    placeholder='date placeholder'
+                                    // name='EndDate'
+                                    defaultValue={new Date()
+                                        .toISOString()
+                                        .substring(0, 10)}
+                                    // ref={endDateRef}
+                                    // onChange={handleChange}
+                                    disabled
+                                />
+                            </div>
+                            <div className='col-12 my-1 w-100'>
+                                <Label className='m-1'>
+                                    <h6>
+                                        Contact{" "}
+                                        <span className='text-danger'>*</span>
+                                    </h6>
+                                </Label>
+                                <InputGroup className='w-100'>
+                                    <textarea
+                                        placeholder='Contact'
+                                        className='form-control'
+                                        name='Contact'
+                                        defaultValue={contact}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                </InputGroup>
+                            </div>
+                            <div className='col-12 '>
+                                <Label className='my-2 w-100'>
+                                    <h5>
+                                        Promote
+                                        <input
+                                            type='checkbox'
+                                            name=''
+                                            defaultValue={sponsored}
+                                            className='float-right'
+                                        />
+                                    </h5>
+                                </Label>
+                                <InputGroup className=''></InputGroup>
+                            </div>
                         </FormGroup>
                     )}
                 </div>
                 <hr />
-                {freelance && (
+                {(type === "Day Job" || type === "Locum Position") && (
                     <div
-                        className=' block-card p-2 p-sm-3'
+                        className='  p-2 p-sm-3'
                         style={{
                             height: "max-content",
-                        }}>
-                        <div className='row justify-content-between'>
-                            <div className='col-9 col-sm-10'>
-                                <h4>Freelance</h4>
-                            </div>
-                            {/* <div className='col-3 col-sm-1'>
+                        }}
+                        style={block}>
+                        <h4 className='pl-2'>Day/Locum Jobs</h4>
+
+                        {/* <div className='row justify-content-between'>
+                        <div className='col-9 col-sm-10'>
+                            <h4>Day/Locum</h4>
+                        </div>
+                        <div className='col-3 col-sm-1'>
                             <input
                                 className='react-switch-checkbox'
                                 id={`react-switch-new`}
@@ -957,69 +1153,127 @@ const UpdateJob = (props) => {
                                 }}>
                                 <span className={`react-switch-button`} />
                             </label>
-                        </div> */}
                         </div>
-                        {freelance && (
+                    </div> */}
+                        {(type === "Day Job" || type === "Locum Position") && (
                             <FormGroup className='row p-2'>
-                                <InputGroup className='col-12 col-sm-6 my-1 pr-1 row justify-content-between'>
-                                    <Label
-                                        className='pr-2 col-12 col-md-3'
-                                        for='exampleDate'
-                                        style={{ fontSize: "1.3rem" }}>
-                                        Start Time
+                                <InputGroup className='col-12  my-1 '>
+                                    <Label className='my-1'>
+                                        <h6>Procedure</h6>
                                     </Label>
-                                    {/* <Label for='exampleTime'>Time</Label> */}
-                                    <Input
-                                        type='time'
-                                        name='StartTime'
-                                        id='exampleTime'
-                                        placeholder='time placeholder'
-                                        className='col-12 col-md-8 px-2'
-                                        ref={startTimeRef}
-                                        defaultValue={startTime}
-                                        onChange={handleChange}
-                                    />
+                                    <InputGroup className='w-100'>
+                                        <textarea
+                                            placeholder='Procedure'
+                                            // ref={lineRef}
+                                            className='form-control'
+                                            rows='4'
+                                            name='Procedure'
+                                            onChange={handleChange}
+                                            defaultValue={procedure}
+                                        />
+                                    </InputGroup>
                                 </InputGroup>
-                                <InputGroup className='col-12 col-sm-6 my-1 pl-1 row justify-content-between'>
-                                    <Label
-                                        className='pr-2 col-12 col-md-3'
-                                        for='exampleDate'
-                                        style={{ fontSize: "1.3rem" }}>
-                                        End Time
-                                    </Label>
-                                    {/* <Label for='exampleTime'>Time</Label> */}
-                                    <Input
-                                        type='time'
-                                        name='EndTime'
-                                        id='exampleTime'
-                                        placeholder='time placeholder'
-                                        className='col-12 col-md-8 px-2'
-                                        defaultValue={endTime}
-                                        ref={endTimeRef}
-                                        onChange={handleChange}
-                                    />
-                                </InputGroup>
-                                <FormGroup className='col-12 row my-1 my-md-2'>
-                                    <Label
-                                        className='pr-2 col-12 col-md-1'
-                                        for='exampleDate'
-                                        style={{ fontSize: "1.3rem" }}>
-                                        Date
-                                    </Label>
-                                    <Input
-                                        type='date'
-                                        name='Date'
-                                        id='exampleDate'
-                                        placeholder='date placeholder'
-                                        ref={dateRef}
-                                        className='col-12 px-3 col-md-11'
-                                        defaultValue={date}
-                                        onChange={handleChange}
-                                        // defaultValue={endDate}
-                                        // ref={endDateRef}
-                                        // onChange={handleChange}
-                                    />
-                                </FormGroup>
+                                <div className='col-12 row px-0'>
+                                    <InputGroup className='col-12 col-md-6 my-1 pr-1'>
+                                        <Label
+                                            className='my-1 col-12'
+                                            for='exampleDate'>
+                                            <h6>
+                                                Start-Date{" "}
+                                                <span className='text-danger'>
+                                                    *
+                                                </span>
+                                            </h6>
+                                        </Label>
+                                        <Input
+                                            type='date'
+                                            name='StartDate'
+                                            id='exampleDate'
+                                            placeholder='date placeholder'
+                                            // ref={dateRef}
+                                            className=''
+                                            onChange={handleChange}
+                                            // defaultValue={endDate}
+                                            // ref={endDateRef}
+                                            // onChange={handleChange}
+                                            required
+                                        />
+                                    </InputGroup>
+                                    {type === "Locum Position" && (
+                                        <InputGroup className='col-12 col-md-6 my-1 pl-1'>
+                                            <Label
+                                                className='my-1 col-12'
+                                                for='exampleDate'>
+                                                <h6>
+                                                    End-Date{" "}
+                                                    <span className='text-danger'>
+                                                        *
+                                                    </span>
+                                                </h6>
+                                            </Label>
+                                            <Input
+                                                type='date'
+                                                name='EndDate'
+                                                id='exampleDate'
+                                                placeholder='date placeholder'
+                                                // ref={dateRef}
+                                                className=''
+                                                onChange={handleChange}
+                                                // defaultValue={endDate}
+                                                // ref={endDateRef}
+                                                // onChange={handleChange}
+                                            />
+                                        </InputGroup>
+                                    )}
+                                </div>
+                                {type === "Day Job" && (
+                                    <div className='col-12 row px-0'>
+                                        <InputGroup className='col-12 col-sm-6 my-1 pr-1'>
+                                            <Label
+                                                className='pr-2 col-12'
+                                                for='exampleDate'>
+                                                <h6>
+                                                    Start Time{" "}
+                                                    <span className='text-danger'>
+                                                        *
+                                                    </span>
+                                                </h6>
+                                            </Label>
+                                            {/* <Label for='exampleTime'>Time</Label> */}
+                                            <Input
+                                                type='time'
+                                                name='StartTime'
+                                                id='exampleTime'
+                                                placeholder='time placeholder'
+                                                className=''
+                                                ref={startTimeRef}
+                                                onChange={handleChange}
+                                            />
+                                        </InputGroup>
+                                        <InputGroup className='col-12 col-sm-6 my-1 pl-1 '>
+                                            <Label
+                                                className='pr-2 col-12'
+                                                for='exampleDate'>
+                                                <h6>
+                                                    End Time{" "}
+                                                    <span className='text-danger'>
+                                                        *
+                                                    </span>
+                                                </h6>
+                                            </Label>
+                                            {/* <Label for='exampleTime'>Time</Label> */}
+                                            <Input
+                                                type='time'
+                                                name='EndTime'
+                                                id='exampleTime'
+                                                placeholder='time placeholder'
+                                                className=''
+                                                // ref={endTimeRef}
+                                                onChange={handleChange}
+                                            />
+                                        </InputGroup>
+                                    </div>
+                                )}
                             </FormGroup>
                         )}
                     </div>

@@ -44,10 +44,7 @@ export default class UserDetails extends Component {
                         />
                     </FormGroup>
 
-                    <Button
-                        onSubmit={this.saveAndContinue}
-                        color='primary'
-                        type='submit'>
+                    <Button onClick={this.saveAndContinue} color='primary'>
                         Save And Continue{" "}
                     </Button>
                 </Form>

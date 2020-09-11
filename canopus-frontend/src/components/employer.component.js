@@ -57,7 +57,7 @@ export default class Employer extends Component {
         return (
             <div>
                 <Nav tabs className='justify-content-between '>
-                    <div className='row justify-content-start col-6 col-sm-7'>
+                    <div className='row justify-content-start col-12 col-sm-7'>
                         <NavItem className='mx-1 mx-sm-2'>
                             <NavLink
                                 onClick={() => {
@@ -81,8 +81,8 @@ export default class Employer extends Component {
                             </NavLink>
                         </NavItem>
                     </div>
-                    <div className='col-6 col-sm-5 row pr-2 pr-sm-3 justify-content-end'>
-                        <div className='col-12 col-sm-5 px-0 pr-0 pr-sm-1'>
+                    <div className='col-12 col-sm-5 row pr-2 pr-sm-3 justify-content-end'>
+                        <div className='col-6 col-sm-5 px-1'>
                             <Link to='/employer/update'>
                                 <Button
                                     className=' mt-2 my-1 px-2 w-100'
@@ -97,7 +97,7 @@ export default class Employer extends Component {
                                 </Button>
                             </Link>
                         </div>
-                        <div className='col-12 col-sm-5 px-0 pl-0 pl-sm-1'>
+                        <div className='col-6 col-sm-5 px-1'>
                             <Link to='/post'>
                                 <Button
                                     className=' mt-2 my-1 px-2 w-100'
