@@ -815,7 +815,7 @@ router.post("/post/job", middleware.isEmployer, (req, res) => {
         let sponsored = "false";
         if(req.body.sponsored=="true" && employer.sponsors.posted==employer.sponsors.allowed)
         return res.status(400).json({err:"No more sponsors remaining"});
-        else {employer.sponsors.posted+=1; sponsored=req.body.sponsored;}
+        else if(req.body.sponsored=="true"){employer.sponsors.posted+=1; sponsored=req.body.sponsored;}
         //validation
         if (employer.validated == false && employer.jobtier.posted > 0)
           return res
@@ -954,7 +954,7 @@ router.post("/post/freelance", middleware.isEmployer, (req, res) => {
         let sponsored = "false";
         if(req.body.sponsored=="true" && employer.sponsors.posted==employer.sponsors.allowed)
         return res.status(400).json({err:"No more sponsors remaining"});
-        else {employer.sponsors.posted+=1; sponsored=req.body.sponsored;}
+        else if(req.body.sponsored=="true"){employer.sponsors.posted+=1; sponsored=req.body.sponsored;}
         if (employer.validated == false && employer.freelancetier.posted > 0)
           return res
             .status(400)
