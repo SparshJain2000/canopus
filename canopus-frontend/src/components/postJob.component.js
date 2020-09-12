@@ -139,7 +139,7 @@ const PostJob = (props) => {
             specialization: specialization,
             superSpecialization: superSpecialization.map((x) => x.value),
             sponsored: sponsored,
-            instituteName: company,
+            // instituteName: employer,
             description: {
                 line: line.trim(),
                 about: skills.trim(),
@@ -150,8 +150,18 @@ const PostJob = (props) => {
                 // skills: skills.trim(),
                 salary: salary,
                 count: numberApp,
-                company: company,
-                employer: employer,
+                company:
+                    employer === ""
+                        ? currentEmployer.description
+                            ? currentEmployer.description.organization
+                            : employer
+                        : "",
+                employer:
+                    employer === ""
+                        ? currentEmployer.description
+                            ? currentEmployer.description.organization
+                            : employer
+                        : "",
                 contact: contact,
                 procedure: procedure,
             },
@@ -215,7 +225,7 @@ const PostJob = (props) => {
             specialization: specialization,
             superSpecialization: superSpecialization.map((x) => x.value),
             sponsored: sponsored,
-            instituteName: company,
+            // instituteName: employer,
 
             description: {
                 line: line.trim(),
@@ -227,8 +237,18 @@ const PostJob = (props) => {
                 // skills: skills.trim(),
                 salary: salary,
                 count: numberApp,
-                company: company,
-                employer: employer,
+                company:
+                    employer === ""
+                        ? currentEmployer.description
+                            ? currentEmployer.description.organization
+                            : employer
+                        : "",
+                employer:
+                    employer === ""
+                        ? currentEmployer.description
+                            ? currentEmployer.description.organization
+                            : employer
+                        : "",
                 contact: contact,
                 procedure: procedure,
             },
@@ -269,11 +289,14 @@ const PostJob = (props) => {
                 }
             })
             .catch((err) => {
-                console.log(err.response);
-                const error = err.response.data ? err.response.data.err : "";
+                console.log(err);
+                const error =
+                    err.response && err.response.data
+                        ? err.response.data.err
+                        : "";
 
                 // alert("Unable to post job : " + error);
-                err.response.data
+                err.response && err.response.data
                     ? setMessError(err.response.data.err)
                     : setMessError("Error posting job");
 
@@ -1061,6 +1084,10 @@ const PostJob = (props) => {
                                             name=''
                                             defaultValue={sponsored}
                                             className='float-right'
+                                            onChange={(e) =>
+                                                // console.log(e.target.checked)
+                                                setSponsored(e.target.checked)
+                                            }
                                         />
                                     </h5>
                                 </Label>

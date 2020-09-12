@@ -205,7 +205,7 @@ const Job = ({
         <div className='col-12 col-md-6'>
             <Media
                 className={`row  justify-content-center m-2 m-md-3 p-2 px-md-2  ${
-                    job.sponsored ? "block-info" : "block"
+                    job.sponsored === "true" ? "block-info" : "block"
                 }`}>
                 <Media body className='col-12 p-1'>
                     <Media heading className='row'>

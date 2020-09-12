@@ -8,11 +8,12 @@ Freelance = require("../models/freelance.model");
 async function EmployerProfileUpdateBuilder(req){
     var query={};
     query.update={};
+    query.jobUpdate={};
     if(req.body.firstName) query.update["firstName"]=req.body.firstName;
     if(req.body.lastName) query.update["lastName"]=req.body.lastName;
     if(req.body.phone) query.update["phone"]=req.body.phone;
-    if(req.body.logo) query.update["logo"]=req.body.logo;
-    if(req.body.institutename) query.update["instituteName"]=req.body.institutename;
+    if(req.body.logo) {query.update["logo"]=req.body.logo;query.jobUpdate["author.photo"]=req.body.logo }
+    if(req.body.instituteName) {query.update["instituteName"]=req.body.institutename;query.jobUpdate["author.instituteName"]=req.body.instituteName}
     if(req.body.specialty) query.update["specialty"]=req.body.specialty;
     if(req.body.links) query.update["links"]=req.body.links;
     if(req.body.image) query.update["image"]=req.body.image;

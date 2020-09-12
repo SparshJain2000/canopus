@@ -389,7 +389,7 @@ const UpdateJob = (props) => {
             profession: profession,
             specialization: specialization,
             superSpecialization: superSpecialization.map((x) => x.value),
-            instituteName: company,
+            // instituteName: employer,
 
             description: {
                 line: line.trim(),
@@ -470,7 +470,7 @@ const UpdateJob = (props) => {
             specialization: specialization,
             superSpecialization: superSpecialization.map((x) => x.value),
             sponsored: sponsored,
-            instituteName: company,
+            // instituteName: employer,
 
             description: {
                 line: line.trim(),
