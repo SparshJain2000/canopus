@@ -21,7 +21,7 @@ import {
     ModalFooter,
 } from "reactstrap";
 import hospital from "../images/hospital.svg";
-import error from "../images/404.svg";
+// import error from "../images/404.svg";
 
 import "../stylesheets/job.css";
 import { slideInRight } from "react-animations";

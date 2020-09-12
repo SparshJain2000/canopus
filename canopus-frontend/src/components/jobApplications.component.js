@@ -20,9 +20,6 @@ import {
     faArrowDown,
     faArrowUp,
     faCheck,
-    faCheckCircle,
-    faChartLine,
-    faRocket,
 } from "@fortawesome/free-solid-svg-icons";
 import hospital from "../images/hospital.svg";
 import "../stylesheets/jobApplications.css";
@@ -37,10 +34,6 @@ import {
     Dropdown,
     DropdownItem,
     DropdownMenu,
-    TabContent,
-    TabPane,
-    Row,
-    Col,
 } from "reactstrap";
 const chart = {
     prefix: "fas",

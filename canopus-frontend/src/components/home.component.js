@@ -5,7 +5,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import doctor from "../images/doctor.png";
 import data from "../data";
 import { Button, Alert } from "reactstrap";
-import { Redirect, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 const professionArray = data.professions.map((opt) => ({
     label: opt,
     value: opt,

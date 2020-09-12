@@ -1,14 +1,6 @@
 import React, { Component } from "react";
 // import NavbarComponent from "../navbar.component";
-import {
-    Form,
-    Input,
-    Label,
-    FormGroup,
-    Button,
-    Select,
-    Option,
-} from "reactstrap";
+import { Form, Input, Label, FormGroup, Button } from "reactstrap";
 const block = {
     borderRadius: " 0.25rem",
     border: "0.05rem solid lightgrey",

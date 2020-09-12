@@ -23,12 +23,7 @@ import data from "../data";
 import "../stylesheets/postJob.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-    faMapMarkerAlt,
-    faUser,
     faPen,
-    faEnvelope,
-    faArrowAltCircleDown,
-    faArrowAltCircleUp,
     faArrowDown,
     faArrowUp,
     // faShareAlt,
