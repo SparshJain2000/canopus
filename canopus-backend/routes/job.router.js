@@ -95,7 +95,7 @@ router.post("/alljobs", (req, res) => {
         .then((jobs) =>
           res.json({
             jobs: jobs,
-            count: jobcount[0],
+            count: jobcount[0]|| 0,
           })
         )
         .catch((err) =>
@@ -191,7 +191,7 @@ router.post("/allfreelance", (req, res) => {
         .then((jobs) =>
           res.json({
             jobs: jobs,
-            count: jobcount[0],
+            count: jobcount[0] || 0,
           })
         )
         .catch((err) =>
@@ -276,7 +276,7 @@ router.post("/search", async (req, res) => {
                   err: err,
                 });
               else {
-                res.json({ jobs: jobs, count: jobcount[0] });
+                res.json({ jobs: jobs, count: jobcount[0]||0 });
               }
             }
           );
@@ -516,7 +516,7 @@ router.post("/freelanceSearch", async (req, res) => {
                 });
               else {
                 //console.log(jobs);
-                res.json({ jobs: jobs, count: jobcount[0] });
+                res.json({ jobs: jobs, count: jobcount[0]||0 });
               }
             }
           );
