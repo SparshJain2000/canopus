@@ -34,7 +34,7 @@ import {
     ModalFooter,
 } from "reactstrap";
 import axios from "axios";
-import doctor from "../images/doctor.png";
+// import doctor from "../images/doctor.png";
 import hospital from "../images/hospital.svg";
 import Loader from "react-loader-spinner";
 import Select from "react-select";
@@ -189,7 +189,10 @@ const Job = ({ job, userId, user }) => {
                             <Media heading>
                                 <h6 className='text-info'>
                                     {/* <FontAwesomeIcon icon={faMapMarkerAlt} />{" "} */}
-                                    {job.description && job.description.company
+                                    {job.instituteName
+                                        ? job.instituteName
+                                        : job.description &&
+                                          job.description.company
                                         ? job.description.company
                                         : "Company"}
                                 </h6>
@@ -361,7 +364,7 @@ export default class JobSearch extends Component {
             superSpecialization: [],
             startDate: "",
             endDate: "",
-            sortBy: "relevance",
+            sortBy: "Relevance",
             // isSticky:false
         };
         this.toggleTab = this.toggleTab.bind(this);
@@ -434,12 +437,13 @@ export default class JobSearch extends Component {
                         isZero: data.jobs.length === 0,
                         jobs: data.jobs,
                         pageCount: Math.ceil(
-                            data.count.jobCount / this.state.pageSize,
+                            (data.count ? data.count.jobCount : 0) /
+                                this.state.pageSize,
                         ),
                         loaded: true,
-                        jobsFound: `${data.count.jobCount} ${
-                            this.state.profession
-                        }${
+                        jobsFound: `${
+                            data.count.jobCount ? data.count.jobCount : 0
+                        } ${this.state.profession}${
                             this.state.profession !== "" &&
                             this.state.specialization != ""
                                 ? " / "
@@ -457,16 +461,21 @@ export default class JobSearch extends Component {
             console.log(query);
             axios
                 .post(`/api/job/alljobs`, query)
-                .then(({ data: { jobs, count } }) => {
-                    console.log(data);
+                .then((xdata) => {
+                    console.log(xdata);
+                    const ndata = xdata.data;
+
                     this.setState({
-                        isZero: jobs.length === 0,
-                        jobs: jobs,
+                        isZero: ndata.jobs.length === 0,
+                        jobs: ndata.jobs,
                         pageCount: Math.ceil(
-                            count.jobCount / this.state.pageSize,
+                            (ndata.count ? ndata.count.jobCount : 0) /
+                                this.state.pageSize,
                         ),
                         loaded: true,
-                        jobsFound: `${count.jobCount} ${this.state.profession}${
+                        jobsFound: `${
+                            ndata.count.jobCount ? ndata.count.jobCount : 0
+                        } ${this.state.profession}${
                             this.state.profession !== "" &&
                             this.state.specialization != ""
                                 ? " / "
@@ -475,10 +484,9 @@ export default class JobSearch extends Component {
                     });
                     console.log("----------------");
                     console.log(this.state.isZero);
-
-                    console.log(jobs);
                 })
                 .catch((err) => {
+                    console.log(err);
                     console.log(err.response);
                     // window.location = "/";
                 });
@@ -508,7 +516,9 @@ export default class JobSearch extends Component {
                             jobs: data.jobs,
                             loaded: true,
                             pageCount: Math.ceil(
-                                data.count.jobCount / this.state.pageSize,
+                                (data.count.jobCount
+                                    ? data.count.jobCount
+                                    : 0) / this.state.pageSize,
                             ),
                             jobsFound: `${data.jobs.length} ${
                                 this.state.profession
@@ -553,12 +563,14 @@ export default class JobSearch extends Component {
                             isZero: data.jobs.length === 0,
                             loaded: true,
                             pageCount: Math.ceil(
-                                data.count.jobCount / this.state.pageSize,
+                                (data.count.jobCount
+                                    ? data.count.jobCount
+                                    : 0) / this.state.pageSize,
                             ),
 
-                            jobsFound: `${data.count.jobCount} ${
-                                this.state.profession
-                            }${
+                            jobsFound: `${
+                                data.count.jobCount ? data.count.jobCount : 0
+                            } ${this.state.profession}${
                                 this.state.profession !== "" &&
                                 this.state.specialization != ""
                                     ? " / "
@@ -1725,8 +1737,8 @@ export default class JobSearch extends Component {
                                             styles={customControlStyles}
                                             options={[
                                                 {
-                                                    label: "revelance",
-                                                    value: "revelance",
+                                                    label: "Relevance",
+                                                    value: "Relevance",
                                                 },
                                                 {
                                                     label: "New Jobs",
@@ -1736,16 +1748,16 @@ export default class JobSearch extends Component {
                                                     label: "Old Jobs",
                                                     value: "Old",
                                                 },
-                                                {
-                                                    label:
-                                                        "Number of applicants",
-                                                    value:
-                                                        "Number of applicants",
-                                                },
+                                                // {
+                                                //     label:
+                                                //         "Number of applicants",
+                                                //     value:
+                                                //         "Number of applicants",
+                                                // },
                                             ]}
                                             defaultValue={{
-                                                label: "revelance",
-                                                value: "revelance",
+                                                label: "Relevance",
+                                                value: "Relevance",
                                             }}
                                             // ref={this.location}
                                             onChange={(e) => {
