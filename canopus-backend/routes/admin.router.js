@@ -20,6 +20,8 @@ const router = require("express").Router(),
   savedJob = require("../models/savedJobs.model"),
   savedFreelance = require("../models/savedFreelance.model");
 // add new tag
+const Transaction = require("mongoose-transactions");
+ 
 
 //Work in progress TODO admin model
 router.post("/tag",middleware.isAdmin, (req, res) => {
@@ -35,6 +37,48 @@ router.post("/tag",middleware.isAdmin, (req, res) => {
             });
         })
         .catch((err) => res.status(400).json({ err: err }));
+});
+// const { runInTransaction } = require('mongoose-transact-utils');
+ 
+router.get("/experiment", async (req,res)=>{
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    var user;
+    var employer;
+    try{
+        user = await User.find().session(session);
+        employer = await Employer.find().session(session);
+        await session.commitTransaction()
+        session.endSession()
+    }catch (err){
+         (await session).abortTransaction();
+         (await session).endSession();
+         console.log(err);
+         throw err;
+    }finally{
+        res.json({user:user,employer:employer});
+    }
+    // const user =await runInTransaction(async session => {
+    //     // run any queries here
+    //     const job = await Job.find().session(session);
+    //     console.log(job);
+    //    return await User.find(//{_id:job[3].author.id}
+    //    ).session(session);
+       
+    //   });
+    //   res.json(user);
+//     const session = await Employer.startSession();
+//     var user;
+//     try{
+//      user =await session.withTransaction(async ()=>{ 
+//         const employer= await Employer.find().session(session);
+//         return employer;
+//     });
+// }
+// finally{
+//     res.json(user);
+//}
+
 });
 //===
 // router.post("/", (req, res) => {
