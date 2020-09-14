@@ -189,7 +189,10 @@ const Job = ({ job, userId, user }) => {
                             <Media heading>
                                 <h6 className='text-info'>
                                     {/* <FontAwesomeIcon icon={faMapMarkerAlt} />{" "} */}
-                                    {job.description && job.description.company
+                                    {job.instituteName
+                                        ? job.instituteName
+                                        : job.description &&
+                                          job.description.company
                                         ? job.description.company
                                         : "Company"}
                                 </h6>
@@ -232,7 +235,19 @@ const Job = ({ job, userId, user }) => {
                                         job.superSpecialization
                                     }
                                 />
+                                {job.applied === 1 && (
+                                    <Badge
+                                        color='warning'
+                                        style={{ float: "right" }}>
+                                        Applied
+                                    </Badge>
+                                )}
                             </div>
+                            {/* <div className='col-12'>
+                                <Button onClick={(e) => console.log("clicked")}>
+                                    Click
+                                </Button>
+                            </div> */}
                         </Media>
                         <Media
                             left
@@ -240,7 +255,11 @@ const Job = ({ job, userId, user }) => {
                             className='d-none d-md-block col-12 col-sm-3 my-auto mx-auto '>
                             <Media
                                 object
-                                src={hospital}
+                                src={
+                                    job.author && job.author.photo
+                                        ? job.author.photo
+                                        : hospital
+                                }
                                 style={{ maxHeight: "200px" }}
                                 alt='Generic placeholder image'
                                 className='img-fluid float-right pr-2 pr-lg-3'
@@ -345,7 +364,7 @@ export default class JobSearch extends Component {
             superSpecialization: [],
             startDate: "",
             endDate: "",
-            sortBy: "relevance",
+            sortBy: "Relevance",
             // isSticky:false
         };
         this.toggleTab = this.toggleTab.bind(this);
@@ -418,12 +437,13 @@ export default class JobSearch extends Component {
                         isZero: data.jobs.length === 0,
                         jobs: data.jobs,
                         pageCount: Math.ceil(
-                            data.count.jobCount / this.state.pageSize,
+                            (data.count ? data.count.jobCount : 0) /
+                                this.state.pageSize,
                         ),
                         loaded: true,
-                        jobsFound: `${data.count.jobCount} ${
-                            this.state.profession
-                        }${
+                        jobsFound: `${
+                            data.count.jobCount ? data.count.jobCount : 0
+                        } ${this.state.profession}${
                             this.state.profession !== "" &&
                             this.state.specialization != ""
                                 ? " / "
@@ -441,16 +461,21 @@ export default class JobSearch extends Component {
             console.log(query);
             axios
                 .post(`/api/job/alljobs`, query)
-                .then(({ data: { jobs, count } }) => {
-                    console.log(data);
+                .then((xdata) => {
+                    console.log(xdata);
+                    const ndata = xdata.data;
+
                     this.setState({
-                        isZero: jobs.length === 0,
-                        jobs: jobs,
+                        isZero: ndata.jobs.length === 0,
+                        jobs: ndata.jobs,
                         pageCount: Math.ceil(
-                            count.jobCount / this.state.pageSize,
+                            (ndata.count ? ndata.count.jobCount : 0) /
+                                this.state.pageSize,
                         ),
                         loaded: true,
-                        jobsFound: `${count.jobCount} ${this.state.profession}${
+                        jobsFound: `${
+                            ndata.count.jobCount ? ndata.count.jobCount : 0
+                        } ${this.state.profession}${
                             this.state.profession !== "" &&
                             this.state.specialization != ""
                                 ? " / "
@@ -459,10 +484,9 @@ export default class JobSearch extends Component {
                     });
                     console.log("----------------");
                     console.log(this.state.isZero);
-
-                    console.log(jobs);
                 })
                 .catch((err) => {
+                    console.log(err);
                     console.log(err.response);
                     // window.location = "/";
                 });
@@ -492,7 +516,9 @@ export default class JobSearch extends Component {
                             jobs: data.jobs,
                             loaded: true,
                             pageCount: Math.ceil(
-                                data.count.jobCount / this.state.pageSize,
+                                (data.count.jobCount
+                                    ? data.count.jobCount
+                                    : 0) / this.state.pageSize,
                             ),
                             jobsFound: `${data.jobs.length} ${
                                 this.state.profession
@@ -537,12 +563,14 @@ export default class JobSearch extends Component {
                             isZero: data.jobs.length === 0,
                             loaded: true,
                             pageCount: Math.ceil(
-                                data.count.jobCount / this.state.pageSize,
+                                (data.count.jobCount
+                                    ? data.count.jobCount
+                                    : 0) / this.state.pageSize,
                             ),
 
-                            jobsFound: `${data.count.jobCount} ${
-                                this.state.profession
-                            }${
+                            jobsFound: `${
+                                data.count.jobCount ? data.count.jobCount : 0
+                            } ${this.state.profession}${
                                 this.state.profession !== "" &&
                                 this.state.specialization != ""
                                     ? " / "
@@ -1709,8 +1737,8 @@ export default class JobSearch extends Component {
                                             styles={customControlStyles}
                                             options={[
                                                 {
-                                                    label: "revelance",
-                                                    value: "revelance",
+                                                    label: "Relevance",
+                                                    value: "Relevance",
                                                 },
                                                 {
                                                     label: "New Jobs",
@@ -1720,16 +1748,16 @@ export default class JobSearch extends Component {
                                                     label: "Old Jobs",
                                                     value: "Old",
                                                 },
-                                                {
-                                                    label:
-                                                        "Number of applicants",
-                                                    value:
-                                                        "Number of applicants",
-                                                },
+                                                // {
+                                                //     label:
+                                                //         "Number of applicants",
+                                                //     value:
+                                                //         "Number of applicants",
+                                                // },
                                             ]}
                                             defaultValue={{
-                                                label: "revelance",
-                                                value: "revelance",
+                                                label: "Relevance",
+                                                value: "Relevance",
                                             }}
                                             // ref={this.location}
                                             onChange={(e) => {
