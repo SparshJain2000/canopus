@@ -69,6 +69,7 @@ async function createJob(req,employer){
         validated: employer.validated,
         sponsored: req.body.sponsored || false,
         extension: 1,
+        category:"Job",
       });
     return job;
     }
@@ -127,6 +128,7 @@ async function createSavedJob(req,job,status){
           createdAt: new Date(),
           createdBy: req.user.role,
           extension: 1,
+          category:"Job",
         });
         return sjob;
     }

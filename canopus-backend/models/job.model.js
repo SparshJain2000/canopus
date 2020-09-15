@@ -11,6 +11,7 @@ module.exports = mongoose.model(
         createdBy:String,
         expireAt:Date,
         extension:Number,
+        category:String,
         title: String,
         profession: String,
         specialization: String,
