@@ -146,6 +146,54 @@ router.post("/save", middleware.isLoggedIn, async (req, res) => {
   } 
 });
 
+
+//updated a posted job
+router.put("/post/:id",middleware.isLoggedIn,middleware.checkPostOwnership, async (req,res) => {
+  //start transaction
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  const server_error = new Error("500");
+  const client_error = new Error("400");
+  //try block
+  try {
+    const query = await jobController.updateQueryBuilder(req);
+    if(!query) throw client_error;
+
+    //DB operations start here
+    if(req.body.category === "Job"){
+    //update job
+      const job = await Job.findOneAndUpdate(
+        { _id: req.params.id },
+        { $set: query },
+        { new: true, session: session }
+      );
+      //reflect changes on saved job
+      savedJob.findOneAndUpdate({ jobRef: job._id }, { $set: query },{ session: session })
+    } 
+    else {
+      if(req.body.endDate){
+        const job = await Freelance.findById(req.params.id).session(session);
+        const expiry = new Date(sjob.endDate);
+        var days = (expiry - job.createdAt) / (1000 * 60 * 60 * 24);
+        if (days < 0 || days > 30)
+          throw client_error;
+      }
+    }
+    
+    //commit transaction
+    await session.commitTransaction();
+    session.endSession();
+    res.json({status:"200"});
+
+  } catch (err) {
+    // any 500 error in try block aborts transaction
+    await session.abortTransaction();
+    session.endSession();
+    console.log(err);
+    res.status(500).json({status:"500"});
+  } 
+});
+
 //activate a saved Job
 router.put("/activate/:id", middleware.isEmployer, async (req,res) => {
   //start transaction
@@ -163,7 +211,7 @@ router.put("/activate/:id", middleware.isEmployer, async (req,res) => {
     //check tier and sponsorship status
     employer = await jobController.assignTier(req,employer,"posted");
     //error if invalid tier 
-    if(!employer) throw error;
+    if(!employer) throw client_error;
 
     //DB operations start here
     //create job

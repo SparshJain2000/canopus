@@ -50,6 +50,7 @@ module.exports = mongoose.model(
             instituteName:String,
             photo:String,
             about:String,
+            name :String,
         },
         applicants: [
             {

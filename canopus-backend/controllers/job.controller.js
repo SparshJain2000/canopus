@@ -155,16 +155,15 @@ async function createSavedJob(req,job,status){
 
 async function updateQueryBuilder(req){
   var query={};
-  query.update={};
-  if(req.body.title) query.update["title"]=req.body.title;
-  if(req.body.profession) query.update["profession"]=req.body.profession;
-  if(req.body.specialization) query.update["specialization"]=req.body.specialization
-  if(req.body.superSpecialization) query.update["superSpecialization"]=req.body.superSpecialization;
-  if(req.body.tag)query.update["tag"]=req.body.tag;
-  if(req.body.address) query.update["address"]=req.body.address;
-  if(req.body.description) query.update["description"]=req.body.description;
-  if(req.body.tag) query.update["tag"]=req.body.tag;
-  //console.log(query.update);
+  if(req.body.title) query["title"]=req.body.title;
+  if(req.body.profession) query["profession"]=req.body.profession;
+  if(req.body.specialization) query["specialization"]=req.body.specialization
+  if(req.body.superSpecialization) query["superSpecialization"]=req.body.superSpecialization;
+  if(req.body.tag) query["tag"]=req.body.tag;
+  if(req.body.address) query["address"]=req.body.address;
+  if(req.body.description) query["description"]=req.body.description;
+  if(req.body.startDate) query["startDate"]=req.body.startDate;
+  if(req.body.endDate){query["endDate"]=req.body.endDate;query["expireAt"]=req.body.endDate;}
   return query;
 }
-exports.jobController = { createJob, createSavedJob,assignTier };
+exports.jobController = { createJob, createSavedJob, assignTier, updateQueryBuilder };
