@@ -62,6 +62,10 @@ router.post("/", (req, res) => {
       saved: 0,
       closed: 0,
     },
+    sponsors: {
+      posted:0,
+      allowed:0,
+    },
     // address: {
     //     pin: req.body.pin,
     //     city: req.body.city,

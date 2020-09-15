@@ -12,7 +12,7 @@ const router = require("express").Router(),
   savedFreelance = require("../models/savedFreelance.model");
 //===========================================================================
 //get all jobs
-router.post("/alljobs", (req, res) => {
+router.post("/all-jobs", (req, res) => {
   //By default sort by Relevance
   var sort;
   sort = { $sort: { score: { $meta: "textScore" } } };
@@ -107,7 +107,7 @@ router.post("/alljobs", (req, res) => {
     .catch((err) => res.status(400).json({ err: "Error searching jobs" }));
 });
 //get all freelance jobs
-router.post("/allfreelance", (req, res) => {
+router.post("/all-visitor", (req, res) => {
   var sort;
   sort = { $sort: { score: { $meta: "textScore" } } };
   if (req.body.order == "New")
@@ -207,7 +207,7 @@ router.post("/allfreelance", (req, res) => {
 //===========================================================================
 
 //job search route ( not for freelance search)
-router.post("/search", async (req, res) => {
+router.post("/jobs", async (req, res) => {
   // query builder function
   const query = await searchController
     .queryBuilder(req)
@@ -363,7 +363,7 @@ router.post("/similar", (req, res) => {
 });
 
 //Freelance Search
-router.post("/freelanceSearch", async (req, res) => {
+router.post("/visitor-jobs", async (req, res) => {
   const query = await searchController
     .queryBuilder(req)
     .then((query) => {
