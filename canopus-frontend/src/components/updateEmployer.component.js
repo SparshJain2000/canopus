@@ -75,6 +75,17 @@ export default class UpdateEmployer extends Component {
             ICUs: 0,
             modalError: false,
             modalMess: "",
+            valid: {
+                organization: true,
+                type: true,
+                speciality: true,
+                city: true,
+                state: true,
+                firstName: true,
+                lastName: true,
+                firstName: true,
+                phone: true,
+            },
         };
         this.handleChange = this.handleChange.bind(this);
         this.update = this.update.bind(this);
@@ -98,11 +109,14 @@ export default class UpdateEmployer extends Component {
         console.log(value, name);
         this.setState({
             [name]: value,
+            valid: {
+                ...this.state.valid,
+                [name]: value !== "",
+            },
         });
     }
 
     handleChange(e, index) {
-        console.log(index);
         if (index !== undefined) {
             let links = this.state[e.target.name];
             links[index] = e.target.value;
@@ -112,48 +126,78 @@ export default class UpdateEmployer extends Component {
         } else
             this.setState({
                 [e.target.name]: e.target.value,
+                valid: {
+                    ...this.state.valid,
+                    [e.target.name]: e.target.value !== "",
+                },
             });
     }
     update() {
-        const employer = {
-            logo: this.state.logo,
-            firstName: this.state.firstName,
-            lastName: this.state.lastName,
-            image: this.state.image,
-            links: this.state.links,
-            youtube: this.state.youtube,
-            specialty: this.state.speciality,
-            phone: this.state.phone,
-            // username: this.state.username,
-            address: {
-                line: this.state.line,
-                pin: this.state.pin,
-                city: this.state.city,
-                state: this.state.state,
-                coordinates: { lat: this.state.lat, lng: this.state.lng },
-            },
-            description: {
-                about: this.state.about,
-                ICUs: Number(this.state.ICUs),
-                OTs: Number(this.state.OTs),
-                beds: Number(this.state.beds),
-                employeeCount: Number(this.state.employeeCount),
-                organization: this.state.organization,
-                type: this.state.type,
-            },
-        };
+        // let valid = this.state.valid;
+        // console.log(this.state.organization);
+        // valid = {
+        //     organization: this.state.organization !== "",
+        //     type: this.state.type !== "",
+        //     speciality: this.state.speciality !== "",
+        //     city: this.state.city !== "",
+        //     state: this.state.state !== "",
+        //     firstName: this.state.firstName !== "",
+        //     lastName: this.state.lastName !== "",
+        //     phone: this.state.phone !== "" || this.state.phone !== null,
+        // };
+        // console.log(valid);
+        // this.setState({ valid });
+        const isValid = Object.values(this.state.valid).every(
+            (item) => item === true,
+        );
 
-        console.log(employer);
-        Axios.put(`/api/employer/profile/update`, employer)
-            .then((data) => {
-                console.log(data);
-                if (data.status === 200) {
-                    // alert("Update successful");
-                    this.props.setUser(data.data);
-                    window.location = "/employer";
-                }
-            })
-            .catch(({ response }) => alert(response.err));
+        console.log(isValid);
+        if (!isValid) {
+            this.setState({
+                modalError: true,
+                modalMess: "Please fill the required fields !",
+            });
+        } else {
+            const employer = {
+                logo: this.state.logo,
+                firstName: this.state.firstName,
+                lastName: this.state.lastName,
+                image: this.state.image,
+                links: this.state.links,
+                youtube: this.state.youtube,
+                specialty: this.state.speciality,
+                phone: this.state.phone,
+                // username: this.state.username,
+                address: {
+                    line: this.state.line,
+                    pin: this.state.pin,
+                    city: this.state.city,
+                    state: this.state.state,
+                    coordinates: { lat: this.state.lat, lng: this.state.lng },
+                },
+                description: {
+                    about: this.state.about,
+                    ICUs: Number(this.state.ICUs),
+                    OTs: Number(this.state.OTs),
+                    beds: Number(this.state.beds),
+                    employeeCount: Number(this.state.employeeCount),
+                    organization: this.state.organization,
+                    type: this.state.type,
+                },
+            };
+
+            console.log(employer);
+            Axios.put(`/api/employer/profile/update`, employer)
+                .then((data) => {
+                    console.log(data);
+                    if (data.status === 200) {
+                        // alert("Update successful");
+                        this.props.setUser(data.data);
+                        window.location = "/employer";
+                    }
+                })
+                .catch(({ response }) => alert(response.err));
+        }
     }
     componentDidMount() {
         Axios.get("/api/employer/profile")
@@ -515,6 +559,7 @@ export default class UpdateEmployer extends Component {
                                         name='organization'
                                         onChange={this.handleChange}
                                         defaultValue={this.state.organization}
+                                        invalid={!this.state.valid.organization}
                                     />
                                 </div>
                                 <div className='col-12 col-sm-6 pr-0 pl-sm-1 my-1 my-sm-2'>
@@ -537,6 +582,11 @@ export default class UpdateEmployer extends Component {
                                                 value: this.state.type,
                                                 label: this.state.type,
                                             }
+                                        }
+                                        className={
+                                            !this.state.valid.type
+                                                ? "border-invalid"
+                                                : ""
                                         }
                                         options={data.orgType.map((type) => {
                                             return { label: type, value: type };
@@ -564,6 +614,11 @@ export default class UpdateEmployer extends Component {
                                     <Select
                                         autosize={true}
                                         isClearable={true}
+                                        className={
+                                            !this.state.valid.speciality
+                                                ? "border-invalid"
+                                                : ""
+                                        }
                                         placeholder='Organization Type'
                                         value={
                                             this.state.speciality !== "" && {
@@ -580,6 +635,22 @@ export default class UpdateEmployer extends Component {
                                                 "speciality",
                                                 e ? e.value : "",
                                             );
+                                        }}
+                                        style={{
+                                            control: (base, state) => ({
+                                                // ...base,
+                                                // state.isFocused can display different borderColor if you need it
+                                                borderColor: "red",
+                                                // overwrittes hover style
+                                                // "&:hover": {
+                                                //     borderColor: state.isFocused
+                                                //         ? "#ddd"
+                                                //         : this.state.valid
+                                                //               .speciality
+                                                //         ? "#ddd"
+                                                //         : "red",
+                                                // },
+                                            }),
                                         }}
                                     />
                                 </div>
@@ -641,6 +712,7 @@ export default class UpdateEmployer extends Component {
                                             name='city'
                                             onChange={this.handleChange}
                                             defaultValue={this.state.city}
+                                            invalid={!this.state.valid.city}
                                         />
                                     </div>
                                 </FormGroup>
@@ -654,6 +726,7 @@ export default class UpdateEmployer extends Component {
                                         name='state'
                                         onChange={this.handleChange}
                                         defaultValue={this.state.state}
+                                        invalid={!this.state.valid.state}
                                         // onChange={this.props.handleChange("email")}
                                         // defaultValue={values.email}
                                     />
@@ -957,6 +1030,7 @@ export default class UpdateEmployer extends Component {
                                         name='firstName'
                                         onChange={this.handleChange}
                                         defaultValue={this.state.firstName}
+                                        invalid={!this.state.valid.firstName}
                                     />
                                 </div>
                                 <div className='col-12 col-md-6  p-0 pl-1  my-1'>
@@ -991,6 +1065,7 @@ export default class UpdateEmployer extends Component {
                                         name='phone'
                                         onChange={this.handleChange}
                                         defaultValue={this.state.phone}
+                                        invalid={!this.state.valid.phone}
                                     />
                                 </div>
                             </FormGroup>
