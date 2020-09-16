@@ -97,7 +97,7 @@ const PostJob = (props) => {
     const [location, setLocation] = useState("");
     const [experience, setExperience] = useState("");
     const [incentives, setIncentives] = useState([]);
-    const [type, setType] = useState("");
+    const [type, setType] = useState("Full-time");
     const [salary, setSalary] = useState(0);
     const [line, setLine] = useState("");
 
@@ -116,19 +116,50 @@ const PostJob = (props) => {
 
     const [modalError, setModalError] = useState(false);
     const [messError, setMessError] = useState("");
+    const [valid, setValid] = useState({});
 
     const toggleError = () => setModalError(!modalError);
 
-    const toggle = () => setModal(!modal);
+    const toggle = () => {
+        let newValid = {
+            title: title !== "",
+            type: type !== "",
+            profession: profession !== "",
+            specialization: specialization !== "",
+            location: location !== "",
+            experience: experience !== "",
+            line: line !== "",
+            contact: contact !== "",
+        };
+        console.log(newValid);
+        setValid(newValid);
+        const isValid = Object.values(newValid).every((item) => item === true);
+        if (isValid) {
+            setModal(!modal);
+        } else {
+            setModalError(true);
+            setMessError("Please fill all the fields !");
+        }
+    };
     const toggleDetail = () => setShowDetail((prevState) => !prevState);
     const toggleSkill = () => setShowSkill((prevState) => !prevState);
     const toggleOtherDetail = () =>
         setShowOtherDetail((prevState) => !prevState);
     const handleChange = (e) => {
+        const x = e.target.name.toLowerCase();
         eval(`set${e.target.name}`)(e.target.value);
+        let newValid = { ...valid };
+        newValid[x] = e.target.value !== "";
+        console.log(newValid);
+        setValid(newValid);
     };
     const handleChangeSelect = (name, value) => {
         eval(`set${name}`)(value);
+        const x = name.toLowerCase();
+        let newValid = { ...valid };
+        newValid[x] = value !== "";
+        console.log(newValid);
+        setValid(newValid);
     };
     const save = () => {
         const jobType = "save";
@@ -139,7 +170,6 @@ const PostJob = (props) => {
             specialization: specialization,
             superSpecialization: superSpecialization.map((x) => x.value),
             sponsored: sponsored,
-            // instituteName: employer,
             description: {
                 line: line.trim(),
                 about: skills.trim(),
@@ -305,6 +335,7 @@ const PostJob = (props) => {
         console.log(job);
     };
     useEffect(() => {
+        console.log(valid.title);
         axios
             .get(`/api/employer/current`)
             .then(({ data }) => {
@@ -639,7 +670,7 @@ const PostJob = (props) => {
                                         <span className='text-danger'>*</span>
                                     </h6>
                                 </Label>
-                                <input
+                                <Input
                                     placeholder='Title'
                                     className='form-control'
                                     ref={titleRef}
@@ -647,13 +678,18 @@ const PostJob = (props) => {
                                     defaultValue={title}
                                     onChange={handleChange}
                                     required
+                                    invalid={
+                                        valid.title === undefined
+                                            ? false
+                                            : !valid.title
+                                    }
                                 />
                             </div>
                             {/* <div className='col-12 col-md-6 pr-md-2 my-1 w-100'>
                                 <Label className='m-1'>
                                     <h6>Institute Name</h6>
                                 </Label>
-                                <input
+                                <Input
                                     placeholder='Company'
                                     name='Company'
                                     defaultValue={company}
@@ -679,6 +715,12 @@ const PostJob = (props) => {
                                         options={typeArray}
                                         // className='basic-multi-select'
                                         // classNamePrefix='select'
+                                        className={
+                                            valid.type !== undefined &&
+                                            !valid.type
+                                                ? "border-invalid"
+                                                : ""
+                                        }
                                         ref={typeRef}
                                         name='Type'
                                         defaultValue={
@@ -706,7 +748,7 @@ const PostJob = (props) => {
                                 <Label className='m-1'>
                                     <h6>Number of Applicants</h6>
                                 </Label>
-                                <input
+                                <Input
                                     type='number'
                                     placeholder='Number of applicants'
                                     className='form-control'
@@ -746,6 +788,12 @@ const PostJob = (props) => {
                                                 e ? e.value : "",
                                             );
                                         }}
+                                        className={
+                                            valid.location !== undefined &&
+                                            !valid.location
+                                                ? "border-invalid"
+                                                : ""
+                                        }
                                     />
                                 </div>
                             </InputGroup>
@@ -782,6 +830,12 @@ const PostJob = (props) => {
                                             e ? e.value : "",
                                         );
                                     }}
+                                    className={
+                                        valid.profession !== undefined &&
+                                        !valid.profession
+                                            ? "border-invalid"
+                                            : ""
+                                    }
                                 />
                             </div>
                             <div className='col-12 col-md-6 pl-md-2 my-1'>
@@ -817,6 +871,12 @@ const PostJob = (props) => {
                                             e ? e.value : "",
                                         );
                                     }}
+                                    className={
+                                        valid.specialization !== undefined &&
+                                        !valid.specialization
+                                            ? "border-invalid"
+                                            : ""
+                                    }
                                 />
                             </div>
                             <InputGroup className='col-12 my-1'>
@@ -871,6 +931,12 @@ const PostJob = (props) => {
                                                 e ? e.value : "",
                                             );
                                         }}
+                                        className={
+                                            valid.experience !== undefined &&
+                                            !valid.experience
+                                                ? "border-invalid"
+                                                : ""
+                                        }
                                     />
                                 </div>
                             </InputGroup>
@@ -880,7 +946,7 @@ const PostJob = (props) => {
                                     <h6>Salary</h6>
                                 </Label>
                                 <InputGroup className=''>
-                                    <input
+                                    <Input
                                         placeholder='salary'
                                         type='number'
                                         className='form-control '
@@ -963,7 +1029,8 @@ const PostJob = (props) => {
                                     </h6>
                                 </Label>
                                 <InputGroup className='w-100'>
-                                    <textarea
+                                    <Input
+                                        type='textarea'
                                         placeholder='Short Description ..'
                                         ref={lineRef}
                                         className='form-control m-1'
@@ -971,6 +1038,11 @@ const PostJob = (props) => {
                                         name='Line'
                                         onChange={handleChange}
                                         defaultValue={line}
+                                        invalid={
+                                            valid.line === undefined
+                                                ? false
+                                                : !valid.line
+                                        }
                                     />
                                 </InputGroup>
                             </InputGroup>
@@ -980,7 +1052,8 @@ const PostJob = (props) => {
                                         <h6>Description</h6>
                                     </Label>
                                     <InputGroup className='w-100 '>
-                                        <textarea
+                                        <Input
+                                            type='textarea'
                                             placeholder='Description ..'
                                             ref={skillsRef}
                                             className='form-control m-1'
@@ -1014,7 +1087,7 @@ const PostJob = (props) => {
                                 <Label className='m-1'>
                                     <h6>Employer</h6>
                                 </Label>
-                                <input
+                                <Input
                                     placeholder='Employer'
                                     className='form-control'
                                     name='Employer'
@@ -1057,7 +1130,8 @@ const PostJob = (props) => {
                                     </h6>
                                 </Label>
                                 <InputGroup className='w-100'>
-                                    <textarea
+                                    <Input
+                                        type='textarea'
                                         placeholder='Contact'
                                         className='form-control'
                                         name='Contact'
@@ -1072,26 +1146,31 @@ const PostJob = (props) => {
                                         }
                                         onChange={handleChange}
                                         required
+                                        invalid={
+                                            valid.contact === undefined
+                                                ? false
+                                                : !valid.contact
+                                        }
                                     />
                                 </InputGroup>
                             </div>
-                            <div className='col-12 '>
-                                <Label className='my-2 w-100'>
-                                    <h5>
-                                        Promote
-                                        <input
-                                            type='checkbox'
-                                            name=''
-                                            defaultValue={sponsored}
-                                            className='float-right'
-                                            onChange={(e) =>
-                                                // console.log(e.target.checked)
-                                                setSponsored(e.target.checked)
-                                            }
-                                        />
-                                    </h5>
+                            <div className='col-12 row justify-content-between'>
+                                <Label className='my-2 col-10'>
+                                    <h5>Promote</h5>
                                 </Label>
-                                <InputGroup className=''></InputGroup>
+                                <InputGroup className='col-2 position-relative my-2'>
+                                    <Input
+                                        type='checkbox'
+                                        name=''
+                                        defaultValue={sponsored}
+                                        className=' my-2 position-absolute'
+                                        style={{ right: 0 }}
+                                        onChange={(e) =>
+                                            // console.log(e.target.checked)
+                                            setSponsored(e.target.checked)
+                                        }
+                                    />
+                                </InputGroup>
                             </div>
                         </FormGroup>
                     )}
@@ -1110,7 +1189,7 @@ const PostJob = (props) => {
                             <h4>Day/Locum</h4>
                         </div>
                         <div className='col-3 col-sm-1'>
-                            <input
+                            <Input
                                 className='react-switch-checkbox'
                                 id={`react-switch-new`}
                                 type='checkbox'
@@ -1162,6 +1241,11 @@ const PostJob = (props) => {
                                             // ref={dateRef}
                                             className=''
                                             onChange={handleChange}
+                                            invalid={
+                                                valid.startDate === undefined
+                                                    ? false
+                                                    : !valid.startDate
+                                            }
                                             // defaultValue={endDate}
                                             // ref={endDateRef}
                                             // onChange={handleChange}
@@ -1185,6 +1269,11 @@ const PostJob = (props) => {
                                                 // defaultValue={endDate}
                                                 // ref={endDateRef}
                                                 // onChange={handleChange}
+                                                invalid={
+                                                    valid.endDate === undefined
+                                                        ? false
+                                                        : !valid.endDate
+                                                }
                                             />
                                         </InputGroup>
                                     )}
@@ -1206,6 +1295,12 @@ const PostJob = (props) => {
                                                 className=''
                                                 ref={startTimeRef}
                                                 onChange={handleChange}
+                                                invalid={
+                                                    valid.startTime ===
+                                                    undefined
+                                                        ? false
+                                                        : !valid.startTime
+                                                }
                                             />
                                         </InputGroup>
                                         <InputGroup className='col-12 col-sm-6 my-1 pl-1 '>
@@ -1223,6 +1318,12 @@ const PostJob = (props) => {
                                                 className=''
                                                 // ref={endTimeRef}
                                                 onChange={handleChange}
+                                                invalid={
+                                                    valid.startTime ===
+                                                    undefined
+                                                        ? false
+                                                        : !valid.startTime
+                                                }
                                             />
                                         </InputGroup>
                                     </div>
