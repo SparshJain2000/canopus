@@ -125,4 +125,14 @@ th {
         margin-left: 20vw;
         margin-right: 20vw;
     }
+    .box {
+        max-width: 60vw;
+        margin-left: 20vw;
+        margin-right: 20vw;
+    }
+}
+
+.border-invalid {
+    border: 1.4px solid #dc3545;
+    border-radius: .25rem
 }

@@ -6,12 +6,16 @@ import doctor from "../images/doctor.png";
 import data from "../data";
 import { Button, Alert } from "reactstrap";
 import { Redirect, Link } from "react-router-dom";
-const professionArray = data.professions.map((opt) => ({
-    label: opt,
-    value: opt,
-}));
 
 const Home = (props) => {
+    let professionArray = [];
+    console.log(props.data);
+    if (props.data) {
+        professionArray = props.data.professions.map((opt) => ({
+            label: opt,
+            value: opt,
+        }));
+    }
     const profession = useRef(null);
     const [param, setParam] = useState("");
     const [alert, setAlert] = useState(true);

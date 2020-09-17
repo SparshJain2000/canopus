@@ -22,10 +22,12 @@ const data = {
         "Medical Translator",
     ],
     experience: [
-        "New Graduate",
-        "Less than 5 years",
-        "5-10 years",
-        "More than 10 years",
+        "Any",
+        "0-2 Years",
+        "2-5 Years",
+        "5-10 Years",
+        "10-15 Years",
+        "15+ Years",
     ],
     orgType: [
         "Business organization",
@@ -63,15 +65,7 @@ const data = {
         "Accomadation allowance",
         "Case wise incentive",
     ],
-    type: [
-        "Full time",
-        "Part time",
-        "Freelance",
-        "Contract",
-        "Internhip",
-        "Paid Fellowship",
-        "Consultant",
-    ],
+    type: ["Day Job", "Locum Position", "Full-time", "Part-time"],
     superSpecialization: [
         "Anaesthesiology",
         "Ear, Nose and Throat",
