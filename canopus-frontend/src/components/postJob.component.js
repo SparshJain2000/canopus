@@ -131,6 +131,15 @@ const PostJob = (props) => {
             line: line !== "",
             contact: contact !== "",
         };
+        if (type === "Locum Position") {
+            newValid.startDate = startDate !== "";
+            newValid.endDate = endDate !== "";
+        }
+        if (type === "Day Job") {
+            newValid.startDate = startDate !== "";
+            newValid.startTime = startTime !== "";
+            newValid.endTime = endTime !== "";
+        }
         console.log(newValid);
         setValid(newValid);
         const isValid = Object.values(newValid).every((item) => item === true);
@@ -146,7 +155,8 @@ const PostJob = (props) => {
     const toggleOtherDetail = () =>
         setShowOtherDetail((prevState) => !prevState);
     const handleChange = (e) => {
-        const x = e.target.name.toLowerCase();
+        const x =
+            e.target.name.charAt(0).toLowerCase() + e.target.name.slice(1);
         eval(`set${e.target.name}`)(e.target.value);
         let newValid = { ...valid };
         newValid[x] = e.target.value !== "";
@@ -155,7 +165,7 @@ const PostJob = (props) => {
     };
     const handleChangeSelect = (name, value) => {
         eval(`set${name}`)(value);
-        const x = name.toLowerCase();
+        const x = name.charAt(0).toLowerCase() + name.slice(1);
         let newValid = { ...valid };
         newValid[x] = value !== "";
         console.log(newValid);
@@ -197,17 +207,16 @@ const PostJob = (props) => {
             },
         };
         if (type === "Day Job") {
-            // type2 = "freelance";
-            if (endDate !== "")
+            type2 = "freelance";
+            if (startDate !== "")
                 job.endDate = new Date(`${startDate} ${endTime}`).toISOString();
             if (startDate !== "")
                 job.startDate = new Date(
                     `${startDate} ${startTime}`,
                 ).toISOString();
             job.category = type;
-        }
-        if (type === "Locum Position") {
-            // type2 = "freelance";
+        } else if (type === "Locum Position") {
+            type2 = "freelance";
             if (endDate !== "")
                 job.endDate = new Date(`${endDate}`).toISOString();
             if (startDate !== "")
@@ -284,7 +293,7 @@ const PostJob = (props) => {
             },
         };
         if (type === "Day Job") {
-            // type2 = "freelance";
+            type2 = "freelance";
             if (endDate !== "")
                 job.endDate = new Date(`${startDate} ${endTime}`).toISOString();
             if (startDate !== "")
@@ -292,9 +301,8 @@ const PostJob = (props) => {
                     `${startDate} ${startTime}`,
                 ).toISOString();
             job.category = type;
-        }
-        if (type === "Locum Position") {
-            // type2 = "freelance";
+        } else if (type === "Locum Position") {
+            type2 = "freelance";
             if (endDate !== "")
                 job.endDate = new Date(`${endDate}`).toISOString();
             if (startDate !== "")
@@ -1227,7 +1235,7 @@ const PostJob = (props) => {
                                     </InputGroup>
                                 </InputGroup>
                                 <div className='col-12 row px-0'>
-                                    <InputGroup className='col-12 col-md-6 my-1 pr-1'>
+                                    <InputGroup className='col-12 col-md-6 my-1 pr-md-1'>
                                         <Label
                                             className='my-1 col-12'
                                             for='exampleDate'>
@@ -1252,7 +1260,7 @@ const PostJob = (props) => {
                                         />
                                     </InputGroup>
                                     {type === "Locum Position" && (
-                                        <InputGroup className='col-12 col-md-6 my-1 pl-1'>
+                                        <InputGroup className='col-12 col-md-6 my-1 pl-md-1'>
                                             <Label
                                                 className='my-1 col-12'
                                                 for='exampleDate'>
@@ -1280,7 +1288,7 @@ const PostJob = (props) => {
                                 </div>
                                 {type === "Day Job" && (
                                     <div className='col-12 row px-0'>
-                                        <InputGroup className='col-12 col-sm-6 my-1 pr-1'>
+                                        <InputGroup className='col-12 col-sm-6 my-1 pr-md-1'>
                                             <Label
                                                 className='pr-2 col-12'
                                                 for='exampleDate'>
@@ -1303,7 +1311,7 @@ const PostJob = (props) => {
                                                 }
                                             />
                                         </InputGroup>
-                                        <InputGroup className='col-12 col-sm-6 my-1 pl-1 '>
+                                        <InputGroup className='col-12 col-sm-6 my-1 pl-md-1 '>
                                             <Label
                                                 className='pr-2 col-12'
                                                 for='exampleDate'>
@@ -1319,10 +1327,9 @@ const PostJob = (props) => {
                                                 // ref={endTimeRef}
                                                 onChange={handleChange}
                                                 invalid={
-                                                    valid.startTime ===
-                                                    undefined
+                                                    valid.endTime === undefined
                                                         ? false
-                                                        : !valid.startTime
+                                                        : !valid.endTime
                                                 }
                                             />
                                         </InputGroup>
