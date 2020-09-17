@@ -119,8 +119,44 @@ const UpdateJob = (props) => {
 
     const [modalError, setModalError] = useState(false);
     const [messError, setMessError] = useState("");
+    const [valid, setValid] = useState({});
+    const toggle = (e) => {
+        if (e === "discard") setModal(!modal);
+        else {
+            let newValid = {
+                title: title !== "",
+                type: type !== "",
+                profession: profession !== "",
+                specialization: specialization !== "",
+                location: location !== "",
+                experience: experience !== "",
+                line: line !== "",
+                contact: contact !== "",
+            };
 
-    const toggle = () => setModal(!modal);
+            if (type === "Locum Position") {
+                newValid.startDate = startDate !== "";
+                newValid.endDate = endDate !== "";
+            }
+            if (type === "Day Job") {
+                newValid.startDate = startDate !== "";
+                newValid.startTime = startTime !== "";
+                newValid.endTime = endTime !== "";
+            }
+
+            console.log(newValid);
+            setValid(newValid);
+            const isValid = Object.values(newValid).every(
+                (item) => item === true,
+            );
+            if (isValid) {
+                setModal(!modal);
+            } else {
+                setModalError(true);
+                setMessError("Please fill all the fields !");
+            }
+        }
+    };
     const toggleError = () => setModalError(!modalError);
 
     const toggleDetail = () => setShowDetail((prevState) => !prevState);
@@ -128,10 +164,22 @@ const UpdateJob = (props) => {
     const toggleOtherDetail = () =>
         setShowOtherDetail((prevState) => !prevState);
     const handleChange = (e) => {
+        // eval(`set${e.target.name}`)(e.target.value);
+        const x = e.target.name.toLowerCase();
         eval(`set${e.target.name}`)(e.target.value);
+        let newValid = { ...valid };
+        newValid[x] = e.target.value !== "";
+        console.log(newValid);
+        setValid(newValid);
     };
     const handleChangeSelect = (name, value) => {
+        // eval(`set${name}`)(value);
         eval(`set${name}`)(value);
+        const x = name.toLowerCase();
+        let newValid = { ...valid };
+        newValid[x] = value !== "";
+        console.log(newValid);
+        setValid(newValid);
     };
     const loc = useLocation();
     useEffect(() => {
@@ -187,7 +235,7 @@ const UpdateJob = (props) => {
                         data.description.count ? data.description.count : 0,
                     );
                     data.startDate &&
-                        setDate(
+                        setStartDate(
                             `${new Date(data.startDate).getFullYear()}-${(
                                 "0" +
                                 (new Date(data.startDate).getMonth() + 1)
@@ -210,6 +258,15 @@ const UpdateJob = (props) => {
                                 minute: "2-digit",
                                 hour12: false,
                             }),
+                        );
+                    data.endDate &&
+                        setEndDate(
+                            `${new Date(data.endDate).getFullYear()}-${(
+                                "0" +
+                                (new Date(data.endDate).getMonth() + 1)
+                            ).slice(-2)}-${(
+                                "0" + new Date(data.endDate).getDate()
+                            ).slice(-2)}`,
                         );
                     setSkills(
                         data.description.about ? data.description.about : "",
@@ -310,14 +367,39 @@ const UpdateJob = (props) => {
                             ).slice(-2)}`,
                         );
                     }
-                    data.expireAt &&
+                    data.endDate &&
                         setEndDate(
-                            `${new Date(data.expireAt).getFullYear()}-${(
+                            `${new Date(data.endDate).getFullYear()}-${(
                                 "0" +
-                                (new Date(data.expireAt).getMonth() + 1)
+                                (new Date(data.endDate).getMonth() + 1)
                             ).slice(-2)}-${(
-                                "0" + new Date(data.expireAt).getDate()
+                                "0" + new Date(data.endDate).getDate()
                             ).slice(-2)}`,
+                        );
+                    data.startDate &&
+                        setStartDate(
+                            `${new Date(data.startDate).getFullYear()}-${(
+                                "0" +
+                                (new Date(data.startDate).getMonth() + 1)
+                            ).slice(-2)}-${(
+                                "0" + new Date(data.startDate).getDate()
+                            ).slice(-2)}`,
+                        );
+                    data.startDate &&
+                        setStartTime(
+                            new Date(data.startDate).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: false,
+                            }),
+                        );
+                    data.endDate &&
+                        setEndTime(
+                            new Date(data.endDate).toLocaleTimeString([], {
+                                hour: "2-digit",
+                                minute: "2-digit",
+                                hour12: false,
+                            }),
                         );
 
                     setSkills(
@@ -382,7 +464,7 @@ const UpdateJob = (props) => {
     }, []);
     const save = () => {
         // const jobType = "save";
-        // let type2;
+        let type2;
         // setJobType("save");
         let job = {
             title: title,
@@ -398,7 +480,7 @@ const UpdateJob = (props) => {
                 incentives: incentives.map((x) => x.value),
                 // type: type.map((x) => x.value),
                 type: type,
-
+                location: location,
                 salary: salary,
                 count: numberApp,
                 company: company,
@@ -462,7 +544,7 @@ const UpdateJob = (props) => {
     };
     const submit = () => {
         // setjobType
-        // let type2;
+        let type2;
         setModal(false);
         let job = {
             title: title,
@@ -489,7 +571,7 @@ const UpdateJob = (props) => {
             },
         };
         if (type === "Day Job") {
-            // type2 = "freelance";
+            type2 = "freelance";
             if (endDate !== "")
                 job.endDate = new Date(`${startDate} ${endTime}`).toISOString();
             if (startDate !== "")
@@ -497,16 +579,15 @@ const UpdateJob = (props) => {
                     `${startDate} ${startTime}`,
                 ).toISOString();
             job.category = type;
-        }
-        if (type === "Locum Position") {
-            // type2 = "freelance";
+        } else if (type === "Locum Position") {
+            type2 = "freelance";
             if (endDate !== "")
                 job.endDate = new Date(`${endDate}`).toISOString();
             if (startDate !== "")
                 job.startDate = new Date(`${startDate}`).toISOString();
             job.category = "Locum";
         } else {
-            // type2 = "job";
+            type2 = "job";
             //   job.expireAt =
             //       endDate !== ""
             //           ? new Date(endDate).toISOString()
@@ -649,7 +730,7 @@ const UpdateJob = (props) => {
                     </div>
                 </div>
             </Nav>
-            <Form className='border-block p-3 p-md-4 mx-2 mx-sm-4 m-3'>
+            <Form className='border-block p-3 p-md-4 mx-2 mx-sm-auto m-3 box'>
                 <h2>Edit a Job</h2>
                 <div className=' p-2 p-sm-3 mt-4' style={block}>
                     <div className='row justify-content-between'>
@@ -667,7 +748,7 @@ const UpdateJob = (props) => {
                             className='text-info'
                             size='md'
                             onClick={toggleDetail}
-                            className='col-3 col-sm-1'
+                            className='col-3 col-sm-1 my-auto'
                         />
 
                         {/* </Button> */}
@@ -682,13 +763,18 @@ const UpdateJob = (props) => {
                                         <span className='text-danger'>*</span>
                                     </h6>
                                 </Label>
-                                <input
+                                <Input
                                     placeholder='Title'
                                     className='form-control'
                                     ref={titleRef}
                                     name='Title'
                                     defaultValue={title}
                                     onChange={handleChange}
+                                    invalid={
+                                        valid.title === undefined
+                                            ? false
+                                            : !valid.title
+                                    }
                                     required
                                 />
                             </div>
@@ -720,8 +806,12 @@ const UpdateJob = (props) => {
                                         autosize={true}
                                         placeholder='Type'
                                         options={typeArray}
-                                        // className='basic-multi-select'
-                                        // classNamePrefix='select'
+                                        className={
+                                            valid.type !== undefined &&
+                                            !valid.type
+                                                ? "border-invalid"
+                                                : ""
+                                        }
                                         ref={typeRef}
                                         name='Type'
                                         defaultValue={
@@ -780,6 +870,12 @@ const UpdateJob = (props) => {
                                                 label: location,
                                             }
                                         }
+                                        className={
+                                            valid.location !== undefined &&
+                                            !valid.location
+                                                ? "border-invalid"
+                                                : ""
+                                        }
                                         onChange={(e) => {
                                             console.log(e);
                                             handleChangeSelect(
@@ -805,6 +901,12 @@ const UpdateJob = (props) => {
                                         value: profession,
                                         label: profession,
                                     }}
+                                    className={
+                                        valid.profession !== undefined &&
+                                        !valid.profession
+                                            ? "border-invalid"
+                                            : ""
+                                    }
                                     options={data.professions.map(
                                         (profession) => {
                                             return {
@@ -839,6 +941,12 @@ const UpdateJob = (props) => {
                                             value: specialization,
                                             label: specialization,
                                         }
+                                    }
+                                    className={
+                                        valid.specialization !== undefined &&
+                                        !valid.specialization
+                                            ? "border-invalid"
+                                            : ""
                                     }
                                     options={data.specializations.map(
                                         (specialization) => {
@@ -902,6 +1010,12 @@ const UpdateJob = (props) => {
                                         }
                                         // className='basic-multi-select'
                                         // classNamePrefix='select'
+                                        className={
+                                            valid.experience !== undefined &&
+                                            !valid.experience
+                                                ? "border-invalid"
+                                                : ""
+                                        }
                                         ref={experienceRef}
                                         onChange={(e) => {
                                             console.log(e);
@@ -919,7 +1033,7 @@ const UpdateJob = (props) => {
                                     <h6>Salary</h6>
                                 </Label>
                                 <InputGroup className=''>
-                                    <input
+                                    <Input
                                         placeholder='salary'
                                         type='number'
                                         className='form-control '
@@ -1002,7 +1116,8 @@ const UpdateJob = (props) => {
                                     </h6>
                                 </Label>
                                 <InputGroup className='w-100'>
-                                    <textarea
+                                    <Input
+                                        type='textarea'
                                         placeholder='Short Description ..'
                                         ref={lineRef}
                                         className='form-control m-1'
@@ -1010,6 +1125,11 @@ const UpdateJob = (props) => {
                                         name='Line'
                                         onChange={handleChange}
                                         defaultValue={line === "" ? null : line}
+                                        invalid={
+                                            valid.line === undefined
+                                                ? false
+                                                : !valid.line
+                                        }
                                     />
                                 </InputGroup>
                             </InputGroup>
@@ -1019,7 +1139,8 @@ const UpdateJob = (props) => {
                                         <h6>Description</h6>
                                     </Label>
                                     <InputGroup className='w-100 '>
-                                        <textarea
+                                        <Input
+                                            type='textarea'
                                             placeholder='Description ..'
                                             ref={skillsRef}
                                             className='form-control m-1'
@@ -1057,7 +1178,7 @@ const UpdateJob = (props) => {
                                 <Label className='m-1'>
                                     <h6>Employer</h6>
                                 </Label>
-                                <input
+                                <Input
                                     placeholder='Employer'
                                     className='form-control'
                                     name='Employer'
@@ -1094,29 +1215,40 @@ const UpdateJob = (props) => {
                                     </h6>
                                 </Label>
                                 <InputGroup className='w-100'>
-                                    <textarea
+                                    <Input
+                                        type='textarea'
                                         placeholder='Contact'
                                         className='form-control'
                                         name='Contact'
                                         defaultValue={contact}
                                         onChange={handleChange}
+                                        invalid={
+                                            valid.contact === undefined
+                                                ? false
+                                                : !valid.contact
+                                        }
                                         required
                                     />
                                 </InputGroup>
                             </div>
-                            <div className='col-12 '>
-                                <Label className='my-2 w-100'>
-                                    <h5>
-                                        Promote
-                                        <input
-                                            type='checkbox'
-                                            name=''
-                                            defaultValue={sponsored}
-                                            className='float-right'
-                                        />
-                                    </h5>
+
+                            <div className='col-12 row justify-content-between'>
+                                <Label className='my-2 col-10'>
+                                    <h5>Promote</h5>
                                 </Label>
-                                <InputGroup className=''></InputGroup>
+                                <InputGroup className='col-2 position-relative my-2'>
+                                    <Input
+                                        type='checkbox'
+                                        name=''
+                                        defaultValue={sponsored}
+                                        className=' my-2 position-absolute'
+                                        style={{ right: 0 }}
+                                        onChange={(e) =>
+                                            // console.log(e.target.checked)
+                                            setSponsored(e.target.checked)
+                                        }
+                                    />
+                                </InputGroup>
                             </div>
                         </FormGroup>
                     )}
@@ -1174,7 +1306,7 @@ const UpdateJob = (props) => {
                                     </InputGroup>
                                 </InputGroup>
                                 <div className='col-12 row px-0'>
-                                    <InputGroup className='col-12 col-md-6 my-1 pr-1'>
+                                    <InputGroup className='col-12 col-md-6 my-1 pr-md-1'>
                                         <Label
                                             className='my-1 col-12'
                                             for='exampleDate'>
@@ -1190,17 +1322,19 @@ const UpdateJob = (props) => {
                                             name='StartDate'
                                             id='exampleDate'
                                             placeholder='date placeholder'
-                                            // ref={dateRef}
+                                            defaultValue={startDate}
                                             className=''
                                             onChange={handleChange}
-                                            // defaultValue={endDate}
-                                            // ref={endDateRef}
-                                            // onChange={handleChange}
                                             required
+                                            invalid={
+                                                valid.startDate === undefined
+                                                    ? false
+                                                    : !valid.startDate
+                                            }
                                         />
                                     </InputGroup>
                                     {type === "Locum Position" && (
-                                        <InputGroup className='col-12 col-md-6 my-1 pl-1'>
+                                        <InputGroup className='col-12 col-md-6 my-1 pl-md-1'>
                                             <Label
                                                 className='my-1 col-12'
                                                 for='exampleDate'>
@@ -1216,19 +1350,21 @@ const UpdateJob = (props) => {
                                                 name='EndDate'
                                                 id='exampleDate'
                                                 placeholder='date placeholder'
-                                                // ref={dateRef}
                                                 className=''
                                                 onChange={handleChange}
-                                                // defaultValue={endDate}
-                                                // ref={endDateRef}
-                                                // onChange={handleChange}
+                                                invalid={
+                                                    valid.endDate === undefined
+                                                        ? false
+                                                        : !valid.endDate
+                                                }
+                                                defaultValue={endDate}
                                             />
                                         </InputGroup>
                                     )}
                                 </div>
                                 {type === "Day Job" && (
                                     <div className='col-12 row px-0'>
-                                        <InputGroup className='col-12 col-sm-6 my-1 pr-1'>
+                                        <InputGroup className='col-12 col-sm-6 my-1 pr-md-1'>
                                             <Label
                                                 className='pr-2 col-12'
                                                 for='exampleDate'>
@@ -1248,9 +1384,16 @@ const UpdateJob = (props) => {
                                                 className=''
                                                 ref={startTimeRef}
                                                 onChange={handleChange}
+                                                defaultValue={startTime}
+                                                invalid={
+                                                    valid.startTime ===
+                                                    undefined
+                                                        ? false
+                                                        : !valid.startTime
+                                                }
                                             />
                                         </InputGroup>
-                                        <InputGroup className='col-12 col-sm-6 my-1 pl-1 '>
+                                        <InputGroup className='col-12 col-sm-6 my-1 pl-md-1 '>
                                             <Label
                                                 className='pr-2 col-12'
                                                 for='exampleDate'>
@@ -1270,6 +1413,12 @@ const UpdateJob = (props) => {
                                                 className=''
                                                 // ref={endTimeRef}
                                                 onChange={handleChange}
+                                                invalid={
+                                                    valid.endTime === undefined
+                                                        ? false
+                                                        : !valid.endTime
+                                                }
+                                                defaultValue={endTime}
                                             />
                                         </InputGroup>
                                     </div>
@@ -1314,7 +1463,7 @@ const UpdateJob = (props) => {
                             <Button
                                 onClick={(e) => {
                                     setMess("discard");
-                                    toggle();
+                                    toggle("discard");
                                 }}
                                 className='w-100'
                                 color='danger'>
