@@ -78,31 +78,6 @@ const BounceIn = styled.div`
     animation: 0.3s ${keyframes`${slideInRight}`} 0s;
 `;
 
-const incentivesArray = data.incentive.map((opt) => ({
-    label: opt,
-    value: opt,
-}));
-const typeArray = data.type.map((opt) => ({ label: opt, value: opt }));
-const superSpecializationArray = data.superSpecialization.map((opt) => ({
-    label: opt,
-    value: opt,
-}));
-const locationArray = data.location.map((opt) => ({
-    label: `${opt.name}, ${opt.state}`,
-    value: `${opt.name}`,
-}));
-const experienceArray = data.experience.map((opt) => ({
-    label: opt,
-    value: opt,
-}));
-const professionArray = data.professions.map((opt) => ({
-    label: opt,
-    value: opt,
-}));
-const specializationArray = data.specializations.map((opt) => ({
-    label: opt,
-    value: opt,
-}));
 const Badges = ({ desc, superSpecialization }) => {
     const superSp = superSpecialization ? superSpecialization : [];
     let badges = [];
@@ -732,7 +707,50 @@ export default class JobSearch extends Component {
             }
         } else this.getAllJobs(skipNo);
     }
+
     render() {
+        let professionArray,
+            incentivesArray,
+            specializationArray,
+            superSpecializationArray,
+            locationArray,
+            experienceArray,
+            typeArray = [];
+        if (this.props.data) {
+            professionArray = this.props.data.professions.map((opt) => ({
+                label: opt,
+                value: opt,
+            }));
+            incentivesArray = this.props.data.incentive.map((opt) => ({
+                label: opt,
+                value: opt,
+            }));
+            typeArray = this.props.data.type.map((opt) => ({
+                label: opt,
+                value: opt,
+            }));
+            superSpecializationArray = this.props.data.superSpecialization.map(
+                (opt) => ({
+                    label: opt,
+                    value: opt,
+                }),
+            );
+            locationArray = this.props.data.location.map((opt) => ({
+                label: `${opt.name}, ${opt.state}`,
+                value: `${opt.name}`,
+            }));
+            experienceArray = this.props.data.experience.map((opt) => ({
+                label: opt,
+                value: opt,
+            }));
+
+            specializationArray = this.props.data.specializations.map(
+                (opt) => ({
+                    label: opt,
+                    value: opt,
+                }),
+            );
+        }
         return (
             <div className='row justify-content-center align-content-center mx-4 mx-lg-2 position-relative'>
                 <div

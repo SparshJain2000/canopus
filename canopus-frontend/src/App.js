@@ -24,6 +24,7 @@ class App extends Component {
         super(props);
         this.state = {
             user: null,
+            data: null,
         };
         this.setUser = this.setUser.bind(this);
         this.getUser = this.getUser.bind(this);
@@ -50,7 +51,9 @@ class App extends Component {
         }
         const node = this.wrapper.current;
         console.log(node);
-        // axios.get("/json/data.json").then((data) => console.log(data.data));
+        axios.get("/data.json").then((data) => {
+            this.setState({ data: data.data });
+        });
     }
     wrapper = createRef();
     render() {
@@ -67,13 +70,19 @@ class App extends Component {
                     <Route
                         exact
                         path='/'
-                        render={(props) => <Home {...props} />}
+                        render={(props) => (
+                            <Home {...props} data={this.state.data} />
+                        )}
                     />
                     <Route
                         exact
                         path='/search-jobs'
                         render={(props) => (
-                            <JobSearch {...props} user={this.state.user} />
+                            <JobSearch
+                                {...props}
+                                user={this.state.user}
+                                data={this.state.data}
+                            />
                         )}
                     />
                     <Route
