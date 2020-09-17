@@ -100,7 +100,7 @@ router.post("/login", function (req, res, next) {
       if (err) {
         return res.status(400).json({ err: err });
       }
-      visitor.event("User", "Login").send();
+     // visitor.event("User", "Login").send();
       return res.json({
         user: req.user,
         message: `${req.user.username} Logged in`,

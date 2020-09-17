@@ -168,4 +168,14 @@ async function updateQueryBuilder(req){
   if(req.body.endDate){query["endDate"]=req.body.endDate;query["expireAt"]=req.body.endDate;}
   return query;
 }
-exports.jobController = { createJob, createSavedJob, assignTier, updateQueryBuilder };
+
+async function createApplicant(user){
+  return {
+    id: user._id,
+    name: `${user.salutation} ${user.firstName} ${user.lastName}`,
+    image: user.image,
+    username: user.username,
+    phone: user.phone,
+  };
+}
+exports.jobController = { createJob, createSavedJob, assignTier, updateQueryBuilder ,createApplicant};

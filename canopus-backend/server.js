@@ -34,7 +34,7 @@ app.use(function (req, res, next) {
     );
     next();
 });
-//app.use(ua.middleware(GOOGLE_ANALYTICS, {cookieName: '_ga'}));
+// app.use(ua.middleware(GOOGLE_ANALYTICS, {cookieName: '_ga'}));
 app.use(
     require("express-session")({
         secret: process.env.SECRET,

@@ -22,78 +22,22 @@ const router = require("express").Router(),
 // add new tag
 const Transaction = require("mongoose-transactions");
  
-
+const fs = require("fs"),
+path = require('path'),    
+filePath = path.join(__dirname, '../canopus-frontend/build/tags.json');
+const { pathToFileURL } = require("url");
 //Work in progress TODO admin model
-router.post("/tag",middleware.isAdmin, (req, res) => {
-    const tag = new Tag({
-        uber:req.body.uber,
-        specialization:req.body.specialization,
-        description:req.body.description
-    });
-    Tag.register(tag, req.body.password)
-        .then((user) => {
-            passport.authenticate("user")(req, res, () => {
-                res.json({ user: user });
-            });
-        })
-        .catch((err) => res.status(400).json({ err: err }));
+router.post("/tags",async (req,res)=>{
+   let rawdata = fs.readFileSync(filePath);
+   let tags = JSON.parse(rawdata);
+   tags.tags.push(req.body.tag);
+   tags = JSON.stringify(tags);
+   fs.writeFileSync(filePath,tags);
+   res.json(tags);
 });
+
 // const { runInTransaction } = require('mongoose-transact-utils');
  
-router.get("/experiment", async (req,res)=>{
-    const session = await mongoose.startSession();
-    session.startTransaction();
-    var user;
-    var employer;
-    try{
-        user = await User.find().session(session);
-        employer = await Employer.find().session(session);
-        await session.commitTransaction()
-        session.endSession()
-    }catch (err){
-         (await session).abortTransaction();
-         (await session).endSession();
-         console.log(err);
-         throw err;
-    }finally{
-        res.json({user:user,employer:employer});
-    }
-    // const user =await runInTransaction(async session => {
-    //     // run any queries here
-    //     const job = await Job.find().session(session);
-    //     console.log(job);
-    //    return await User.find(//{_id:job[3].author.id}
-    //    ).session(session);
-       
-    //   });
-    //   res.json(user);
-//     const session = await Employer.startSession();
-//     var user;
-//     try{
-//      user =await session.withTransaction(async ()=>{ 
-//         const employer= await Employer.find().session(session);
-//         return employer;
-//     });
-// }
-// finally{
-//     res.json(user);
-//}
-
-});
-//===
-// router.post("/", (req, res) => {
-//     const user = new User({
-//       username: req.body.username,
-//       role: "Admin",
-//     });
-//     User.register(user, req.body.password)
-//       .then((user) => {
-//         passport.authenticate("user")(req, res, () => {
-//           res.json({ user: user });
-//         });
-//       })
-//       .catch((err) => res.status(400).json({ err: err }));
-//   });
 
 router.post("/login", function (req, res, next) {
     passport.authenticate("user", (err, user, info) => {
