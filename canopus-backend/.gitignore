@@ -4,6 +4,5 @@ node_modules
 .env
 .vscode
 .idea
-models/canopy.code-workspace
 README.md
-views
+unwanted
