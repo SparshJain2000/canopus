@@ -1,5 +1,6 @@
 
 const { searchController } = require("../controllers/search.controller");
+const { jobController }    = require("../controllers/job.controller");
 const mongoose = require("mongoose");
 
 const router = require("express").Router(),
@@ -533,7 +534,63 @@ router.post("/visitor-jobs", async (req, res) => {
 //===========================================================================
 
 //router.put("/:id",middleware.isLoggedIn())
-router.post("/apply/job/:id", middleware.isUser, (req, res) => {
+router.post("/apply/job/:id", middleware.isUser, async (req, res) => {
+    //start transaction
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  const server_error = new Error("500");
+  const client_error = new Error("400");
+  try {
+    //find applicant
+    const user = User.findById(req.body.id).session(session);
+    if(!user) throw client_error;
+    //check applicants 
+    let job = await Freelance.findById(req.params.id).session(session);
+    //if user has applied
+    const appliedUserId = job.applicants.map((item) => {
+      return mongoose.Types.ObjectId(item.id);
+    })
+    if(!appliedUserId.includes(req.body.id))
+      return res.status(400).json({err : "Candidate has not applied to this job"});
+    // if user has already been accepted
+    const acceptedUserId = job.acceptedApplicants.map((item) => {
+      return mongoose.Types.ObjectId(item.id);
+      });
+    if(acceptedUserId.includes(req.body.id))
+      return res.status(400).json({err:"Candidate already accepted"});
+    //create applicant 
+    let applicant = await jobController.createApplicant(user);
+    //accept applicants
+    if (job.description.count - job.acceptedApplicants.length === 0){
+      //delete freelance max applicants
+      if(job.sponsored==="true")
+        employer.sponsors.closed+=1;
+      sjob.status = "Closed";
+      await Freelance.deleteOne(req.params.id).session(session);
+    }
+    else{
+      job.acceptedApplicants.push(applicant);
+      await job.save({ session });
+    }
+    //save applicant to saved job
+    let sjob = await savedFreelance.findOne({jobRef:job._id}).session(session);
+    sjob.acceptedApplicants.push(applicant);
+    await sjob.save({ session });
+    //save applicant to employer
+    employer.acceptedApplicants.push(applicant);
+    await employer.save({ session });
+    //commit transaction
+    await session.commitTransaction();
+    session.endSession();
+    res.json({status:"200"});
+
+    } catch(err){
+      // any 500 error in try block aborts transaction
+      await session.abortTransaction();
+      session.endSession();
+      console.log(err);
+      res.status(500).json({status:"500"});    
+    }
   User.findById(req.user._id)
     .then((user) => {
       Job.findById(req.params.id).then((job) => {

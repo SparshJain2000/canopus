@@ -13,7 +13,7 @@ const router = require("express").Router(),
   async function assignTier(req,employer,type){
     //checking tier on basis of job category
     var subscription;
-    if(req.body.category === "Job") subscription="jobtier";
+    if(req.body.category === "Full-time" || req.body.category === "Part-time") subscription="jobtier";
     else if(req.body.category === "Day Job") subscription="freelancetier";
     else if(req.body.category === "Locum") subscription = "locumtier";
     else return false;
@@ -37,7 +37,7 @@ const router = require("express").Router(),
     
   }
 //create job
-async function createJob(req,employer){
+async function createJob(req,data,employer,extension){
     let author = {};
     author.username = req.user.username;
     author.id = req.user._id;
@@ -49,27 +49,27 @@ async function createJob(req,employer){
     else{
       author.name = `${employer.salutation} ${employer.firstName} ${employer.lastName}`;
     }
-    if(req.body.category === "Job"){
+    if(req.body.category === "Full-time" || req.body.category === "Part-time"){
     //set expiry date
     var expiry = new Date();
     expiry.setDate(expiry.getDate() + 45);
 
     let job = new Job({
         author:author,
-        title: req.body.title,
-        profession: req.body.profession,
-        specialization: req.body.specialization,
-        superSpecialization: req.body.superSpecialization,
-        tag:req.body.tag,
-        description: req.body.description,
-        address: req.body.address,
+        title: data.title,
+        profession: data.profession,
+        specialization: data.specialization,
+        superSpecialization: data.superSpecialization,
+        tag:data.tag,
+        description: data.description,
+        address: data.address,
         createdAt: new Date(),
         createdBy: req.user.role,
         expireAt: expiry,
         validated: employer.validated,
-        sponsored: req.body.sponsored || false,
-        extension: 1,
-        category:"Job",
+        sponsored: data.sponsored || false,
+        extension: extension || 1,
+        category:data.category,
       });
     return job;
     }
@@ -113,7 +113,7 @@ async function createSavedJob(req,job,status){
     else{
       author.name = `${req.user.salutation} ${req.user.firstName} ${req.user.lastName}`;
     }
-    if(req.body.category === "Job"){
+    if(req.body.category === "Full-time" || req.body.category === "Part-time"){
       let sjob = new savedJob({
           jobRef: job._id,
           status: status,
@@ -128,7 +128,7 @@ async function createSavedJob(req,job,status){
           createdAt: new Date(),
           createdBy: req.user.role,
           extension: 1,
-          category:"Job",
+          category:req.body.category,
         });
         return sjob;
     }
