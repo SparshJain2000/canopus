@@ -99,7 +99,7 @@ router.post("/login", function (req, res, next) {
       if (err) {
         return res.status(400).json({ err: err });
       }
-      console.log(req.user._id);
+      
       // let params = {
       //   ec:"Employer",
       //   ea:"true",

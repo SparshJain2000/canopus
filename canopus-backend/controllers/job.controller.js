@@ -101,7 +101,7 @@ async function createJob(req,data,employer,extension){
    
 }
 //create saved job
-async function createSavedJob(req,job,status){
+async function createSavedJob(req,data,status){
   let author = {};
     author.username = req.user.username;
     author.id = req.user._id;
@@ -115,41 +115,41 @@ async function createSavedJob(req,job,status){
     }
     if(req.body.category === "Full-time" || req.body.category === "Part-time"){
       let sjob = new savedJob({
-          jobRef: job._id,
+          jobRef: data._id,
           status: status,
           author: author,
-          title: job.title,
-          profession: job.profession,
-          specialization: job.specialization,
-          superSpecialization: job.superSpecialization,
-          tag : req.body.tag,
-          description: job.description,
-          address: job.address,
+          title: data.title,
+          profession: data.profession,
+          specialization: data.specialization,
+          superSpecialization: data.superSpecialization,
+          tag : data.tag,
+          description: data.description,
+          address: data.address,
           createdAt: new Date(),
           createdBy: req.user.role,
           extension: 1,
-          category:req.body.category,
+          category:data.category,
         });
         return sjob;
     }
     else{
       let freelance = new savedFreelance({
-        jobRef: job._id,
+        jobRef: data._id,
         status: status,
         author: author,
-        title: req.body.title,
-        profession: req.body.profession,
-        specialization: req.body.specialization,
-        superSpecialization: req.body.superSpecialization,
-        tag : req.body.tag,
-        description: req.body.description,
-        address: req.body.address,
-        startDate: req.body.startDate,
-        endDate: req.body.endDate,
-        attachedApplicants: req.body.attachedApplicants,
+        title: data.title,
+        profession: data.profession,
+        specialization: data.specialization,
+        superSpecialization: data.superSpecialization,
+        tag : data.tag,
+        description: data.description,
+        address: data.address,
+        startDate: data.startDate,
+        endDate: data.endDate,
+        attachedApplicants: data.attachedApplicants,
         createdAt: new Date(),
         createdBy: req.user.role,
-        category: req.body.category,
+        category: data.category,
       });
       return freelance;
     }
