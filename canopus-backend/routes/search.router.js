@@ -541,44 +541,43 @@ router.post("/apply/job/:id", middleware.isUser, async (req, res) => {
   const server_error = new Error("500");
   const client_error = new Error("400");
   try {
+    
     //find applicant
     const user = User.findById(req.body.id).session(session);
     if(!user) throw client_error;
     //check applicants 
-    let job = await Freelance.findById(req.params.id).session(session);
-    //if user has applied
+    let job = await Job.findById(req.params.id).session(session);
+    let sjob = await savedJob.findOne({jobRef:req.params.id}).session(session);
+    //job validation
+    // if(job.profession=='Surgeon' || job.profession=='Physician')
+    //     if(job.specialization!=user.specialization)
+    //     return res.status(400).json(({err:"Specialization doesn't match, update your profile!"}));
+    if (job.validated == false)
+      return res.status(400).json({ err: "Job not active" });
+    // if user has already been accepted
+    const applicants = job.applicants.map((item) => {
+      return mongoose.Types.ObjectId(item.id);
+    });
+    if (applicants.includes(req.user._id))
+      return res.status(400).json({ err: "Already applied to this job" });
     const appliedUserId = job.applicants.map((item) => {
       return mongoose.Types.ObjectId(item.id);
-    })
-    if(!appliedUserId.includes(req.body.id))
-      return res.status(400).json({err : "Candidate has not applied to this job"});
-    // if user has already been accepted
-    const acceptedUserId = job.acceptedApplicants.map((item) => {
-      return mongoose.Types.ObjectId(item.id);
       });
-    if(acceptedUserId.includes(req.body.id))
+    if(appliedUserId.includes(req.body.id))
       return res.status(400).json({err:"Candidate already accepted"});
     //create applicant 
     let applicant = await jobController.createApplicant(user);
-    //accept applicants
-    if (job.description.count - job.acceptedApplicants.length === 0){
-      //delete freelance max applicants
-      if(job.sponsored==="true")
-        employer.sponsors.closed+=1;
-      sjob.status = "Closed";
-      await Freelance.deleteOne(req.params.id).session(session);
-    }
-    else{
-      job.acceptedApplicants.push(applicant);
-      await job.save({ session });
-    }
+    
+    job.acceptedApplicants.push(applicant);
+    await job.save({ session });
     //save applicant to saved job
     let sjob = await savedFreelance.findOne({jobRef:job._id}).session(session);
     sjob.acceptedApplicants.push(applicant);
     await sjob.save({ session });
-    //save applicant to employer
-    employer.acceptedApplicants.push(applicant);
-    await employer.save({ session });
+    user.applied.push({
+      id: job._id,
+      title: job.title,
+    });
     //commit transaction
     await session.commitTransaction();
     session.endSession();
@@ -591,95 +590,6 @@ router.post("/apply/job/:id", middleware.isUser, async (req, res) => {
       console.log(err);
       res.status(500).json({status:"500"});    
     }
-  User.findById(req.user._id)
-    .then((user) => {
-      Job.findById(req.params.id).then((job) => {
-        //job validation
-        // if(job.profession=='Surgeon' || job.profession=='Physician')
-        //     if(job.specialization!=user.specialization)
-        //     return res.status(400).json(({err:"Specialization doesn't match, update your profile!"}));
-        if (job.validated == false)
-          return res.status(400).json({ err: "Job not active" });
-        const applicants = job.applicants.map((item) => {
-          return mongoose.Types.ObjectId(item.id);
-        });
-        if (applicants.includes(req.user._id))
-          return res.status(400).json({ err: "Already applied to this job" });
-        job.applicants = [
-          ...job.applicants,
-          {
-            id: req.user._id,
-            name: `${user.salutation} ${user.firstName} ${user.lastName}`,
-            image: user.image,
-            username: user.username,
-            phone: user.phone,
-          },
-        ];
-        job
-          .save()
-          .then((updatedJob) => {
-            savedJob
-              .findOne({ jobRef: req.params.id })
-              .then((sjob) => {
-                sjob.applicants = [
-                  ...sjob.applicants,
-                  {
-                    id: req.user._id,
-                    name: `${user.salutation} ${user.firstName} ${user.lastName}`,
-                    image: user.image,
-                    username: user.username,
-                    phone: user.phone,
-                  },
-                ];
-                sjob
-                  .save()
-                  .then((sjob) => {
-                    // res.json(updatedJob);
-                    User.findById(req.user._id)
-                      .then((user) => {
-                        user.applied.push({
-                          id: updatedJob._id,
-                          title: updatedJob.title,
-                        });
-                        user
-                          .save()
-                          .then((updatedUser) => {
-                            req.login(updatedUser, (err) => {
-                              if (err) return res.status(500).send(err);
-                              return res.json({ status: "Applied" });
-                            });
-                          })
-                          .catch((err) =>
-                            res.status(400).json({
-                              err: err,
-                            })
-                          );
-                      })
-                      .catch((err) =>
-                        res.status(400).json({
-                          err: err,
-                        })
-                      );
-                  })
-                  .catch((err) => {
-                    res.status(400).json({ err: "Error saving job" });
-                  });
-              })
-              .catch((err) => {
-                res.status(400).json({ err: "Error finding saved job" });
-              });
-          })
-          .catch((err) =>
-            res.status(400).json({
-              err: err,
-            })
-          );
-      });
-      req.user;
-    })
-    .catch((err) => {
-      res.status(400).json({ err: "Invalid user" });
-    });
 });
 
 //router.put("/:id",middleware.isLoggedIn())
