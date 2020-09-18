@@ -1,6 +1,7 @@
 const { searchController } = require("../controllers/search.controller");
 const { mailController } = require("../controllers/mail.controller");
 const { validationController } = require("../controllers/validation.controller");
+const { jobController } = require("../controllers/job.controller");
 require("dotenv").config();
 const GOOGLE_ANALYTICS = process.env.GOOGLE_ANALYTICS;
 var ua = require("universal-analytics");
@@ -292,245 +293,85 @@ router.get("/applied/freelance",middleware.isUser,(req ,res) =>{
 });
 
 // request to post jobs
-router.post("/request", middleware.isUser, (req, res) => {
-  if (
-    req.user.jobtier.allowed +
-      req.user.freelancetier.allowed +
-      req.user.locumtier.allowed !=
-    0
-  )
-    return res.status(400).json({ err: "Already Applied for jobs" });
-  if (req.body.endDate) {
-    const expiry = new Date(req.body.endDate);
-    var days = (expiry - Date.now()) / (1000 * 60 * 60 * 24);
-    if (days < 0 || days > 90)
-      return res.status(400).send("Invalid time format");
-  }
-  if (req.body.category == "Job")
-    update = {
-      jobtier: {
+router.post("/request", middleware.isUser,async  (req, res) => {
+    //start transaction
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    const server_error = new Error("500");
+    const client_error = new Error("400");
+    try{
+    var user = await User.findById(req.user._id).session(session);
+    if (user.jobtier.allowed + user.freelancetier.allowed + user.locumtier.allowed != 0 )
+      return res.status(400).json({ err: "Already Applied for jobs" });
+    if (req.body.endDate) {
+      const expiry = new Date(req.body.endDate);
+      var days = (expiry - Date.now()) / (1000 * 60 * 60 * 24);
+      if (days < 0 || days > 90)
+        return res.status(400).send("Invalid time format");
+    }
+    var type
+    if(req.body.category === "Full-time" || req.body.category === "Part-time")
+      type = "jobtier";
+    else if(req.body.category === "Day Job")
+      type = "freelancetier";
+    else if(req.body.category === "Locum")
+      type = "locumtier";
+    else return res.status(400).json({status:"400"});
+    user[type] = {
         allowed: 1,
         posted: 1,
         saved: 0,
         closed: 0,
-      },
     };
-  else if (req.body.category == "Day Job")
-    update = {
-      freelancetier: {
-        allowed: 1,
-        posted: 1,
-        saved: 0,
-        closed: 0,
-      },
-    };
-  else if (req.body.category == "Locum")
-    update = {
-      locumtier: {
-        allowed: 1,
-        posted: 1,
-        saved: 0,
-        closed: 0,
-      },
-    };
-  else return res.status(400).json({ err: "Invalid job type" });
-  User.findByIdAndUpdate(req.user._id, { $set: update })
-    .then((user) => {
-      if (req.body.category == "Job") {
-        let job = new Job({
-          title: req.body.title,
-          profession: req.body.profession,
-          specialization: req.body.specialization,
-          superSpecialization: req.body.superSpecialization,
-          description: req.body.description,
-          address: req.body.address,
-          createdAt: new Date(),
-          createdBy: "User",
-          expireAt: expiry,
-          validated: user.validated,
-          extension: 1,
-        });
-        Job.create(job)
-          .then((job) => {
-            job.author.username = req.user.username;
-            job.author.id = req.user._id;
-            job.author.instituteName = req.user.instituteName;
-            job.author.photo = req.user.logo;
-            // job.author.about = req.user.description.about;
-            console.log(job);
-            job
-              .save()
-              .then((job) => {
-                //let sJob= new savedJob()
-                let sjob = new savedJob({
-                  jobRef: job._id,
-                  status: "Active",
-                  title: req.body.title,
-                  profession: req.body.profession,
-                  specialization: req.body.specialization,
-                  superSpecialization: req.body.superSpecialization,
-                  description: req.body.description,
-                  address: req.body.address,
-                  createdAt: new Date(),
-                  createdBy: "User",
-                  expireAt: expiry,
-                  validated: user.validated,
-                  extension: 1,
-                });
-                savedJob
-                  .create(sjob)
-                  .then((sjob) => {
-                    User.findById(req.user._id)
-                      .then((user) => {
-                        (user.jobs = [
-                          ...user.jobs,
-                          {
-                            title: job.title,
-                            id: job._id,
-                            sid: sjob._id,
-                          },
-                        ]),
-                          //console.log(job);
-                          //user.savedJobs[job._id]=job;
-                          //  user.savedJobs=[
-                          // ...user.savedJobs,sjob._id
+    //DB operations start here
+    //create job
+    let job = await jobController.createJob(req,req.body,user);
+    if(!job) throw client_error;
 
-                          // ];
-                          user
-                            .save()
-                            .then((updatedUser) => {
-                              // try{
-                              // 	mailController.jobPostMail(user,job);}
-                              // 	catch(err){console.log(err);}
-                              res.json({
-                                job: job,
-                                user: req.user,
-                                updatedUser: updatedUser,
-                              });
-                            })
-                            .catch((err) =>
-                              res.status(400).json({
-                                err: err,
-                              })
-                            );
-                      })
-                      .catch((err) => {
-                        res.status(400).json({ err: "User not found" });
-                      });
-                  })
-                  .catch((err) =>
-                    res.status(400).json({
-                      err: err,
-                      user: req.user,
-                    })
-                  );
-              })
-              .catch((err) => {
-                res.status(400).json({ err: "Job not created" });
-              });
-          })
-          .catch((err) =>
-            res.status(400).json({
-              err: err,
-              user: req.user,
-            })
-          );
-      } else {
-        let freelance = new Freelance({
-          title: req.body.title,
-          profession: req.body.profession,
-          specialization: req.body.specialization,
-          superSpecialization: req.body.superSpecialization,
-          description: req.body.description,
-          address: req.body.address,
-          startDate: req.body.startDate,
-          endDate: req.body.endDate,
-          attachedApplicants: req.body.attachedApplicants,
-          createdAt: new Date(),
-          createdBy: "User",
-          expireAt: expiry,
-          validated: user.validated,
-          extension: 1,
-        });
-        Freelance.create(freelance)
-          .then((job) => {
-            job.author.username = req.user.username;
-            job.author.id = req.user._id;
-            job.author.instituteName = req.user.instituteName;
-            job.author.photo = req.user.logo;
-            // job.author.about = req.user.description.about;
-            //console.log(job);
-            job.save().then((job) => {
-              console.log(job._id);
-              let sfreelance = new savedFreelance({
-                jobRef: job._id,
-                status: "Active",
-                title: req.body.title,
-                profession: req.body.profession,
-                specialization: req.body.specialization,
-                superSpecialization: req.body.superSpecialization,
-                description: req.body.description,
-                address: req.body.address,
-                startDate: req.body.startDate,
-                endDate: req.body.endDate,
-                attachedApplicants: req.body.attachedApplicants,
-                createdAt: new Date(),
-                createdBy: "User",
-                expireAt: expiry,
-                validated: user.validated,
-                extension: 1,
-              });
-              savedFreelance
-                .create(sfreelance)
-                .then((sjob) => {
-                  User.findById(req.user._id)
-                    .then((user) => {
-                      (user.freelanceJobs = [
-                        ...user.freelanceJobs,
-                        {
-                          title: job.title,
-                          id: job._id,
-                          sid: sjob._id,
-                        },
-                      ]),
-                        // user.savedFreelance=[
-                        // 	...user.savedFreelance,sjob._id
-                        // 	];
-                        user
-                          .save()
-                          .then((updatedUser) =>
-                            res.json({
-                              job: job,
-                              user: req.user,
-                              updatedUser: updatedUser,
-                            })
-                          )
-                          .catch((err) =>
-                            res.status(400).json({
-                              err: err,
-                            })
-                          );
-                    })
-                    .catch((err) => {
-                      res.status(400).json({ err: "User not found" });
-                    });
-                })
-                .catch((err) =>
-                  res.status(400).json({
-                    err: err,
-                    user: req.user,
-                  })
-                );
-            });
-          })
-          .catch((err) => {
-            res.status(400).json({ err: "Job not saved" });
-          });
-      }
-    })
-    .catch((err) => {
-      res.status(400).json({ err: "User not found" });
-    }); //  }).catch((err)=>{res.status(400).json({err:"User not found"})});
+    //insert job
+    if(req.body.category === "Full-time" || req.body.category === "Part-time")
+      job = await Job.create([job], { session: session });
+    else
+      job = await Freelance.create([job],{ session: session });
+    //only arrays can be used in transactions so casting is necessary
+    job = job[0];
+
+    //create saved job
+    let sjob = await jobController.createSavedJob(req,job,"Active");
+    if(!sjob) throw client_error;
+
+    var type;
+    if(req.body.category === "Full-time" || req.body.category === "Part-time"){
+      sjob = await savedJob.create([sjob], { session: session });
+      type = "jobs";
+    }
+    else {
+      sjob = await savedFreelance.create([sjob],{ session: session });
+      type = "freelanceJobs";
+    }
+    sjob = sjob[0];
+
+    //update employer add job and saved job ref
+    user[type].push(
+      {
+        title: job.title,
+        id: job._id,
+        sid: sjob._id,
+      });
+    //save changes to employer
+    await job.save({ session });
+    await user.save({ session });
+    //commit transaction
+    await session.commitTransaction();
+    session.endSession();
+    res.json({status:"200"});
+    } catch(err) {
+      // any 500 error in try block aborts transaction
+    await session.abortTransaction();
+    session.endSession();
+    console.log(err);
+    res.status(500).json({status:"500"});  
+    }
 });
 
 

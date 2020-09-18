@@ -248,49 +248,49 @@ router.put("/save/:id",middleware.isLoggedIn,middleware.checkSavedOwnership, asy
 //TODO:
 //sponsor a job
 router.put("/sponsor/:id", middleware.checkPostOwnership, async (req, res) => {
-  //start transaction
-const session = await mongoose.startSession();
-session.startTransaction();
-const server_error = new Error("500");
-const client_error = new Error("400");
-try{
-  //check user role
-if ( req.user.role === "Employer" )
-  var employer = await Employer.findById(req.user._id).session(session);
-else if ( req.user.role === "User" )
-  var employer = await User.findById(req.user._id).session(session);
-// check sponsor tier
-if(employer.sponsors.allowed - employer.sponsors.posted <= 0)
-  return res.status(400).json({status:"400"})
-else employer.sponsors.posted+=1;
-// check category and update
-if(req.body.category === "Full-time" || req.body.category === "Part-time"){
-  var job = await Job.findById(req.params.id).session(session);
-  if(job.sponsored === "true")
-    return res.status(400).json({status : "400"});
-  //await Job.findOneAndUpdate(req.params.id, {$set : {sponsored:"true"}},{ session: session});
-}
-else if(req.body.category === "Day Job" || req.body.category === "Locum"){
-  var job = await Freelance.findById(req.params.id).session(session);
-  if(job.sponsored === "true")
-    return res.status(400).json({status : "400"});
-  //await Freelance.findOneAndUpdate(req.params.id , {$set : {sponsored:"true"}},{ session: session});
-}
-job.sponsored = "true";
-//save changes to employer
-await job.save({ session });
-await employer.save({ session });
-//commit transaction
-await session.commitTransaction();
-session.endSession();
-res.json({status:"200"});
-} catch(err) {
-  // any 500 error in try block aborts transaction
- await session.abortTransaction();
- session.endSession();
- console.log(err);
- res.status(500).json({status:"500"});  
-}
+    //start transaction
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  const server_error = new Error("500");
+  const client_error = new Error("400");
+  try{
+    //check user role
+  if ( req.user.role === "Employer" )
+    var employer = await Employer.findById(req.user._id).session(session);
+  else if ( req.user.role === "User" )
+    var employer = await User.findById(req.user._id).session(session);
+  // check sponsor tier
+  if(employer.sponsors.allowed - employer.sponsors.posted <= 0)
+    return res.status(400).json({status:"400"})
+  else employer.sponsors.posted+=1;
+  // check category and update
+  if(req.body.category === "Full-time" || req.body.category === "Part-time"){
+    var job = await Job.findById(req.params.id).session(session);
+    if(job.sponsored === "true")
+      return res.status(400).json({status : "400"});
+    //await Job.findOneAndUpdate(req.params.id, {$set : {sponsored:"true"}},{ session: session});
+  }
+  else if(req.body.category === "Day Job" || req.body.category === "Locum"){
+    var job = await Freelance.findById(req.params.id).session(session);
+    if(job.sponsored === "true")
+      return res.status(400).json({status : "400"});
+    //await Freelance.findOneAndUpdate(req.params.id , {$set : {sponsored:"true"}},{ session: session});
+  }
+  job.sponsored = "true";
+  //save changes to employer
+  await job.save({ session });
+  await employer.save({ session });
+  //commit transaction
+  await session.commitTransaction();
+  session.endSession();
+  res.json({status:"200"});
+  } catch(err) {
+    // any 500 error in try block aborts transaction
+  await session.abortTransaction();
+  session.endSession();
+  console.log(err);
+  res.status(500).json({status:"500"});  
+  }
 });
 
 //activate a saved Job
