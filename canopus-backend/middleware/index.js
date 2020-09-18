@@ -95,7 +95,7 @@ middleware.isAdmin = (req, res, next) => {
 };
 middleware.dateValidator = (req, res, next) => {
     //validating freelance end date
-    if(req.body.category!="Job" && req.body.endDate){
+    if((req.body.category==="Locum" || req.body.category === "Day Job") && req.body.endDate){
         const expiry = new Date(req.body.endDate);
         var days = (expiry - Date.now()) / (1000 * 60 * 60 * 24);
         if (days < 0 || days > 30)
