@@ -547,7 +547,7 @@ router.post("/apply/job/:id", middleware.isUser, async (req, res) => {
     if(!user) throw client_error;
     //check applicants 
     let job = await Job.findById(req.params.id).session(session);
-    let sjob = await savedJob.findOne({jobRef:req.params.id}).session(session);
+    //let sjob = await savedJob.findOne({jobRef:req.params.id}).session(session);
     //job validation
     // if(job.profession=='Surgeon' || job.profession=='Physician')
     //     if(job.specialization!=user.specialization)
