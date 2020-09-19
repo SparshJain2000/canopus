@@ -1,16 +1,17 @@
-
+// add controllers
 const { searchController } = require("../controllers/search.controller");
 const { jobController }    = require("../controllers/job.controller");
-const mongoose = require("mongoose");
-
+// dependencies
 const router = require("express").Router(),
-  middleware = require("../middleware/index"),
-  Employer = require("../models/employer.model"),
-  User = require("../models/user.model"),
-  Job = require("../models/job.model"),
-  Freelance = require("../models/freelance.model"),
-  savedJob = require("../models/savedJobs.model"),
-  savedFreelance = require("../models/savedFreelance.model");
+      middleware = require("../middleware/index"),
+      mongoose = require("mongoose");
+//initalize models
+const User           = require("../models/user.model"),
+      Employer       = require("../models/employer.model"),
+      Job            = require("../models/job.model"),
+      Freelance      = require("../models/freelance.model"), 
+      savedJob       = require("../models/savedJobs.model"),
+      savedFreelance = require("../models/savedFreelance.model");
 //===========================================================================
 //get all jobs
 router.post("/all-jobs", (req, res) => {
@@ -552,7 +553,7 @@ router.post("/visitor-jobs", async (req, res) => {
 });
 
 //===========================================================================
-
+//TODO:
 //router.put("/:id",middleware.isLoggedIn())
 router.post("/apply/job/:id", middleware.isUser, async (req, res) => {
     //start transaction
@@ -591,7 +592,7 @@ router.post("/apply/job/:id", middleware.isUser, async (req, res) => {
     job.acceptedApplicants.push(applicant);
     await job.save({ session });
     //save applicant to saved job
-    let sjob = await savedFreelance.findOne({jobRef:job._id}).session(session);
+    let sjob = await savedJob.findOne({jobRef:job._id}).session(session);
     sjob.acceptedApplicants.push(applicant);
     await sjob.save({ session });
     user.applied.push({
@@ -611,7 +612,7 @@ router.post("/apply/job/:id", middleware.isUser, async (req, res) => {
       res.status(500).json({status:"500"});    
     }
 });
-
+//TODO:
 //router.put("/:id",middleware.isLoggedIn())
 router.post("/apply/freelance/:id", middleware.isUser, (req, res) => {
   User.findById(req.user._id)

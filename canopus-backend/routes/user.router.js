@@ -1,23 +1,19 @@
-const { searchController } = require("../controllers/search.controller");
 const { mailController } = require("../controllers/mail.controller");
 const { validationController } = require("../controllers/validation.controller");
 const { jobController } = require("../controllers/job.controller");
-require("dotenv").config();
-const GOOGLE_ANALYTICS = process.env.GOOGLE_ANALYTICS;
-var ua = require("universal-analytics");
-var visitor = ua(GOOGLE_ANALYTICS);
+
 const mongoose = require("mongoose");
-const crypto = require("crypto");
-const { promisify } = require("util");
-const asyncify = require("express-asyncify");
-const router = require("express").Router(),
+  crypto = require("crypto"),
+  { promisify } = require("util"),
+  router = require("express").Router(),
   passport = require("passport"),
-  middleware = require("../middleware/index"),
-  User = require("../models/user.model"),
-  Job = require("../models/job.model"),
-  Freelance = require("../models/freelance.model"),
-  savedJob = require("../models/savedJobs.model"),
-  savedFreelance = require("../models/savedFreelance.model");
+  middleware = require("../middleware/index");
+//initalize models
+const User           = require("../models/user.model"),
+      Job            = require("../models/job.model"),
+      Freelance      = require("../models/freelance.model"), 
+      savedJob       = require("../models/savedJobs.model"),
+      savedFreelance = require("../models/savedFreelance.model");
 
 //===========================================================================
 //get all users
@@ -647,12 +643,3 @@ router.delete("/save/freelance/:id", middleware.isUser, (req, res) => {
     });
 });
 module.exports = router;
-/*
-    "username":"sparshjain",
-    "password":"sparsh@123"
-
-    "title": "Second Blog",
-    "image": "",
-    "body": "this is second blog"
-
-*/

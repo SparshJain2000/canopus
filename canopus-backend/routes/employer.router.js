@@ -1,27 +1,22 @@
+// initialize controllers
 const { searchController } = require("../controllers/search.controller");
 const { mailController } = require("../controllers/mail.controller");
-const {
-  validationController,
-} = require("../controllers/validation.controller");
+const { validationController } = require("../controllers/validation.controller");
 const {jobController }= require ( "../controllers/job.controller");
+// dependencies
 const mongoose = require("mongoose");
 const crypto = require("crypto");
 const { promisify } = require("util");
-const asyncify = require("express-asyncify");
-require("dotenv").config();
-const GOOGLE_ANALYTICS = process.env.GOOGLE_ANALYTICS;
-var ua = require("universal-analytics");
-const e = require("express");
-var visitor = ua(GOOGLE_ANALYTICS);
 const router = require("express").Router(),
   passport = require("passport"),
   middleware = require("../middleware/index"),
-  User = require("../models/user.model"),
-  Job = require("../models/job.model"),
-  Freelance = require("../models/freelance.model"),
-  Employer = require("../models/employer.model"),
-  savedJob = require("../models/savedJobs.model"),
-  savedFreelance = require("../models/savedFreelance.model");
+//initalize models
+const User           = require("../models/user.model"),
+      Employer       = require("../models/employer.model"),
+      Job            = require("../models/job.model"),
+      Freelance      = require("../models/freelance.model"), 
+      savedJob       = require("../models/savedJobs.model"),
+      savedFreelance = require("../models/savedFreelance.model");
 //===========================================================================
 //get all employers
 router.route("/").get((req, res) => {
