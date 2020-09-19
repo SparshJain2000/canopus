@@ -89,7 +89,7 @@ router.post("/all-jobs", (req, res) => {
               },
             },
             //'applied':{$eq:['$applicants.id',userid]},
-            score: { $meta: "searchScore" },
+            //score: { $meta: "searchScore" },
           },
         },
       ])
@@ -185,7 +185,7 @@ router.post("/all-visitor", (req, res) => {
               },
             },
 
-            score: { $meta: "searchScore" },
+            //score: { $meta: "searchScore" },
           },
         },
       ])
@@ -210,12 +210,13 @@ router.post("/all-visitor", (req, res) => {
 //job search route ( not for freelance search)
 router.post("/jobs", async (req, res) => {
   // query builder function
-  const query = await searchController
-    .queryBuilder(req)
-    .then((query) => {
-      // if (query.skip == 0)
-      //console.log(query.search);
-      Job.aggregate([
+  
+  var query = await searchController.queryBuilder(req)
+  .then((query)  => {
+  var jobcount=[0];
+  //if (query.skip == 0)
+    
+  Job.aggregate([
         query.search,
         {
           $group: {
@@ -226,7 +227,8 @@ router.post("/jobs", async (req, res) => {
           },
         },
       ])
-        .then((jobcount) => {
+      .then((jobcount)=> {
+        
           var userid;
           try {
             userid = req.user.applied.map((item) => {
@@ -238,8 +240,20 @@ router.post("/jobs", async (req, res) => {
           }
           Job.aggregate(
             [
+              // {
+              //   $search:{
+              //     compound:{
+              //     must:{
+              //       text:{
+              //         query:'true',
+              //         path:'validated'
+              //       }
+              //     }
+              //   }
+              // }
+              //},
               query.search,
-              query.sort,
+             query.sort,
               {
                 $skip: query.skip,
               },
@@ -277,11 +291,18 @@ router.post("/jobs", async (req, res) => {
                   err: err,
                 });
               else {
-                res.json({ jobs: jobs, count: jobcount[0]||0 });
+                // try{
+                //   var count = jobcount[0]
+                //   res.json({ jobs: jobs, count: count });
+                // } catch(err){
+                //   var count = 0;
+                //   res.json({ jobs: jobs, count: count });
+                // }
+                res.json({jobs:jobs,count:jobcount[0]||0})
               }
             }
           );
-        })
+       })
         .catch((err) => {
           res.status(400).json({ err: "Error" });
         });
@@ -293,7 +314,7 @@ router.post("/jobs", async (req, res) => {
 });
 
 //Similar jobs
-router.post("/similar", (req, res) => {
+router.post("/similar-jobs", (req, res) => {
   function addQuery(query, path) {
     let abc = {
       text: {
@@ -320,16 +341,19 @@ router.post("/similar", (req, res) => {
     shouldquery.push(
       addQuery(req.body.superSpecialization, "superSpecialization")
     );
-
+  //mustquery.push(addQuery(true,'validated'));
   Job.aggregate(
     [
+      
       {
         $search: {
           compound: {
             must: mustquery,
-            should: shouldquery,
           },
         },
+      },
+      {
+        $match: {_id:{$ne:mongoose.Types.ObjectId(req.body._id)}}
       },
       {
         $limit: limiter,
@@ -343,13 +367,9 @@ router.post("/similar", (req, res) => {
       },
       {
         $project: {
-          _id: 1,
-          title: 1,
-          specialization: 1,
-          applicants: 1,
-          description: 1,
-          applicants: 1,
-          score: { $meta: "searchScore" },
+          applicants:0,
+          acceptedApplicants:0,
+          'author.username':0
         },
       },
     ],

@@ -24,7 +24,6 @@ const Transaction = require("mongoose-transactions");
 const fs = require("fs"),
 path = require('path'),    
 filePath = path.join(__dirname, '../canopus-frontend/build/tags.json');
-const { pathToFileURL } = require("url");
 //Work in progress TODO admin model
 router.post("/tags",async (req,res)=>{
    let rawdata = fs.readFileSync(filePath);
@@ -34,9 +33,6 @@ router.post("/tags",async (req,res)=>{
    fs.writeFileSync(filePath,tags);
    res.json(tags);
 });
-
-// const { runInTransaction } = require('mongoose-transact-utils');
- 
 
 router.post("/login", function (req, res, next) {
     passport.authenticate("user", (err, user, info) => {
@@ -81,7 +77,7 @@ router.post("/validate/employer",middleware.isAdmin,(req,res) => {
         //console.log(ID);
 //         Job.updateMany({title:{$ne:""}},
 // {$set:{validated:"true"}}).then(console.log("Hello"));
-        Employer.updateMany({_id:{$in:ID}},{$set:{validated:true}},{nModified:1}).then((employer) =>{
+        Employer.updateMany({_id:{$in:ID}},{$set:{validated:true}}).then((employer) =>{
             Job.updateMany({"author.id":{$in:ID}},{$set:{validated:true}}).then((jobs) =>{
                 Freelance.updateMany({"author.id":{$in:ID}},{$set:{validated:true}}).then((freelance) =>{
                     res.json({employer:employer,jobs:jobs,freelance:freelance});
@@ -108,9 +104,6 @@ router.get("/validate/user",middleware.isAdmin,(req,res) => {
 
 router.post("/validate/user",middleware.isAdmin,(req,res) => {
         ID=req.body.id;
-        //console.log(ID);
-//         Job.updateMany({title:{$ne:""}},
-// {$set:{validated:"true"}}).then(console.log("Hello"));
         User.updateMany({_id:{$in:ID}},{$set:{validated:true}},{nModified:1}).then((employer) =>{
             Job.updateMany({"author.id":{$in:ID}},{$set:{validated:true}}).then((jobs) =>{
                 Freelance.updateMany({"author.id":{$in:ID}},{$set:{validated:true}}).then((freelance) =>{
@@ -122,7 +115,7 @@ router.post("/validate/user",middleware.isAdmin,(req,res) => {
 });
 
 
-router.post("/updateSubscription/employer",middleware.isAdmin,(req,res) => {
+router.post("/subscription/employer",middleware.isAdmin,(req,res) => {
     var update = {};
     if(req.body.job)
     update['jobtier.allowed']=req.body.job;
@@ -375,29 +368,6 @@ router.post("/add/jobs" ,middleware.isAdmin, async (req,res)=>{
     .catch((err) => res.json({ err:"Couldn't find employer" }));
 });
 
-
-// delete everything related to an employer
-// TODO: not working
-// router.put("/nuke/:id",(req,res)=>{
-//     Employer.findById(req.params.id).then((employer)=>{
-//         // const sjob_id = employer.jobs.map(item=>{
-//         //     return item.sid;
-//         // });
-//         const job_id = employer.jobs.map(item=>{
-//             return item.id;
-//         });
-//         const fjob_id = employer.freelanceJobs.map(item=>{
-//             return item.id;
-//         });
-//         // const s_fjob_id = employer.freelanceJobs.map(item=>{
-//         //     return item.sid;
-//         // });
-//         savedJob.deleteMany({jobRef:{$in:job_id}});
-//         savedFreelance.deleteMany({jobRef:{$in:fjob_id}});
-//         Job.deleteMany({_id:{$in:job_id}});
-//         Freelance.deleteMany({_id:{$in:fjob_id}});
-//     })
-// })
 
 router.get("/analytics/location",middleware.isAdmin,(req,res)=>{
     Job.aggregate([

@@ -200,7 +200,7 @@ router.put("/post/:id",middleware.isLoggedIn,middleware.checkPostOwnership, asyn
     res.status(500).json({status:"500"});
   } 
 });
-//TODO:
+
 //updated a saved job
 router.put("/save/:id",middleware.isLoggedIn,middleware.checkSavedOwnership, async (req,res) => {
   //start transaction
@@ -210,6 +210,7 @@ router.put("/save/:id",middleware.isLoggedIn,middleware.checkSavedOwnership, asy
   const client_error = new Error("400");
   //try block
   try {
+
     const query = await jobController.updateQueryBuilder(req);
     if(!query) throw client_error;
 
@@ -220,14 +221,12 @@ router.put("/save/:id",middleware.isLoggedIn,middleware.checkSavedOwnership, asy
     } 
     else {
       if(req.body.endDate){
-        const job = await Freelance.findById(req.params.id).session(session);
-        const expiry = new Date(req.body.endDate);
-        var days = (expiry - job.createdAt) / (1000 * 60 * 60 * 24);
+        var days = (expiry - Date.now()) / (1000 * 60 * 60 * 24);
         if (days < 0 || days > 30)
           throw client_error;
       }
         //update job
-        await savedFreelance.findOneAndUpdate({ jobRef: job._id }, { $set: query },{ session: session }); 
+        await savedFreelance.findOneAndUpdate({ _id:req.params.id }, { $set: query },{ session: session }); 
     }
     
     //commit transaction
