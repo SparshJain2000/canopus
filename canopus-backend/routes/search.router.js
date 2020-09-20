@@ -581,11 +581,11 @@ router.post("/apply/job/:id", middleware.isUser, async (req, res) => {
     });
     if (applicants.includes(req.user._id))
       return res.status(400).json({ err: "Already applied to this job" });
-    const appliedUserId = job.applicants.map((item) => {
-      return mongoose.Types.ObjectId(item.id);
-      });
-    if(appliedUserId.includes(req.body.id))
-      return res.status(400).json({err:"Candidate already accepted"});
+    // const appliedUserId = job.applicants.map((item) => {
+    //   return mongoose.Types.ObjectId(item.id);
+    //   });
+    // if(appliedUserId.includes(req.body.id))
+    //   return res.status(400).json({err:"Candidate already accepted"});
     //create applicant 
     let applicant = await jobController.createApplicant(user);
     
@@ -614,96 +614,62 @@ router.post("/apply/job/:id", middleware.isUser, async (req, res) => {
 });
 //TODO:
 //router.put("/:id",middleware.isLoggedIn())
-router.post("/apply/freelance/:id", middleware.isUser, (req, res) => {
-  User.findById(req.user._id)
-    .then((user) => {
-      Freelance.findById(req.params.id).then((job) => {
-        // //job validation
-        // if(job.profession=='Surgeon' || job.profession=='Physician')
-        //         if(job.specialization!=user.specialization)
-        //         return res.status(400).json(({err:"Specialization doesn't match, update your profile!"}));
-        if (job.validated == false)
-          return res.status(400).json({ err: "Job not active" });
-        const applicants = job.applicants.map((item) => {
-          return mongoose.Types.ObjectId(item.id);
-        });
-        if (applicants.includes(req.user._id))
-          return res.status(400).json({ err: "Already applied to this job" });
-        job.applicants = [
-          ...job.applicants,
-          {
-            id: user._id,
-            name: `${user.salutation} ${user.firstName} ${user.lastName}`,
-            image: user.image,
-            username: user.username,
-            phone: user.phone,
-          },
-        ];
-        job
-          .save()
-          .then((updatedJob) => {
-            savedFreelance
-              .findOne({ jobRef: req.params.id })
-              .then((freelance) => {
-                freelance.applicants = [
-                  ...freelance.applicants,
-                  {
-                    id: req.user._id,
-                    name: `${user.salutation} ${user.firstName} ${user.lastName}`,
-                    image: user.image,
-                    username: user.username,
-                    phone: user.phone,
-                  },
-                ];
-                freelance
-                  .save()
-                  .then((savedFreelance) => {
-                    // res.json(updatedJob);
-                    User.findById(req.user._id)
-                      .then((user) => {
-                        user.appliedFreelance.push({
-                          id: updatedJob._id,
-                          title: updatedJob.title,
-                        });
-                        user
-                          .save()
-                          .then((updatedUser) => {
-                            req.login(updatedUser, (err) => {
-                              if (err) return res.status(500).send(err);
-                              return res.json({ status: "Applied" });
-                            });
-                          })
-                          .catch((err) =>
-                            res.status(400).json({
-                              err: err,
-                            })
-                          );
-                      })
-                      .catch((err) =>
-                        res.status(400).json({
-                          err: err,
-                        })
-                      );
-                  })
-                  .catch((err) => {
-                    res.status(400).json({ err: "Error saving job" });
-                  });
-              })
-              .catch((err) => {
-                res.status(400).json({ err: "Error finding saved job" });
-              });
-          })
-          .catch((err) =>
-            res.status(400).json({
-              err: err,
-            })
-          );
-      });
-      req.user;
-    })
-    .catch((err) => {
-      res.status(400).json({ err: "Invalid user" });
-    });
+router.post("/apply/freelance/:id", middleware.isUser, async (req, res) => {
+//start transaction
+const session = await mongoose.startSession();
+session.startTransaction();
+const server_error = new Error("500");
+const client_error = new Error("400");
+try {
+  
+  //find applicant
+  const user = User.findById(req.body.id).session(session);
+  if(!user) throw client_error;
+  //check applicants 
+  let job = await Freelance.findById(req.params.id).session(session);
+  //let sjob = await savedJob.findOne({jobRef:req.params.id}).session(session);
+  //job validation
+  // if(job.profession=='Surgeon' || job.profession=='Physician')
+  //     if(job.specialization!=user.specialization)
+  //     return res.status(400).json(({err:"Specialization doesn't match, update your profile!"}));
+  if (job.validated == false)
+    return res.status(400).json({ err: "Job not active" });
+  // if user has already been accepted
+  const applicants = job.applicants.map((item) => {
+    return mongoose.Types.ObjectId(item.id);
+  });
+  if (applicants.includes(req.user._id))
+    return res.status(400).json({ err: "Already applied to this job" });
+  // const appliedUserId = job.applicants.map((item) => {
+  //   return mongoose.Types.ObjectId(item.id);
+  //   });
+  // if(appliedUserId.includes(req.body.id))
+  //   return res.status(400).json({err:"Candidate already accepted"});
+  //create applicant 
+  let applicant = await jobController.createApplicant(user);
+  
+  job.acceptedApplicants.push(applicant);
+  await job.save({ session });
+  //save applicant to saved job
+  let sjob = await savedFreelance.findOne({jobRef:job._id}).session(session);
+  sjob.acceptedApplicants.push(applicant);
+  await sjob.save({ session });
+  user.applied.push({
+    id: job._id,
+    title: job.title,
+  });
+  //commit transaction
+  await session.commitTransaction();
+  session.endSession();
+  res.json({status:"200"});
+
+  } catch(err){
+    // any 500 error in try block aborts transaction
+    await session.abortTransaction();
+    session.endSession();
+    console.log(err);
+    res.status(500).json({status:"500"});    
+  }
 });
 // get job
 router.get("/view/job/:id", (req, res) => {
