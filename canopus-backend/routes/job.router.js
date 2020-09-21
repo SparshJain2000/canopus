@@ -1,740 +1,530 @@
+//controllers
+const { searchController }     = require("../controllers/search.controller"),
+      { mailController }       = require("../controllers/mail.controller"),
+      { validationController } = require("../controllers/validation.controller"),
+      { jobController }        = require ( "../controllers/job.controller");
+//dependencies
+const mongoose   = require("mongoose"),
+      router     = require("express").Router(),
+      middleware = require("../middleware/index");
+//initalize models
+const User           = require("../models/user.model"),
+      Employer       = require("../models/employer.model"),
+      Job            = require("../models/job.model"),
+      Freelance      = require("../models/freelance.model"), 
+      savedJob       = require("../models/savedJobs.model"),
+      savedFreelance = require("../models/savedFreelance.model");
+//initialize analytics
+require("dotenv").config();
+const GOOGLE_ANALYTICS = process.env.GOOGLE_ANALYTICS;
+var ua = require("universal-analytics");
+var visitor = ua(GOOGLE_ANALYTICS);
 
-const { searchController } = require("../controllers/search.controller");
-const mongoose = require("mongoose");
 
-const router = require("express").Router(),
-  middleware = require("../middleware/index"),
-  Employer = require("../models/employer.model"),
-  User = require("../models/user.model"),
-  Job = require("../models/job.model"),
-  Freelance = require("../models/freelance.model"),
-  savedJob = require("../models/savedJobs.model"),
-  savedFreelance = require("../models/savedFreelance.model");
-//===========================================================================
-//get all jobs
-router.post("/alljobs", (req, res) => {
-  //By default sort by Relevance
-  var sort;
-  sort = { $sort: { score: { $meta: "textScore" } } };
-  if (req.body.order == "New")
-    sort = {
-      $sort: {
-        _id: -1,
-      },
-    };
-  if (req.body.order == "Old")
-    sort = {
-      $sort: {
-        _id: 1,
-      },
-    };
-  skip = parseInt(req.body.skip) || 0;
-  limiter = parseInt(req.body.limit) || 10;
-  Job.aggregate([
-    {
-      $match: {
-        validated: "true",
-      },
-    },
-    {
-      $group: {
-        _id: null,
-        jobCount: {
-          $sum: 1,
-        },
-      },
-    },
-  ])
-    .then((jobcount) => {
-      var userid;
-      try {
-        userid = req.user.applied.map((item) => {
-          return mongoose.Types.ObjectId(item.id);
-        });
-        // console.log(userid);
-      } catch (err) {
-        userid = ["null"];
-      }
-      Job.aggregate([
-        {
-          $match: {
-            validated: "true",
-          },
-        },
-        {
-          $skip: skip,
-        },
-        {
-          $limit: limiter,
-        },
+//post a job
+router.post("/post", middleware.isLoggedIn, middleware.dateValidator, async (req, res) => {
+  //start transaction
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  const server_error = new Error("500");
+  const client_error = new Error("400");
+  //try block
+  try {
+    //check user role
+    if ( req.user.role === "Employer" )
+      var employer = await Employer.findById(req.user._id).session(session);
+    else if ( req.user.role === "User" )
+      var employer = await User.findById(req.user._id).session(session);
+    //check tier and sponsorship status
+    employer = await jobController.assignTier(req,employer,"posted");
+    //error if invalid tier 
+    if(!employer) throw client_error;
 
-        {
-          $project: {
-            _id: 1,
-            title: 1,
-            sponsored: 1,
-            validated: 1,
-            specialization: 1,
-            superSpecialization: 1,
-            address: 1,
-            description: 1,
-            author: 1,
-            createdBy: 1,
-            applied: {
-              $cond: {
-                if: { $in: ["$_id", userid] },
-                then: 1,
-                else: 0,
-              },
-            },
-            //'applied':{$eq:['$applicants.id',userid]},
-            score: { $meta: "searchScore" },
-          },
-        },
-      ])
-        .then((jobs) =>
-          res.json({
-            jobs: jobs,
-            count: jobcount[0]|| 0,
-          })
-        )
-        .catch((err) =>
-          res.status(400).json({
-            err: err,
-          })
-        );
-    })
-    .catch((err) => res.status(400).json({ err: "Error searching jobs" }));
-});
-//get all freelance jobs
-router.post("/allfreelance", (req, res) => {
-  var sort;
-  sort = { $sort: { score: { $meta: "textScore" } } };
-  if (req.body.order == "New")
-    sort = {
-      $sort: {
-        _id: -1,
-      },
-    };
-  if (req.body.order == "Old")
-    sort = {
-      $sort: {
-        _id: 1,
-      },
-    };
-  skip = parseInt(req.body.skip) || 0;
-  limiter = parseInt(req.body.limit) || 10;
-  Freelance.aggregate([
-    {
-      $match: {
-        validated: "true",
-      },
-    },
-    {
-      $group: {
-        _id: null,
-        jobCount: {
-          $sum: 1,
-        },
-      },
-    },
-  ])
-    .then((jobcount) => {
-      var userid;
-      try {
-        userid = req.user.appliedFreelance.map((item) => {
-          return mongoose.Types.ObjectId(item.id);
-        });
-        // console.log(userid);
-      } catch (err) {
-        userid = ["null"];
-      }
-      Freelance.aggregate([
-        {
-          $match: {
-            validated: "true",
-          },
-        },
-        {
-          $skip: skip,
-        },
-        {
-          $limit: limiter,
-        },
-        {
-          $project: {
-            _id: 1,
-            title: 1,
-            sponsored: 1,
-            validated: 1,
-            specialization: 1,
-            superSpecialization: 1,
-            address: 1,
-            description: 1,
-            startDate: 1,
-            endDate: 1,
-            author: 1,
-            category: 1,
-            createdBy: 1,
-            applied: {
-              $cond: {
-                if: { $in: ["$_id", userid] },
-                then: 1,
-                else: 0,
-              },
-            },
+    //DB operations start here
+    //create job
+    let job = await jobController.createJob(req,req.body,employer);
+    if(!job) throw client_error;
 
-            score: { $meta: "searchScore" },
-          },
-        },
-      ])
-        .then((jobs) =>
-          res.json({
-            jobs: jobs,
-            count: jobcount[0] || 0,
-          })
-        )
-        .catch((err) =>
-          res.status(400).json({
-            err: err,
-          })
-        );
-    })
-    .catch((err) => {
-      res.status(400).json({ err: "Error" });
-    });
-});
-//===========================================================================
+    //insert job
+    if(req.body.category === "Full-time" || req.body.category === "Part-time")
+      job = await Job.create([job], { session: session });
+    else
+      job = await Freelance.create([job],{ session: session });
+    //only arrays can be used in transactions so casting is necessary
+    job = job[0];
 
-//job search route ( not for freelance search)
-router.post("/search", async (req, res) => {
-  // query builder function
-  const query = await searchController
-    .queryBuilder(req)
-    .then((query) => {
-      // if (query.skip == 0)
-      //console.log(query.search);
-      Job.aggregate([
-        query.search,
-        {
-          $group: {
-            _id: null,
-            jobCount: {
-              $sum: 1,
-            },
-          },
-        },
-      ])
-        .then((jobcount) => {
-          var userid;
-          try {
-            userid = req.user.applied.map((item) => {
-              return mongoose.Types.ObjectId(item.id);
-            });
-            // console.log(userid);
-          } catch (err) {
-            userid = ["null"];
-          }
-          Job.aggregate(
-            [
-              query.search,
-              query.sort,
-              {
-                $skip: query.skip,
-              },
-              {
-                $limit: query.limiter,
-              },
-              {
-                $project: {
-                  _id: 1,
-                  title: 1,
-                  sponsored: 1,
-                  validated: 1,
-                  profession: 1,
-                  specialization: 1,
-                  superSpecialization: 1,
-                  address: 1,
-                  description: 1,
-                  author: 1,
-                  createdBy: 1,
-                  applied: {
-                    $cond: {
-                      if: { $in: ["$_id", userid] },
-                      then: 1,
-                      else: 0,
-                    },
-                  },
-                  //'applied':{$eq:['$applicants.id',userid]},
-                  score: { $meta: "searchScore" },
-                },
-              },
-            ],
-            (err, jobs) => {
-              if (err)
-                res.status(400).json({
-                  err: err,
-                });
-              else {
-                res.json({ jobs: jobs, count: jobcount[0]||0 });
-              }
-            }
-          );
-        })
-        .catch((err) => {
-          res.status(400).json({ err: "Error" });
-        });
-    })
-    .catch(function (error) {
-      // handle error
-      console.log(error);
-    });
-});
+    //create saved job
+    let sjob = await jobController.createSavedJob(req,job,"Active");
+    if(!sjob) throw client_error;
 
-//Similar jobs
-router.post("/similar", (req, res) => {
-  function addQuery(query, path) {
-    let abc = {
-      text: {
-        query: `${query}`,
-        path: `${path}`,
-      },
-    };
-    return abc;
-  }
-  // settting limit sends back 3 similar jobs
-  var limiter = 3;
-  // building must query and should query
-
-  var mustquery = [],
-    shouldquery = [];
-  if (req.body.location)
-    mustquery.push(addQuery(req.body.location, "description.location"));
-  if (req.body.pin) shouldquery.push(addQuery(req.body.pin, "address.pin"));
-  if (req.body.profession)
-    mustquery.push(addQuery(req.body.profession, "profession"));
-  if (req.body.specialization)
-    mustquery.push(addQuery(req.body.specialization, "specialization"));
-  if (req.body.superSpecialization)
-    shouldquery.push(
-      addQuery(req.body.superSpecialization, "superSpecialization")
-    );
-
-  Job.aggregate(
-    [
-      {
-        $search: {
-          compound: {
-            must: mustquery,
-            should: shouldquery,
-          },
-        },
-      },
-      {
-        $limit: limiter,
-      },
-      {
-        $sort: {
-          score: {
-            $meta: "textScore",
-          },
-        },
-      },
-      {
-        $project: {
-          _id: 1,
-          title: 1,
-          specialization: 1,
-          applicants: 1,
-          description: 1,
-          applicants: 1,
-          score: { $meta: "searchScore" },
-        },
-      },
-    ],
-    (err, jobs) => {
-      if (err)
-        res.status(400).json({
-          err: err,
-        });
-      else res.json({ jobs: jobs });
+    var type;
+    if(req.body.category === "Full-time" || req.body.category === "Part-time"){
+      sjob = await savedJob.create([sjob], { session: session });
+      type = "jobs";
     }
-  );
-});
+    else {
+      sjob = await savedFreelance.create([sjob],{ session: session });
+      type = "freelanceJobs";
+    }
+    sjob = sjob[0];
 
-//Freelance Search
-router.post("/freelanceSearch", async (req, res) => {
-  const query = await searchController
-    .queryBuilder(req)
-    .then((query) => {
-      var dateQuery = [];
-      // trivial condition in case no date arguments are recieved
-      var trivialQuery = {
-        title: { $ne: "" },
-      };
-      dateQuery.push(trivialQuery);
-      var startDateMatch = {},
-        endDateMatch = {};
-      if (req.body.day) {
-        dayMatch = { dayOfWeek: req.body.day };
-        dateQuery.push(dayMatch);
-      }
-
-      if (req.body.startDate) {
-        const mystartDate = new Date(req.body.startDate);
-        startDateMatch = {
-          startDate: { $gte: mystartDate },
-        };
-        dateQuery.push(startDateMatch);
-      }
-      if (req.body.endDate) {
-        const myendDate = new Date(req.body.endDate);
-        endDateMatch = {
-          endDate: { $lte: myendDate },
-        };
-        dateQuery.push(endDateMatch);
-      }
-      if (req.body.startHour) {
-        startHourMatch = {
-          startHour: { $gte: req.body.startHour },
-        };
-        dateQuery.push(startHourMatch);
-      }
-      if (req.body.endHour) {
-        endHourMatch = {
-          endHour: { $lte: req.body.endHour },
-        };
-        dateQuery.push(endHourMatch);
-      }
-      //Built date query
-      var query2 = {
-        $match: {
-          $and: dateQuery,
-        },
-      };
-      //job count pipeline
-      Freelance.aggregate([
-        query.search,
-        {
-          $project: {
-            startDate: 1,
-            endDate: 1,
-            title: 1,
-            profession: 1,
-            startHour: { $hour: "$startDate" },
-            endHour: { $hour: "$endDate" },
-            dayOfWeek: { $dayOfWeek: "$startDate" },
-          },
-        },
-        query2,
-        {
-          $group: {
-            _id: null,
-            jobCount: {
-              $sum: 1,
-            },
-          },
-        },
-      ])
-        .then((jobcount) => {
-          var userid;
-          try {
-            userid = req.user.appliedFreelance.map((item) => {
-              return mongoose.Types.ObjectId(item.id);
-            });
-            //console.log(userid);
-          } catch (err) {
-            userid = ["null"];
-          }
-          Freelance.aggregate(
-            [
-              query.search,
-              {
-                $project: {
-                  _id: 1,
-                  title: 1,
-                  sponsored: 1,
-                  validated: 1,
-                  profession: 1,
-                  specialization: 1,
-                  superSpecialization: 1,
-                  address: 1,
-                  description: 1,
-                  startDate: 1,
-                  endDate: 1,
-                  startHour: { $hour: "$startDate" },
-                  endHour: { $hour: "$endDate" },
-                  dayOfWeek: { $dayOfWeek: "$startDate" },
-                  author: 1,
-                  category: 1,
-                  createdBy: 1,
-                  score: { $meta: "searchScore" },
-                },
-              },
-              query2,
-              query.sort,
-              {
-                $skip: query.skip,
-              },
-
-              {
-                $limit: query.limiter,
-              },
-              {
-                $project: {
-                  _id: 1,
-                  title: 1,
-                  sponsored: 1,
-                  validated: 1,
-                  specialization: 1,
-                  superSpecialization: 1,
-                  address: 1,
-                  description: 1,
-                  startDate: 1,
-                  endDate: 1,
-                  startHour: 1,
-                  endHour: 1,
-                  dayOfWeek: 1,
-                  author: 1,
-                  category: 1,
-                  createdBy: 1,
-                  applied: {
-                    $cond: {
-                      if: { $in: ["$_id", userid] },
-                      then: 1,
-                      else: 0,
-                    },
-                  },
-                  score: { $meta: "searchScore" },
-                },
-              },
-            ],
-            (err, jobs) => {
-              if (err)
-                res.status(400).json({
-                  err: err,
-                });
-              else {
-                //console.log(jobs);
-                res.json({ jobs: jobs, count: jobcount[0]||0 });
-              }
-            }
-          );
-        })
-        .catch((err) => res.status(400).json({ err: "error" }));
-    })
-
-    .catch(function (error) {
-      // handle error
-      console.log(error);
-    });
-});
-
-//===========================================================================
-
-//router.put("/:id",middleware.isLoggedIn())
-router.post("/apply/job/:id", middleware.isUser, (req, res) => {
-  User.findById(req.user._id)
-    .then((user) => {
-      Job.findById(req.params.id).then((job) => {
-        //job validation
-        // if(job.profession=='Surgeon' || job.profession=='Physician')
-        //     if(job.specialization!=user.specialization)
-        //     return res.status(400).json(({err:"Specialization doesn't match, update your profile!"}));
-        if (job.validated == false)
-          return res.status(400).json({ err: "Job not active" });
-        const applicants = job.applicants.map((item) => {
-          return mongoose.Types.ObjectId(item.id);
-        });
-        if (applicants.includes(req.user._id))
-          return res.status(400).json({ err: "Already applied to this job" });
-        job.applicants = [
-          ...job.applicants,
-          {
-            id: req.user._id,
-            name: `${user.salutation} ${user.firstName} ${user.lastName}`,
-            image: user.image,
-            username: user.username,
-            phone: user.phone,
-          },
-        ];
-        job
-          .save()
-          .then((updatedJob) => {
-            savedJob
-              .findOne({ jobRef: req.params.id })
-              .then((sjob) => {
-                sjob.applicants = [
-                  ...sjob.applicants,
-                  {
-                    id: req.user._id,
-                    name: `${user.salutation} ${user.firstName} ${user.lastName}`,
-                    image: user.image,
-                    username: user.username,
-                    phone: user.phone,
-                  },
-                ];
-                sjob
-                  .save()
-                  .then((sjob) => {
-                    // res.json(updatedJob);
-                    User.findById(req.user._id)
-                      .then((user) => {
-                        user.applied.push({
-                          id: updatedJob._id,
-                          title: updatedJob.title,
-                        });
-                        user
-                          .save()
-                          .then((updatedUser) => {
-                            req.login(updatedUser, (err) => {
-                              if (err) return res.status(500).send(err);
-                              return res.json({ status: "Applied" });
-                            });
-                          })
-                          .catch((err) =>
-                            res.status(400).json({
-                              err: err,
-                            })
-                          );
-                      })
-                      .catch((err) =>
-                        res.status(400).json({
-                          err: err,
-                        })
-                      );
-                  })
-                  .catch((err) => {
-                    res.status(400).json({ err: "Error saving job" });
-                  });
-              })
-              .catch((err) => {
-                res.status(400).json({ err: "Error finding saved job" });
-              });
-          })
-          .catch((err) =>
-            res.status(400).json({
-              err: err,
-            })
-          );
+    //update employer add job and saved job ref
+    employer[type].push(
+      {
+        title: job.title,
+        id: job._id,
+        sid: sjob._id,
       });
-      req.user;
-    })
-    .catch((err) => {
-      res.status(400).json({ err: "Invalid user" });
-    });
+    //save changes to employer
+    await employer.save({ session });
+
+    //commit transaction
+    await session.commitTransaction();
+    session.endSession();
+    res.json({status:"200"});
+
+  } catch (err) {
+    // any 500 error in try block aborts transaction
+    await session.abortTransaction();
+    session.endSession();
+    console.log(err);
+    res.status(500).json({status:"500"});
+  } 
 });
 
-//router.put("/:id",middleware.isLoggedIn())
-router.post("/apply/freelance/:id", middleware.isUser, (req, res) => {
-  User.findById(req.user._id)
-    .then((user) => {
-      Freelance.findById(req.params.id).then((job) => {
-        // //job validation
-        // if(job.profession=='Surgeon' || job.profession=='Physician')
-        //         if(job.specialization!=user.specialization)
-        //         return res.status(400).json(({err:"Specialization doesn't match, update your profile!"}));
-        if (job.validated == false)
-          return res.status(400).json({ err: "Job not active" });
-        const applicants = job.applicants.map((item) => {
-          return mongoose.Types.ObjectId(item.id);
-        });
-        if (applicants.includes(req.user._id))
-          return res.status(400).json({ err: "Already applied to this job" });
-        job.applicants = [
-          ...job.applicants,
-          {
-            id: user._id,
-            name: `${user.salutation} ${user.firstName} ${user.lastName}`,
-            image: user.image,
-            username: user.username,
-            phone: user.phone,
-          },
-        ];
-        job
-          .save()
-          .then((updatedJob) => {
-            savedFreelance
-              .findOne({ jobRef: req.params.id })
-              .then((freelance) => {
-                freelance.applicants = [
-                  ...freelance.applicants,
-                  {
-                    id: req.user._id,
-                    name: `${user.salutation} ${user.firstName} ${user.lastName}`,
-                    image: user.image,
-                    username: user.username,
-                    phone: user.phone,
-                  },
-                ];
-                freelance
-                  .save()
-                  .then((savedFreelance) => {
-                    // res.json(updatedJob);
-                    User.findById(req.user._id)
-                      .then((user) => {
-                        user.appliedFreelance.push({
-                          id: updatedJob._id,
-                          title: updatedJob.title,
-                        });
-                        user
-                          .save()
-                          .then((updatedUser) => {
-                            req.login(updatedUser, (err) => {
-                              if (err) return res.status(500).send(err);
-                              return res.json({ status: "Applied" });
-                            });
-                          })
-                          .catch((err) =>
-                            res.status(400).json({
-                              err: err,
-                            })
-                          );
-                      })
-                      .catch((err) =>
-                        res.status(400).json({
-                          err: err,
-                        })
-                      );
-                  })
-                  .catch((err) => {
-                    res.status(400).json({ err: "Error saving job" });
-                  });
-              })
-              .catch((err) => {
-                res.status(400).json({ err: "Error finding saved job" });
-              });
-          })
-          .catch((err) =>
-            res.status(400).json({
-              err: err,
-            })
-          );
+//save a job
+router.post("/save", middleware.isLoggedIn, async (req, res) => {
+  //start transaction
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  const error = new Error("500");
+  //try block
+  try {
+    //check user role
+    if ( req.user.role === "Employer" )
+      var employer = await Employer.findById(req.user._id).session(session);
+    else if ( req.user.role === "User" )
+      var employer = await User.findById(req.user._id).session(session);
+    //check tier and sponsorship status
+    employer = await jobController.assignTier(req,employer,"saved");
+    //error if invalid tier 
+    if(!employer) throw error;
+
+    //DB operations start here
+    //create saved job
+    let sjob = await jobController.createSavedJob(req,req.body,"Saved");
+    if(!sjob) throw error;
+
+    var type;
+    if(req.body.category === "Full-time" || req.body.category === "Part-time"){
+      sjob = await savedJob.create([sjob], { session: session });
+      type = "savedJobs";
+    }
+    else {
+      sjob = await savedFreelance.create([sjob],{ session: session });
+      type = "savedFreelance";
+    }
+    sjob = sjob[0];
+
+    //update employer add job and saved job ref
+    employer[type].push(sjob._id);
+    //save changes to employer
+    await employer.save({ session });
+
+    //commit transaction
+    await session.commitTransaction();
+    session.endSession();
+    res.json({status:"200"});
+
+  } catch (err) {
+    // any 500 error in try block aborts transaction
+    await session.abortTransaction();
+    session.endSession();
+    console.log(err);
+    res.status(500).json({status:"500"});
+  } 
+});
+
+
+//updated a posted job
+router.put("/post/:id",middleware.isLoggedIn,middleware.checkPostOwnership, async (req,res) => {
+  //start transaction
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  const server_error = new Error("500");
+  const client_error = new Error("400");
+  //try block
+  try {
+    const query = await jobController.updateQueryBuilder(req);
+    if(!query) throw client_error;
+
+    //DB operations start here
+    if(req.body.category === "Full-time" || req.body.category === "Part-time"){
+    //update job
+      const job = await Job.findOneAndUpdate(
+        { _id: req.params.id },
+        { $set: query },
+        { new: true, session: session }
+      );
+      //reflect changes on saved job
+      await savedJob.findOneAndUpdate({ jobRef: job._id }, { $set: query },{ session: session });
+    } 
+    else {
+      if(req.body.endDate){
+        const job = await Freelance.findById(req.params.id).session(session);
+        const expiry = new Date(req.body.endDate);
+        var days = (expiry - job.createdAt) / (1000 * 60 * 60 * 24);
+        if (days < 0 || days > 30)
+          throw client_error;
+      }
+        //update job
+        const job = await Freelance.findOneAndUpdate(
+          { _id: req.params.id },
+          { $set: query },
+          { new: true, session: session }
+        );
+        //reflect changes on saved job
+        await savedFreelance.findOneAndUpdate({ jobRef: job._id }, { $set: query },{ session: session }); 
+    }
+    
+    //commit transaction
+    await session.commitTransaction();
+    session.endSession();
+    res.json({status:"200"});
+
+  } catch (err) {
+    // any 500 error in try block aborts transaction
+    await session.abortTransaction();
+    session.endSession();
+    console.log(err);
+    res.status(500).json({status:"500"});
+  } 
+});
+
+//updated a saved job
+router.put("/save/:id",middleware.isLoggedIn,middleware.checkSavedOwnership, async (req,res) => {
+  //start transaction
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  const server_error = new Error("500");
+  const client_error = new Error("400");
+  //try block
+  try {
+
+    const query = await jobController.updateQueryBuilder(req);
+    if(!query) throw client_error;
+
+    //DB operations start here
+    if(req.body.category === "Full-time" || req.body.category === "Part-time"){
+      //update job
+      await savedJob.findOneAndUpdate({ jobRef: job._id }, { $set: query },{ session: session });
+    } 
+    else {
+      if(req.body.endDate){
+        var days = (expiry - Date.now()) / (1000 * 60 * 60 * 24);
+        if (days < 0 || days > 30)
+          throw client_error;
+      }
+        //update job
+        await savedFreelance.findOneAndUpdate({ _id:req.params.id }, { $set: query },{ session: session }); 
+    }
+    
+    //commit transaction
+    await session.commitTransaction();
+    session.endSession();
+    res.json({status:"200"});
+
+  } catch (err) {
+    // any 500 error in try block aborts transaction
+    await session.abortTransaction();
+    session.endSession();
+    console.log(err);
+    res.status(500).json({status:"500"});
+  } 
+});
+
+
+//TODO:
+//sponsor a job
+router.put("/sponsor/:id", middleware.checkPostOwnership, async (req, res) => {
+    //start transaction
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  const server_error = new Error("500");
+  const client_error = new Error("400");
+  try{
+    //check user role
+  if ( req.user.role === "Employer" )
+    var employer = await Employer.findById(req.user._id).session(session);
+  else if ( req.user.role === "User" )
+    var employer = await User.findById(req.user._id).session(session);
+  // check sponsor tier
+  if(employer.sponsors.allowed - employer.sponsors.posted <= 0)
+    return res.status(400).json({status:"400"})
+  else employer.sponsors.posted+=1;
+  // check category and update
+  if(req.body.category === "Full-time" || req.body.category === "Part-time"){
+    var job = await Job.findById(req.params.id).session(session);
+    if(job.sponsored === "true")
+      return res.status(400).json({status : "400"});
+    //await Job.findOneAndUpdate(req.params.id, {$set : {sponsored:"true"}},{ session: session});
+  }
+  else if(req.body.category === "Day Job" || req.body.category === "Locum"){
+    var job = await Freelance.findById(req.params.id).session(session);
+    if(job.sponsored === "true")
+      return res.status(400).json({status : "400"});
+    //await Freelance.findOneAndUpdate(req.params.id , {$set : {sponsored:"true"}},{ session: session});
+  }
+  job.sponsored = "true";
+  //save changes to employer
+  await job.save({ session });
+  await employer.save({ session });
+  //commit transaction
+  await session.commitTransaction();
+  session.endSession();
+  res.json({status:"200"});
+  } catch(err) {
+    // any 500 error in try block aborts transaction
+  await session.abortTransaction();
+  session.endSession();
+  console.log(err);
+  res.status(500).json({status:"500"});  
+  }
+});
+
+//activate a saved Job
+router.put("/activate/:id", middleware.checkSavedOwnership, async (req,res) => {
+  //start transaction
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  const server_error = new Error("500");
+  const client_error = new Error("400");
+  //try block
+  try {
+    //check user role
+    if ( req.user.role === "Employer" )
+      var employer = await Employer.findById(req.user._id).session(session);
+    else if ( req.user.role === "User" )
+      var employer = await User.findById(req.user._id).session(session);
+    if(req.body.category === "Full-time" || req.body.category === "Part-time")
+      var sjob = await savedJob.findById(req.params.id).session(session);
+    else 
+      var sjob = await savedFreelance.findById(req.params.id).session(session);
+    // check if job is not active or closed
+    if(sjob.status != "Saved")
+      return res.status(400).json({status:"400"});
+    //check tier and sponsorship status
+    employer = await jobController.assignTier(req,employer,"posted");
+
+    //error if invalid tier 
+    if(!employer) throw client_error;
+
+    //DB operations start here
+    //create job
+    let job = await jobController.createJob(req,req.body,employer);
+    if(!job) throw error;
+    //insert job
+    var type;
+    if(req.body.category === "Full-time" || req.body.category === "Part-time"){
+      job = await Job.create([job], { session: session });
+      employer.savedJobs.splice(employer.savedJobs.indexOf(sjob._id), 1);
+      employer.jobtier.saved += -1;
+      type = "jobs";
+    }
+    else{
+      job = await Freelance.create([job],{ session: session });
+      employer.savedFreelance.splice(employer.savedFreelance.indexOf(sjob._id), 1);
+      if(req.body.category === "Locum") employer.locumtier.saved += -1;
+      else employer.freelancetier.saved += -1;
+      type = "freelanceJobs";
+    }
+    //only arrays can be used in transactions so casting is necessary
+    job = job[0];
+    //update employer add job and saved job ref
+    employer[type].push(
+      {
+        title: job.title,
+        id: job._id,
+        sid: sjob._id,
       });
-      req.user;
-    })
-    .catch((err) => {
-      res.status(400).json({ err: "Invalid user" });
+    sjob.extension = 1;
+    sjob.jobRef = job._id;
+    sjob.status = "Active";
+    sjob.expireAt = job.expireAt;
+    //save changes to employer
+    await employer.save({ session });
+    await sjob.save( {session });
+    //commit transaction
+    await session.commitTransaction();
+    session.endSession();
+    res.json({status:"200"});
+
+  } catch(err) {
+    // any 500 error in try block aborts transaction
+    await session.abortTransaction();
+    session.endSession();
+    console.log(err);
+    res.status(500).json({status:"500"});
+  } 
+});
+
+
+router.put("/extend/:id",middleware.checkJobOwnership, async(req, res) => {
+  //start transaction
+  const session = await mongoose.startSession();
+  session.startTransaction();
+  const server_error = new Error("500");
+  const client_error = new Error("400");
+  try{
+  
+  // find active job
+  let job = await Job.findById(req.params.id).session(session);
+  if(job.extension==0)
+    return res.status(400).json({status:"400"});
+  //closed jobs cannot be extended
+  let sjob = await savedJob.findOne({jobRef:job._id}).session(session); 
+  if(sjob.status === "Closed")
+    return res.status(400).json({status:"400"});
+  // set new expiry
+  var expiry = new Date();
+  expiry.setDate(expiry.getDate() + 45);
+  // extend job
+  job.expireAt = sjob.expireAt = expiry;
+  job.extension = sjob.extension = 0;
+  // reflect changes
+  await job.save({ session });
+  await sjob.save({ session });
+  // commit transaction
+  await session.commitTransaction();
+  session.endSession();
+  res.json({status:"200"});
+
+  } catch(err) {
+    // any 500 error in try block aborts transaction
+   await session.abortTransaction();
+   session.endSession();
+   console.log(err);
+   res.status(500).json({status:"500"});  
+  }
+});
+
+// TODO:
+//extend an expired job
+router.put("/extend/expired/:id", middleware.isEmployer, async (req, res) => {
+    //start transaction
+    const session = await mongoose.startSession();
+    session.startTransaction();
+    const server_error = new Error("500");
+    const client_error = new Error("400");
+    try{
+      //check user role
+    if ( req.user.role === "Employer" )
+      var employer = await Employer.findById(req.user._id).session(session);
+    else if ( req.user.role === "User" )
+      var employer = await User.findById(req.user._id).session(session);
+    //check if job is closed or has expired
+    let sjob = await savedJob.findById(req.params.id).session(session);
+    if(sjob.status === "Closed")
+      return res.status(400).json({status:"400"});
+    let job = await jobController.createJob(req,sjob,employer,0);
+    if(!job) return res.status(400).json({status:"400"});
+    console.log(job);
+    job = await Job.create([job], { session: session });
+    job = job [0];
+    sjob.jobRef = job._id;
+    sjob.extension = 0;
+    sjob.expireAt = job.expireAt;
+    employer.jobs = employer.jobs.filter(
+      (job) => job.sid != req.params.id
+    );
+    employer.jobs = [
+      ...employer.jobs,
+      {
+        title: job.title,
+        id: job._id,
+        sid: sjob._id,
+      },
+    ];
+    await sjob.save({ session });
+    await employer.save({ session });
+    //commit transaction
+    await session.commitTransaction();
+    session.endSession();
+    res.json({status:"200"});
+
+    } catch(err) {
+      // any 500 error in try block aborts transaction
+     await session.abortTransaction();
+     session.endSession();
+     console.log(err);
+     res.status(500).json({status:"500"});  
+    }
+         
+});
+
+//TODO:
+// Accept an day job applicant
+router.put("/apply/freelance/:id",middleware.checkFreelanceJobOwnership, async (req, res) => {
+  //start transaction
+const session = await mongoose.startSession();
+session.startTransaction();
+const server_error = new Error("500");
+const client_error = new Error("400");
+try {
+  //check user role
+  if ( req.user.role === "Employer" )
+    var employer = await Employer.findById(req.user._id).session(session);
+  else if ( req.user.role === "User" )
+    var employer = await User.findById(req.user._id).session(session);
+  //find applicant
+  const user = User.findById(req.body.id).session(session);
+  if(!user) throw client_error;
+  //check applicants 
+  let job = await Freelance.findById(req.params.id).session(session);
+  //if user has applied
+  const appliedUserId = job.applicants.map((item) => {
+    return mongoose.Types.ObjectId(item.id);
+  })
+  if(!appliedUserId.includes(req.body.id))
+    return res.status(400).json({err : "Candidate has not applied to this job"});
+  // if user has already been accepted
+  const acceptedUserId = job.acceptedApplicants.map((item) => {
+    return mongoose.Types.ObjectId(item.id);
     });
-});
-// get job
-router.get("/view/job/:id", (req, res) => {
-  Job.findById(req.params.id)
-    .then((job) => res.json({ job: job }))
-    .catch((err) =>
-      res.status(400).json({
-        err: err,
-      })
-    );
-});
-// get freelance
-router.get("/view/freelance/:id", (req, res) => {
-  Freelance.findById(req.params.id)
-    .then((job) => res.json({ job: job }))
-    .catch((err) =>
-      res.status(400).json({
-        err: err,
-      })
-    );
+  if(acceptedUserId.includes(req.body.id))
+    return res.status(400).json({err:"Candidate already accepted"});
+  //create applicant 
+  let applicant = await jobController.createApplicant(user);
+  //accept applicants
+  if (job.description.count - job.acceptedApplicants.length === 0){
+    //delete freelance max applicants
+    if(job.sponsored==="true")
+      employer.sponsors.closed+=1;
+    sjob.status = "Closed";
+    await Freelance.deleteOne(req.params.id).session(session);
+  }
+  else{
+    job.acceptedApplicants.push(applicant);
+    await job.save({ session });
+  }
+  //save applicant to saved job
+  let sjob = await savedFreelance.findOne({jobRef:job._id}).session(session);
+  sjob.acceptedApplicants.push(applicant);
+  await sjob.save({ session });
+  //save applicant to employer
+  employer.acceptedApplicants.push(applicant);
+  await employer.save({ session });
+   //commit transaction
+   await session.commitTransaction();
+   session.endSession();
+   res.json({status:"200"});
+
+  } catch(err){
+    // any 500 error in try block aborts transaction
+    await session.abortTransaction();
+    session.endSession();
+    console.log(err);
+    res.status(500).json({status:"500"});    
+  }
 });
 module.exports = router;

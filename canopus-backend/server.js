@@ -1,5 +1,3 @@
-const { Console } = require("console");
-
 const express = require("express"),
     app = express(),
     cors = require("cors"),
@@ -9,7 +7,7 @@ const express = require("express"),
     passport = require("passport"),
     LocalStratergy = require("passport-local"),
     jobRouter = require("./routes/job.router"),
-    path = require("path"),
+    searchRouter = require("./routes/search.router"),
     userRouter = require("./routes/user.router"),
     authRouter = require("./routes/auth.router"),
     uploadRouter = require("./routes/blob.router"),
@@ -18,6 +16,7 @@ const express = require("express"),
     GoogleStrategy = require("passport-google-oauth").OAuth2Strategy,
     FacebookStrategy = require("passport-facebook").Strategy,
     bodyParser = require("body-parser");
+
 require("dotenv").config();
 const GOOGLE_ANALYTICS=process.env.GOOGLE_ANALYTICS;
 var ua = require("universal-analytics");
@@ -35,7 +34,7 @@ app.use(function (req, res, next) {
     );
     next();
 });
-//app.use(ua.middleware(GOOGLE_ANALYTICS, {cookieName: '_ga'}));
+// app.use(ua.middleware(GOOGLE_ANALYTICS, {cookieName: '_ga'}));
 app.use(
     require("express-session")({
         secret: process.env.SECRET,
@@ -155,6 +154,8 @@ mongoose.connect(process.env.MONGO_URI, {
 mongoose.connection.once("open", () => {
     console.log("connected to MONGO");
 });
+// might be problematic
+mongoose.set('useFindAndModify', false);
 //===========================================================================
 //render static files (deployment)
 app.use(express.static("canopus-frontend/build"));
@@ -166,6 +167,7 @@ app.use("/api/employer", employerRouter);
 app.use("/auth", authRouter);
 app.use("/api/upload", uploadRouter);
 app.use("/api/admin", adminRouter);
+app.use("/api/search",searchRouter);
 //===========================================================================
 //render frontend file (deployment)
 // app.use("*", function (req, res) {

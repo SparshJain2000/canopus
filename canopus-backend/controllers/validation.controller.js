@@ -1,7 +1,7 @@
 const Employer = require("../models/employer.model"),
-Profession = require("../models/profession.model"),
-Specialization = require("../models/specialization.model"),
-SuperSpecialization = require("../models/superSpecialization.model"),
+Profession = require("../unwanted/profession.model"),
+Specialization = require("../unwanted/specialization.model"),
+SuperSpecialization = require("../unwanted/superSpecialization.model"),
 Job = require("../models/job.model"),
 Freelance = require("../models/freelance.model");
 
@@ -74,13 +74,6 @@ function jobRequestValidator(req){
       
 }
 
-function userUpdateValidator(req){
-    if(req.body.salutation && req.body.firstname && req.body.lastname){
-        if(req.body.profession)
-            console.log("Helo");
-        else return false;
-    }
-    else return false;
-}
+
 const validationController={};
 exports.validationController={EmployerProfileUpdateBuilder,UserProfileUpdateBuilder};

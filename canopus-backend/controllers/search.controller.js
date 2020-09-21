@@ -1,6 +1,7 @@
 const axios = require("axios"),
 Job = require("../models/job.model"),
 Freelance = require("../models/freelance.model");
+const { response } = require("express");
 
 const searchController={};
 // query builder function
@@ -16,7 +17,7 @@ function addQuery(query, path) {
     let abc = {
         text: {
             query: `${query}`,
-            path: `${path}`,
+            path: `${path}`
             // score:{
             //     "constant":{
             //         "value":1
@@ -65,7 +66,7 @@ async function queryBuilder(req) {
         boost=1;
     //search only validated jobs
 
-    //query.mustquery.push(addQuery(true,"validated"));
+    query.mustquery.push(addQuery("true","validated"));
     
     // console.log(query.mustquery);
     query.skip = parseInt(req.body.skip) || 0;
@@ -135,9 +136,9 @@ async function queryBuilder(req) {
                 },
             },
         };
-        //By default sort by Relevance
-        //console.log(query.mustquery);
-    //console.log(query.shouldquery);
+       // By default sort by Relevance
+    //     console.log(query.mustquery);
+    // console.log(query.shouldquery);
         query.sort = {$sort: { score: { $meta: "textScore" }} };
                 if ((req.body.order === "New"))
                     query.sort = {
@@ -158,6 +159,18 @@ const nearbyAPI=(location)=>{
         var nearby = [];
         axios
         .get(
+             `http://getnearbycities.geobytes.com/GetNearbyCities?radius=100&locationcode=${location}`,
+             )
+        .then(function (response) {
+            //console.log(response)
+            if(response.data[0].length!=0){
+            response.data.forEach((element) => {
+                nearby.push(element[1]);
+            });
+            resolve(response.data.map((element)=>element[1]));}
+            else
+            axios
+        .get(
              `http://getnearbycities.geobytes.com/GetNearbyCities?radius=100&locationcode=${location}%2C`,
              )
         .then(function (response) {
@@ -168,6 +181,7 @@ const nearbyAPI=(location)=>{
             resolve(response.data.map((element)=>element[1]));
         }).catch(err=>reject(err));
     //return nearby;
+    });
 });
 }
 const geolocationAPI=(location)=>{
@@ -187,7 +201,14 @@ const geolocationAPI=(location)=>{
     //return nearby;
 });
 }
+async function geocodingAPI(location){
 
+    axios.get(`https://atlas.mapmyindia.com/api/places/geocode?address=${location}`)
+    .then(function(response){return response})
+}
+
+//
+//let res = await geocodingAPI('Kolkata')
 exports.searchController={queryBuilder,nearbyAPI,addQuery,addQueryboost,geolocationAPI,updateQueryBuilder};
 // response.data.forEach((element) => {
 //     nearby.push(element[1]);

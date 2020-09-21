@@ -11,11 +11,8 @@ module.exports = mongoose.model(
         profession: String,
         specialization: String,
         superSpecialization:Array,
+        tag: Array,// Covid ,urgent tgs
         address: Object,
-        createdAt:Date,
-        createdBy:String,
-        expireAt:Date,
-        extension:Number,
         // {
         //     line: String, //specific addresss
         //     city: String,
@@ -35,9 +32,13 @@ module.exports = mongoose.model(
         //     location: String,
         //     salary: Number,
         // },
+        createdAt:Date,
+        createdBy:String,
+        expireAt:Date,
+        extension:Number,
+        category:String,
         validated: String,
         sponsored: String,
-        tag: Array,// Covid ,urgent tgs
         // date: Date,
         author: {
             id: {

@@ -51,6 +51,7 @@ module.exports = mongoose.model(
         sponsors:{
             allowed:Number,
             posted:Number,
+            closed:Number,
         },
         jobtier:{
             allowed:Number,
