@@ -9,7 +9,7 @@ const crypto = require("crypto");
 const { promisify } = require("util");
 const router = require("express").Router(),
   passport = require("passport"),
-  middleware = require("../middleware/index"),
+  middleware = require("../middleware/index");
 //initalize models
 const User           = require("../models/user.model"),
       Employer       = require("../models/employer.model"),
