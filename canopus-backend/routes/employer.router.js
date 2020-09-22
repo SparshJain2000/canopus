@@ -112,6 +112,8 @@ router.post("/login", function (req, res, next) {
 //===========================================================================
 router.post("/forgot", async (req, res, next) => {
   const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
+  if(req.body.username=='' || !req.body.username)
+  return res.status(400).json({err:"Bad request"});
   Employer.findOneAndUpdate(
     { username: req.body.username },
     {
@@ -125,8 +127,6 @@ router.post("/forgot", async (req, res, next) => {
       console.log(token);
       mailController.forgotMail(req, user, token);
       res.json({ status: "Email has been sent" });
-      //res.redirect('/forgot');
-      //}).catch((err)=>{res.json({err:"User not saved"})});
     })
     .catch((err) => {
       res.json({ err: "User not found" });
@@ -190,7 +190,9 @@ router.post("/reset/:token", async (req, res) => {
     });
 });
 
-router.post("/validate", middleware.isEmployer, (req, res) => {});
+router.post("/validate", middleware.isEmployer, (req, res) => {
+
+});
 
 router.post("/validate/:token", (req, res) => {});
 //Logout route
