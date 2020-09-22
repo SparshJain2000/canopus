@@ -7,6 +7,7 @@ import {
     Button,
     Progress,
     Modal,
+    InputGroup,
     Nav,
     NavItem,
     ModalHeader,
@@ -22,6 +23,7 @@ import {
     faMinus,
     faMinusCircle,
     faPlus,
+    faFileAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import InputMap from "./map.component";
 import Axios from "axios";
@@ -34,6 +36,18 @@ const superSpecializationArray = data.superSpecialization.map((opt) => ({
     label: opt,
     value: opt,
 }));
+var weekdays = new Array(
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+);
+const daysArray = weekdays.map((day) => {
+    return { label: day.toLowerCase(), value: day.toLowerCase() };
+});
 const block = {
     borderRadius: " 0.25rem",
     border: "0.05rem solid lightgrey",
@@ -65,7 +79,12 @@ export default class UpdateUser extends Component {
             superSpecialization: [],
             education: [],
             locum: false,
-
+            startTime: "",
+            endTime: "",
+            resume: "",
+            days: [],
+            progress: 0,
+            //===============
             line: "",
             pin: "",
             speciality: "",
@@ -97,6 +116,7 @@ export default class UpdateUser extends Component {
                 speciality: true,
                 city: true,
                 state: true,
+                specialization: true,
                 firstName: true,
                 lastName: true,
                 phone: true,
@@ -112,6 +132,7 @@ export default class UpdateUser extends Component {
 
         this.uploadLogo = this.uploadLogo.bind(this);
         this.toggleModalError = this.toggleModalError.bind(this);
+        this.uploadResume = this.uploadResume.bind(this);
     }
     toggleModalError() {
         this.setState({
@@ -126,7 +147,11 @@ export default class UpdateUser extends Component {
     }
     handleChangeSelect(name, value) {
         console.log(value, name);
-        if (name === "superSpecialization" && value && value.length > 0) {
+        if (
+            (name === "days" || name === "superSpecialization") &&
+            value &&
+            value.length > 0
+        ) {
             value = value.map((e) => e.value);
         }
         this.setState({
@@ -142,6 +167,8 @@ export default class UpdateUser extends Component {
         if (index !== undefined) {
             let links = this.state.education;
             let obj = links[index];
+            obj.startYear = "1975";
+            obj.endYear = "2020";
             obj = { ...obj, [name]: e.target.value };
             links[index] = obj;
             console.log(links);
@@ -157,21 +184,53 @@ export default class UpdateUser extends Component {
                 },
             });
     }
-    //  handleChangeSelect (name, value){
-    //       this.setState({
-    //             [name]: value,
-    //             valid: {
-    //                 ...this.state.valid,
-    //                 [name]: value !== "",
-    //             },
-    //         });
-    //     eval(`set${name}`)(value);
-    //     const x = name.charAt(0).toLowerCase() + name.slice(1);
-    //     let newValid = { ...valid };
-    //     newValid[x] = value !== "";
-    //     console.log(newValid);
-    //     setValid(newValid);
-    // };
+
+    uploadResume(e) {
+        this.setState({ loading: true });
+        const files = Array.from(e.target.files);
+        if (files.length !== 0) {
+            this.setState({ uploaded: false });
+
+            const file = files[0];
+
+            let reader = new FileReader();
+            reader.readAsDataURL(file);
+            reader.onload = () => {
+                var matches = reader.result.match(
+                    /^data:([A-Za-z-+\/]+);base64,(.+)$/,
+                );
+                var buffer = new Buffer(matches[2], "base64");
+                const resume = {
+                    name: `${this.state.id}_${file.name}`,
+                    data: buffer,
+                    mimeType: file.type,
+                    size: file.size,
+                };
+                console.log(resume);
+                Axios.post(`/api/upload`, {
+                    context: `${this.state.id}_${file.name}`,
+                })
+                    .then(({ data }) => {
+                        const sas = data.token;
+                        this.uploadToStorage("canopus", sas, resume).then(
+                            (res) => {
+                                console.log(res);
+                                const url = `https://canopus.blob.core.windows.net/user-image/${this.state.id}_${file.name}`;
+                                console.log(url);
+                                this.setState({
+                                    resume: url,
+                                    loading: false,
+                                    uploadingLogo: false,
+                                });
+                                this.update();
+                                this.setState({ uploaded: true });
+                            },
+                        );
+                    })
+                    .catch((e) => console.log(e));
+            };
+        }
+    }
     update() {
         const isValid = Object.values(this.state.valid).every(
             (item) => item === true,
@@ -184,7 +243,7 @@ export default class UpdateUser extends Component {
                 modalMess: "Please fill the required fields !",
             });
         } else {
-            const user = {
+            let user = {
                 image: this.state.logo,
                 title: this.state.title,
                 salutation:
@@ -196,16 +255,37 @@ export default class UpdateUser extends Component {
                         ? "male"
                         : this.state.gender,
                 dob: this.state.dob === undefined ? "" : this.state.dob,
-                city: this.state.city,
-                state: this.state.state,
-                country: "India",
+                address: {
+                    city: this.state.city,
+                    state: this.state.state,
+                    country: "India",
+                },
+
                 email: this.state.email,
                 phone: this.state.phone === undefined ? "" : this.state.phone,
                 profession: this.state.profession,
                 specialization: this.state.specialization,
                 superSpecialization: this.state.superSpecialization,
                 education: this.state.education,
+                resume: this.state.resume,
             };
+            if (this.state.locum) {
+                const locum = {
+                    startTime:
+                        this.state.startTime === ""
+                            ? "08:00"
+                            : this.state.startTime,
+                    endTime:
+                        this.state.endTime === ""
+                            ? "18:00"
+                            : this.state.endTime,
+                    days: this.state.days,
+                };
+                user = {
+                    ...user,
+                    locum,
+                };
+            }
             Object.keys(user).forEach(
                 (key) =>
                     (user[key] === undefined ||
@@ -244,9 +324,6 @@ export default class UpdateUser extends Component {
                     });
                     this.setState({
                         id: user._id,
-                        // });
-                        // this.setState({
-                        //     id: user._id,
                         title: user.title,
                         firstName: user.firstName,
                         logo: user.image,
@@ -260,12 +337,21 @@ export default class UpdateUser extends Component {
                         state: user.address.state,
                         education: user.education,
                         username: user.username,
+
                         email:
                             user.email && user.email !== ""
                                 ? user.email
                                 : user.username,
                         phone: user.phone,
+                        resume: user.resume,
                     });
+                    if (user.locum.startTime)
+                        this.setState({
+                            startTime: user.locum.startTime,
+                            endTime: user.locum.endTime,
+                            days: user.locum.days,
+                            locum: true,
+                        });
                 }
             })
             .catch((err) => console.log(err));
@@ -376,44 +462,6 @@ export default class UpdateUser extends Component {
     render() {
         return (
             <div>
-                {/* <Nav tabs className='justify-content-between '>
-                    <div className='row justify-content-start col-6 col-sm-7'>
-                        <NavItem className='mx-1 mx-sm-2'>
-                            <NavLink
-                                to='/employer'
-                                // onClick={() => {
-                                //     this.toggleTab("1");
-                                // }}
-                                className={`p-1 p-sm-2 nav-link active-tab`}>
-                                <h6>Overview</h6>
-                            </NavLink>
-                        </NavItem>
-                        <NavItem className='mx-1 mx-sm-2'>
-                            <NavLink
-                                to='/applications'
-                                className={`p-1 p-sm-2 nav-link`}>
-                                <h6>Jobs</h6>
-                            </NavLink>
-                        </NavItem>
-                    </div>
-                    <div className='col-6 col-sm-5 row pr-2 pr-sm-3 justify-content-end'>
-                        <div className='col-12 col-sm-5 px-0 pl-0 pl-sm-1'>
-                            <Link to='/post'>
-                                <Button
-                                    className=' mt-2 my-1 px-2 w-100'
-                                    size='sm'
-                                    style={{ textAlign: "center" }}
-                                    color='primary'>
-                                    Post a Job{" "}
-                                    <FontAwesomeIcon
-                                        icon={faPen}
-                                        className='ml-2'
-                                    />
-                                </Button>
-                            </Link>
-                        </div>
-                    </div>
-                </Nav> */}
                 <div className='my-2 mx-1 mx-lg-5 py-2 px-1 px-lg-5'>
                     <div className=' p-4 my-3 mx-2 mx-lg-5' style={block}>
                         <FormGroup>
@@ -421,8 +469,6 @@ export default class UpdateUser extends Component {
                         </FormGroup>
                         <FormGroup className='row'>
                             <div className='col-12 col-md-3 text-align-center'>
-                                {/* <Label className='w-100'>Logo</Label> */}
-                                {/* {this.state.logo && this.state.logo !== "" && ( */}
                                 <div
                                     className='my-auto position-relative mx-auto'
                                     style={{ width: "fit-content" }}>
@@ -802,7 +848,8 @@ export default class UpdateUser extends Component {
                                     }
                                 />
                             </div>
-                            <div className='col-12 px-0 my-1'>
+
+                            <div className='col-12  px-0 my-1'>
                                 <Label className='m-1'>
                                     <h6>Super Specialization </h6>
                                 </Label>
@@ -827,11 +874,10 @@ export default class UpdateUser extends Component {
                                 />
                             </div>
                         </FormGroup>
-                        <hr />
                     </div>
                     <div className='p-4 my-3 mx-2 mx-lg-5' style={block}>
                         <FormGroup className='row'>
-                            <h4 className='col-8 col-sm-10'>Education</h4>
+                            <h4 className='col-8 col-sm-10 px-0'>Education</h4>
                             <div className='col-4 col-sm-2 row justify-content-end px-0'>
                                 <Button
                                     color='info'
@@ -859,13 +905,14 @@ export default class UpdateUser extends Component {
 
                         {this.state.education.map((x, i) => (
                             <div>
+                                <hr />
                                 <div className='my-1 row'>
                                     <h5 className='col-9 col-sm-10 col-md-11 my-1 pl-0'>
                                         Education {i + 1}
                                     </h5>
                                     <FontAwesomeIcon
                                         icon={faMinusCircle}
-                                        className='text-danger my-auto col-3 col-sm-1 col-md-1'
+                                        className='text-danger my-auto col-3 col-sm-1 col-md-1 pr-0'
                                         size='md'
                                         style={{ cursor: "pointer" }}
                                         onClick={(e) => {
@@ -879,7 +926,12 @@ export default class UpdateUser extends Component {
                                     />
                                 </div>
                                 <div className='row'>
-                                    <div className='col-12 col-sm-6 pr-0 pr-sm-1 my-1'>
+                                    <div className='col-12 col-sm-3 pr-0 pr-sm-1 my-1'>
+                                        {i + 1 === 1 && (
+                                            <Label className='m-1'>
+                                                <h6>Degree </h6>
+                                            </Label>
+                                        )}
                                         <Input
                                             id={i}
                                             placeholder='Degree'
@@ -899,7 +951,12 @@ export default class UpdateUser extends Component {
                                             }
                                         />
                                     </div>
-                                    <div className='col-12 col-sm-6 pl-0 pl-sm-1 my-1'>
+                                    <div className='col-12 col-sm-6 px-0 pl-sm-1 pr-sm-1 my-1'>
+                                        {i + 1 === 1 && (
+                                            <Label className='m-1'>
+                                                <h6>Speciality </h6>
+                                            </Label>
+                                        )}
                                         <Input
                                             id={i}
                                             placeholder='Speciality'
@@ -919,12 +976,14 @@ export default class UpdateUser extends Component {
                                             }
                                         />
                                     </div>
-                                    <div className='col-12 px-0 row my-1'>
-                                        <div className='col-3 col-md-2 px-0'>
-                                            <h5 className='my-2 '>Year</h5>
-                                        </div>
-                                        <div className='col-9 col-md-10 px-0 row'>
+                                    <div className='col-12 col-sm-3 px-0 row my-1'>
+                                        <div className='col-12 col-md-12 pl-sm-1 row'>
                                             <div className='col-6 pr-1 pl-0'>
+                                                {i + 1 === 1 && (
+                                                    <Label className='m-1'>
+                                                        <h6>From</h6>
+                                                    </Label>
+                                                )}
                                                 <Input
                                                     placeholder='startYear'
                                                     type='select'
@@ -963,6 +1022,11 @@ export default class UpdateUser extends Component {
                                                 </Input>
                                             </div>
                                             <div className='col-6 pl-1 pr-0'>
+                                                {i + 1 === 1 && (
+                                                    <Label className='m-1'>
+                                                        <h6>To</h6>
+                                                    </Label>
+                                                )}
                                                 <Input
                                                     placeholder='endYear'
                                                     type='select'
@@ -1004,9 +1068,209 @@ export default class UpdateUser extends Component {
                                             </div>
                                         </div>
                                     </div>
+                                    {/* <div className='col-sm-1'>
+                                        <FontAwesomeIcon
+                                            icon={faMinusCircle}
+                                            className='text-danger my-auto '
+                                            style={{
+                                                cursor: "pointer",
+                                            }}
+                                            onClick={(e) => {
+                                                let education = this.state
+                                                    .education;
+                                                education.splice(i, 1);
+                                                this.setState({
+                                                    education: education,
+                                                });
+                                            }}
+                                        />
+                                    </div> */}
                                 </div>
                             </div>
                         ))}
+                    </div>
+                    <div className='p-4 my-3 mx-2 mx-lg-5' style={block}>
+                        <FormGroup>
+                            <h4>Resume</h4>
+                        </FormGroup>
+                        {this.state.resume === undefined ||
+                        (this.state.resume === "" &&
+                            this.state.progress !== 1) ? (
+                            <div>
+                                <input
+                                    type='file'
+                                    class='file'
+                                    accept='.pdf,.doc'
+                                    onChange={this.uploadResume}
+                                />
+                                <div className='my-1 mt-3'>
+                                    <Progress
+                                        animated
+                                        color='info'
+                                        value={this.state.progress * 100}>
+                                        <h6 className='m-0'>
+                                            {Math.round(
+                                                this.state.progress * 100,
+                                            )}
+                                            {"%"}
+                                        </h6>
+                                    </Progress>
+                                </div>
+                            </div>
+                        ) : (
+                            <div className='row'>
+                                <div className='col-12 col-sm-4'>
+                                    <h5>Uploaded !</h5>
+                                </div>
+
+                                <div className='col-12 col-sm-8 row justify-content-between'>
+                                    <a
+                                        href={`${this.state.resume}`}
+                                        className='col-5 btn btn-info btn-sm mr-1'>
+                                        View Resume
+                                        <FontAwesomeIcon
+                                            className='ml-2'
+                                            icon={faFileAlt}
+                                        />
+                                    </a>
+                                    {this.state.resume !== "" && (
+                                        <button
+                                            className='col-6 btn btn-sm btn-primary'
+                                            onClick={() => {
+                                                this.setState({
+                                                    resume: "",
+                                                });
+                                                this.update();
+                                            }}>
+                                            Change Resume
+                                            <FontAwesomeIcon
+                                                className='ml-2'
+                                                icon={faPen}
+                                            />
+                                        </button>
+                                    )}
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                    <div className='p-4 my-3 mx-2 mx-lg-5' style={block}>
+                        <FormGroup>
+                            <h4>Availability</h4>
+                        </FormGroup>
+                        <FormGroup>
+                            <h5 className='position-relative pl-2 row'>
+                                <div className='position-relative ml-3 mr-2'>
+                                    <Input
+                                        type='checkbox'
+                                        style={{
+                                            height: "1.2rem",
+                                            width: "1.2rem",
+                                            position: "absolute",
+                                        }}
+                                        checked={this.state.locum}
+                                        onChange={(e) => {
+                                            this.setState({
+                                                locum: e.target.checked,
+                                            });
+                                        }}
+                                    />
+                                    <span className='pl-2'>
+                                        I'm interested in Day Jobs or Locum
+                                        Positions
+                                    </span>
+                                </div>
+                            </h5>
+                        </FormGroup>
+                        {this.state.locum && (
+                            <FormGroup className='row'>
+                                <InputGroup className='col-12 col-sm-6 my-1 pr-0 pr-sm-1'>
+                                    <Label
+                                        className='pr-2 col-12'
+                                        for='exampleDate'>
+                                        <h6>
+                                            Start Time{" "}
+                                            <span className='text-danger'>
+                                                *
+                                            </span>
+                                        </h6>
+                                    </Label>
+                                    {/* <Label for='exampleTime'>Time</Label> */}
+                                    <Input
+                                        type='time'
+                                        name='startTime'
+                                        id='exampleTime'
+                                        placeholder='time placeholder'
+                                        onChange={this.handleChange}
+                                        defaultValue={
+                                            this.state.startTime ===
+                                                undefined ||
+                                            this.state.startTime === ""
+                                                ? "08:00"
+                                                : this.state.startTime
+                                        }
+                                        invalid={
+                                            this.state.valid.startTime ===
+                                            undefined
+                                                ? false
+                                                : !this.state.valid.startTime
+                                        }
+                                    />
+                                </InputGroup>
+                                <InputGroup className='col-12 col-sm-6 my-1 pl-0 pl-sm-1'>
+                                    <Label
+                                        className='pr-2 col-12'
+                                        for='exampleDate'>
+                                        <h6>
+                                            End Time{" "}
+                                            <span className='text-danger'>
+                                                *
+                                            </span>
+                                        </h6>
+                                    </Label>
+                                    {/* <Label for='exampleTime'>Time</Label> */}
+                                    <Input
+                                        type='time'
+                                        name='endTime'
+                                        id='exampleTime'
+                                        placeholder='time placeholder'
+                                        className=''
+                                        onChange={this.handleChange}
+                                        defaultValue={
+                                            this.state.endTime === undefined ||
+                                            this.state.endTime === ""
+                                                ? "18:00"
+                                                : this.state.endTime
+                                        }
+                                        invalid={
+                                            this.state.valid.startTime ===
+                                            undefined
+                                                ? false
+                                                : !this.state.valid.startTime
+                                        }
+                                    />
+                                </InputGroup>
+                                <InputGroup className='col-12 px-0 my-1'>
+                                    <Label className='m-1 col-12'>
+                                        <h6>Days </h6>
+                                    </Label>
+                                    <Select
+                                        isClearable={true}
+                                        isMulti
+                                        className='w-100'
+                                        autosize={true}
+                                        placeholder='days'
+                                        value={this.state.days.map((e) => {
+                                            return { value: e, label: e };
+                                        })}
+                                        options={daysArray}
+                                        onChange={(e) => {
+                                            console.log(e);
+                                            this.handleChangeSelect("days", e);
+                                        }}
+                                    />
+                                </InputGroup>
+                            </FormGroup>
+                        )}
                     </div>
                     <div className='p-4 m-3 mx-lg-4 d-flex justify-content-end'>
                         {this.state.loading ? (
