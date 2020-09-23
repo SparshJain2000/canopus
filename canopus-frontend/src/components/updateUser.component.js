@@ -24,6 +24,9 @@ import {
     faMinusCircle,
     faPlus,
     faFileAlt,
+    faDumpster,
+    faTrash,
+    faTimes,
 } from "@fortawesome/free-solid-svg-icons";
 import InputMap from "./map.component";
 import Axios from "axios";
@@ -691,7 +694,6 @@ export default class UpdateUser extends Component {
                                         type='date'
                                         name='dob'
                                         placeholder='date placeholder'
-                                        className=''
                                         defaultValue={this.state.dob}
                                         onChange={this.handleChange}
                                     />
@@ -902,61 +904,111 @@ export default class UpdateUser extends Component {
                                 </Button>
                             </div>
                         </FormGroup>
+                        <FormGroup className='row d-none d-sm-flex'>
+                            <div className='col-3'>
+                                <Label className='px-0 m-1'>
+                                    <h6>Degree </h6>
+                                </Label>
+                            </div>
+                            <div className='px-0 col-5'>
+                                <Label className='px-0 m-1'>
+                                    <h6>Speciality </h6>
+                                </Label>
+                            </div>
+                            <div className='px-0 col-3 row'>
+                                <div className='px-0 col-6'>
+                                    <Label className='px-0 m-1'>
+                                        <h6>From </h6>
+                                    </Label>
+                                </div>
+                                <div className='px-0 col-6'>
+                                    <Label className='px-0 m-1'>
+                                        <h6>To </h6>
+                                    </Label>
+                                </div>
+                            </div>
+                        </FormGroup>
 
                         {this.state.education.map((x, i) => (
-                            <div>
-                                <hr />
-                                <div className='my-1 row'>
-                                    <h5 className='col-9 col-sm-10 col-md-11 my-1 pl-0'>
-                                        Education {i + 1}
-                                    </h5>
-                                    <FontAwesomeIcon
-                                        icon={faMinusCircle}
-                                        className='text-danger my-auto col-3 col-sm-1 col-md-1 pr-0'
-                                        size='md'
-                                        style={{ cursor: "pointer" }}
-                                        onClick={(e) => {
-                                            let education = this.state
-                                                .education;
-                                            education.splice(i, 1);
-                                            this.setState({
-                                                education: education,
-                                            });
-                                        }}
-                                    />
-                                </div>
-                                <div className='row'>
-                                    <div className='col-12 col-sm-3 pr-0 pr-sm-1 my-1'>
-                                        {i + 1 === 1 && (
-                                            <Label className='m-1'>
-                                                <h6>Degree </h6>
-                                            </Label>
-                                        )}
-                                        <Input
-                                            id={i}
+                            <div className='row border-sm my-2 p-2 position-relative'>
+                                {/* <div className='col-12 row position-relative justify-content-between pr-2 '> */}
+                                <FontAwesomeIcon
+                                    icon={faTimes}
+                                    className='d-flex d-sm-none mb-3 float-right ml-auto m-3'
+                                    size='md'
+                                    style={{
+                                        cursor: "pointer",
+                                        position: "absolute",
+                                        right: 0,
+                                        top: 0,
+                                        zIndex: 1000,
+                                    }}
+                                    onClick={(e) => {
+                                        let education = this.state.education;
+                                        education.splice(i, 1);
+                                        this.setState({
+                                            education: education,
+                                        });
+                                    }}
+                                />
+                                {/* </div> */}
+
+                                <div className='row col-12'>
+                                    <div className='col-12 col-sm-3 pr-0 pr-sm-1 my-1 '>
+                                        <Label className='m-1 d-block d-sm-none'>
+                                            <h6>Degree </h6>
+                                        </Label>
+
+                                        <Select
+                                            autosize={true}
+                                            isClearable={true}
                                             placeholder='Degree'
-                                            name='degree'
-                                            onChange={(e) =>
+                                            value={
+                                                this.state.education[i] &&
+                                                this.state.education[i]
+                                                    .degree !== "" && {
+                                                    value: this.state.education[
+                                                        i
+                                                    ].degree,
+                                                    label: this.state.education[
+                                                        i
+                                                    ].degree,
+                                                }
+                                            }
+                                            options={data.degree.map(
+                                                (degree) => {
+                                                    return {
+                                                        value: degree,
+                                                        label: degree,
+                                                    };
+                                                },
+                                            )}
+                                            onChange={(e) => {
+                                                e = {
+                                                    target: {
+                                                        name: "degree",
+                                                        value: e.value,
+                                                    },
+                                                };
                                                 this.handleChange(
                                                     e,
                                                     i,
                                                     "degree",
-                                                )
-                                            }
-                                            value={
-                                                this.state.education[i]
-                                                    ? this.state.education[i]
-                                                          .degree
-                                                    : ""
-                                            }
+                                                );
+                                            }}
+                                            // className={
+                                            //     this.state.valid.profession !==
+                                            //         undefined &&
+                                            //     !this.state.valid.profession
+                                            //         ? "border-invalid"
+                                            //         : ""
+                                            // }
                                         />
                                     </div>
-                                    <div className='col-12 col-sm-6 px-0 pl-sm-1 pr-sm-1 my-1'>
-                                        {i + 1 === 1 && (
-                                            <Label className='m-1'>
-                                                <h6>Speciality </h6>
-                                            </Label>
-                                        )}
+                                    <div className='col-12 col-md-5 col-sm-4 px-0 pr-sm-1 my-1'>
+                                        <Label className='m-1 d-block d-sm-none'>
+                                            <h6>Speciality </h6>
+                                        </Label>
                                         <Input
                                             id={i}
                                             placeholder='Speciality'
@@ -976,14 +1028,12 @@ export default class UpdateUser extends Component {
                                             }
                                         />
                                     </div>
-                                    <div className='col-12 col-sm-3 px-0 row my-1'>
-                                        <div className='col-12 col-md-12 pl-sm-1 row'>
+                                    <div className='col-12 col-md-3 col-sm-4 px-0 row my-1'>
+                                        <div className='col-12 px-0 pl-sm-1 pr-sm-1 row'>
                                             <div className='col-6 pr-1 pl-0'>
-                                                {i + 1 === 1 && (
-                                                    <Label className='m-1'>
-                                                        <h6>From</h6>
-                                                    </Label>
-                                                )}
+                                                <Label className='m-1 d-block d-sm-none'>
+                                                    <h6>From </h6>
+                                                </Label>
                                                 <Input
                                                     placeholder='startYear'
                                                     type='select'
@@ -1022,11 +1072,9 @@ export default class UpdateUser extends Component {
                                                 </Input>
                                             </div>
                                             <div className='col-6 pl-1 pr-0'>
-                                                {i + 1 === 1 && (
-                                                    <Label className='m-1'>
-                                                        <h6>To</h6>
-                                                    </Label>
-                                                )}
+                                                <Label className='m-1 d-block d-sm-none'>
+                                                    <h6>To </h6>
+                                                </Label>
                                                 <Input
                                                     placeholder='endYear'
                                                     type='select'
@@ -1068,10 +1116,10 @@ export default class UpdateUser extends Component {
                                             </div>
                                         </div>
                                     </div>
-                                    {/* <div className='col-sm-1'>
+                                    <div className='col-sm-1 d-flex flex-column justify-content-center text-align-center'>
                                         <FontAwesomeIcon
-                                            icon={faMinusCircle}
-                                            className='text-danger my-auto '
+                                            icon={faTrash}
+                                            className='d-none d-sm-flex text-danger my-auto ml-auto'
                                             style={{
                                                 cursor: "pointer",
                                             }}
@@ -1084,7 +1132,7 @@ export default class UpdateUser extends Component {
                                                 });
                                             }}
                                         />
-                                    </div> */}
+                                    </div>
                                 </div>
                             </div>
                         ))}
@@ -1183,7 +1231,7 @@ export default class UpdateUser extends Component {
                         </FormGroup>
                         {this.state.locum && (
                             <FormGroup className='row'>
-                                <InputGroup className='col-12 col-sm-6 my-1 pr-0 pr-sm-1'>
+                                <InputGroup className='col-6 col-sm-3 my-1 pr-0 pr-sm-1'>
                                     <Label
                                         className='pr-2 col-12'
                                         for='exampleDate'>
@@ -1216,7 +1264,7 @@ export default class UpdateUser extends Component {
                                         }
                                     />
                                 </InputGroup>
-                                <InputGroup className='col-12 col-sm-6 my-1 pl-0 pl-sm-1'>
+                                <InputGroup className='col-6 col-sm-3 my-1 pl-0 pl-sm-1'>
                                     <Label
                                         className='pr-2 col-12'
                                         for='exampleDate'>
@@ -1249,7 +1297,7 @@ export default class UpdateUser extends Component {
                                         }
                                     />
                                 </InputGroup>
-                                <InputGroup className='col-12 px-0 my-1'>
+                                <InputGroup className='col-12 col-sm-6 px-0 my-1'>
                                     <Label className='m-1 col-12'>
                                         <h6>Days </h6>
                                     </Label>
