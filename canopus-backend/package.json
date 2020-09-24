@@ -30,6 +30,7 @@
         "passport-google-oauth": "^2.0.0",
         "passport-local": "^1.0.0",
         "passport-local-mongoose": "^6.0.1",
+        "request": "^2.88.2",
         "stream": "0.0.2",
         "universal-analytics": "^0.4.23",
         "util": "^0.12.3"

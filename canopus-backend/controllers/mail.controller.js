@@ -2,7 +2,7 @@ require("dotenv").config();
 const mailgun = require("mailgun-js");
 const DOMAIN = "curoid.co";
 const api=process.env.MG_API;
-const ADMIN_MAIL="noreply@curiod.co";
+const ADMIN_MAIL="no-reply@curiod.co";
 const mg = mailgun({apiKey: api, domain: DOMAIN,host: "api.eu.mailgun.net"});
 const mailController={}
 async function forgotMail(req,user,token){
@@ -13,7 +13,7 @@ async function forgotMail(req,user,token){
         subject: "Reset your Password",
         template: "forgot_password",
         'h:X-Mailgun-Variables': JSON.stringify({
-            test:`https://${req.headers.host}/reset`,
+            test:`https://${req.headers.host}/reset/${token}`,
            
           })
     };

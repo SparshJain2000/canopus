@@ -1,6 +1,7 @@
-const Employer = require("../models/employer.model"),
-    Job = require("../models/job.model"),
-    Freelance = require("../models/freelance.model");
+
+require("dotenv").config();
+const secretKey=process.env.CAPTCHA_BACKEND;
+const request = require('request');
 
 async function EmployerProfileUpdateBuilder(req) {
     var query = {};
@@ -58,6 +59,22 @@ async function UserProfileUpdateBuilder(req) {
 
     return query;
 }
+
+async function verifyCaptcha(req){
+
+    let token = req.body.captcha;
+    const url = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${token}&remoteip=${req.connection.remoteAddress}`;
+    if(token === null || token === undefined)
+    return false;
+    request(url,function(err,response,body){
+        body = JSON.parse(body);
+        if(body.success!==undefined || !data.success)
+        return false;
+    return true;
+    });
+
+
+}
 // function jobRequestValidator(req){
 
 //     if (req.body.profession)
@@ -88,4 +105,5 @@ const validationController = {};
 exports.validationController = {
     EmployerProfileUpdateBuilder,
     UserProfileUpdateBuilder,
+    verifyCaptcha,
 };
