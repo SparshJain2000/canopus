@@ -33,12 +33,27 @@ async function validateMail(req,user,token){
 }
 
 async function welcomeMail(req,user){
-
-    return true;
+    const data = {
+        from: ADMIN_MAIL,
+        to: "tmsusha@gmail.com",
+        subject: "Reset your Password",
+        template: "welcome",
+        'h:X-Mailgun-Variables': JSON.stringify({
+           first_name:"Sushant"
+           
+          })
+    };
+    mg.messages().send(data, function (error, body) {
+    
+            if(error)
+            return error;
+            else
+            return body;
+        })
 }
 
 async function jobPostMail(req,job,employer){
 
 }
 
-exports.mailController={forgotMail};
+exports.mailController={forgotMail,welcomeMail};

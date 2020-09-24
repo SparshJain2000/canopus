@@ -21,13 +21,13 @@ const router = require("express").Router(),
 // add new tag
 const fs = require("fs"),
 path = require('path'),    
-filePath = path.join(__dirname, '../canopus-frontend/build/tags.json');
+filePath = path.join(__dirname, '../canopus-frontend/build/data.json');
 
 //Work in progress TODO admin model
 router.post("/tags",async (req,res)=>{
    let rawdata = fs.readFileSync(filePath);
-   let tags = JSON.parse(rawdata);
-   tags.tags.push(req.body.tag);
+   let data = JSON.parse(rawdata);
+   data.tags.push(req.body.tag);
    tags = JSON.stringify(tags);
    fs.writeFileSync(filePath,tags);
    res.json(tags);

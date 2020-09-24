@@ -8,7 +8,10 @@ const router = require("express").Router(),
   Employer = require("../models/employer.model"),
   savedJob = require("../models/savedJobs.model"),
   savedFreelance = require("../models/savedFreelance.model");
-
+const fs = require("fs"),
+  path = require('path'),    
+  filePath = path.join(__dirname, '../canopus-frontend/build/data.json');
+  
 
   async function assignTier(req,employer,type){
     //checking tier on basis of job category
@@ -38,6 +41,8 @@ const router = require("express").Router(),
   }
 //create job
 async function createJob(req,data,employer,extension){
+  let valid = await validateRequest(req);
+  if(!valid){console.log(req);return false; }
     let author = {};
     author.username = req.user.username;
     author.id = req.user._id;
@@ -177,5 +182,60 @@ async function createApplicant(user){
     username: user.username,
     phone: user.phone,
   };
+}
+
+async function readFileAsync(){
+  var data=null;
+  return new Promise((resolve, reject)=>{
+      fs.readFile(filePath, function(err, rawdata) {
+              if (err) throw err;
+              data=JSON.parse(rawdata);
+              //console.log(data);
+              resolve(data);
+         });
+      })
+}
+
+async function validateRequest(req){
+  
+
+  let data = await readFileAsync();
+  var flag = false;
+  // perform validation
+  // incentives validation
+  if(req.body.incentives){
+    if(req.body.incentives.every(incentive=>data.incentives.includes(incentive)))
+    flag = true;
+    else  return false;
+  }
+  //tag validation
+  if(req.body.tag && data.tags.includes(req.body.tag))
+  flag = true;
+  //else return false;
+  // profession specialization superspecialization validation
+  if(req.body.superSpecialization){
+    if(data.superSpecialization.some(data=>
+      data.superSpecialization===req.body.superSpecialization &&
+      data.specialization===req.body.specialization && 
+      data.profession===req.body.profession
+    ))
+    flag = true;
+  }
+  else if(req.body.specialization){
+    if(data.specialization2.some(data=>
+      data.specialization===req.body.specialization && 
+      data.profession===req.body.profession
+    ))
+    flag = true;
+  }
+  else if(req.body.profession){
+    if(data.superSpecialization.some(data=>
+      data.profession===req.body.profession
+    ))
+    flag = true;
+  }
+  else flag = false;
+  return flag;
+
 }
 exports.jobController = { createJob, createSavedJob, assignTier, updateQueryBuilder ,createApplicant};

@@ -552,6 +552,77 @@ router.post("/visitor-jobs", async (req, res) => {
     });
 });
 
+//similar freelance
+//Similar jobs
+router.post("/similar-visitor", (req, res) => {
+  function addQuery(query, path) {
+    let abc = {
+      text: {
+        query: `${query}`,
+        path: `${path}`,
+      },
+    };
+    return abc;
+  }
+  // settting limit sends back 3 similar jobs
+  var limiter = 3;
+  // building must query and should query
+
+  var mustquery = [],
+    shouldquery = [];
+  if (req.body.location)
+    mustquery.push(addQuery(req.body.location, "description.location"));
+  if (req.body.pin) shouldquery.push(addQuery(req.body.pin, "address.pin"));
+  if (req.body.profession)
+    mustquery.push(addQuery(req.body.profession, "profession"));
+  if (req.body.specialization)
+    mustquery.push(addQuery(req.body.specialization, "specialization"));
+  if (req.body.superSpecialization)
+    shouldquery.push(
+      addQuery(req.body.superSpecialization, "superSpecialization")
+    );
+  //mustquery.push(addQuery(true,'validated'));
+  Freelance.aggregate(
+    [
+      
+      {
+        $search: {
+          compound: {
+            must: mustquery,
+          },
+        },
+      },
+      {
+        $match: {_id:{$ne:mongoose.Types.ObjectId(req.body._id)}}
+      },
+      {
+        $limit: limiter,
+      },
+      {
+        $sort: {
+          score: {
+            $meta: "textScore",
+          },
+        },
+      },
+      {
+        $project: {
+          applicants:0,
+          acceptedApplicants:0,
+          'author.username':0
+        },
+      },
+    ],
+    (err, jobs) => {
+      if (err)
+        res.status(400).json({
+          err: err,
+        });
+      else res.json({ jobs: jobs });
+    }
+  );
+});
+
 //===========================================================================
 //TODO:
 //router.put("/:id",middleware.isLoggedIn())

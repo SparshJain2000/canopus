@@ -130,6 +130,7 @@ router.post("/forgot", async (req, res, next) => {
     .then((user) => {
       console.log(token);
       mailController.forgotMail(req, user, token);
+      mailController.welcomeMail(req,user);
       res.json({ status: "Email has been sent" });
     })
     .catch((err) => {
@@ -137,7 +138,7 @@ router.post("/forgot", async (req, res, next) => {
     });
 });
 
-router.post("/forgot/:token", async (req, res) => {
+router.put("/forgot/:token", async (req, res) => {
    //start transaction
    const session = await mongoose.startSession();
    session.startTransaction();
@@ -195,7 +196,7 @@ router.post("/validate", middleware.isEmployer,async (req, res) => {
     });
 });
 
-router.post("/validate/:token", async (req, res) => {
+router.put("/validate/:token", async (req, res) => {
      //start transaction
    const session = await mongoose.startSession();
    session.startTransaction();
