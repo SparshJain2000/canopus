@@ -4,28 +4,30 @@ module.exports = mongoose.model(
     "User",
     new mongoose.Schema({
         username: String,
-        resetPasswordToken:String,
-        resetPasswordExpires:Date,
-        emailVerifyToken:String,
-        emailVerified:Boolean,
-        createdAt:Date,
-        lastUpdated:Date,
-        validated:Boolean,
+        resetPasswordToken: String,
+        resetPasswordExpires: Date,
+        emailVerifyToken: String,
+        emailVerified: Boolean,
+        createdAt: Date,
+        lastUpdated: Date,
+        validated: Boolean,
         role: String,
-        salutation:String,
+        salutation: String,
         firstName: String,
         lastName: String,
         password: String,
-        phone:String,
-        profession:String,
-        specialization:String,
-        superSpecialization:String,
+        phone: String,
+        profession: String,
+        specialization: String,
+        title: String,
+        dob: String,
+        superSpecialization: Array,
         experience: [
             {
                 title: String,
-                startDate:Date,
-                endDate:Date,
-                institute:String,
+                startDate: Date,
+                endDate: Date,
+                institute: String,
                 line: String,
             },
         ],
@@ -33,8 +35,9 @@ module.exports = mongoose.model(
             {
                 institute: String,
                 degree: String,
-                startTime: String,
-                endTime: String,
+                speciality: String,
+                startYear: String,
+                endYear: String,
             },
         ],
         address: {
@@ -45,43 +48,43 @@ module.exports = mongoose.model(
         image: String,
         description: String,
         resume: String,
-        availability:Object, // for locum calendar
+        availability: Object, // for locum calendar
         google: Object,
         facebook: Object,
-        sponsors:{
-            allowed:Number,
-            posted:Number,
-            closed:Number,
+        sponsors: {
+            allowed: Number,
+            posted: Number,
+            closed: Number,
         },
-        jobtier:{
-            allowed:Number,
-            saved:Number,
-            posted:Number,
-            closed:Number,
+        jobtier: {
+            allowed: Number,
+            saved: Number,
+            posted: Number,
+            closed: Number,
         },
-        freelancetier:{
-            allowed:Number,
-            saved:Number,
-            posted:Number,
-            closed:Number,
+        freelancetier: {
+            allowed: Number,
+            saved: Number,
+            posted: Number,
+            closed: Number,
         },
-        locumtier:{
-            allowed:Number,
-            saved:Number,
-            posted:Number,
-            closed:Number,
+        locumtier: {
+            allowed: Number,
+            saved: Number,
+            posted: Number,
+            closed: Number,
         },
-        acceptedApplicants: [ 
+        acceptedApplicants: [
             {
-                id:{
-                    type:mongoose.Schema.Types.ObjectId,
+                id: {
+                    type: mongoose.Schema.Types.ObjectId,
                     ref: "User",
                 },
-                name:String,
-                image:String,
-                username:String,
-                phone:String,
-            }
+                name: String,
+                image: String,
+                username: String,
+                phone: String,
+            },
         ],
         jobs: [
             {
@@ -90,9 +93,9 @@ module.exports = mongoose.model(
                     ref: "Jobs",
                 },
                 title: String,
-                sid:{
-                    type:mongoose.Schema.Types.ObjectId,
-                    ref:"savedJobs"
+                sid: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "savedJobs",
                 },
             },
         ],
@@ -103,9 +106,9 @@ module.exports = mongoose.model(
                     ref: "Freelance",
                 },
                 title: String,
-                sid:{
-                    type:mongoose.Schema.Types.ObjectId,
-                    ref:"savedFreelance"
+                sid: {
+                    type: mongoose.Schema.Types.ObjectId,
+                    ref: "savedFreelance",
                 },
             },
         ],
@@ -129,7 +132,7 @@ module.exports = mongoose.model(
                 title: String,
             },
         ],
-        
+
         //Resume fs upload
     }).plugin(passportLocalMongoose),
 );

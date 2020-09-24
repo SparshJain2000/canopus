@@ -1,0 +1,167 @@
+{
+    "degrees": [
+        "MBBS",
+        "BAMS",
+        "BUMS",
+        "BHMS",
+        "BP&O",
+        "BASLP",
+        "B.OTh.",
+        "MD",
+        "MS",
+        "DNB",
+        "DM",
+        "FNB",
+        "Diploma",
+        "BDS",
+        "MDS",
+        "B.Sc.",
+        "M.Sc",
+        "M.Phil",
+        "PhD",
+        "B.Pth.",
+        "B.Pharm",
+        "M.Pharm"
+    ],
+    "instituteType": [
+        "Government Hospital",
+        "Corporate Hospital",
+        "Multi-Speciality Hospital",
+        "Single-Speciality Hospital",
+        "Charitable Hospital",
+        "Medical College",
+        "Pathology Lab",
+        "Pharmaceutical",
+        "Other"
+    ],
+    "instituteSpecialty": [
+        "Multi-Speciality",
+        "Single Specialty"
+    ],
+    "speciality": [
+        "Multi Speciality Hospital",
+        "Single Speciality Hospital",
+        "Primary Health care center",
+        "tertiary care institute",
+        "single speciality diagnostic",
+        "multi speciality diagnostic"
+    ],
+    "type": [
+        "Full time",
+        "Locum Position",
+        "Day Job",
+        "Part time",
+        "Freelance",
+        "Contract",
+        "Internhip",
+        "Paid Fellowship",
+        "Consultant"
+    ],
+    "locumtype": [
+        "Locum Position",
+        "Day Job"
+    ],
+    "jobtype": [
+        "Full time",
+        "Part time",
+        "Freelance",
+        "Contract",
+        "Internhip",
+        "Paid Fellowship",
+        "Consultant"
+    ],
+    "experience": [
+        "New Graduate",
+        "1-2 Years",
+        "2-5 Years",
+        "5-10 Years",
+        "0-15 Years",
+        "More than 15 Years"
+    ],
+    "incentive": [
+        " Accomodation for Self",
+        "Accomodation for Spouse",
+        "No Emergency Calls",
+        "Emergency Calls Only",
+        "Shift Duty",
+        "Fixed Hour Duty",
+        "Travel Allowance",
+        "Accomodation Allowance",
+        "Case-wise Incentives"
+    ],
+    "professions": [
+        "Physician",
+        "Surgeon",
+        "Dentist",
+        "Nurse",
+        "Therapist",
+        "Technicians",
+        "Pharmacist",
+        "Medical Translator"
+    ],
+    "specializations": [
+        "Anaesthesiology",
+        "Ear, Nose and Throat",
+        "Biochemistry",
+        "General Surgery",
+        "Anatomy",
+        "Community Health",
+        "Ophthalmology",
+        "Dermatology"
+    ],
+    "superSpecialization": [
+        "Anaesthesiology",
+        "Ear, Nose and Throat",
+        "Biochemistry",
+        "General Surgery",
+        "Anatomy",
+        "Community Health",
+        "Ophthalmology",
+        "Dermatology"
+    ],
+    "tags": [
+        "Covid-19"
+    ],
+    "specialization2": [
+        {
+            "profession": "Physician",
+            "specialization": "General Surgery"
+        },
+        {
+            "profession": "",
+            "specialization": ""
+        },
+        {
+            "profession": "",
+            "specialization": ""
+        },
+        {
+            "profession": "",
+            "specialization": ""
+        },
+        {
+            "profession": "",
+            "specialization": ""
+        },
+        {
+            "profession": "",
+            "specialization": ""
+        },
+        {
+            "profession": "",
+            "specialization": ""
+        },
+        {
+            "profession": "",
+            "specialization": ""
+        },
+        {
+            "profession": "",
+            "specialization": ""
+        },
+        {
+            "profession": "",
+            "specialization": ""
+        }
+    ]
+}

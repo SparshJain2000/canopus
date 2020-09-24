@@ -19,16 +19,15 @@ const router = require("express").Router(),
   savedJob = require("../models/savedJobs.model"),
   savedFreelance = require("../models/savedFreelance.model");
 // add new tag
-const Transaction = require("mongoose-transactions");
- 
 const fs = require("fs"),
 path = require('path'),    
-filePath = path.join(__dirname, '../canopus-frontend/build/tags.json');
+filePath = path.join(__dirname, '../canopus-frontend/build/data.json');
+
 //Work in progress TODO admin model
 router.post("/tags",async (req,res)=>{
    let rawdata = fs.readFileSync(filePath);
-   let tags = JSON.parse(rawdata);
-   tags.tags.push(req.body.tag);
+   let data = JSON.parse(rawdata);
+   data.tags.push(req.body.tag);
    tags = JSON.stringify(tags);
    fs.writeFileSync(filePath,tags);
    res.json(tags);
@@ -114,7 +113,7 @@ router.post("/validate/user",middleware.isAdmin,(req,res) => {
 
 });
 
-
+// Update subscriptions
 router.post("/subscription/employer",middleware.isAdmin,(req,res) => {
     var update = {};
     if(req.body.job)
@@ -124,6 +123,19 @@ router.post("/subscription/employer",middleware.isAdmin,(req,res) => {
     if(req.body.locum)
     update['locumtier.allowed']=req.body.locum;
     Employer.findOneAndUpdate({username:req.body.username},{$inc:update}).then((employer)=>{
+        res.json({employer:employer});
+    }).catch((err)=>{res.status(500).json({err:err})});
+});
+
+router.post("/subscription/user", middleware.isAdmin,(req,res) => {
+    var update = {};
+    if(req.body.job)
+    update['jobtier.allowed']=req.body.job;
+    if(req.body.freelance)
+    update['freelancetier.allowed']=req.body.freelance;
+    if(req.body.locum)
+    update['locumtier.allowed']=req.body.locum;
+    User.findOneAndUpdate({username:req.body.username},{$inc:update}).then((employer)=>{
         res.json({employer:employer});
     }).catch((err)=>{res.status(500).json({err:err})});
 });
@@ -368,7 +380,7 @@ router.post("/add/jobs" ,middleware.isAdmin, async (req,res)=>{
     .catch((err) => res.json({ err:"Couldn't find employer" }));
 });
 
-
+//analytics
 router.get("/analytics/location",middleware.isAdmin,(req,res)=>{
     Job.aggregate([
         { $sortByCount: "$description.location" }
@@ -379,16 +391,16 @@ router.get("/analytics/profession",middleware.isAdmin,(req,res)=>{
         { $sortByCount: "$profession" }
     ]).then((results)=>{res.json({results:results})});
 });
-// router.get("/analytics/profession",(req,res)=>{
-//     Job.aggregate([
-//         { $sortByCount: "$description.location" }
-//     ]).then((results)=>{res.json({results:results})});
-// });
-// router.get("/analytics/profession",(req,res)=>{
-//     Job.aggregate([
-//         { $sortByCount: "$description.location" }
-//     ]).then((results)=>{res.json({results:results})});
-// });
+router.get("/analytics/specialization",(req,res)=>{
+    Job.aggregate([
+        { $sortByCount: "$specialization" }
+    ]).then((results)=>{res.json({results:results})});
+});
+router.get("/analytics/superSpecialization",(req,res)=>{
+    Job.aggregate([
+        { $sortByCount: "$superSpecialization" }
+    ]).then((results)=>{res.json({results:results})});
+});
 module.exports = router;
 //Testing valodation code this doesnt work but is more efficient
 // Employer.aggregate([{ $project:{"validated" :{ $cond: {

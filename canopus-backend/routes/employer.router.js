@@ -32,7 +32,11 @@ router.route("/").get((req, res) => {
 });
 //===========================================================================
 //Sign up route
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
+  //captcha validation
+  // const captcha = await validationController.verifyCaptcha(req);
+  // if(!captcha)
+  return res.json({err:"400"});
   const employer = new Employer({
     username: req.body.username,
     firstName: req.body.firstName,
@@ -112,6 +116,8 @@ router.post("/login", function (req, res, next) {
 //===========================================================================
 router.post("/forgot", async (req, res, next) => {
   const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
+  if(req.body.username=='' || !req.body.username)
+  return res.status(400).json({err:"Bad request"});
   Employer.findOneAndUpdate(
     { username: req.body.username },
     {
@@ -124,75 +130,106 @@ router.post("/forgot", async (req, res, next) => {
     .then((user) => {
       console.log(token);
       mailController.forgotMail(req, user, token);
+      mailController.welcomeMail(req,user);
       res.json({ status: "Email has been sent" });
-      //res.redirect('/forgot');
-      //}).catch((err)=>{res.json({err:"User not saved"})});
     })
     .catch((err) => {
       res.json({ err: "User not found" });
     });
 });
 
-router.post("/reset/:token", async (req, res) => {
-  Employer.findOne({ resetPasswordToken: req.params.token })
-    .then((user) => {
-      if (
-        user.resetPasswordExpires > Date.now() &&
-        crypto.timingSafeEqual(
-          Buffer.from(user.resetPasswordToken),
-          Buffer.from(req.params.token)
-        )
+router.put("/forgot/:token", async (req, res) => {
+   //start transaction
+   const session = await mongoose.startSession();
+   session.startTransaction();
+   const server_error = new Error("500");
+   const client_error = new Error("400");
+   //try block
+   try {
+  var user = await Employer.findOne({ resetPasswordToken: req.params.token }).session(session);
+    if (
+      user.resetPasswordExpires > Date.now() &&
+      crypto.timingSafeEqual(
+        Buffer.from(user.resetPasswordToken),
+        Buffer.from(req.params.token)
       )
-        // console.log(user);
-        // if (!user) {
-        //   req.flash('error', 'Password reset token is invalid or has expired.');
-        //   return res.redirect('/forgot');
-        // }
-        user
-          .setPassword(req.body.password)
-          .then((user) => {
-            //user.save();
-            user
-              .save()
-              .then((user) => {
-                Employer.findOneAndUpdate(
-                  { resetPasswordToken: req.params.token },
-                  { $unset: { resetPasswordToken: 1, resetPasswordExpires: 1 } }
-                )
-                  .then((user) => {
-                    const resetEmail = {
-                      to: user.username,
-                      from:
-                        "postmaster@sandboxa6c1b3d7a13a4122aaa846d7cd3f96a2.mailgun.org",
-                      subject: "Your password has been changed",
-                      text: `
-              This is a confirmation that the password for your account "${user.username}" has just been changed.
-            `,
-                    };
-                    mailController.transport.sendMail(resetEmail);
-                    res.json({ status: "Updated" });
-                  })
-                  .catch((err) => {
-                    res.status(400).json({ err: "Fields not unset" });
-                  });
-              })
-              .catch((err) => {
-                res.status(400).json({ err: "Password not saved" });
-              });
-          })
-          .catch((err) => {
-            res.status(400).json({ err: "Password not set" });
-          });
-      //req.flash('success', `Success! Your password has been changed.`);
+    )
+    await user.setPassword(req.body.password);
+    await user.save({session});
+    await Employer.findOneAndUpdate(
+        { resetPasswordToken: req.params.token },
+        { $unset: { resetPasswordToken: 1, resetPasswordExpires: 1 } },
+        { session:session}
+      );
+     //commit transaction
+    await session.commitTransaction();
+    session.endSession();
+    res.json({status:"200"});
+      } catch (err) {
+        // any 500 error in try block aborts transaction
+        await session.abortTransaction();
+        session.endSession();
+        console.log(err);
+        res.status(500).json({status:"501"});
+      } 
+});
+
+router.post("/validate", middleware.isEmployer,async (req, res) => {
+  const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
+  if(req.body.username=='' || !req.body.username)
+  return res.status(400).json({err:"Bad request"});
+  Employer.findOneAndUpdate(
+    { username: req.body.username },
+    {
+      $set: {
+        emailVerifiedToken: token
+      },
+    }
+  )
+    .then((user) => {
+      console.log(token);
+     //mailController.forgotMail(req, user, token);
+      res.json({ status: "Email has been sent" });
     })
     .catch((err) => {
       res.json({ err: "User not found" });
     });
 });
 
-router.post("/validate", middleware.isEmployer, (req, res) => {});
-
-router.post("/validate/:token", (req, res) => {});
+router.put("/validate/:token", async (req, res) => {
+     //start transaction
+   const session = await mongoose.startSession();
+   session.startTransaction();
+   const server_error = new Error("500");
+   const client_error = new Error("400");
+   //try block
+   try {
+  var user = await Employer.findOne({ resetPasswordToken: req.params.token }).session(session);
+    if (
+      crypto.timingSafeEqual(
+        Buffer.from(user.emailVerifiedToken),
+        Buffer.from(req.params.token)
+      )
+    )
+    user.emailVerified=true;
+    await user.save({session});
+    await Employer.findOneAndUpdate(
+        { emailVerifiedToken: req.params.token },
+        { $unset: { emailVerifiedToken: 1 } },
+        { session:session}
+      );
+     //commit transaction
+    await session.commitTransaction();
+    session.endSession();
+    res.json({status:"200"});
+      } catch (err) {
+        // any 500 error in try block aborts transaction
+        await session.abortTransaction();
+        session.endSession();
+        console.log(err);
+        res.status(500).json({status:"501"});
+      } 
+});
 //Logout route
 router.get("/logout", (req, res) => {
   req.logout();
