@@ -41,8 +41,8 @@ const fs = require("fs"),
   }
 //create job
 async function createJob(req,data,employer,extension){
-  let valid = await validateRequest(req);
-  if(!valid){console.log(req);return false; }
+  // let valid = await validateRequest(req);
+  // if(!valid){console.log(req);return false; }
     let author = {};
     author.username = req.user.username;
     author.id = req.user._id;

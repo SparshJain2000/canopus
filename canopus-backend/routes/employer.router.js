@@ -34,8 +34,8 @@ router.route("/").get((req, res) => {
 //Sign up route
 router.post("/", async (req, res) => {
   //captcha validation
-  const captcha = await validationController.verifyCaptcha(req);
-  if(!captcha)
+  // const captcha = await validationController.verifyCaptcha(req);
+  // if(!captcha)
   return res.json({err:"400"});
   const employer = new Employer({
     username: req.body.username,

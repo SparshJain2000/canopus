@@ -9,7 +9,7 @@ async function forgotMail(req,user,token){
     
     const data = {
         from: ADMIN_MAIL,
-        to: "tmsusha@gmail.com",
+        to: req.user.username,
         subject: "Reset your Password",
         template: "forgot_password",
         'h:X-Mailgun-Variables': JSON.stringify({
@@ -35,8 +35,8 @@ async function validateMail(req,user,token){
 async function welcomeMail(req,user){
     const data = {
         from: ADMIN_MAIL,
-        to: "tmsusha@gmail.com",
-        subject: "Reset your Password",
+        to: req.user.username,
+        subject: "Welcome",
         template: "welcome",
         'h:X-Mailgun-Variables': JSON.stringify({
            first_name:"Sushant"
