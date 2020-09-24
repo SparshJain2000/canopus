@@ -34,8 +34,8 @@ router.route("/").get((req, res) => {
 //Sign up route
 router.post("/", async (req, res) => {
   //captcha validation
-  // const captcha = await validationController.verifyCaptcha(req);
-  // if(!captcha)
+  const captcha = await validationController.verifyCaptcha(req);
+  if(!captcha)
   return res.json({err:"400"});
   const employer = new Employer({
     username: req.body.username,
@@ -130,11 +130,11 @@ router.post("/forgot", async (req, res, next) => {
     .then((user) => {
       console.log(token);
       mailController.forgotMail(req, user, token);
-      mailController.welcomeMail(req,user);
+     // mailController.welcomeMail(req,user);
       res.json({ status: "Email has been sent" });
     })
     .catch((err) => {
-      res.json({ err: "User not found" });
+      res.status(400).json({ err: "Wrong email " });
     });
 });
 

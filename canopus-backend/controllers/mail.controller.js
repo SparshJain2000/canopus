@@ -9,12 +9,11 @@ async function forgotMail(req,user,token){
     
     const data = {
         from: ADMIN_MAIL,
-        to: req.user.username,
+        to: req.body.username,
         subject: "Reset your Password",
         template: "forgot_password",
         'h:X-Mailgun-Variables': JSON.stringify({
-            test:`https://${req.headers.host}/reset/${token}`,
-           
+            test:`http://${req.headers.host}/forgot/${token}`,
           })
     };
     mg.messages().send(data, function (error, body) {
@@ -35,7 +34,7 @@ async function validateMail(req,user,token){
 async function welcomeMail(req,user){
     const data = {
         from: ADMIN_MAIL,
-        to: req.user.username,
+        to: req.body.username,
         subject: "Welcome",
         template: "welcome",
         'h:X-Mailgun-Variables': JSON.stringify({
