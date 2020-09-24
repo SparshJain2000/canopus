@@ -12,8 +12,10 @@ import {
     NavItem,
     ModalHeader,
     ModalBody,
+    ButtonGroup,
 } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import "../stylesheets/updateUser.css";
 // import data from "../data";
 
 import { NavLink, Link } from "react-router-dom";
@@ -86,6 +88,7 @@ export default class UpdateUser extends Component {
             endTime: "",
             resume: "",
             days: [],
+            availability: [],
             progress: 0,
             //===============
             line: "",
@@ -148,7 +151,20 @@ export default class UpdateUser extends Component {
             lng: coords.lng,
         });
     }
-    handleChangeSelect(name, value) {
+    handleChangeSelect(name, value, type, i) {
+        if (i !== undefined) {
+            let links = this.state[type];
+            if (name === "days" && value && value.length > 0) {
+                value = value.map((e) => e.value);
+            }
+            let obj = links[i];
+            obj = { ...obj, [name]: value };
+            links[i] = obj;
+            console.log(links);
+            this.setState({
+                [type]: links,
+            });
+        }
         console.log(value, name);
         if (
             (name === "days" || name === "superSpecialization") &&
@@ -166,12 +182,14 @@ export default class UpdateUser extends Component {
         });
     }
 
-    handleChange(e, index, name) {
+    handleChange(e, index, name, type) {
         if (index !== undefined) {
-            let links = this.state.education;
+            let links = this.state[type];
             let obj = links[index];
-            obj.startYear = "1975";
-            obj.endYear = "2020";
+            if (type === "education") {
+                obj.startYear = "1975";
+                obj.endYear = "2020";
+            }
             obj = { ...obj, [name]: e.target.value };
             links[index] = obj;
             console.log(links);
@@ -466,7 +484,7 @@ export default class UpdateUser extends Component {
         return (
             <div>
                 <div className='my-2 mx-1 mx-lg-5 py-2 px-1 px-lg-5'>
-                    <div className=' p-4 my-3 mx-2 mx-lg-5' style={block}>
+                    <div className=' p-sm-4 my-3 mx-2 mx-lg-5 block-sm'>
                         <FormGroup>
                             <h4>Details</h4>
                         </FormGroup>
@@ -579,7 +597,7 @@ export default class UpdateUser extends Component {
                                     </div>
                                 </div>
                             </div>
-                            <div className='col-md-9 row'>
+                            <div className='col-md-9 row px-0'>
                                 <div className='col-12 my-1 my-sm-2'>
                                     <Label>
                                         Title{" "}
@@ -762,7 +780,8 @@ export default class UpdateUser extends Component {
                             </div>
                         </FormGroup>
                     </div>
-                    <div className='p-4 my-3 mx-2 mx-lg-5' style={block}>
+                    <hr className='d-block d-sm-none' />
+                    <div className='p-sm-4 my-3 mx-2 mx-lg-5 block-sm'>
                         <FormGroup>
                             <h4>Area of Work</h4>
                         </FormGroup>
@@ -877,7 +896,9 @@ export default class UpdateUser extends Component {
                             </div>
                         </FormGroup>
                     </div>
-                    <div className='p-4 my-3 mx-2 mx-lg-5' style={block}>
+                    <hr className='d-block d-sm-none' />
+
+                    <div className='p-sm-4 my-3 mx-2 mx-lg-5 block-sm'>
                         <FormGroup className='row'>
                             <h4 className='col-8 col-sm-10 px-0'>Education</h4>
                             <div className='col-4 col-sm-2 row justify-content-end px-0'>
@@ -889,8 +910,6 @@ export default class UpdateUser extends Component {
                                         education.push({
                                             degree: "",
                                             speciality: "",
-                                            startYear: "1975",
-                                            endYear: "2020",
                                         });
                                         this.setState({
                                             education: education,
@@ -904,7 +923,7 @@ export default class UpdateUser extends Component {
                                 </Button>
                             </div>
                         </FormGroup>
-                        <FormGroup className='row d-none d-sm-flex'>
+                        <FormGroup className='row d-none d-sm-flex mb-1'>
                             <div className='col-3'>
                                 <Label className='px-0 m-1'>
                                     <h6>Degree </h6>
@@ -930,35 +949,28 @@ export default class UpdateUser extends Component {
                         </FormGroup>
 
                         {this.state.education.map((x, i) => (
-                            <div className='row border-sm my-2 p-2 position-relative'>
-                                {/* <div className='col-12 row position-relative justify-content-between pr-2 '> */}
-                                <FontAwesomeIcon
-                                    icon={faTimes}
-                                    className='d-flex d-sm-none mb-3 float-right ml-auto m-3'
-                                    size='md'
-                                    style={{
-                                        cursor: "pointer",
-                                        position: "absolute",
-                                        right: 0,
-                                        top: 0,
-                                        zIndex: 1000,
-                                    }}
-                                    onClick={(e) => {
-                                        let education = this.state.education;
-                                        education.splice(i, 1);
-                                        this.setState({
-                                            education: education,
-                                        });
-                                    }}
-                                />
-                                {/* </div> */}
+                            <div className='row border-sm my-2 p-2 p-sm-1 my-sm-1'>
+                                <div className='col-12 row position-relative justify-content-between d-flex d-sm-none'>
+                                    <FontAwesomeIcon
+                                        icon={faTimes}
+                                        className=' mb-1 float-right ml-auto mr-1 mt-1'
+                                        size='sm'
+                                        style={{
+                                            cursor: "pointer",
+                                        }}
+                                        onClick={(e) => {
+                                            let education = this.state
+                                                .education;
+                                            education.splice(i, 1);
+                                            this.setState({
+                                                education: education,
+                                            });
+                                        }}
+                                    />
+                                </div>
 
                                 <div className='row col-12'>
                                     <div className='col-12 col-sm-3 pr-0 pr-sm-1 my-1 '>
-                                        <Label className='m-1 d-block d-sm-none'>
-                                            <h6>Degree </h6>
-                                        </Label>
-
                                         <Select
                                             autosize={true}
                                             isClearable={true}
@@ -994,6 +1006,7 @@ export default class UpdateUser extends Component {
                                                     e,
                                                     i,
                                                     "degree",
+                                                    "education",
                                                 );
                                             }}
                                             // className={
@@ -1006,9 +1019,6 @@ export default class UpdateUser extends Component {
                                         />
                                     </div>
                                     <div className='col-12 col-md-5 col-sm-4 px-0 pr-sm-1 my-1'>
-                                        <Label className='m-1 d-block d-sm-none'>
-                                            <h6>Speciality </h6>
-                                        </Label>
                                         <Input
                                             id={i}
                                             placeholder='Speciality'
@@ -1018,6 +1028,7 @@ export default class UpdateUser extends Component {
                                                     e,
                                                     i,
                                                     "speciality",
+                                                    "education",
                                                 )
                                             }
                                             value={
@@ -1031,9 +1042,9 @@ export default class UpdateUser extends Component {
                                     <div className='col-12 col-md-3 col-sm-4 px-0 row my-1'>
                                         <div className='col-12 px-0 pl-sm-1 pr-sm-1 row'>
                                             <div className='col-6 pr-1 pl-0'>
-                                                <Label className='m-1 d-block d-sm-none'>
+                                                {/* <Label className='m-1 d-block d-sm-none'>
                                                     <h6>From </h6>
-                                                </Label>
+                                                </Label> */}
                                                 <Input
                                                     placeholder='startYear'
                                                     type='select'
@@ -1043,15 +1054,22 @@ export default class UpdateUser extends Component {
                                                             e,
                                                             i,
                                                             "startYear",
+                                                            "education",
                                                         );
                                                     }}
                                                     defaultValue={
+                                                        this.state.education[
+                                                            i
+                                                        ] &&
                                                         this.state.education[i]
-                                                            ? this.state
-                                                                  .education[i]
-                                                                  .startYear
-                                                            : ""
+                                                            .startYear
                                                     }>
+                                                    <option
+                                                        value='from'
+                                                        disabled
+                                                        selected>
+                                                        From
+                                                    </option>
                                                     {Array(
                                                         Number(
                                                             new Date().getFullYear(),
@@ -1072,9 +1090,9 @@ export default class UpdateUser extends Component {
                                                 </Input>
                                             </div>
                                             <div className='col-6 pl-1 pr-0'>
-                                                <Label className='m-1 d-block d-sm-none'>
+                                                {/* <Label className='m-1 d-block d-sm-none'>
                                                     <h6>To </h6>
-                                                </Label>
+                                                </Label> */}
                                                 <Input
                                                     placeholder='endYear'
                                                     type='select'
@@ -1084,6 +1102,7 @@ export default class UpdateUser extends Component {
                                                             e,
                                                             i,
                                                             "endYear",
+                                                            "education",
                                                         );
                                                     }}
                                                     defaultValue={
@@ -1091,8 +1110,14 @@ export default class UpdateUser extends Component {
                                                             ? this.state
                                                                   .education[i]
                                                                   .endYear
-                                                            : ""
+                                                            : "To"
                                                     }>
+                                                    <option
+                                                        disabled
+                                                        selected
+                                                        value='to'>
+                                                        To
+                                                    </option>
                                                     {Array(
                                                         Number(
                                                             new Date().getFullYear(),
@@ -1136,8 +1161,27 @@ export default class UpdateUser extends Component {
                                 </div>
                             </div>
                         ))}
+                        <div className='col-12 d-block d-sm-none'>
+                            <Button
+                                color='primary'
+                                className='w-100'
+                                onClick={() => {
+                                    let education = this.state.education;
+                                    education.push({
+                                        degree: "",
+                                        speciality: "",
+                                    });
+                                    this.setState({
+                                        education: education,
+                                    });
+                                }}>
+                                Add
+                            </Button>
+                        </div>
                     </div>
-                    <div className='p-4 my-3 mx-2 mx-lg-5' style={block}>
+                    <hr className='d-block d-sm-none' />
+
+                    <div className='p-sm-4 my-3 mx-2 mx-lg-5 block-sm'>
                         <FormGroup>
                             <h4>Resume</h4>
                         </FormGroup>
@@ -1201,12 +1245,14 @@ export default class UpdateUser extends Component {
                             </div>
                         )}
                     </div>
-                    <div className='p-4 my-3 mx-2 mx-lg-5' style={block}>
+                    <hr className='d-block d-sm-none' />
+
+                    <div className='p-sm-4 my-3 mx-2 mx-lg-5 block-sm'>
                         <FormGroup>
                             <h4>Availability</h4>
                         </FormGroup>
-                        <FormGroup>
-                            <h5 className='position-relative pl-2 row'>
+                        <FormGroup className='row'>
+                            <h5 className='position-relative pl-2 row col-12 col-sm-11'>
                                 <div className='position-relative ml-3 mr-2'>
                                     <Input
                                         type='checkbox'
@@ -1228,99 +1274,276 @@ export default class UpdateUser extends Component {
                                     </span>
                                 </div>
                             </h5>
+                            {this.state.locum && (
+                                <div className='col-0 col-sm-1 pr-0 d-none d-sm-block float-right'>
+                                    <Button
+                                        color='info'
+                                        size='sm'
+                                        onClick={() => {
+                                            let availability = this.state
+                                                .availability;
+                                            availability.push({
+                                                startTime: "",
+                                                endTime: "",
+                                                days: [],
+                                            });
+                                            this.setState({
+                                                availability: availability,
+                                            });
+                                        }}>
+                                        Add
+                                        <FontAwesomeIcon
+                                            className='ml-1'
+                                            icon={faPlus}
+                                        />
+                                    </Button>
+                                </div>
+                            )}
                         </FormGroup>
                         {this.state.locum && (
-                            <FormGroup className='row'>
-                                <InputGroup className='col-6 col-sm-3 my-1 pr-0 pr-sm-1'>
-                                    <Label
-                                        className='pr-2 col-12'
-                                        for='exampleDate'>
-                                        <h6>
-                                            Start Time{" "}
-                                            <span className='text-danger'>
-                                                *
-                                            </span>
-                                        </h6>
-                                    </Label>
-                                    {/* <Label for='exampleTime'>Time</Label> */}
-                                    <Input
-                                        type='time'
-                                        name='startTime'
-                                        id='exampleTime'
-                                        placeholder='time placeholder'
-                                        onChange={this.handleChange}
-                                        defaultValue={
-                                            this.state.startTime ===
-                                                undefined ||
-                                            this.state.startTime === ""
-                                                ? "08:00"
-                                                : this.state.startTime
-                                        }
-                                        invalid={
-                                            this.state.valid.startTime ===
-                                            undefined
-                                                ? false
-                                                : !this.state.valid.startTime
-                                        }
-                                    />
-                                </InputGroup>
-                                <InputGroup className='col-6 col-sm-3 my-1 pl-0 pl-sm-1'>
-                                    <Label
-                                        className='pr-2 col-12'
-                                        for='exampleDate'>
-                                        <h6>
-                                            End Time{" "}
-                                            <span className='text-danger'>
-                                                *
-                                            </span>
-                                        </h6>
-                                    </Label>
-                                    {/* <Label for='exampleTime'>Time</Label> */}
-                                    <Input
-                                        type='time'
-                                        name='endTime'
-                                        id='exampleTime'
-                                        placeholder='time placeholder'
-                                        className=''
-                                        onChange={this.handleChange}
-                                        defaultValue={
-                                            this.state.endTime === undefined ||
-                                            this.state.endTime === ""
-                                                ? "18:00"
-                                                : this.state.endTime
-                                        }
-                                        invalid={
-                                            this.state.valid.startTime ===
-                                            undefined
-                                                ? false
-                                                : !this.state.valid.startTime
-                                        }
-                                    />
-                                </InputGroup>
-                                <InputGroup className='col-12 col-sm-6 px-0 my-1'>
-                                    <Label className='m-1 col-12'>
-                                        <h6>Days </h6>
-                                    </Label>
-                                    <Select
-                                        isClearable={true}
-                                        isMulti
-                                        className='w-100'
-                                        autosize={true}
-                                        placeholder='days'
-                                        value={this.state.days.map((e) => {
-                                            return { value: e, label: e };
-                                        })}
-                                        options={daysArray}
-                                        onChange={(e) => {
-                                            console.log(e);
-                                            this.handleChangeSelect("days", e);
-                                        }}
-                                    />
-                                </InputGroup>
-                            </FormGroup>
+                            <div>
+                                {this.state.availability.map((x, i) => (
+                                    <FormGroup className='row border-sm p-1 p-sm-0'>
+                                        <div className='col-12 row position-relative justify-content-between d-flex d-sm-none'>
+                                            <FontAwesomeIcon
+                                                icon={faTimes}
+                                                className=' mb-1 float-right ml-auto mr-1 mt-1'
+                                                size='sm'
+                                                style={{
+                                                    cursor: "pointer",
+                                                }}
+                                                onClick={(e) => {
+                                                    let availability = this.state
+                                                        .availability;
+                                                    availability.splice(i, 1);
+                                                    this.setState({
+                                                        availability: availability,
+                                                    });
+                                                }}
+                                            />
+                                        </div>
+
+                                        <div className='col-12 col-sm-4 row px-0'>
+                                            <InputGroup className='col-6 px-2 px-sm-0 my-1 pr-sm-1'>
+                                                <Label
+                                                    className='pr-2 col-12'
+                                                    for='exampleDate'>
+                                                    <h6>Start Time </h6>
+                                                </Label>
+                                                {/* <Label for='exampleTime'>Time</Label> */}
+                                                <Input
+                                                    type='time'
+                                                    name='startTime'
+                                                    id='exampleTime'
+                                                    placeholder='time placeholder'
+                                                    onChange={(e) => {
+                                                        this.handleChange(
+                                                            e,
+                                                            i,
+                                                            "startTime",
+                                                            "availability",
+                                                        );
+                                                    }}
+                                                    defaultValue={
+                                                        this.state.availability[
+                                                            i
+                                                        ] &&
+                                                        this.state.availability[
+                                                            i
+                                                        ].startTime
+                                                    }
+                                                    invalid={
+                                                        this.state.valid
+                                                            .startTime ===
+                                                        undefined
+                                                            ? false
+                                                            : !this.state.valid
+                                                                  .startTime
+                                                    }
+                                                />
+                                            </InputGroup>
+                                            <InputGroup className='col-6 my-1 px-2 px-sm-0 pl-1'>
+                                                <Label
+                                                    className='pr-2 col-12'
+                                                    for='exampleDate'>
+                                                    <h6>End Time </h6>
+                                                </Label>
+                                                {/* <Label for='exampleTime'>Time</Label> */}
+                                                <Input
+                                                    type='time'
+                                                    name='endTime'
+                                                    id='exampleTime'
+                                                    placeholder='time placeholder'
+                                                    className=''
+                                                    onChange={(e) => {
+                                                        this.handleChange(
+                                                            e,
+                                                            i,
+                                                            "endTime",
+                                                            "availability",
+                                                        );
+                                                    }}
+                                                    defaultValue={
+                                                        this.state.availability[
+                                                            i
+                                                        ] &&
+                                                        this.state.availability[
+                                                            i
+                                                        ].endTime
+                                                    }
+                                                    invalid={
+                                                        this.state.valid
+                                                            .startTime ===
+                                                        undefined
+                                                            ? false
+                                                            : !this.state.valid
+                                                                  .startTime
+                                                    }
+                                                />
+                                            </InputGroup>
+                                        </div>
+
+                                        <InputGroup className='col-12 col-sm-7 px-0 my-1 pl-sm-1 pl-sm-1'>
+                                            <Label className='d-none d-sm-block m-1 col-12 pl-sm-4'>
+                                                <h6>Days </h6>
+                                            </Label>
+                                            {/* <Select
+                                                isClearable={true}
+                                                isMulti
+                                                className='w-100'
+                                                autosize={true}
+                                                placeholder='days'
+                                                value={
+                                                    this.state.availability[i]
+                                                        .days &&
+                                                    this.state.availability[
+                                                        i
+                                                    ].days.map((e) => {
+                                                        return {
+                                                            value: e,
+                                                            label: e,
+                                                        };
+                                                    })
+                                                }
+                                                options={daysArray}
+                                                onChange={(e) => {
+                                                    console.log(e);
+                                                    this.handleChangeSelect(
+                                                        "days",
+                                                        e,
+                                                        "availability",
+                                                        i,
+                                                    );
+                                                }}
+                                            /> */}
+                                            <ButtonGroup
+                                                className='col-12 row pl-sm-4'
+                                                size='sm'>
+                                                {weekdays.map((day, index) => (
+                                                    <div className='px-1'>
+                                                        <Button
+                                                            size={"sm"}
+                                                            color={
+                                                                this.state.availability[
+                                                                    i
+                                                                ].days.includes(
+                                                                    weekdays[
+                                                                        index
+                                                                    ],
+                                                                )
+                                                                    ? "success"
+                                                                    : "light"
+                                                            }
+                                                            onClick={(e) => {
+                                                                let links = this
+                                                                    .state
+                                                                    .availability;
+                                                                let obj =
+                                                                    links[i];
+
+                                                                if (
+                                                                    obj.days.includes(
+                                                                        weekdays[
+                                                                            index
+                                                                        ],
+                                                                    )
+                                                                ) {
+                                                                    obj.days.splice(
+                                                                        obj.days.indexOf(
+                                                                            weekdays[
+                                                                                index
+                                                                            ],
+                                                                        ),
+                                                                        1,
+                                                                    );
+                                                                } else
+                                                                    obj.days = [
+                                                                        ...obj.days,
+                                                                        weekdays[
+                                                                            index
+                                                                        ],
+                                                                    ];
+                                                                links[i] = obj;
+                                                                this.setState({
+                                                                    availability: links,
+                                                                });
+                                                            }}>
+                                                            {day.substring(
+                                                                0,
+                                                                3,
+                                                            )}
+                                                        </Button>
+                                                    </div>
+                                                ))}
+                                            </ButtonGroup>
+                                        </InputGroup>
+                                        <div className='col-sm-1 d-none d-sm-flex'>
+                                            <FontAwesomeIcon
+                                                icon={faTrash}
+                                                className=' text-danger my-auto ml-auto'
+                                                style={{
+                                                    cursor: "pointer",
+                                                    height: "100%",
+                                                }}
+                                                onClick={(e) => {
+                                                    let availability = this
+                                                        .state.availability;
+                                                    availability.splice(i, 1);
+                                                    this.setState({
+                                                        availability: availability,
+                                                    });
+                                                }}
+                                            />
+                                        </div>
+                                    </FormGroup>
+                                ))}
+                            </div>
+                        )}
+                        {this.state.locum && (
+                            <Button
+                                color='info'
+                                size='sm'
+                                className='w-100 d-block d-sm-none'
+                                onClick={() => {
+                                    let availability = this.state.availability;
+                                    availability.push({
+                                        startTime: "",
+                                        endTime: "",
+                                        days: [],
+                                    });
+                                    this.setState({
+                                        availability: availability,
+                                    });
+                                }}>
+                                Add
+                                <FontAwesomeIcon
+                                    className='ml-1'
+                                    icon={faPlus}
+                                />
+                            </Button>
                         )}
                     </div>
-                    <div className='p-4 m-3 mx-lg-4 d-flex justify-content-end'>
+                    <div className='p-1 p-sm-4 m-1 m-sm-3 mx-lg-4 d-flex justify-content-end'>
                         {this.state.loading ? (
                             <Button
                                 // onClick={this.update}
