@@ -41,6 +41,7 @@ async function UserProfileUpdateBuilder(req) {
     if (req.body.dob) query.update["dob"] = req.body.dob;
     if (req.body.phone) query.update["phone"] = req.body.phone;
     if (req.body.profession) query.update["profession"] = req.body.profession;
+    if (req.body.availability) query.update["availability"] = req.body.availability;
     if (req.body.specialization)
         query.update["specialization"] = req.body.specialization;
     if (req.body.superSpecialization)
