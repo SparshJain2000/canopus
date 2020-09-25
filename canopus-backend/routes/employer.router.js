@@ -37,6 +37,7 @@ router.post("/", async (req, res) => {
   const captcha = await validationController.verifyCaptcha(req);
   if(!captcha)
   return res.json({err:"400"});
+  const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
   const employer = new Employer({
     username: req.body.username,
     firstName: req.body.firstName,
@@ -45,6 +46,7 @@ router.post("/", async (req, res) => {
     links: req.body.links,
     description: req.body.description,
     youtube: req.body.youtube,
+    emailVerifiedToken:token,
     role: "Employer",
     jobtier: {
       allowed: 10,
@@ -73,6 +75,7 @@ router.post("/", async (req, res) => {
   });
   Employer.register(employer, req.body.password)
     .then((employer) => {
+      
       passport.authenticate("employer")(req, res, () => {
         res.json({ employer: employer });
       });
@@ -129,8 +132,8 @@ router.post("/forgot", async (req, res, next) => {
   )
     .then((user) => {
       console.log(token);
-      mailController.forgotMail(req, user, token);
-     // mailController.welcomeMail(req,user);
+      //mailController.forgotMail(req, user, token);
+      mailController.welcomeMail(req,user);
       res.json({ status: "Email has been sent" });
     })
     .catch((err) => {

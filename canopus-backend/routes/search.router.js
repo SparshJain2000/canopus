@@ -398,10 +398,10 @@ router.post("/visitor-jobs", async (req, res) => {
       var startDateMatch = {},
         endDateMatch = {};
       if (req.body.day) {
-        dayMatch = { dayOfWeek: req.body.day };
+        //array of days 
+        dayMatch = { dayOfWeek:{$in:req.body.day}}; 
         dateQuery.push(dayMatch);
       }
-
       if (req.body.startDate) {
         const mystartDate = new Date(req.body.startDate);
         startDateMatch = {
@@ -543,7 +543,7 @@ router.post("/visitor-jobs", async (req, res) => {
             }
           );
         })
-        .catch((err) => res.status(400).json({ err: "error" }));
+        .catch((err) => res.status(400).json({ err: err }));
     })
 
     .catch(function (error) {

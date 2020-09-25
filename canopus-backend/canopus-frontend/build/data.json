@@ -21,7 +21,10 @@
         "PhD",
         "B.Pth.",
         "B.Pharm",
-        "M.Pharm"
+        "M.Pharm",
+        "GNM",
+        "ANM",
+        "Certificate"
     ],
     "instituteType": [
         "Government Hospital",
@@ -41,10 +44,10 @@
     "speciality": [
         "Multi Speciality Hospital",
         "Single Speciality Hospital",
-        "Primary Health care center",
-        "tertiary care institute",
-        "single speciality diagnostic",
-        "multi speciality diagnostic"
+        "Primary Health Care Center",
+        "Tertiary Care Institute",
+        "Single Speciality Diagnostic",
+        "Multi Speciality Diagnostic"
     ],
     "type": [
         "Full time",
@@ -90,8 +93,7 @@
         "Case-wise Incentives"
     ],
     "professions": [
-        "Physician",
-        "Surgeon",
+        "Physician/Surgeon",
         "Dentist",
         "Nurse",
         "Therapist",
@@ -122,46 +124,464 @@
     "tags": [
         "Covid-19"
     ],
-    "specialization2": [
+    "specialization": [
         {
-            "profession": "Physician",
+            "profession": "Physician/Surgeon",
+            "specialization": "General Medicine"
+        },
+        {
+            "profession": "Physician/Surgeon",
             "specialization": "General Surgery"
         },
         {
-            "profession": "",
-            "specialization": ""
+            "profession": "Physician/Surgeon",
+            "specialization": "Pediatrics"
         },
         {
-            "profession": "",
-            "specialization": ""
+            "profession": "Physician/Surgeon",
+            "specialization": "Anaesthesia"
         },
         {
-            "profession": "",
-            "specialization": ""
+            "profession": "Physician/Surgeon",
+            "specialization": "Radiology"
         },
         {
-            "profession": "",
-            "specialization": ""
+            "profession": "Physician/Surgeon",
+            "specialization": "Psychiatry"
         },
         {
-            "profession": "",
-            "specialization": ""
+            "profession": "Physician/Surgeon",
+            "specialization": "Pathology"
         },
         {
-            "profession": "",
-            "specialization": ""
+            "profession": "Physician/Surgeon",
+            "specialization": "Pharmacology"
         },
         {
-            "profession": "",
-            "specialization": ""
+            "profession": "Physician/Surgeon",
+            "specialization": "Obstetrics and Gynecology"
         },
         {
-            "profession": "",
-            "specialization": ""
+            "profession": "Physician/Surgeon",
+            "specialization": "Orthopedic surgery"
         },
         {
-            "profession": "",
-            "specialization": ""
+            "profession": "Physician/Surgeon",
+            "specialization": "Opthalmology"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Biophysics"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Community Health Admin"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Dermatology"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Emergency Critical Care"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Family Medicine"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Forensic Medicine"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Geriatric Medicine"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Microbiology"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Nuclear Medicine"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Otorhinolaryngology"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Palliative Medicine"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Physical Medicine Rehabilitation"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Preventive Social Medicine"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Radio Therapy"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "TB/Respiratory Diseases"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Transfusion Medicine"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Tropical Medicine"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Sports Medicine"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Epidemiology"
+        },
+        {
+            "profession": "Dentist",
+            "specialization": "Operative Conservative Dentistry"
+        },
+        {
+            "profession": "Dentist",
+            "specialization": "Oral and Maxillofacial Surgery"
+        },
+        {
+            "profession": "Dentist",
+            "specialization": "Oral Medicine and Radiology"
+        },
+        {
+            "profession": "Dentist",
+            "specialization": "Oral Pathology"
+        },
+        {
+            "profession": "Dentist",
+            "specialization": "Orthodontia"
+        },
+        {
+            "profession": "Dentist",
+            "specialization": "Pedodontics and Preventive Surgery"
+        },
+        {
+            "profession": "Dentist",
+            "specialization": "Periodontia"
+        },
+        {
+            "profession": "Dentist",
+            "specialization": "Preventive and Social Dentistry"
+        },
+        {
+            "profession": "Dentist",
+            "specialization": "Prosthetic and Implantology"
+        },
+        {
+            "profession": "Nurse",
+            "specialization": "Nursing"
+        },
+        {
+            "profession": "Pharmacist",
+            "specialization": "Pharmacy"
+        },
+        {
+            "profession": "Therapist",
+            "specialization": "Physiotherapist"
+        },
+        {
+            "profession": "Therapist",
+            "specialization": "Psychologist"
+        },
+        {
+            "profession": "Therapist",
+            "specialization": "Nutritionist"
+        }
+    ],
+    "superspecialization": [
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "General Medicine",
+            "superSpecialization": "Cardiology - Cardiologist / Interventional Cardiologist"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "General Medicine",
+            "superSpecialization": "Clinical Immunology and Rheumatology - Immunologist & Rheumatologist"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "General Medicine",
+            "superSpecialization": "Rheumatology - Rheumatologist"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "General Medicine",
+            "superSpecialization": "Endocrinology - endocrinologist"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "General Medicine",
+            "superSpecialization": "Gastroenterology"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "General Medicine",
+            "superSpecialization": "Hepatology"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "General Medicine",
+            "superSpecialization": "Infectious Disease"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "General Medicine",
+            "superSpecialization": "Medical Genetics"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "General Medicine",
+            "superSpecialization": "Medical Oncology"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "General Medicine",
+            "superSpecialization": "Nephrology"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "General Medicine",
+            "superSpecialization": "Neurology"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "General Medicine",
+            "superSpecialization": "Paediatric Neurology"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "General Medicine",
+            "superSpecialization": "Pulmonary Medicine"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "General Medicine",
+            "superSpecialization": "Critical Care Medicine"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "General Medicine",
+            "superSpecialization": "Interventional Cardiology"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "General Medicine",
+            "superSpecialization": "Reproductive Medicine"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "General Medicine",
+            "superSpecialization": "Sports Medicine"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "General Surgery",
+            "superSpecialization": "Endocrine Surgery"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "General Surgery",
+            "superSpecialization": "Head & Neck Surgery"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "General Surgery",
+            "superSpecialization": "Surgical Gastroenterology"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "General Surgery",
+            "superSpecialization": "HepatoPancreatto Billary Surgery"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "General Surgery",
+            "superSpecialization": "Neuro Surgery"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "General Surgery",
+            "superSpecialization": "Paediatrics Surgery"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "General Surgery",
+            "superSpecialization": "Plastic & Reconstructructive Surgery"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "General Surgery",
+            "superSpecialization": "Surgical Oncology"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "General Surgery",
+            "superSpecialization": "Urology"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "General Surgery",
+            "superSpecialization": "Peripheral Vascular Surgery"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "General Surgery",
+            "superSpecialization": "Cardio Vascular & Thoracic Surgery"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "General Surgery",
+            "superSpecialization": "Thoracic Surgery"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "General Surgery",
+            "superSpecialization": "Minimal Access Surgery"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Pediatrics",
+            "superSpecialization": "Paediatric Neurology"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Pediatrics",
+            "superSpecialization": "Pediatric Hepatology"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Pediatrics",
+            "superSpecialization": "Pediatric Intensive Care"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Pediatrics",
+            "superSpecialization": "Paediatric Oncology"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Pediatrics",
+            "superSpecialization": "Paediatrics Gastroenterology"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Pediatrics",
+            "superSpecialization": "Neonatology"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Pediatrics",
+            "superSpecialization": "Pediatric Cardiology"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Pediatrics",
+            "superSpecialization": "Pediatric Hemato Oncology"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Anaesthesia",
+            "superSpecialization": "Cardiac Anaesthesia"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Anaesthesia",
+            "superSpecialization": "Neuro Anaesthesia and Critical Care"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Anaesthesia",
+            "superSpecialization": "Critical Care Medicine"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Radiology",
+            "superSpecialization": "Interventional Radiology"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Radiology",
+            "superSpecialization": "Endovascular and Interventional Radiology"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Radiology",
+            "superSpecialization": "Neuro-Radiology"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Psychiatry",
+            "superSpecialization": "Geriatric Mental Health"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Pathology",
+            "superSpecialization": "Clinical Haematology"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Pathology",
+            "superSpecialization": "Hematology"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Pathology",
+            "superSpecialization": "Onco Pathology"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Pathology",
+            "superSpecialization": "Laboratory Medicine"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Pharmacology",
+            "superSpecialization": "Clinical Pharmacology"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Obstetrics and Gynecology",
+            "superSpecialization": "Gynecological Oncology"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Obstetrics and Gynecology",
+            "superSpecialization": "Reproductive Medicine & Surgery"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Obstetrics and Gynecology",
+            "superSpecialization": "Pregnancy & Perinatology"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Orthopedic surgery",
+            "superSpecialization": "Hand & Micro Surgery"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Orthopedic surgery",
+            "superSpecialization": "Spine Surgery"
+        },
+        {
+            "profession": "Physician/Surgeon",
+            "specialization": "Opthalmology",
+            "superSpecialization": "Vitreo Retinal Surgery"
         }
     ]
 }
