@@ -22,6 +22,7 @@ module.exports = mongoose.model(
         title: String,
         dob: String,
         superSpecialization: Array,
+        availability:Object,
         experience: [
             {
                 title: String,
