@@ -72,6 +72,7 @@ passport.use(
                     var user = new User();
                     user.username = profile.emails[0].value;
                     user.role = "User";
+                    user.emailVerified = true;
                     user.image = profile.photos[0].value;
                     user.google = {
                         id: profile.id,
@@ -127,7 +128,7 @@ passport.use(
                     };
                     user.firstName = profile.name.givenName;
                     user.lastName = profile.name.familyName;
-
+                    user.emailVerified = true;
                     user.save((err, user) => {
                         if (!err) return cb(err, user);
                     });

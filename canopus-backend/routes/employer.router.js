@@ -36,7 +36,8 @@ router.post("/", async (req, res) => {
   //captcha validation
   // const captcha = await validationController.verifyCaptcha(req);
   // if(!captcha)
-  return res.json({err:"400"});
+  // return res.json({err:"400"});
+  const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
   const employer = new Employer({
     username: req.body.username,
     firstName: req.body.firstName,
@@ -45,6 +46,7 @@ router.post("/", async (req, res) => {
     links: req.body.links,
     description: req.body.description,
     youtube: req.body.youtube,
+    emailVerifiedToken:token,
     role: "Employer",
     jobtier: {
       allowed: 10,
@@ -73,6 +75,7 @@ router.post("/", async (req, res) => {
   });
   Employer.register(employer, req.body.password)
     .then((employer) => {
+      mailController.validateMail(req,employer,token);
       passport.authenticate("employer")(req, res, () => {
         res.json({ employer: employer });
       });
@@ -114,7 +117,7 @@ router.post("/login", function (req, res, next) {
   })(req, res, next);
 });
 //===========================================================================
-router.post("/forgot", async (req, res, next) => {
+router.post("/forgot", async (req, res) => {
   const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
   if(req.body.username=='' || !req.body.username)
   return res.status(400).json({err:"Bad request"});
@@ -130,11 +133,11 @@ router.post("/forgot", async (req, res, next) => {
     .then((user) => {
       console.log(token);
       mailController.forgotMail(req, user, token);
-      mailController.welcomeMail(req,user);
+      //mailController.welcomeMail(req,user);
       res.json({ status: "Email has been sent" });
     })
     .catch((err) => {
-      res.json({ err: "User not found" });
+      res.status(400).json({ err: "Wrong email " });
     });
 });
 
@@ -188,7 +191,7 @@ router.post("/validate", middleware.isEmployer,async (req, res) => {
   )
     .then((user) => {
       console.log(token);
-     //mailController.forgotMail(req, user, token);
+     mailController.validateMail(req, user, token);
       res.json({ status: "Email has been sent" });
     })
     .catch((err) => {
@@ -196,7 +199,7 @@ router.post("/validate", middleware.isEmployer,async (req, res) => {
     });
 });
 
-router.put("/validate/:token", async (req, res) => {
+router.get("/validate/:token", async (req, res) => {
      //start transaction
    const session = await mongoose.startSession();
    session.startTransaction();
@@ -204,7 +207,7 @@ router.put("/validate/:token", async (req, res) => {
    const client_error = new Error("400");
    //try block
    try {
-  var user = await Employer.findOne({ resetPasswordToken: req.params.token }).session(session);
+  var user = await Employer.findOne({ emailVerifiedToken: req.params.token }).session(session);
     if (
       crypto.timingSafeEqual(
         Buffer.from(user.emailVerifiedToken),

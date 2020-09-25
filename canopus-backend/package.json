@@ -8,7 +8,8 @@
         "start": "node server.js",
         "build": "cd canopus-frontend && npm run build",
         "install-client": "cd canopus-frontend && npm install",
-        "heroku-postbuild": "npm run install-client && npm run build"
+        "heroku-postbuild": "npm run install-client && npm run build",
+        "react-init":"cd canopus-frontend && npm i"
     },
     "author": "sparsh, sushant",
     "license": "ISC",
@@ -33,8 +34,7 @@
         "request": "^2.88.2",
         "stream": "0.0.2",
         "universal-analytics": "^0.4.23",
-        "util": "^0.12.3",
-        "xmlhttprequest": "^1.8.0"
+        "util": "^0.12.3"
     },
     "engines": {
         "node": "v10.16.0"
