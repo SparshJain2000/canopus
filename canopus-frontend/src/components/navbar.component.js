@@ -22,7 +22,7 @@ import {
     DropdownToggle,
     DropdownMenu,
 } from "reactstrap";
-import logo from "../images/logo.svg";
+import logo from "../images/logo.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import ReactGA from "react-ga";
 
@@ -135,10 +135,10 @@ const NavbarComponent = (props) => {
                 {error}
             </Alert>
             <Navbar color='light' light expand='lg'>
-                <img src={logo} alt='logo' width='30px' />
-                <NavbarBrand href='/' className='ml-2 text-align-center'>
-                    Canopus
-                </NavbarBrand>
+                <img src={logo} alt='logo' width='130px' />
+                {/* <NavbarBrand href='/' className='ml-2 text-align-center'>
+                        Curoid
+                    </NavbarBrand> */}
                 <NavbarToggler
                     onClick={toggle}
                     className={`position-relative ${
@@ -149,7 +149,7 @@ const NavbarComponent = (props) => {
                     <span></span>
                 </NavbarToggler>
                 <Collapse isOpen={isOpen} navbar>
-                    <Nav
+                    {/* <Nav
                         className='row mx-auto justify-content-center px-5'
                         navbar>
                         <NavItem className='m-1'>
@@ -164,7 +164,7 @@ const NavbarComponent = (props) => {
                         <NavItem className='m-1'>
                             <NavLink to='/'>About US</NavLink>
                         </NavItem>
-                    </Nav>
+                    </Nav> */}
                     {!props.user ? (
                         <Nav
                             className='row ml-auto align-content-center justify-content-center mt-3 mt-lg-0'
@@ -441,7 +441,9 @@ const NavbarComponent = (props) => {
                                 </button>
                             </div>
                             <div className='clearfix'>
-                                <a href='/' className='float-right'>
+                                <a
+                                    href='/employer/forgot'
+                                    className='float-right'>
                                     Forgot Password?
                                 </a>
                             </div>
