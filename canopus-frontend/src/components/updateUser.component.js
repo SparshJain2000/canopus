@@ -18,7 +18,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "../stylesheets/updateUser.css";
 // import data from "../data";
 
-import { NavLink, Link } from "react-router-dom";
+import { NavLink, Link, Redirect, useHistory } from "react-router-dom";
 import {
     faPlusCircle,
     faPen,
@@ -36,11 +36,6 @@ import { BlobServiceClient } from "@azure/storage-blob";
 import imageCompression from "browser-image-compression";
 import ImageCarousel from "./imageCarousel.component";
 import Select from "react-select";
-import data from "../data";
-const superSpecializationArray = data.superSpecialization.map((opt) => ({
-    label: opt,
-    value: opt,
-}));
 var weekdays = new Array(
     "Sunday",
     "Monday",
@@ -172,7 +167,11 @@ export default class UpdateUser extends Component {
             value.length > 0
         ) {
             value = value.map((e) => e.value);
-        }
+        } else if (
+            (name === "days" || name === "superSpecialization") &&
+            value === null
+        )
+            value = [];
         this.setState({
             [name]: value,
             valid: {
@@ -291,20 +290,20 @@ export default class UpdateUser extends Component {
                 resume: this.state.resume,
             };
             if (this.state.locum) {
-                const locum = {
-                    startTime:
-                        this.state.startTime === ""
-                            ? "08:00"
-                            : this.state.startTime,
-                    endTime:
-                        this.state.endTime === ""
-                            ? "18:00"
-                            : this.state.endTime,
-                    days: this.state.days,
-                };
+                // const locum = {
+                //     startTime:
+                //         this.state.startTime === ""
+                //             ? "08:00"
+                //             : this.state.startTime,
+                //     endTime:
+                //         this.state.endTime === ""
+                //             ? "18:00"
+                //             : this.state.endTime,
+                //     days: this.state.days,
+                // };
                 user = {
                     ...user,
-                    locum,
+                    availability: this.state.availability,
                 };
             }
             Object.keys(user).forEach(
@@ -321,7 +320,9 @@ export default class UpdateUser extends Component {
                     console.log(data);
                     if (data.status === 200) {
                         // alert("Update successful");
+                        console.log("RED");
                         this.props.setUser(data.data);
+                        this.props.history.push({ pathname: "/profile" });
                         // window.location = "/employer";
                     }
                 })
@@ -368,9 +369,7 @@ export default class UpdateUser extends Component {
                     });
                     if (user.locum.startTime)
                         this.setState({
-                            startTime: user.locum.startTime,
-                            endTime: user.locum.endTime,
-                            days: user.locum.days,
+                            availability: user.availability,
                             locum: true,
                         });
                 }
@@ -462,6 +461,7 @@ export default class UpdateUser extends Component {
                     })
                         .then(({ data }) => {
                             const sas = data.token;
+                            console.log(sas);
                             this.uploadToStorage("canopus", sas, image).then(
                                 (res) => {
                                     const url = `https://canopus.blob.core.windows.net/user-image/${this.state.id}_${file.name}`;
@@ -481,12 +481,57 @@ export default class UpdateUser extends Component {
         }
     }
     render() {
+        let degrees = [],
+            speciality = [],
+            professionArray = [],
+            specializationArray = [];
+        let specializationObj = {},
+            superSpecializationObj = {};
+        if (this.props.data) {
+            console.log(this.props);
+            degrees = this.props.data.degrees.map((degree) => {
+                return {
+                    value: degree,
+                    label: degree,
+                };
+            });
+            professionArray = this.props.data.specializations.map((obj) => {
+                specializationObj[obj.profession] = obj.specialization.map(
+                    (e) => {
+                        return { label: e, value: e };
+                    },
+                );
+                specializationArray = [
+                    ...specializationArray,
+                    ...obj.specialization,
+                ];
+                return {
+                    value: obj.profession,
+                    label: obj.profession,
+                };
+            });
+            specializationArray = [...new Set(specializationArray)];
+            specializationArray = specializationArray.map((e) => {
+                return { label: e, value: e };
+            });
+            speciality = this.props.data.speciality;
+
+            this.props.data.superSpecializations.forEach((obj) => {
+                const key = `${obj.profession}+${obj.specialization}`;
+                superSpecializationObj[key] = obj.superSpecialization.map(
+                    (e) => {
+                        return { label: e, value: e };
+                    },
+                );
+            });
+            console.log(superSpecializationObj);
+        }
         return (
             <div>
                 <div className='my-2 mx-1 mx-lg-5 py-2 px-1 px-lg-5'>
                     <div className=' p-sm-4 my-3 mx-2 mx-lg-5 block-sm'>
                         <FormGroup>
-                            <h4>Details</h4>
+                            <h5>Details</h5>
                         </FormGroup>
                         <FormGroup className='row'>
                             <div className='col-12 col-md-3 text-align-center'>
@@ -597,11 +642,15 @@ export default class UpdateUser extends Component {
                                     </div>
                                 </div>
                             </div>
-                            <div className='col-md-9 row px-0'>
-                                <div className='col-12 my-1 my-sm-2'>
-                                    <Label>
-                                        Title{" "}
-                                        <span className='text-danger'>*</span>
+                            <div className='col-md-9 row px-0 pl-sm-3'>
+                                <div className='col-12 my-1 my-sm-0'>
+                                    <Label className='mb-1'>
+                                        <h6 className='mb-0 small-heading'>
+                                            Title{" "}
+                                            <span className='text-danger'>
+                                                *
+                                            </span>
+                                        </h6>
                                     </Label>
                                     <Input
                                         placeholder='Title'
@@ -612,9 +661,13 @@ export default class UpdateUser extends Component {
                                     />
                                 </div>
                                 <div className='col-12 col-sm-7 pr-0 pr-sm-1 row my-1 my-sm-2'>
-                                    <Label className='col-12 px-0'>
-                                        First Name{" "}
-                                        <span className='text-danger'>*</span>
+                                    <Label className='mb-1 col-12'>
+                                        <h6 className='mb-0 small-heading'>
+                                            First Name{" "}
+                                            <span className='text-danger'>
+                                                *
+                                            </span>
+                                        </h6>
                                     </Label>
                                     <div className='col-3 pl-0 pr-0 '>
                                         <Input
@@ -673,9 +726,13 @@ export default class UpdateUser extends Component {
                                     />
                                 </div> */}
                                 <div className='col-12 col-sm-5 pl-0 pl-sm-1 my-1 my-sm-2'>
-                                    <Label>
-                                        Last Name{" "}
-                                        <span className='text-danger'>*</span>
+                                    <Label className='mb-1'>
+                                        <h6 className='mb-0 small-heading'>
+                                            Last Name{" "}
+                                            <span className='text-danger'>
+                                                *
+                                            </span>
+                                        </h6>
                                     </Label>
                                     <Input
                                         placeholder='Last Name'
@@ -686,11 +743,14 @@ export default class UpdateUser extends Component {
                                     />
                                 </div>
                                 <div className='col-12 col-sm-6 pr-0 pr-sm-1 my-1 my-sm-2'>
-                                    <Label>
-                                        Gender{" "}
-                                        <span className='text-danger'>*</span>
+                                    <Label className='mb-1'>
+                                        <h6 className='mb-0 small-heading'>
+                                            Gender{" "}
+                                            <span className='text-danger'>
+                                                *
+                                            </span>
+                                        </h6>
                                     </Label>
-
                                     <Input
                                         placeholder='Gender'
                                         type='select'
@@ -707,7 +767,11 @@ export default class UpdateUser extends Component {
                                     </Input>
                                 </div>
                                 <div className='col-12 col-sm-6 pl-0 pl-sm-1 my-1 my-sm-2'>
-                                    <Label>Date of Birth </Label>
+                                    <Label className='mb-1'>
+                                        <h6 className='mb-0 small-heading'>
+                                            Date of Birth
+                                        </h6>
+                                    </Label>
                                     <Input
                                         type='date'
                                         name='dob'
@@ -717,11 +781,15 @@ export default class UpdateUser extends Component {
                                     />
                                 </div>
                                 <div className='row my-1 my-sm-2'>
-                                    <Label className='col-12 px-0'>
-                                        Location{" "}
-                                        <span className='text-danger'>*</span>
+                                    <Label className='col-12 mb-1'>
+                                        <h6 className='mb-0 small-heading'>
+                                            Location{" "}
+                                            <span className='text-danger'>
+                                                *
+                                            </span>
+                                        </h6>
                                     </Label>
-                                    <div className='col-12 col-sm-4 pl-0 '>
+                                    <div className='col-12 col-sm-4 pl-0 my-1 my-sm-0'>
                                         <Input
                                             placeholder='city'
                                             name='city'
@@ -730,7 +798,7 @@ export default class UpdateUser extends Component {
                                             invalid={!this.state.valid.city}
                                         />
                                     </div>
-                                    <div className='col-12 col-sm-4 pl-0 pl-sm-1 '>
+                                    <div className='col-12 col-sm-4 pl-0 pl-sm-1 my-1 my-sm-0'>
                                         <Input
                                             placeholder='state'
                                             name='state'
@@ -739,7 +807,7 @@ export default class UpdateUser extends Component {
                                             invalid={!this.state.valid.state}
                                         />
                                     </div>
-                                    <div className='col-12 col-sm-4 pl-0 pl-sm-1 '>
+                                    <div className='col-12 col-sm-4 pl-0 pl-sm-1 my-1 my-sm-0'>
                                         <Input
                                             placeholder='country'
                                             name='country'
@@ -751,10 +819,15 @@ export default class UpdateUser extends Component {
                                     </div>
                                 </div>
                                 <div className='row my-1 my-sm-2 col-12'>
-                                    <Label className='col-12 px-0'>
-                                        Contact Info{" "}
+                                    <Label className='col-12 mb-1'>
+                                        <h6 className='mb-0 small-heading'>
+                                            Contact Info{" "}
+                                            <span className='text-danger'>
+                                                *
+                                            </span>
+                                        </h6>
                                     </Label>
-                                    <div className='col-12 col-sm-6 pr-0 pr-sm-1 '>
+                                    <div className='col-12 col-sm-6 pr-0 pr-sm-1 my-1 my-sm-0'>
                                         <Input
                                             placeholder='email'
                                             name='email'
@@ -767,7 +840,7 @@ export default class UpdateUser extends Component {
                                             disabled={true}
                                         />
                                     </div>
-                                    <div className='col-12 col-sm-6 pl-0 pl-sm-1 '>
+                                    <div className='col-12 col-sm-6 pl-0 pl-sm-1 my-1 my-sm-0'>
                                         <Input
                                             placeholder='phone'
                                             name='phone'
@@ -783,13 +856,13 @@ export default class UpdateUser extends Component {
                     <hr className='d-block d-sm-none' />
                     <div className='p-sm-4 my-3 mx-2 mx-lg-5 block-sm'>
                         <FormGroup>
-                            <h4>Area of Work</h4>
+                            <h5>Area of Work</h5>
                         </FormGroup>
 
                         <FormGroup className='row'>
                             <div className='col-12 col-sm-6 pr-0 pr-sm-1 my-1'>
-                                <Label className='m-1'>
-                                    <h6>
+                                <Label className='mb-0'>
+                                    <h6 className='mb-0 small-heading'>
                                         Profession{" "}
                                         <span className='text-danger'>*</span>
                                     </h6>
@@ -804,16 +877,13 @@ export default class UpdateUser extends Component {
                                             label: this.state.profession,
                                         }
                                     }
-                                    options={data.professions.map(
-                                        (profession) => {
-                                            return {
-                                                value: profession,
-                                                label: profession,
-                                            };
-                                        },
-                                    )}
+                                    options={professionArray}
                                     onChange={(e) => {
                                         console.log(e);
+                                        this.setState({
+                                            specialization: "",
+                                            superSpecialization: [],
+                                        });
                                         this.handleChangeSelect(
                                             "profession",
                                             e ? e.value : "",
@@ -829,8 +899,8 @@ export default class UpdateUser extends Component {
                                 />
                             </div>
                             <div className='col-12 col-sm-6 pl-0 pl-sm-1 my-1'>
-                                <Label className='m-1'>
-                                    <h6>
+                                <Label className='mb-0'>
+                                    <h6 className='mb-0 small-heading'>
                                         Specialization{" "}
                                         <span className='text-danger'>*</span>
                                     </h6>
@@ -845,14 +915,13 @@ export default class UpdateUser extends Component {
                                             label: this.state.specialization,
                                         }
                                     }
-                                    options={data.specializations.map(
-                                        (specialization) => {
-                                            return {
-                                                value: specialization,
-                                                label: specialization,
-                                            };
-                                        },
-                                    )}
+                                    options={
+                                        this.state.profession === ""
+                                            ? specializationArray
+                                            : specializationObj[
+                                                  this.state.profession
+                                              ]
+                                    }
                                     onChange={(e) => {
                                         console.log(e);
                                         this.handleChangeSelect(
@@ -871,8 +940,10 @@ export default class UpdateUser extends Component {
                             </div>
 
                             <div className='col-12  px-0 my-1'>
-                                <Label className='m-1'>
-                                    <h6>Super Specialization </h6>
+                                <Label className='mb-0'>
+                                    <h6 className='mb-0 small-heading'>
+                                        Super Specialization{" "}
+                                    </h6>
                                 </Label>
                                 <Select
                                     isClearable={true}
@@ -884,7 +955,11 @@ export default class UpdateUser extends Component {
                                             return { value: e, label: e };
                                         },
                                     )}
-                                    options={superSpecializationArray}
+                                    options={
+                                        superSpecializationObj[
+                                            `${this.state.profession}+${this.state.specialization}`
+                                        ]
+                                    }
                                     onChange={(e) => {
                                         console.log(e);
                                         this.handleChangeSelect(
@@ -900,8 +975,8 @@ export default class UpdateUser extends Component {
 
                     <div className='p-sm-4 my-3 mx-2 mx-lg-5 block-sm'>
                         <FormGroup className='row'>
-                            <h4 className='col-8 col-sm-10 px-0'>Education</h4>
-                            <div className='col-4 col-sm-2 row justify-content-end px-0'>
+                            <h5 className='col-8 col-sm-10 px-0'>Education</h5>
+                            <div className='col-4 col-sm-2 row justify-content-end px-0 d-none d-sm-flex'>
                                 <Button
                                     color='info'
                                     size='sm'
@@ -915,34 +990,42 @@ export default class UpdateUser extends Component {
                                             education: education,
                                         });
                                     }}>
-                                    Add
                                     <FontAwesomeIcon
-                                        className='ml-1'
+                                        className='mr-1'
                                         icon={faPlus}
                                     />
+                                    Add Education
                                 </Button>
                             </div>
                         </FormGroup>
-                        <FormGroup className='row d-none d-sm-flex mb-1'>
-                            <div className='col-3'>
-                                <Label className='px-0 m-1'>
-                                    <h6>Degree </h6>
+                        <FormGroup className='row d-none d-sm-flex mb-0'>
+                            <div className='col-3 px-0'>
+                                <Label className='ml-1 mb-0'>
+                                    <h6 className='mb-0 small-heading'>
+                                        Degree{" "}
+                                    </h6>
                                 </Label>
                             </div>
                             <div className='px-0 col-5'>
-                                <Label className='px-0 m-1'>
-                                    <h6>Speciality </h6>
+                                <Label className='ml-1 px-0 mb-0'>
+                                    <h6 className='mb-0 small-heading'>
+                                        Speciality{" "}
+                                    </h6>
                                 </Label>
                             </div>
                             <div className='px-0 col-3 row'>
                                 <div className='px-0 col-6'>
-                                    <Label className='px-0 m-1'>
-                                        <h6>From </h6>
+                                    <Label className='ml-1 px-0 mb-0'>
+                                        <h6 className='mb-0 small-heading'>
+                                            From{" "}
+                                        </h6>
                                     </Label>
                                 </div>
                                 <div className='px-0 col-6'>
-                                    <Label className='px-0 m-1'>
-                                        <h6>To </h6>
+                                    <Label className='ml-1 px-0 mb-0'>
+                                        <h6 className='mb-0 small-heading'>
+                                            To{" "}
+                                        </h6>
                                     </Label>
                                 </div>
                             </div>
@@ -987,19 +1070,12 @@ export default class UpdateUser extends Component {
                                                     ].degree,
                                                 }
                                             }
-                                            options={data.degree.map(
-                                                (degree) => {
-                                                    return {
-                                                        value: degree,
-                                                        label: degree,
-                                                    };
-                                                },
-                                            )}
+                                            options={degrees}
                                             onChange={(e) => {
                                                 e = {
                                                     target: {
                                                         name: "degree",
-                                                        value: e.value,
+                                                        value: e ? e.value : "",
                                                     },
                                                 };
                                                 this.handleChange(
@@ -1037,7 +1113,41 @@ export default class UpdateUser extends Component {
                                                           .speciality
                                                     : ""
                                             }
+                                            list={`specialities${i}`}
                                         />
+                                        <datalist id={`specialities${i}`}>
+                                            {this.state.superSpecialization
+                                                .length === 0 ? (
+                                                <option
+                                                    value={
+                                                        this.state
+                                                            .profession !==
+                                                            "" &&
+                                                        this.state
+                                                            .specialization !==
+                                                            ""
+                                                            ? `${this.state.education[i].degree} with ${this.state.specialization}`
+                                                            : ``
+                                                    }
+                                                />
+                                            ) : (
+                                                this.state.superSpecialization.map(
+                                                    (e) => (
+                                                        <option
+                                                            value={
+                                                                this.state
+                                                                    .profession !==
+                                                                    "" &&
+                                                                this.state
+                                                                    .specialization !==
+                                                                    "" &&
+                                                                `${this.state.education[i].degree} with ${this.state.specialization} in ${e}`
+                                                            }
+                                                        />
+                                                    ),
+                                                )
+                                            )}
+                                        </datalist>
                                     </div>
                                     <div className='col-12 col-md-3 col-sm-4 px-0 row my-1'>
                                         <div className='col-12 px-0 pl-sm-1 pr-sm-1 row'>
@@ -1163,8 +1273,9 @@ export default class UpdateUser extends Component {
                         ))}
                         <div className='col-12 d-block d-sm-none'>
                             <Button
-                                color='primary'
+                                color='info'
                                 className='w-100'
+                                size='sm'
                                 onClick={() => {
                                     let education = this.state.education;
                                     education.push({
@@ -1175,7 +1286,11 @@ export default class UpdateUser extends Component {
                                         education: education,
                                     });
                                 }}>
-                                Add
+                                <FontAwesomeIcon
+                                    className='mr-1'
+                                    icon={faPlus}
+                                />
+                                Add Education
                             </Button>
                         </div>
                     </div>
@@ -1183,7 +1298,7 @@ export default class UpdateUser extends Component {
 
                     <div className='p-sm-4 my-3 mx-2 mx-lg-5 block-sm'>
                         <FormGroup>
-                            <h4>Resume</h4>
+                            <h5>Resume</h5>
                         </FormGroup>
                         {this.state.resume === undefined ||
                         (this.state.resume === "" &&
@@ -1211,14 +1326,14 @@ export default class UpdateUser extends Component {
                             </div>
                         ) : (
                             <div className='row'>
-                                <div className='col-12 col-sm-4'>
-                                    <h5>Uploaded !</h5>
-                                </div>
+                                {/* <div className='col-12 col-sm-4'>
+                                    <h6>Uploaded </h6>
+                                </div> */}
 
-                                <div className='col-12 col-sm-8 row justify-content-between'>
+                                <div className='col-12 col-sm-6 row justify-content-start'>
                                     <a
                                         href={`${this.state.resume}`}
-                                        className='col-5 btn btn-info btn-sm mr-1'>
+                                        className='btn btn-info btn-sm mr-1 px-2'>
                                         View Resume
                                         <FontAwesomeIcon
                                             className='ml-2'
@@ -1227,7 +1342,7 @@ export default class UpdateUser extends Component {
                                     </a>
                                     {this.state.resume !== "" && (
                                         <button
-                                            className='col-6 btn btn-sm btn-primary'
+                                            className='btn btn-sm btn-primary px-2'
                                             onClick={() => {
                                                 this.setState({
                                                     resume: "",
@@ -1249,18 +1364,19 @@ export default class UpdateUser extends Component {
 
                     <div className='p-sm-4 my-3 mx-2 mx-lg-5 block-sm'>
                         <FormGroup>
-                            <h4>Availability</h4>
+                            <h5>Availability</h5>
                         </FormGroup>
                         <FormGroup className='row'>
-                            <h5 className='position-relative pl-2 row col-12 col-sm-11'>
-                                <div className='position-relative ml-3 mr-2'>
+                            <h5 className='position-relative pl-3 pr-0 row col-12 col-sm-10'>
+                                <div className='position-relative ml-1 mr-1'>
                                     <Input
                                         type='checkbox'
                                         style={{
-                                            height: "1.2rem",
-                                            width: "1.2rem",
+                                            height: ".78rem",
+                                            width: ".78rem",
                                             position: "absolute",
                                         }}
+                                        className='mt-2'
                                         checked={this.state.locum}
                                         onChange={(e) => {
                                             this.setState({
@@ -1268,14 +1384,14 @@ export default class UpdateUser extends Component {
                                             });
                                         }}
                                     />
-                                    <span className='pl-2'>
+                                    <span className='pl-0 small-checkbox'>
                                         I'm interested in Day Jobs or Locum
                                         Positions
                                     </span>
                                 </div>
                             </h5>
                             {this.state.locum && (
-                                <div className='col-0 col-sm-1 pr-0 d-none d-sm-block float-right'>
+                                <div className='col-0 col-sm-2 px-0 d-none d-sm-flex row justify-content-end'>
                                     <Button
                                         color='info'
                                         size='sm'
@@ -1291,11 +1407,11 @@ export default class UpdateUser extends Component {
                                                 availability: availability,
                                             });
                                         }}>
-                                        Add
                                         <FontAwesomeIcon
-                                            className='ml-1'
+                                            className='mr-1'
                                             icon={faPlus}
                                         />
+                                        Add Time slot
                                     </Button>
                                 </div>
                             )}
@@ -1313,8 +1429,8 @@ export default class UpdateUser extends Component {
                                                     cursor: "pointer",
                                                 }}
                                                 onClick={(e) => {
-                                                    let availability = this.state
-                                                        .availability;
+                                                    let availability = this
+                                                        .state.availability;
                                                     availability.splice(i, 1);
                                                     this.setState({
                                                         availability: availability,
@@ -1326,9 +1442,11 @@ export default class UpdateUser extends Component {
                                         <div className='col-12 col-sm-4 row px-0'>
                                             <InputGroup className='col-6 px-2 px-sm-0 my-1 pr-sm-1'>
                                                 <Label
-                                                    className='pr-2 col-12'
+                                                    className='pr-2 col-12 mb-0'
                                                     for='exampleDate'>
-                                                    <h6>Start Time </h6>
+                                                    <h6 className='mb-0 small-heading'>
+                                                        Start Time
+                                                    </h6>
                                                 </Label>
                                                 {/* <Label for='exampleTime'>Time</Label> */}
                                                 <Input
@@ -1364,9 +1482,11 @@ export default class UpdateUser extends Component {
                                             </InputGroup>
                                             <InputGroup className='col-6 my-1 px-2 px-sm-0 pl-1'>
                                                 <Label
-                                                    className='pr-2 col-12'
+                                                    className=' col-12 mb-0'
                                                     for='exampleDate'>
-                                                    <h6>End Time </h6>
+                                                    <h6 className='mb-0 small-heading'>
+                                                        End Time
+                                                    </h6>
                                                 </Label>
                                                 {/* <Label for='exampleTime'>Time</Label> */}
                                                 <Input
@@ -1404,8 +1524,12 @@ export default class UpdateUser extends Component {
                                         </div>
 
                                         <InputGroup className='col-12 col-sm-7 px-0 my-1 pl-sm-1 pl-sm-1'>
-                                            <Label className='d-none d-sm-block m-1 col-12 pl-sm-4'>
-                                                <h6>Days </h6>
+                                            <Label
+                                                className='d-none d-sm-block col-12 mb-0 pl-sm-4'
+                                                for='exampleDate'>
+                                                <h6 className='mb-0 small-heading'>
+                                                    Days
+                                                </h6>
                                             </Label>
                                             {/* <Select
                                                 isClearable={true}
@@ -1437,12 +1561,13 @@ export default class UpdateUser extends Component {
                                                 }}
                                             /> */}
                                             <ButtonGroup
-                                                className='col-12 row pl-sm-4'
+                                                className='col-12 row px-0 pl-sm-4 justify-content-center justify-content-sm-start'
                                                 size='sm'>
                                                 {weekdays.map((day, index) => (
-                                                    <div className='px-1'>
+                                                    <div className='pr-1'>
                                                         <Button
                                                             size={"sm"}
+                                                            className='px-1 px-sm-2'
                                                             color={
                                                                 this.state.availability[
                                                                     i
@@ -1497,10 +1622,11 @@ export default class UpdateUser extends Component {
                                                 ))}
                                             </ButtonGroup>
                                         </InputGroup>
-                                        <div className='col-sm-1 d-none d-sm-flex'>
+                                        <div className='col-sm-1 d-none d-sm-flex flex-column justify-content-end '>
                                             <FontAwesomeIcon
                                                 icon={faTrash}
-                                                className=' text-danger my-auto ml-auto'
+                                                size='lg'
+                                                className='pt-3 text-danger mt-auto mb-0 ml-auto'
                                                 style={{
                                                     cursor: "pointer",
                                                     height: "100%",
@@ -1522,7 +1648,6 @@ export default class UpdateUser extends Component {
                         {this.state.locum && (
                             <Button
                                 color='info'
-                                size='sm'
                                 className='w-100 d-block d-sm-none'
                                 onClick={() => {
                                     let availability = this.state.availability;
@@ -1535,20 +1660,20 @@ export default class UpdateUser extends Component {
                                         availability: availability,
                                     });
                                 }}>
-                                Add
                                 <FontAwesomeIcon
-                                    className='ml-1'
+                                    className='mr-1'
                                     icon={faPlus}
                                 />
+                                Add Time Slot
                             </Button>
                         )}
                     </div>
-                    <div className='p-1 p-sm-4 m-1 m-sm-3 mx-lg-4 d-flex justify-content-end'>
+                    <div className='p-1 p-sm-4 m-1 m-sm-3 mx-lg-4 d-flex justify-content-start'>
                         {this.state.loading ? (
                             <Button
                                 // onClick={this.update}
                                 // className='w-25'
-                                size='lg'
+
                                 color='primary'>
                                 Uploading Image
                                 <div class='spinner-border ml-2' role='status'>
@@ -1560,9 +1685,9 @@ export default class UpdateUser extends Component {
                             <Button
                                 onClick={this.update}
                                 // className='w-25'
-                                size='lg'
+
                                 color='primary'>
-                                Update
+                                Update Profile
                             </Button>
                         )}
                     </div>
