@@ -8,6 +8,9 @@ import {
     faMapMarkerAlt,
     faEnvelope,
     faUser,
+    faFileAlt,
+    faBriefcaseMedical,
+    faPhone,
 } from "@fortawesome/free-solid-svg-icons";
 import {
     Badge,
@@ -288,8 +291,8 @@ export default class Job extends Component {
                     {this.state.err}
                 </Alert>
                 {this.state.job ? (
-                    <div>
-                        <div className='main-job mx-2 mx-md-5 my-3 p-2 p-sm-3'>
+                    <div className='row'>
+                        <div className='col-11 col-sm-9 main-job mx-auto  my-3 p-2 p-sm-3'>
                             <div className='row '>
                                 <div className='col-7 col-md-10 my-auto'>
                                     <h5>{job.title}</h5>
@@ -455,7 +458,7 @@ export default class Job extends Component {
                             <div className='row'>
                                 <div className='col-6'>
                                     <Button
-                                        size='lg'
+                                        // size='lg'
                                         color='info'
                                         className='w-100'
                                         onClick={this.showDetail}>
@@ -466,7 +469,7 @@ export default class Job extends Component {
                                     <CopyToClipboard
                                         text={window.location.href}>
                                         <Button
-                                            size='lg'
+                                            // size='lg'
                                             color='primary'
                                             className='w-100'
                                             id='t'
@@ -491,7 +494,7 @@ export default class Job extends Component {
                                 </div>
                             </div>
                         </div>
-                        <div className='mx-2 mx-md-4'>
+                        <div className='col-9 mx-auto  my-3 p-2 p-sm-3'>
                             <SimilarJobs job={this.state.job} />
                         </div>
 
@@ -499,37 +502,114 @@ export default class Job extends Component {
                             <Modal
                                 isOpen={this.state.modal}
                                 toggle={this.toggle}
-                                style={{ minWidth: "70vw" }}>
+                                // style={{ minWidth: "40vw" }}
+                            >
                                 <ModalHeader toggle={this.toggle}>
-                                    Your Info
+                                    Apply to {job.description.company}
                                 </ModalHeader>
-                                <ModalBody className='row'>
-                                    <div className='col-12 col-md-7 px-2'>
-                                        <h6>
-                                            <FontAwesomeIcon
-                                                icon={faEnvelope}
-                                                className='ml-2 mr-3'
-                                            />
-                                            {`${this.state.user.username}`}
-                                        </h6>
-                                        <h6>
-                                            <FontAwesomeIcon
-                                                icon={faUser}
-                                                className='ml-2 mr-3'
-                                            />
-                                            {`${this.state.user.firstName} ${this.state.user.lastName}`}
-                                        </h6>
-                                        {this.state.user.address && (
-                                            <h6>
-                                                <FontAwesomeIcon
-                                                    icon={faMapMarkerAlt}
-                                                    className='ml-2 mr-3'
-                                                />
-                                                {`${this.state.user.address.city}, ${this.state.user.address.state}, ${this.state.user.address.pin}`}
+                                <ModalBody className='row px-1 px-sm-3'>
+                                    <div className='col-12 px-2'>
+                                        <div className='m-2 mx-auto'>
+                                            <h6 className='row'>
+                                                <div className='col-1 px-0'>
+                                                    <FontAwesomeIcon
+                                                        icon={faUser}
+                                                        className='ml-2 mr-3'
+                                                    />
+                                                </div>
+                                                <div className='col-11 pl-3'>
+                                                    {`${this.state.user.salutation}. ${this.state.user.firstName} ${this.state.user.lastName}`}
+                                                </div>
                                             </h6>
+                                        </div>
+                                        <div className='m-2 mx-auto'>
+                                            <h6 className='row'>
+                                                <div className='col-1 px-0'>
+                                                    <FontAwesomeIcon
+                                                        icon={
+                                                            faBriefcaseMedical
+                                                        }
+                                                        className='ml-2 mr-3'
+                                                    />
+                                                </div>
+                                                <div className='col-11 pl-3'>
+                                                    {this.state.user.title &&
+                                                        this.state.user.title}
+                                                </div>
+                                            </h6>
+                                        </div>
+                                        {this.state.user.address && (
+                                            <div className='m-2 mx-auto'>
+                                                <h6 className='row'>
+                                                    <div className='col-1 px-0'>
+                                                        <FontAwesomeIcon
+                                                            icon={
+                                                                faMapMarkerAlt
+                                                            }
+                                                            className='ml-2 mr-3'
+                                                        />
+                                                    </div>
+                                                    <div className='col-11 px-0 pl-3'>
+                                                        {this.state.user.address
+                                                            .city !== "" &&
+                                                        this.state.user.address
+                                                            .state.user !==
+                                                            "" &&
+                                                        this.state.user.address
+                                                            .country !== ""
+                                                            ? `${this.state.user.address.city}, ${this.state.user.address.state}, ${this.state.user.address.country}`
+                                                            : ``}
+                                                    </div>
+                                                </h6>
+                                            </div>
                                         )}
+                                        <div className='m-2 mx-auto'>
+                                            <h6 className='row'>
+                                                <div className='col-1 px-0'>
+                                                    <FontAwesomeIcon
+                                                        icon={faEnvelope}
+                                                        className='ml-2 mr-3'
+                                                    />
+                                                </div>
+                                                <div className='col-11 pl-3'>
+                                                    {this.state.user.username}
+                                                </div>
+                                            </h6>
+                                        </div>
+                                        <div className='m-2 mx-auto'>
+                                            <h6 className='row'>
+                                                <div className='col-1 px-0'>
+                                                    <FontAwesomeIcon
+                                                        icon={faPhone}
+                                                        className='ml-2 mr-3'
+                                                    />
+                                                </div>
+                                                <div className='col-11 pl-3'>
+                                                    {"+91-"}
+                                                    {this.state.user.phone}
+                                                </div>
+                                            </h6>
+                                        </div>
+                                        <div className='m-2 mt-4 mx-auto text-align-center'>
+                                            <Button
+                                                size='sm'
+                                                className='w-75'
+                                                color='info'
+                                                href={this.state.user.resume}>
+                                                Resume
+                                                <FontAwesomeIcon
+                                                    className='ml-2'
+                                                    icon={faFileAlt}
+                                                />
+                                            </Button>
+                                        </div>
                                         <hr />
-                                        <em>
+                                        <span>
+                                            On applying, we will share your
+                                            profile and contact details with{" "}
+                                            {job.description.company}
+                                        </span>
+                                        {/* <em>
                                             {this.state.user.description
                                                 ? this.state.user.description
                                                       .about
@@ -542,26 +622,7 @@ export default class Job extends Component {
                                             consectetur adipisicing elit. Saepe,
                                             repudiandae vitae, earum maerat
                                             doloribus acc
-                                        </em>
-                                    </div>
-                                    <div className='col-12 col-md-5 px-2'>
-                                        <h5>Experience</h5>
-                                        <hr />
-                                        {this.state.user.experience &&
-                                            this.state.user.experience.map(
-                                                (exp) => (
-                                                    <div>
-                                                        <h6>{exp.title}</h6>
-
-                                                        <p>
-                                                            {exp.line}
-                                                            <br />
-                                                            {exp.time}
-                                                        </p>
-                                                        <hr />
-                                                    </div>
-                                                ),
-                                            )}
+                                        </em> */}
                                     </div>
                                 </ModalBody>
                                 <ModalFooter>
@@ -569,11 +630,6 @@ export default class Job extends Component {
                                         color='primary'
                                         onClick={this.applyJob}>
                                         Apply
-                                    </Button>
-                                    <Button
-                                        color='secondary'
-                                        onClick={this.toggle}>
-                                        Cancel
                                     </Button>
                                 </ModalFooter>
                             </Modal>
