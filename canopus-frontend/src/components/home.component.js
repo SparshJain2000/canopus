@@ -3,7 +3,7 @@ import Select from "react-select";
 import "../stylesheets/home.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import doctor from "../images/doctor.png";
-import data from "../data";
+
 import { Button, Alert } from "reactstrap";
 import { Redirect, Link } from "react-router-dom";
 
@@ -11,9 +11,9 @@ const Home = (props) => {
     let professionArray = [];
     console.log(props.data);
     if (props.data) {
-        professionArray = props.data.professions.map((opt) => ({
-            label: opt,
-            value: opt,
+        professionArray = props.data.specializations.map((opt) => ({
+            label: opt.profession,
+            value: opt.profession,
         }));
     }
     const profession = useRef(null);

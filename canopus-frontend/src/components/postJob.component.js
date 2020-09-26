@@ -14,9 +14,8 @@ import {
     ModalFooter,
     Nav,
     NavItem,
-    NavLink,
 } from "reactstrap";
-import { Link } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 import axios from "axios";
 import Select from "react-select";
 import data from "../data";
@@ -40,23 +39,6 @@ const block = {
     boxShadow: " 2px 2px 3px rgba(0, 0, 0, 0.1)",
     transition: "0.3s ease-in-out",
 };
-const incentivesArray = data.incentive.map((opt) => ({
-    label: opt,
-    value: opt,
-}));
-const typeArray = data.type.map((opt) => ({ label: opt, value: opt }));
-const superSpecializationArray = data.superSpecialization.map((opt) => ({
-    label: opt,
-    value: opt,
-}));
-const locationArray = data.location.map((opt) => ({
-    label: `${opt.name}, ${opt.state}`,
-    value: `${opt.name}`,
-}));
-const experienceArray = data.experience.map((opt) => ({
-    label: opt,
-    value: opt,
-}));
 
 const PostJob = (props) => {
     const titleRef = useRef(null);
@@ -117,7 +99,55 @@ const PostJob = (props) => {
     const [modalError, setModalError] = useState(false);
     const [messError, setMessError] = useState("");
     const [valid, setValid] = useState({});
+    let incentivesArray = [],
+        experienceArray = [],
+        specializationArray = [],
+        professionArray = [],
+        locationArray = [],
+        typeArray = [];
+    let specializationObj = {},
+        superSpecializationObj = {};
+    if (props.data) {
+        incentivesArray = props.data.incentive.map((opt) => ({
+            label: opt,
+            value: opt,
+        }));
+        experienceArray = data.experience.map((opt) => ({
+            label: opt,
+            value: opt,
+        }));
+        typeArray = props.data.type.map((opt) => ({ label: opt, value: opt }));
+        professionArray = props.data.specializations.map((obj) => {
+            specializationObj[obj.profession] = obj.specialization.map((e) => {
+                return { label: e, value: e };
+            });
+            specializationArray = [
+                ...specializationArray,
+                ...obj.specialization,
+            ];
+            return {
+                value: obj.profession,
+                label: obj.profession,
+            };
+        });
+        specializationArray = [...new Set(specializationArray)];
+        specializationArray = specializationArray.map((e) => {
+            return { label: e, value: e };
+        });
 
+        props.data.superSpecializations.forEach((obj) => {
+            const key = `${obj.profession}+${obj.specialization}`;
+            superSpecializationObj[key] = obj.superSpecialization.map((e) => {
+                return { label: e, value: e };
+            });
+        });
+    }
+    if (props.locationData) {
+        locationArray = data.location.map((opt) => ({
+            label: `${opt.name}, ${opt.state}`,
+            value: `${opt.name}`,
+        }));
+    }
     const toggleError = () => setModalError(!modalError);
 
     const toggle = () => {
@@ -224,6 +254,7 @@ const PostJob = (props) => {
             job.category = "Locum";
         } else {
             type2 = "job";
+            job.category = "Full-time";
             // job.expireAt =
             //     endDate !== ""
             //         ? new Date(endDate).toISOString()
@@ -232,7 +263,7 @@ const PostJob = (props) => {
             //           ).toISOString();
         }
         axios
-            .post(`/api/employer/${jobType}/${type2}`, job)
+            .post(`/api/job/save`, job)
             .then((data) => {
                 console.log(data);
                 if (data.status === 200) {
@@ -310,6 +341,7 @@ const PostJob = (props) => {
             job.category = "Locum";
         } else {
             type2 = "job";
+            job.category = "Full-time";
             // job.expireAt =
             //     endDate !== ""
             //         ? new Date(endDate).toISOString()
@@ -318,7 +350,7 @@ const PostJob = (props) => {
             //           ).toISOString();
         }
         axios
-            .post(`/api/employer/${jobType}/${type2}`, job)
+            .post(`/api/job/post`, job)
             .then((data) => {
                 console.log(data);
                 if (data.status === 200) {
@@ -328,6 +360,7 @@ const PostJob = (props) => {
             })
             .catch((err) => {
                 console.log(err);
+                console.log(err.response);
                 const error =
                     err.response && err.response.data
                         ? err.response.data.err
@@ -352,6 +385,7 @@ const PostJob = (props) => {
             })
             .catch((err) => console.log(err));
         console.log("====================================");
+        //TODO:
         console.log(props.location.state);
         if (props.location.state !== undefined) {
             // const [type2t, jobTypet] = props.location.search
@@ -599,16 +633,18 @@ const PostJob = (props) => {
                 <div className='row justify-content-start col-6 col-sm-7'>
                     <NavItem className='mx-1 mx-sm-2'>
                         <NavLink
-                            href='/employer'
+                            to='/employer'
                             // onClick={() => {
                             //     this.toggleTab("1");
                             // }}
-                            className={`p-1 p-sm-2`}>
+                            className={`p-1 p-sm-2 nav-link`}>
                             <h6>Overview</h6>
                         </NavLink>
                     </NavItem>
                     <NavItem className='mx-1 mx-sm-2'>
-                        <NavLink href='/applications' className={`p-1 p-sm-2`}>
+                        <NavLink
+                            to='/applications'
+                            className={`p-1 p-sm-2 nav-link`}>
                             <h6>Jobs</h6>
                         </NavLink>
                     </NavItem>
@@ -646,7 +682,7 @@ const PostJob = (props) => {
                     </div> */}
                 </div>
             </Nav>
-            <Form className='border-block p-2 px-3 p-md-5 mx-2 mx-md-auto m-1 m-md-3 box'>
+            <Form className='border-block p-1 p-md-5 mx-2 mx-md-auto m-1 m-md-3 box'>
                 <h3>Post a Job</h3>
                 <div className=' p-2 p-sm-3 mt-4' style={block}>
                     <div className='row justify-content-between'>
@@ -664,7 +700,7 @@ const PostJob = (props) => {
                             className='text-info'
                             size='md'
                             onClick={toggleDetail}
-                            className='col-3 col-sm-1'
+                            className='col-3 col-sm-1 my-auto'
                         />
 
                         {/* </Button> */}
@@ -822,14 +858,7 @@ const PostJob = (props) => {
                                             label: profession,
                                         }
                                     }
-                                    options={data.professions.map(
-                                        (profession) => {
-                                            return {
-                                                value: profession,
-                                                label: profession,
-                                            };
-                                        },
-                                    )}
+                                    options={professionArray}
                                     ref={professionRef}
                                     onChange={(e) => {
                                         console.log(e);
@@ -863,14 +892,11 @@ const PostJob = (props) => {
                                             label: specialization,
                                         }
                                     }
-                                    options={data.specializations.map(
-                                        (specialization) => {
-                                            return {
-                                                value: specialization,
-                                                label: specialization,
-                                            };
-                                        },
-                                    )}
+                                    options={
+                                        profession === ""
+                                            ? []
+                                            : specializationObj[profession]
+                                    }
                                     ref={specializationRef}
                                     onChange={(e) => {
                                         console.log(e);
@@ -896,7 +922,11 @@ const PostJob = (props) => {
                                         isMulti
                                         autosize={true}
                                         placeholder='Super specialization'
-                                        options={superSpecializationArray}
+                                        options={
+                                            superSpecializationObj[
+                                                `${profession}+${specialization}`
+                                            ]
+                                        }
                                         ref={superSpecializationRef}
                                         name='SuperSpecialization'
                                         defaultValue={superSpecialization}
@@ -951,7 +981,7 @@ const PostJob = (props) => {
 
                             <InputGroup className='col-12 col-sm-6 pl-md-1 my-1'>
                                 <Label className='m-1'>
-                                    <h6>Salary</h6>
+                                    <h6>Salary/Fees</h6>
                                 </Label>
                                 <InputGroup className=''>
                                     <Input
@@ -1024,7 +1054,7 @@ const PostJob = (props) => {
                             className='text-info'
                             size='md'
                             onClick={toggleSkill}
-                            className='col-3 col-sm-1'
+                            className='col-3 col-sm-1 my-auto'
                         />
                     </div>
                     {showSkill && (
@@ -1086,14 +1116,14 @@ const PostJob = (props) => {
                             className='text-info'
                             size='md'
                             onClick={toggleOtherDetail}
-                            className='col-3 col-sm-1'
+                            className='col-3 col-sm-1 my-auto'
                         />
                     </div>
                     {showOtherDetail && (
                         <FormGroup className='row p-2'>
                             <div className='col-12 col-md-6 my-1 pr-md-2'>
                                 <Label className='m-1'>
-                                    <h6>Employer</h6>
+                                    <h6>Employer Name</h6>
                                 </Label>
                                 <Input
                                     placeholder='Employer'
@@ -1109,6 +1139,7 @@ const PostJob = (props) => {
                                             : employer
                                     }
                                     onChange={handleChange}
+                                    disabled
                                     required
                                 />
                             </div>
@@ -1162,23 +1193,42 @@ const PostJob = (props) => {
                                     />
                                 </InputGroup>
                             </div>
-                            <div className='col-12 row justify-content-between'>
-                                <Label className='my-2 col-10'>
-                                    <h5>Promote</h5>
-                                </Label>
-                                <InputGroup className='col-2 position-relative my-2'>
+                            <div className='col-12 row justify-content-start'>
+                                {/* <InputGroup className='col-1 position-relative my-2 ml-2 pl-2 pr-0'>
                                     <Input
                                         type='checkbox'
                                         name=''
                                         defaultValue={sponsored}
-                                        className=' my-2 position-absolute'
-                                        style={{ right: 0 }}
+                                        className='  position-absolute'
+                                        style={{
+                                            height: "1.2rem",
+                                            width: "1.2rem",
+                                        }}
                                         onChange={(e) =>
                                             // console.log(e.target.checked)
                                             setSponsored(e.target.checked)
                                         }
                                     />
-                                </InputGroup>
+                                </InputGroup> */}
+                                <Label className='my-2 col-9 text-align-left m-1'>
+                                    <Input
+                                        type='checkbox'
+                                        name=''
+                                        defaultValue={sponsored}
+                                        className='  position-absolute'
+                                        style={{
+                                            height: "1.1rem",
+                                            width: "1.1rem",
+                                        }}
+                                        onChange={(e) =>
+                                            // console.log(e.target.checked)
+                                            setSponsored(e.target.checked)
+                                        }
+                                    />
+                                    <span>
+                                        <h5 className='ml-2 my-1'>Promote</h5>
+                                    </span>
+                                </Label>
                             </div>
                         </FormGroup>
                     )}
@@ -1246,7 +1296,18 @@ const PostJob = (props) => {
                                             name='StartDate'
                                             id='exampleDate'
                                             placeholder='date placeholder'
-                                            // ref={dateRef}
+                                            min={`${new Date().getFullYear()}-${(
+                                                "0" +
+                                                (new Date().getMonth() + 1)
+                                            ).slice(-2)}-${(
+                                                "0" + new Date().getDate()
+                                            ).slice(-2)}`}
+                                            max={`${new Date().getFullYear()}-${(
+                                                "0" +
+                                                (new Date().getMonth() + 1)
+                                            ).slice(-2)}-${(
+                                                "0" + new Date().getDate()
+                                            ).slice(-2)}`}
                                             className=''
                                             onChange={handleChange}
                                             invalid={
@@ -1254,7 +1315,16 @@ const PostJob = (props) => {
                                                     ? false
                                                     : !valid.startDate
                                             }
-                                            // defaultValue={endDate}
+                                            // defaultValue={
+                                            //     new Date(
+                                            //         new Date().getTime() +
+                                            //             60 *
+                                            //                 24 *
+                                            //                 60 *
+                                            //                 60 *
+                                            //                 1000,
+                                            //     )
+                                            // }
                                             // ref={endDateRef}
                                             // onChange={handleChange}
                                         />
@@ -1275,6 +1345,16 @@ const PostJob = (props) => {
                                                 className=''
                                                 onChange={handleChange}
                                                 // defaultValue={endDate}
+                                                // defaultValue={new Date(
+                                                //     new Date().getTime() +
+                                                //         90 *
+                                                //             24 *
+                                                //             60 *
+                                                //             60 *
+                                                //             1000,
+                                                // )
+                                                //     .toISOString()
+                                                //     .substring(0, 10)}
                                                 // ref={endDateRef}
                                                 // onChange={handleChange}
                                                 invalid={

@@ -43,7 +43,7 @@ const Badges = ({ desc, superSpecialization }) => {
         const type = desc.type ? desc.type : [];
         const incentives = desc.incentives ? desc.incentives : [];
 
-        badges = [desc.experience, ...type, ...incentives, ...superSp];
+        badges = [desc.experience, ...incentives, ...superSp];
     }
     const number = badges.length - 5;
     badges = badges.slice(0, 3);
@@ -75,7 +75,6 @@ class SimilarJobs extends Component {
         const job = this.props.job;
         const query = {
             location: job.description.location,
-            // pin: job.pin,
             specialization: job.specialization,
             profession: job.profession,
             superSpecialization: job.superSpecialization,
@@ -83,7 +82,7 @@ class SimilarJobs extends Component {
         console.log(query);
         if (job)
             axios
-                .post(`/api/job/similar`, query)
+                .post(`/api/search/similar-jobs`, query)
                 .then(({ data }) => {
                     console.log(data);
                     this.setState({ jobs: data.jobs, message: "" });
@@ -233,7 +232,7 @@ export default class Job extends Component {
         console.log(this.state.job);
         const type = this.state.job.startDate ? "freelance" : "job";
         axios
-            .post(`/api/job/apply/${type}/${this.state.job._id}`)
+            .post(`/api/search/apply/${type}/${this.state.job._id}`)
             .then(({ data }) => {
                 console.log(data);
                 // setApplied(true);
@@ -253,11 +252,10 @@ export default class Job extends Component {
         const [jobType, author] = this.props.location.search
             .substring(1)
             .split("&");
-        // console.log(arr);
         console.log(jobType);
         console.log(author);
         axios
-            .get(`/api/job/view/${jobType}/${id}`)
+            .get(`/api/search/view/${jobType}/${id}`)
             .then((data) => {
                 console.log(data);
                 this.setState({
@@ -407,14 +405,9 @@ export default class Job extends Component {
                                         className='ml-1'
                                     /> */}
                                     </h6>
-                                    {job.description.type &&
-                                        job.description.type.map((tag) => (
-                                            <Badge
-                                                color='info'
-                                                className='mx-1 p-1 my-1'>
-                                                {tag}
-                                            </Badge>
-                                        ))}
+                                    {Array.isArray(job.description.type)
+                                        ? job.description.type[0]
+                                        : job.description.type}
                                 </div>
                                 <div
                                     className='col-6 col-md-2 my-1'

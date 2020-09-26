@@ -8,13 +8,12 @@ import {
     Progress,
     Modal,
     Nav,
-    NavLink,
     NavItem,
     ModalHeader,
     ModalBody,
 } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Link } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 import {
     faPlusCircle,
     faPen,
@@ -167,6 +166,7 @@ export default class UpdateEmployer extends Component {
                 youtube: this.state.youtube,
                 specialty: this.state.speciality,
                 phone: this.state.phone,
+                instituteName: this.state.organization,
                 // username: this.state.username,
                 address: {
                     line: this.state.line,
@@ -245,7 +245,9 @@ export default class UpdateEmployer extends Component {
                         employeeCount: user.description.employeeCount
                             ? Number(user.description.employeeCount)
                             : 0,
-                        organization: user.description.organization,
+                        organization: user.instituteName
+                            ? user.instituteName
+                            : user.description.organization,
                         type: user.description.type,
                     });
                 }
@@ -418,24 +420,68 @@ export default class UpdateEmployer extends Component {
         }
     }
     render() {
+        let orgTypeArray = [],
+            stateArray = [],
+            cityArray = [],
+            specialityArray = [];
+        let locationArray = {};
+        if (this.props.data) {
+            console.log(this.props);
+            orgTypeArray = this.props.data.instituteType.map((degree) => {
+                return {
+                    value: degree,
+                    label: degree,
+                };
+            });
+            specialityArray = this.props.data.speciality.map((degree) => {
+                return {
+                    value: degree,
+                    label: degree,
+                };
+            });
+        }
+        if (this.props.locationData) {
+            stateArray = this.props.locationData.location.map((obj) => {
+                return obj.state;
+            });
+            stateArray = [...new Set(stateArray)];
+            cityArray = this.props.locationData.location.map((obj) => {
+                return obj.name;
+            });
+            for (let i = 0; i < stateArray.length; i++) {
+                locationArray[stateArray[i]] = [];
+            }
+            console.log(locationArray);
+
+            this.props.locationData.location.forEach((obj) => {
+                locationArray[obj.state] = [
+                    ...locationArray[obj.state],
+                    obj.name,
+                ];
+            });
+
+            console.log(locationArray);
+            console.log(stateArray);
+            console.log(cityArray);
+        }
         return (
             <div>
                 <Nav tabs className='justify-content-between '>
                     <div className='row justify-content-start col-6 col-sm-7'>
                         <NavItem className='mx-1 mx-sm-2'>
                             <NavLink
-                                href='/employer'
+                                to='/employer'
                                 // onClick={() => {
                                 //     this.toggleTab("1");
                                 // }}
-                                className={`p-1 p-sm-2`}>
+                                className={`p-1 p-sm-2 nav-link active-tab`}>
                                 <h6>Overview</h6>
                             </NavLink>
                         </NavItem>
                         <NavItem className='mx-1 mx-sm-2'>
                             <NavLink
-                                href='/applications'
-                                className={`p-1 p-sm-2`}>
+                                to='/applications'
+                                className={`p-1 p-sm-2 nav-link`}>
                                 <h6>Jobs</h6>
                             </NavLink>
                         </NavItem>
@@ -588,9 +634,7 @@ export default class UpdateEmployer extends Component {
                                                 ? "border-invalid"
                                                 : ""
                                         }
-                                        options={data.orgType.map((type) => {
-                                            return { label: type, value: type };
-                                        })}
+                                        options={orgTypeArray}
                                         onChange={(e) => {
                                             console.log(e);
                                             this.handleChangeSelect(
@@ -620,12 +664,7 @@ export default class UpdateEmployer extends Component {
                                                 : ""
                                         }
                                         placeholder='Organization Type'
-                                        value={
-                                            this.state.speciality !== "" && {
-                                                value: this.state.speciality,
-                                                label: this.state.speciality,
-                                            }
-                                        }
+                                        value={specialityArray}
                                         options={data.speciality.map((type) => {
                                             return { label: type, value: type };
                                         })}
@@ -713,7 +752,28 @@ export default class UpdateEmployer extends Component {
                                             onChange={this.handleChange}
                                             defaultValue={this.state.city}
                                             invalid={!this.state.valid.city}
+                                            list='cities'
                                         />
+                                        <datalist id='cities'>
+                                            {this.state.state === "" ||
+                                            !locationArray[this.state.state]
+                                                ? cityArray.length !== 0 &&
+                                                  cityArray.map((city) => (
+                                                      <option value={city}>
+                                                          {city}
+                                                      </option>
+                                                  ))
+                                                : locationArray[
+                                                      this.state.state
+                                                  ] &&
+                                                  locationArray[
+                                                      this.state.state
+                                                  ].map((city) => (
+                                                      <option value={city}>
+                                                          {city}
+                                                      </option>
+                                                  ))}
+                                        </datalist>
                                     </div>
                                 </FormGroup>
                                 <FormGroup>
@@ -729,7 +789,16 @@ export default class UpdateEmployer extends Component {
                                         invalid={!this.state.valid.state}
                                         // onChange={this.props.handleChange("email")}
                                         // defaultValue={values.email}
+                                        list='states'
                                     />
+                                    <datalist id='states'>
+                                        {stateArray.length !== 0 &&
+                                            stateArray.map((state) => (
+                                                <option value={state}>
+                                                    {state}
+                                                </option>
+                                            ))}
+                                    </datalist>
                                 </FormGroup>
                                 <FormGroup className='row '>
                                     <div className='col-12 col-sm-6 pr-1'>

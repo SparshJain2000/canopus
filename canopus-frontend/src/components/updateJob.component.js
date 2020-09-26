@@ -1,12 +1,11 @@
 import React, { useRef, useState, useEffect } from "react";
-import { useLocation, Link, useHistory } from "react-router-dom";
+import { NavLink, useLocation, Link, useHistory } from "react-router-dom";
 import {
     Form,
     Label,
     FormGroup,
     Nav,
     NavItem,
-    NavLink,
     Button,
     Input,
     InputGroup,
@@ -31,33 +30,13 @@ import {
     faArrowAltCircleUp,
     faArrowDown,
     faArrowUp,
-    // faShareAlt,
 } from "@fortawesome/free-solid-svg-icons";
 const block = {
     borderRadius: " 0.25rem",
     border: "0.05rem solid #eeeeee",
-    /* background-color: rgba(0, 0, 0, 0.15); */
     boxShadow: " 2px 2px 3px rgba(0, 0, 0, 0.1)",
     transition: "0.3s ease-in-out",
 };
-const incentivesArray = data.incentive.map((opt) => ({
-    label: opt,
-    value: opt,
-}));
-const typeArray = data.type.map((opt) => ({ label: opt, value: opt }));
-const superSpecializationArray = data.superSpecialization.map((opt) => ({
-    label: opt,
-    value: opt,
-}));
-const locationArray = data.location.map((opt) => ({
-    label: `${opt.name}, ${opt.state}`,
-    value: `${opt.name}`,
-}));
-const experienceArray = data.experience.map((opt) => ({
-    label: opt,
-    value: opt,
-}));
-
 const UpdateJob = (props) => {
     const history = useHistory();
     const titleRef = useRef(null);
@@ -120,6 +99,55 @@ const UpdateJob = (props) => {
     const [modalError, setModalError] = useState(false);
     const [messError, setMessError] = useState("");
     const [valid, setValid] = useState({});
+    let incentivesArray = [],
+        experienceArray = [],
+        specializationArray = [],
+        professionArray = [],
+        locationArray = [],
+        typeArray = [];
+    let specializationObj = {},
+        superSpecializationObj = {};
+    if (props.data) {
+        incentivesArray = props.data.incentive.map((opt) => ({
+            label: opt,
+            value: opt,
+        }));
+        experienceArray = data.experience.map((opt) => ({
+            label: opt,
+            value: opt,
+        }));
+        typeArray = props.data.type.map((opt) => ({ label: opt, value: opt }));
+        professionArray = props.data.specializations.map((obj) => {
+            specializationObj[obj.profession] = obj.specialization.map((e) => {
+                return { label: e, value: e };
+            });
+            specializationArray = [
+                ...specializationArray,
+                ...obj.specialization,
+            ];
+            return {
+                value: obj.profession,
+                label: obj.profession,
+            };
+        });
+        specializationArray = [...new Set(specializationArray)];
+        specializationArray = specializationArray.map((e) => {
+            return { label: e, value: e };
+        });
+
+        props.data.superSpecializations.forEach((obj) => {
+            const key = `${obj.profession}+${obj.specialization}`;
+            superSpecializationObj[key] = obj.superSpecialization.map((e) => {
+                return { label: e, value: e };
+            });
+        });
+    }
+    if (props.locationData) {
+        locationArray = data.location.map((opt) => ({
+            label: `${opt.name}, ${opt.state}`,
+            value: `${opt.name}`,
+        }));
+    }
     const toggle = (e) => {
         if (e === "discard") setModal(!modal);
         else {
@@ -507,6 +535,7 @@ const UpdateJob = (props) => {
                 job.endDate = new Date(`${endDate}`).toISOString();
             job.category = "Locum";
         } else {
+            job.category = "Full-time";
             type2 = "job";
             //  job.expireAt =
             //      endDate !== ""
@@ -516,10 +545,7 @@ const UpdateJob = (props) => {
             //            ).toISOString();
         }
         axios
-            .put(
-                `/api/employer/${jobType}/${type2}/${props.match.params.id}`,
-                job,
-            )
+            .put(`/api/job/post/${props.match.params.id}`, job)
             .then((data) => {
                 console.log(data);
                 if (data.data.updated) {
@@ -588,6 +614,7 @@ const UpdateJob = (props) => {
             job.category = "Locum";
         } else {
             type2 = "job";
+            job.category = "Full-time";
             //   job.expireAt =
             //       endDate !== ""
             //           ? new Date(endDate).toISOString()
@@ -597,10 +624,7 @@ const UpdateJob = (props) => {
         }
         if (jobType === "save")
             axios
-                .put(
-                    `/api/employer/${jobType}/${type2}/activate/${props.match.params.id}`,
-                    job,
-                )
+                .put(`/api/job/save/${props.match.params.id}`, job)
                 .then((data) => {
                     console.log(data);
                     if (data.data.updated) {
@@ -626,10 +650,7 @@ const UpdateJob = (props) => {
         // console.log(job);
         else
             axios
-                .put(
-                    `/api/employer/${jobType}/${type2}/${props.match.params.id}`,
-                    job,
-                )
+                .put(`/api/job/post/${props.match.params.id}`, job)
                 .then((data) => {
                     console.log(data);
                     if (data.data.updated) {
@@ -683,16 +704,18 @@ const UpdateJob = (props) => {
                 <div className='row justify-content-start col-6 col-sm-7'>
                     <NavItem className='mx-1 mx-sm-2'>
                         <NavLink
-                            href='/employer'
+                            to='/employer'
                             // onClick={() => {
                             //     this.toggleTab("1");
                             // }}
-                            className={`p-1 p-sm-2`}>
+                            className={`p-1 p-sm-2 nav-link`}>
                             <h6>Overview</h6>
                         </NavLink>
                     </NavItem>
                     <NavItem className='mx-1 mx-sm-2'>
-                        <NavLink href='/applications' className={`p-1 p-sm-2`}>
+                        <NavLink
+                            to='/applications'
+                            className={`p-1 p-sm-2 nav-link`}>
                             <h6>Jobs</h6>
                         </NavLink>
                     </NavItem>
@@ -730,8 +753,8 @@ const UpdateJob = (props) => {
                     </div>
                 </div>
             </Nav>
-            <Form className='border-block p-3 p-md-4 mx-2 mx-sm-auto m-3 box'>
-                <h2>Edit a Job</h2>
+            <Form className='border-block p-2 p-md-4 mx-2 mx-sm-auto m-1 m-sm-3 box'>
+                <h3>Edit a Job</h3>
                 <div className=' p-2 p-sm-3 mt-4' style={block}>
                     <div className='row justify-content-between'>
                         <h4 className='col-9 col-sm-10'>Job Details</h4>
@@ -907,14 +930,7 @@ const UpdateJob = (props) => {
                                             ? "border-invalid"
                                             : ""
                                     }
-                                    options={data.professions.map(
-                                        (profession) => {
-                                            return {
-                                                value: profession,
-                                                label: profession,
-                                            };
-                                        },
-                                    )}
+                                    options={professionArray}
                                     ref={professionRef}
                                     onChange={(e) => {
                                         console.log(e);
@@ -948,14 +964,11 @@ const UpdateJob = (props) => {
                                             ? "border-invalid"
                                             : ""
                                     }
-                                    options={data.specializations.map(
-                                        (specialization) => {
-                                            return {
-                                                value: specialization,
-                                                label: specialization,
-                                            };
-                                        },
-                                    )}
+                                    options={
+                                        profession === ""
+                                            ? []
+                                            : specializationObj[profession]
+                                    }
                                     ref={specializationRef}
                                     onChange={(e) => {
                                         console.log(e);
@@ -975,7 +988,11 @@ const UpdateJob = (props) => {
                                         isMulti
                                         autosize={true}
                                         placeholder='Super specialization'
-                                        options={superSpecializationArray}
+                                        options={
+                                            superSpecializationObj[
+                                                `${profession}+${specialization}`
+                                            ]
+                                        }
                                         ref={superSpecializationRef}
                                         name='SuperSpecialization'
                                         defaultValue={superSpecialization}
@@ -1432,7 +1449,7 @@ const UpdateJob = (props) => {
                         <div className='col-3 col-md-2 px-1'>
                             <Button
                                 onClick={(e) => {
-                                    setMess("discard");
+                                    setMess("close");
                                     // history.push({
                                     //     pathname: "/post",
                                     //     state: { id, type2, jobType },
@@ -1485,7 +1502,7 @@ const UpdateJob = (props) => {
                         </div>
                     )}
                     {(jobType === "post" || jobType === "save") && (
-                        <div className='col-3 col-md-2 px-1'>
+                        <div className='col-4 col-md-2 px-1'>
                             <Button
                                 onClick={(e) => {
                                     setMess("post");
@@ -1502,8 +1519,9 @@ const UpdateJob = (props) => {
             <Modal isOpen={modal} toggle={toggle} style={{ marginTop: "20vh" }}>
                 <ModalHeader toggle={toggle} className='py-1'>
                     {mess === "save" && "Confirm Save"}
-                    {mess === "post" && "Confirm Publish"}
-                    {mess === "discard" && "Confirm Discard"}
+                    {mess === "post" && "Update the Job?"}
+                    {mess === "discard" && "Discard the Job?"}
+                    {mess === "close" && "Close the Job?"}
 
                     {/* {mess.split("_")[0] === "accept" && "Confirm Accept"} */}
                 </ModalHeader>
@@ -1511,13 +1529,14 @@ const UpdateJob = (props) => {
                     {mess === "promote" && "Promote"}
                 </ModalHeader> */}
                 <ModalBody>
+                    {mess === "promote" &&
+                        "Are you sure you want to promote this job ?"}
                     {mess === "post" &&
-                        "Are you sure you want to publish this job ?"}
-
-                    {mess === "save" &&
-                        "Are you sure you want to save the job?"}
+                        "Updating the Job will make it visible to applicants."}
                     {mess === "discard" &&
-                        "Are you sure you want to discard the job?"}
+                        "You will not be able to recover this job."}
+                    {mess === "close" &&
+                        "Applicants will no longer be able to apply for this job."}
                 </ModalBody>
                 <ModalFooter>
                     {mess === "post" && (
@@ -1528,7 +1547,7 @@ const UpdateJob = (props) => {
                                 toggle();
                                 submit();
                             }}>
-                            Yes
+                            Post
                         </Button>
                     )}
                     {mess === "save" && (
@@ -1545,17 +1564,30 @@ const UpdateJob = (props) => {
                     {mess === "discard" && (
                         <Button
                             size='sm'
-                            color='primary'
+                            color='danger'
                             onClick={(e) => {
                                 toggle();
                                 discard();
                             }}>
-                            Yes
+                            Delete
+                        </Button>
+                    )}
+                    {mess === "close" && (
+                        <Button
+                            size='sm'
+                            color='danger'
+                            onClick={(e) => {
+                                toggle();
+                                discard();
+                            }}>
+                            Close
                         </Button>
                     )}
 
                     <Button color='secondary' size='sm' onClick={toggle}>
-                        No
+                        {(mess === "discard" || mess === "close") && "Keep"}
+                        {mess === "post" && "Wait"}
+                        {mess === "promote" && "No"}
                     </Button>
                 </ModalFooter>
             </Modal>

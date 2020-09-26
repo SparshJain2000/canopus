@@ -22,8 +22,10 @@ import {
     DropdownToggle,
     DropdownMenu,
 } from "reactstrap";
-import logo from "../images/logo.svg";
+import logo from "../images/logo.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import ReactGA from "react-ga";
+
 import {
     faUser,
     faLock,
@@ -75,6 +77,10 @@ const NavbarComponent = (props) => {
                 console.log(newuser.data.user);
                 props.setUser(newuser.data.user);
                 // window.location = "/search-jobs";
+                ReactGA.event({
+                    category: "User",
+                    action: "userlogedin",
+                });
                 history.push("/search-jobs");
             })
             .catch((err) => {
@@ -96,6 +102,16 @@ const NavbarComponent = (props) => {
                 console.log(newuser.data.employer);
                 props.setUser(newuser.data.employer);
                 // window.location = "/employer";
+                // ReactGA.initialize("UA-176987444-1");
+                // ReactGA.set({
+                //     userId: newuser.data.employer._id,
+                //     dimension2: "employer",
+                // });
+                ReactGA.event({
+                    category: "Employer",
+                    action: "loggedin",
+                    id: `${newuser.data.employer._id}`,
+                });
                 history.push("/employer");
             })
             .catch((err) => {
@@ -119,10 +135,10 @@ const NavbarComponent = (props) => {
                 {error}
             </Alert>
             <Navbar color='light' light expand='lg'>
-                <img src={logo} alt='logo' width='30px' />
-                <NavbarBrand href='/' className='ml-2 text-align-center'>
-                    Canopus
-                </NavbarBrand>
+                <img src={logo} alt='logo' width='130px' />
+                {/* <NavbarBrand href='/' className='ml-2 text-align-center'>
+                        Curoid
+                    </NavbarBrand> */}
                 <NavbarToggler
                     onClick={toggle}
                     className={`position-relative ${
@@ -140,7 +156,7 @@ const NavbarComponent = (props) => {
                             <NavLink to='/search-jobs'>Job Search</NavLink>
                         </NavItem>
                         <NavItem className='m-1'>
-                            <NavLink to='/employer'>FInd Employees</NavLink>
+                            <NavLink to='/employer'>Find Employees</NavLink>
                         </NavItem>
                         <NavItem className='m-1'>
                             <NavLink to='/'>Career Resources</NavLink>
@@ -425,7 +441,9 @@ const NavbarComponent = (props) => {
                                 </button>
                             </div>
                             <div className='clearfix'>
-                                <a href='/' className='float-right'>
+                                <a
+                                    href='/employer/forgot'
+                                    className='float-right'>
                                     Forgot Password?
                                 </a>
                             </div>
