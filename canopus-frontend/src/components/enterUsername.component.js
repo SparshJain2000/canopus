@@ -7,6 +7,7 @@ import {
     Button,
     Modal,
     ModalBody,
+    ModalHeader,
 } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -26,9 +27,18 @@ export default class EnterUsername extends Component {
         super(props);
         this.state = {
             email: "",
+            disabled: false,
+            message: "",
+            modal: false,
         };
         this.handleChange = this.handleChange.bind(this);
+        this.toggleModal = this.toggleModal.bind(this);
         this.signUp = this.signUp.bind(this);
+    }
+    toggleModal() {
+        this.setState({
+            modal: !this.state.modal,
+        });
     }
     handleChange(e) {
         this.setState({
@@ -46,6 +56,11 @@ export default class EnterUsername extends Component {
                 console.log(data);
                 if (data.status === 200) {
                     console.log("200");
+                    this.setState({
+                        disabled: true,
+                        modal: true,
+                        message: "Check your mailbox !",
+                    });
                 }
             })
             .catch(({ response }) => {
@@ -76,11 +91,26 @@ export default class EnterUsername extends Component {
                     </FormGroup>
 
                     <div className=' d-flex justify-content-end'>
-                        <Button type='submit' color='primary'>
+                        <Button
+                            type='submit'
+                            color='primary'
+                            disabled={this.state.disabled}>
                             Send Mail
                         </Button>
                     </div>
                 </Form>
+                <Modal
+                    isOpen={this.state.modal}
+                    toggle={this.toggleModal}
+                    style={{ marginTop: "20vh" }}>
+                    <ModalHeader toggle={this.toggleModal} className='py-1'>
+                        Message
+                    </ModalHeader>
+                    {/* <ModalHeader toggle={toggle}>
+                    {mess === "promote" && "Promote"}
+                </ModalHeader> */}
+                    <ModalBody>{this.state.message}</ModalBody>
+                </Modal>
             </div>
         );
     }

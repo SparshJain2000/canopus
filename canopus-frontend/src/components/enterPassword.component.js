@@ -40,6 +40,7 @@ export default class EnterPassword extends Component {
                 console.log(data);
                 if (data.status === 200) {
                     console.log("200");
+                    window.location = "/employer/update";
                 }
             })
             .catch(({ response }) => {
