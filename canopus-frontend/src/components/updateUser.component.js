@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from "react";
+import React, { Component, Fragment, createRef } from "react";
 import {
     Label,
     Input,
@@ -85,6 +85,7 @@ export default class UpdateUser extends Component {
             days: [],
             availability: [],
             progress: 0,
+            prevResume: "",
             //===============
             line: "",
             pin: "",
@@ -127,6 +128,7 @@ export default class UpdateUser extends Component {
                 dob: true,
             },
         };
+        this.resume = React.createRef();
         this.handleChange = this.handleChange.bind(this);
         this.update = this.update.bind(this);
         this.setCoordinates = this.setCoordinates.bind(this);
@@ -227,27 +229,38 @@ export default class UpdateUser extends Component {
                     size: file.size,
                 };
                 console.log(resume);
-                Axios.post(`/api/upload`, {
-                    context: `${this.state.id}_${file.name}`,
-                })
-                    .then(({ data }) => {
-                        const sas = data.token;
-                        this.uploadToStorage("canopus", sas, resume).then(
-                            (res) => {
-                                console.log(res);
-                                const url = `https://canopus.blob.core.windows.net/user-image/${this.state.id}_${file.name}`;
-                                console.log(url);
-                                this.setState({
-                                    resume: url,
-                                    loading: false,
-                                    uploadingLogo: false,
-                                });
-                                // this.update();
-                                this.setState({ uploaded: true });
-                            },
-                        );
+                if (resume.size <= 5000000)
+                    Axios.post(`/api/upload`, {
+                        context: `${this.state.id}_${file.name}`,
                     })
-                    .catch((e) => console.log(e));
+                        .then(({ data }) => {
+                            const sas = data.token;
+                            this.uploadToStorage("canopus", sas, resume).then(
+                                (res) => {
+                                    console.log(res);
+                                    const url = `https://canopus.blob.core.windows.net/user-image/${this.state.id}_${file.name}`;
+                                    console.log(url);
+                                    this.setState({
+                                        resume: url,
+                                        prevResume: "",
+                                        loading: false,
+                                        uploadingLogo: false,
+                                    });
+                                    // this.update();
+                                    this.setState({ uploaded: true });
+                                },
+                            );
+                        })
+                        .catch((e) => console.log(e));
+                else {
+                    this.setState({
+                        modalError: true,
+                        modalMess: "File should be less than 5 MB",
+                        uploading: false,
+                        loading: false,
+                    });
+                    this.resume.current.value = "";
+                }
             };
         }
     }
@@ -255,8 +268,19 @@ export default class UpdateUser extends Component {
         const isValid = Object.values(this.state.valid).every(
             (item) => item === true,
         );
+        // const emp =
+        //     this.state.title === "" ||
+        //     this.state.firstName === "" ||
+        //     this.state.lastname === "" ||
+        //     this.state.gender === "" ||
+        //     this.state.city === "" ||
+        //     this.state.state === "" ||
+        //     this.state.phone === "" ||
+        //     this.state.profession === "" ||
+        //     this.state.specialization === "";
 
         console.log(isValid);
+        // console.log(emp);
         if (!isValid) {
             this.setState({
                 modalError: true,
@@ -287,7 +311,10 @@ export default class UpdateUser extends Component {
                 specialization: this.state.specialization,
                 superSpecialization: this.state.superSpecialization,
                 education: this.state.education,
-                resume: this.state.resume,
+                resume:
+                    this.state.resume === ""
+                        ? this.state.prevResume
+                        : this.state.resume,
             };
             if (this.state.locum) {
                 // const locum = {
@@ -488,7 +515,6 @@ export default class UpdateUser extends Component {
         let specializationObj = {},
             superSpecializationObj = {};
         if (this.props.data) {
-            console.log(this.props);
             degrees = this.props.data.degrees.map((degree) => {
                 return {
                     value: degree,
@@ -525,7 +551,6 @@ export default class UpdateUser extends Component {
                     },
                 );
             });
-            console.log(superSpecializationObj);
         }
         return (
             <div>
@@ -647,14 +672,14 @@ export default class UpdateUser extends Component {
                                 <div className='col-12 my-1 my-sm-0'>
                                     <Label className='mb-1'>
                                         <h6 className='mb-0 small-heading'>
-                                            Title{" "}
+                                            Profile Title{" "}
                                             <span className='text-danger'>
                                                 *
                                             </span>
                                         </h6>
                                     </Label>
                                     <Input
-                                        placeholder='Title'
+                                        placeholder='eg: intervetnional cardilogist'
                                         name='title'
                                         onChange={this.handleChange}
                                         defaultValue={this.state.title}
@@ -943,7 +968,7 @@ export default class UpdateUser extends Component {
                             <div className='col-12  px-0 my-1'>
                                 <Label className='mb-0'>
                                     <h6 className='mb-0 small-heading'>
-                                        Super Specialization{" "}
+                                        Super/Sub Specialization{" "}
                                     </h6>
                                 </Label>
                                 <Select
@@ -1307,8 +1332,9 @@ export default class UpdateUser extends Component {
                                 <input
                                     type='file'
                                     class='file'
-                                    accept='.pdf,.doc'
+                                    accept='.pdf,.doc,.docx,.docs,.rtf'
                                     onChange={this.uploadResume}
+                                    ref={this.resume}
                                 />
                                 {this.state.progress !== 1 && (
                                     <div className='my-1 mt-3'>
@@ -1347,11 +1373,13 @@ export default class UpdateUser extends Component {
                                             className='btn btn-sm btn-primary px-2'
                                             onClick={() => {
                                                 this.setState({
+                                                    prevResume: this.state
+                                                        .resume,
                                                     resume: "",
                                                 });
                                                 // this.update();
                                             }}>
-                                            Change Resume
+                                            Update Resume
                                             <FontAwesomeIcon
                                                 className='ml-2'
                                                 icon={faPen}
