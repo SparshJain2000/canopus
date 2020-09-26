@@ -75,7 +75,6 @@ class SimilarJobs extends Component {
         const job = this.props.job;
         const query = {
             location: job.description.location,
-            // pin: job.pin,
             specialization: job.specialization,
             profession: job.profession,
             superSpecialization: job.superSpecialization,
@@ -83,7 +82,7 @@ class SimilarJobs extends Component {
         console.log(query);
         if (job)
             axios
-                .post(`/api/job/similar`, query)
+                .post(`/api/search/similar-jobs`, query)
                 .then(({ data }) => {
                     console.log(data);
                     this.setState({ jobs: data.jobs, message: "" });
@@ -233,7 +232,7 @@ export default class Job extends Component {
         console.log(this.state.job);
         const type = this.state.job.startDate ? "freelance" : "job";
         axios
-            .post(`/api/job/apply/${type}/${this.state.job._id}`)
+            .post(`/api/search/apply/${type}/${this.state.job._id}`)
             .then(({ data }) => {
                 console.log(data);
                 // setApplied(true);
@@ -253,11 +252,10 @@ export default class Job extends Component {
         const [jobType, author] = this.props.location.search
             .substring(1)
             .split("&");
-        // console.log(arr);
         console.log(jobType);
         console.log(author);
         axios
-            .get(`/api/job/view/${jobType}/${id}`)
+            .get(`/api/search/view/${jobType}/${id}`)
             .then((data) => {
                 console.log(data);
                 this.setState({

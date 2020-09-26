@@ -149,7 +149,7 @@ const NavbarComponent = (props) => {
                     <span></span>
                 </NavbarToggler>
                 <Collapse isOpen={isOpen} navbar>
-                    {/* <Nav
+                    <Nav
                         className='row mx-auto justify-content-center px-5'
                         navbar>
                         <NavItem className='m-1'>
@@ -164,7 +164,7 @@ const NavbarComponent = (props) => {
                         <NavItem className='m-1'>
                             <NavLink to='/'>About US</NavLink>
                         </NavItem>
-                    </Nav> */}
+                    </Nav>
                     {!props.user ? (
                         <Nav
                             className='row ml-auto align-content-center justify-content-center mt-3 mt-lg-0'

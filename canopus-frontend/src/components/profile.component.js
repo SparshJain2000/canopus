@@ -680,7 +680,7 @@ export default class Profile extends Component {
                                             <div className='col-12 col-sm-8 row justify-content-between'>
                                                 <a
                                                     href={`${this.state.profile.resume}`}
-                                                    className='col-5 btn btn-info btn-sm mr-1'>
+                                                    className=' btn btn-info btn-sm mr-1'>
                                                     View Resume
                                                     <FontAwesomeIcon
                                                         className='ml-2'

@@ -242,7 +242,7 @@ export default class UpdateUser extends Component {
                                     loading: false,
                                     uploadingLogo: false,
                                 });
-                                this.update();
+                                // this.update();
                                 this.setState({ uploaded: true });
                             },
                         );
@@ -367,7 +367,7 @@ export default class UpdateUser extends Component {
                         phone: user.phone,
                         resume: user.resume,
                     });
-                    if (user.locum.startTime)
+                    if (user.availability && user.availability.length !== 0)
                         this.setState({
                             availability: user.availability,
                             locum: true,
@@ -495,6 +495,8 @@ export default class UpdateUser extends Component {
                     label: degree,
                 };
             });
+            speciality = this.props.data.speciality;
+
             professionArray = this.props.data.specializations.map((obj) => {
                 specializationObj[obj.profession] = obj.specialization.map(
                     (e) => {
@@ -514,7 +516,6 @@ export default class UpdateUser extends Component {
             specializationArray = specializationArray.map((e) => {
                 return { label: e, value: e };
             });
-            speciality = this.props.data.speciality;
 
             this.props.data.superSpecializations.forEach((obj) => {
                 const key = `${obj.profession}+${obj.specialization}`;
@@ -1301,8 +1302,7 @@ export default class UpdateUser extends Component {
                             <h5>Resume</h5>
                         </FormGroup>
                         {this.state.resume === undefined ||
-                        (this.state.resume === "" &&
-                            this.state.progress !== 1) ? (
+                        this.state.resume === "" ? (
                             <div>
                                 <input
                                     type='file'
@@ -1310,19 +1310,21 @@ export default class UpdateUser extends Component {
                                     accept='.pdf,.doc'
                                     onChange={this.uploadResume}
                                 />
-                                <div className='my-1 mt-3'>
-                                    <Progress
-                                        animated
-                                        color='info'
-                                        value={this.state.progress * 100}>
-                                        <h6 className='m-0'>
-                                            {Math.round(
-                                                this.state.progress * 100,
-                                            )}
-                                            {"%"}
-                                        </h6>
-                                    </Progress>
-                                </div>
+                                {this.state.progress !== 1 && (
+                                    <div className='my-1 mt-3'>
+                                        <Progress
+                                            animated
+                                            color='info'
+                                            value={this.state.progress * 100}>
+                                            <h6 className='m-0'>
+                                                {Math.round(
+                                                    this.state.progress * 100,
+                                                )}
+                                                {"%"}
+                                            </h6>
+                                        </Progress>
+                                    </div>
+                                )}
                             </div>
                         ) : (
                             <div className='row'>
@@ -1347,7 +1349,7 @@ export default class UpdateUser extends Component {
                                                 this.setState({
                                                     resume: "",
                                                 });
-                                                this.update();
+                                                // this.update();
                                             }}>
                                             Change Resume
                                             <FontAwesomeIcon
@@ -1670,13 +1672,12 @@ export default class UpdateUser extends Component {
                     </div>
                     <div className='p-1 p-sm-4 m-1 m-sm-3 mx-lg-4 d-flex justify-content-start'>
                         {this.state.loading ? (
-                            <Button
-                                // onClick={this.update}
-                                // className='w-25'
+                            <Button disabled={true} color='primary'>
+                                <span className='my-auto'>Uploading File</span>
 
-                                color='primary'>
-                                Uploading Image
-                                <div class='spinner-border ml-2' role='status'>
+                                <div
+                                    class='spinner-border spinner-border-sm ml-2 my-auto'
+                                    role='status'>
                                     {" "}
                                     <span class='sr-only'>Loading...</span>
                                 </div>

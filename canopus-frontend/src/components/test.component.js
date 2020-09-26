@@ -1,16 +1,5 @@
 import React, { Component, Fragment } from "react";
-import {
-    Label,
-    Input,
-    FormGroup,
-    Form,
-    FormText,
-    Button,
-    FormFeedback,
-    Modal,
-    ModalHeader,
-    ModalBody,
-} from "reactstrap";
+import { Label, Input, FormGroup, Form, Button } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faPlusCircle,
