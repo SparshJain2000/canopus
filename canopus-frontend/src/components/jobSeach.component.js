@@ -364,6 +364,15 @@ export default class JobSearch extends Component {
                             label: "Your Location",
                             value: "Your Location",
                         };
+                    axios
+                        .get(
+                            `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&sensor=false&key=${process.env.REACT_APP_MAP_KEY}`,
+                        )
+                        .then((data) => console.log(data))
+                        .catch((err) => {
+                            console.log(err);
+                            console.log(err.response);
+                        });
                     this.setState({
                         coordinates: [lat, long],
                         location: "Your Location",
@@ -387,9 +396,9 @@ export default class JobSearch extends Component {
     toggleTab(tab) {
         if (this.state.activeTab !== tab) this.setState({ activeTab: tab });
     }
-    getAllJobs(skipNo) {
+    getAllJobs(skipNo, locum) {
         console.log(this.state.freelance);
-        if (this.state.freelance == false) {
+        if (locum === undefined ? !this.state.freelance : locum) {
             const query = {
                 startDate: this.state.startDate,
                 endDate: this.state.endDate,
@@ -558,7 +567,8 @@ export default class JobSearch extends Component {
             }
         } else if (this.state.jobs.length === 0) this.getAllJobs();
     }
-    search(skipNo) {
+    search(skipNo, locum) {
+        console.log(locum);
         this.setState({ loaded: false, modalFilter: false });
         console.log(this.profession.current);
         let query = {
@@ -608,7 +618,7 @@ export default class JobSearch extends Component {
         );
         // console.log(this.state.freelance);
         if (Object.keys(query).length > 0) {
-            if (!this.state.freelance) {
+            if (locum === undefined ? !this.state.freelance : locum) {
                 query = {
                     ...query,
                     startDate: this.state.startDate,
@@ -619,7 +629,7 @@ export default class JobSearch extends Component {
                 };
                 console.log(query);
                 axios
-                    .post(`/api/search/visitor`, query)
+                    .post(`/api/search/visitor-job`, query)
                     .then(({ data }) => {
                         console.log(data);
                         this.setState({
@@ -648,7 +658,7 @@ export default class JobSearch extends Component {
                         console.log(err.response);
                         this.setState({ loaded: true });
                     });
-            } else if (this.state.freelance) {
+            } else if (locum === undefined ? this.state.freelance : !locum) {
                 query = {
                     ...query,
                     limit: this.state.pageSize,
@@ -700,7 +710,7 @@ export default class JobSearch extends Component {
                         alert(err.response.data.err);
                     });
             }
-        } else this.getAllJobs(skipNo);
+        } else this.getAllJobs(skipNo, locum);
     }
 
     render() {
@@ -911,6 +921,9 @@ export default class JobSearch extends Component {
                                                                           .profession
                                                                   ]
                                                         }
+                                                        noOptionsMessage={() =>
+                                                            "Select Profession first"
+                                                        }
                                                         ref={
                                                             this.specialization
                                                         }
@@ -925,7 +938,7 @@ export default class JobSearch extends Component {
                                                     />
                                                 </div>
                                             </div>
-                                            {!this.state.freelance && (
+                                            {/* {!this.state.freelance && (
                                                 <div className='mt-3'>
                                                     <div className='col-12'>
                                                         <FormGroup>
@@ -998,7 +1011,7 @@ export default class JobSearch extends Component {
                                                         </FormGroup>
                                                     </div>
                                                 </div>
-                                            )}
+                                            )} */}
                                         </div>
                                     </Col>
                                 </Row>
@@ -1117,11 +1130,14 @@ export default class JobSearch extends Component {
                                                     <Select
                                                         isMulti
                                                         autosize={true}
-                                                        placeholder='Super specialization'
+                                                        placeholder='Super/Sub Specialization'
                                                         options={
                                                             superSpecializationObj[
                                                                 `${this.state.profession}+${this.state.specialization}`
                                                             ]
+                                                        }
+                                                        noOptionsMessage={() =>
+                                                            "Select Profession and Specialization first"
                                                         }
                                                         ref={
                                                             this
@@ -1216,8 +1232,7 @@ export default class JobSearch extends Component {
                                             : !this.state.freelance,
                                     });
                                     this.freelance.current.checked = this.state.freelance;
-
-                                    // this.search(0);
+                                    this.search(0);
                                 }}>
                                 <span className={`react-switch-button`} />
                             </label>
@@ -1437,7 +1452,7 @@ export default class JobSearch extends Component {
                                                     </div>
                                                 </div>
                                             </div>
-                                            {!this.state.freelance && (
+                                            {/* {!this.state.freelance && (
                                                 <div className='mt-3'>
                                                     <div className='col-12'>
                                                         <FormGroup>
@@ -1510,7 +1525,7 @@ export default class JobSearch extends Component {
                                                         </FormGroup>
                                                     </div>
                                                 </div>
-                                            )}
+                                            )} */}
                                         </Col>
                                     </Row>
                                 </TabPane>
@@ -1670,7 +1685,7 @@ export default class JobSearch extends Component {
                                                         <Select
                                                             isMulti
                                                             autosize={true}
-                                                            placeholder='Super specialization'
+                                                            placeholder='Super/Sub Specialization'
                                                             options={
                                                                 superSpecializationArray
                                                             }
@@ -1791,6 +1806,7 @@ export default class JobSearch extends Component {
                                                 : !this.state.freelance,
                                         });
                                         this.freelance.current.checked = this.state.freelance;
+                                        this.search(0, this.state.freelance);
                                         // this.search(0);
                                     }}>
                                     <span className={`react-switch-button`} />
