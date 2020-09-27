@@ -69,6 +69,9 @@ async function verifyCaptcha(req){
     return false;
     request(url,function(err,response,body){
         body = JSON.parse(body);
+        console.log(body);
+        console.log(response);
+        console.log(err);
         if(body.success!==undefined || !data.success)
         return false;
     return true;
@@ -76,31 +79,10 @@ async function verifyCaptcha(req){
 
 
 }
-// function jobRequestValidator(req){
 
-//     if (req.body.profession)
-//        {
-//             Profession.findOne({name:req.body.profession}).then((profession)=>{
-//                 if (req.body.specialization)
-//                 {
-//                     Specialization.findOne({profession:req.body.profession,specialization:req.body.specialization})
-//                     .then((specialization)=>{
-//                         if (req.body.specialization)
-//                         {
-//                             Specialization.findOne({specialization:req.body.specialization,superSpecialization:req.body.superSpecialization})
-//                            .then((specialization)=>{
-//                                return true;
-//                             }).catch((err)=>{return false});
-//                         }
-//                         else return false
-//                     }).catch((err)=>{return false});
-//                 }
-//                 else return false
-//             }).catch((err)=>{return false});
-//        }
-//     else return false
-
-// }
+async function updateRequestValidator(req){
+    
+}
 
 const validationController = {};
 exports.validationController = {

@@ -101,9 +101,6 @@
         "Pharmacist",
         "Medical Translator"
     ],
-    "tags": [
-        "Covid-19"
-    ],
     "specializations": [
         {
             "profession": "Physician/Surgeon",
@@ -297,5 +294,8 @@
                 "Vitreo Retinal Surgery"
             ]
         }
+    ],
+    "tags": [
+        "Covid-19"
     ]
 }

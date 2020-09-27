@@ -46,13 +46,10 @@ async function createJob(req,data,employer,extension){
     let author = {};
     author.username = req.user.username;
     author.id = req.user._id;
+    author.instituteName = req.user.instituteName;
     //different author options for employer and user
     if(req.user.role === "Employer"){
-    author.instituteName = req.user.instituteName;
     author.photo = req.user.logo;
-    }
-    else{
-      author.name = `${employer.salutation} ${employer.firstName} ${employer.lastName}`;
     }
     if(req.body.category === "Full-time" || req.body.category === "Part-time"){
     //set expiry date
@@ -197,7 +194,6 @@ async function readFileAsync(){
 }
 
 async function validateRequest(req){
-  
 
   let data = await readFileAsync();
   var flag = false;
