@@ -268,20 +268,20 @@ export default class UpdateUser extends Component {
         const isValid = Object.values(this.state.valid).every(
             (item) => item === true,
         );
-        // const emp =
-        //     this.state.title === "" ||
-        //     this.state.firstName === "" ||
-        //     this.state.lastname === "" ||
-        //     this.state.gender === "" ||
-        //     this.state.city === "" ||
-        //     this.state.state === "" ||
-        //     this.state.phone === "" ||
-        //     this.state.profession === "" ||
-        //     this.state.specialization === "";
+        const emp =
+            this.state.title === "" ||
+            this.state.firstName === "" ||
+            this.state.lastname === "" ||
+            this.state.gender === "" ||
+            this.state.city === "" ||
+            this.state.state === "" ||
+            this.state.phone === "" ||
+            this.state.profession === "" ||
+            this.state.specialization === "";
 
         console.log(isValid);
-        // console.log(emp);
-        if (!isValid) {
+        console.log(emp);
+        if (!isValid || emp) {
             this.setState({
                 modalError: true,
                 modalMess: "Please fill the required fields !",
@@ -379,8 +379,14 @@ export default class UpdateUser extends Component {
                         lastName: user.lastName,
                         gender: user.gender,
                         dob: user.dob,
-                        profession: user.profession,
-                        specialization: user.specialization,
+                        profession:
+                            user.profession === undefined
+                                ? ""
+                                : user.profession,
+                        specialization:
+                            user.specialization === undefined
+                                ? ""
+                                : user.specialization,
                         superSpecialization: user.superSpecialization,
                         city: user.address.city,
                         state: user.address.state,
@@ -975,7 +981,7 @@ export default class UpdateUser extends Component {
                                     isClearable={true}
                                     isMulti
                                     autosize={true}
-                                    placeholder='superSpecialization'
+                                    placeholder='Super/Sub Specialization'
                                     value={this.state.superSpecialization.map(
                                         (e) => {
                                             return { value: e, label: e };
