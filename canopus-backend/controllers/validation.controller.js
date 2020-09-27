@@ -62,22 +62,20 @@ async function UserProfileUpdateBuilder(req) {
 }
 
 async function verifyCaptcha(req){
-
+    //&remoteip=${req.connection.remoteAddress}
     let token = req.body.captcha;
-    const url = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${token}&remoteip=${req.connection.remoteAddress}`;
+    let flag = false
+    const url = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${token}`;
     if(token === null || token === undefined)
     return false;
-    request(url,function(err,response,body){
-        body = JSON.parse(body);
-        console.log(body);
-        console.log(response);
-        console.log(err);
-        if(body.success!==undefined || !data.success)
-        return false;
-    return true;
-    });
-
-
+    return new Promise((resolve, reject)=>{
+        request(url,function(err,response,body){
+            body = JSON.parse(body);
+            if(body.success!==true)
+            reject(false);
+        resolve(true);
+        });
+});
 }
 
 async function updateRequestValidator(req){

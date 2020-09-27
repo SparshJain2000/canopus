@@ -62,7 +62,7 @@ passport.use(
         {
             clientID: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-            callbackURL: "http://localhost:8080/auth/google/callback",
+            callbackURL: "http://curoid.co/auth/google/callback",
         },
         function (accessToken, refreshToken, profile, done) {
             User.findOne({ "google.id": profile.id }, function (err, user) {
@@ -100,7 +100,7 @@ passport.use(
         {
             clientID: process.env.FACEBOOK_APP_ID,
             clientSecret: process.env.FACEBOOK_APP_SECRET,
-            callbackURL: "http://localhost:8080/auth/facebook/callback",
+            callbackURL: "http://curoid.co/auth/facebook/callback",
             profileFields: [
                 "id",
                 "email",
