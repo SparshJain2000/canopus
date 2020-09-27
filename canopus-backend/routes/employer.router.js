@@ -18,35 +18,17 @@ const User           = require("../models/user.model"),
       savedJob       = require("../models/savedJobs.model"),
       savedFreelance = require("../models/savedFreelance.model");
 //===========================================================================
-//get all employers
-router.route("/").get((req, res) => {
-  Employer.find()
-    .then((employers) => {
-      res.json({
-        employers: employers.map((employer) => {
-          return { username: employer };
-        }),
-      });
-    })
-    .catch((err) => res.status(400).json({ err: err }));
-});
-//===========================================================================
 //Sign up route
 router.post("/", async (req, res) => {
   //captcha validation
-  // const captcha = await validationController.verifyCaptcha(req);
-  // if(!captcha)
-  // return res.json({err:"400"});
+  const captcha = await validationController.verifyCheckboxCaptcha(req);
+  if(!captcha)
+  return res.json({err:"Invalid Captcha"});
   const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
   const employer = new Employer({
     username: req.body.username,
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    address: req.body.address,
-    links: req.body.links,
-    description: req.body.description,
-    youtube: req.body.youtube,
     emailVerifiedToken:token,
+    emailVerified:false,
     role: "Employer",
     jobtier: {
       allowed: 10,
@@ -84,13 +66,12 @@ router.post("/", async (req, res) => {
 });
 //===========================================================================
 //Login route
-// router.post("/login", passport.authenticate("local"), (req, res) => {
-//     res.json({ user: req.user, message: `${req.user.username} Logged in` });
-// });
-
-router.post("/login", function (req, res, next) {
+router.post("/login", async function (req, res, next) {
+  //captcha validation
+  // const captcha = await validationController.verifyInvisibleCaptcha(req);
+  // if(!captcha)
+  // return res.json({err:"Invalid Captcha"});
   passport.authenticate("employer", function (err, employer, info) {
-    console.log(info);
     if (err) {
       return res.status(400).json({ err: err });
     }
@@ -118,6 +99,10 @@ router.post("/login", function (req, res, next) {
 });
 //===========================================================================
 router.post("/forgot", async (req, res) => {
+  //captcha validation
+  const captcha = await validationController.verifyInvisibleCaptcha(req);
+  if(!captcha)
+  return res.json({err:"Invalid Captcha"});
   const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
   if(req.body.username=='' || !req.body.username)
   return res.status(400).json({err:"Bad request"});
@@ -133,7 +118,6 @@ router.post("/forgot", async (req, res) => {
     .then((user) => {
       console.log(token);
       mailController.forgotMail(req, user, token);
-      //mailController.welcomeMail(req,user);
       res.json({ status: "Email has been sent" });
     })
     .catch((err) => {
@@ -149,37 +133,46 @@ router.put("/forgot/:token", async (req, res) => {
    const client_error = new Error("400");
    //try block
    try {
-  var user = await Employer.findOne({ resetPasswordToken: req.params.token }).session(session);
+  var employer = await Employer.findOne({ resetPasswordToken: req.params.token }).session(session);
     if (
-      user.resetPasswordExpires > Date.now() &&
+      employer.resetPasswordExpires > Date.now() &&
       crypto.timingSafeEqual(
-        Buffer.from(user.resetPasswordToken),
+        Buffer.from(employer.resetPasswordToken),
         Buffer.from(req.params.token)
       )
     )
-    await user.setPassword(req.body.password);
-    await user.save({session});
-    await Employer.findOneAndUpdate(
+    await employer.setPassword(req.body.password);
+    await employer.save({session});
+    employer = await Employer.findOneAndUpdate(
         { resetPasswordToken: req.params.token },
         { $unset: { resetPasswordToken: 1, resetPasswordExpires: 1 } },
-        { session:session}
+        { new:true,session:session}
       );
-     //commit transaction
+        //commit transaction
     await session.commitTransaction();
     session.endSession();
-    res.json({status:"200"});
+      req.logIn(employer, function (err) {
+        if (err) {
+          return res.status(400).json({ err: err });
+        }
+        return res.json({
+          employer: req.user,
+          message: `${req.user.username} Logged in`,
+        });
+      });
       } catch (err) {
+
+        console.log(err);
         // any 500 error in try block aborts transaction
         await session.abortTransaction();
         session.endSession();
-        console.log(err);
         res.status(500).json({status:"501"});
       } 
 });
 
 router.post("/validate", middleware.isEmployer,async (req, res) => {
   const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
-  if(req.body.username=='' || !req.body.username)
+  if(req.body.username=='' || !req.body.username || req.user.emailVerified)
   return res.status(400).json({err:"Bad request"});
   Employer.findOneAndUpdate(
     { username: req.body.username },

@@ -70,4 +70,8 @@ async function jobPostMail(req,job,employer){
 
 }
 
+async function attachedApplicantMail(req,job,employer,attachedApplicants){
+    
+}
+
 exports.mailController={forgotMail,welcomeMail,validateMail};

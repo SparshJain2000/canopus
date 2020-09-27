@@ -20,8 +20,10 @@ const fs = require("fs"),
     else if(req.body.category === "Day Job") subscription="freelancetier";
     else if(req.body.category === "Locum") subscription = "locumtier";
     else return false;
-
-    // // checking if employer is validated and limiting jobs
+    //check email validity
+    // if(!employer.emailVerified)
+    //   return false;
+    // checking if employer is validated and limiting jobs
     // if (type=== "posted" && employer.validated == false && (employer[subscription][type] > 0) )
     //   return false;
 
@@ -41,18 +43,15 @@ const fs = require("fs"),
   }
 //create job
 async function createJob(req,data,employer,extension){
-  // let valid = await validateRequest(req);
-  // if(!valid){console.log(req);return false; }
+   let valid = await validateRequest(req);
+  if(!valid)return false; 
     let author = {};
     author.username = req.user.username;
     author.id = req.user._id;
+    author.instituteName = req.user.instituteName;
     //different author options for employer and user
     if(req.user.role === "Employer"){
-    author.instituteName = req.user.instituteName;
     author.photo = req.user.logo;
-    }
-    else{
-      author.name = `${employer.salutation} ${employer.firstName} ${employer.lastName}`;
     }
     if(req.body.category === "Full-time" || req.body.category === "Part-time"){
     //set expiry date
@@ -107,6 +106,8 @@ async function createJob(req,data,employer,extension){
 }
 //create saved job
 async function createSavedJob(req,data,status){
+  let valid = await validateRequest(req);
+  if(!valid)return false; 
   let author = {};
     author.username = req.user.username;
     author.id = req.user._id;
@@ -161,6 +162,8 @@ async function createSavedJob(req,data,status){
 }
 
 async function updateQueryBuilder(req){
+  let valid = await validateUpdateRequest(req);
+  if(!valid)return false; 
   var query={};
   if(req.body.title) query["title"]=req.body.title;
   if(req.body.profession) query["profession"]=req.body.profession;
@@ -197,44 +200,112 @@ async function readFileAsync(){
 }
 
 async function validateRequest(req){
-  
 
   let data = await readFileAsync();
   var flag = false;
   // perform validation
   // incentives validation
-  if(req.body.incentives){
-    if(req.body.incentives.every(incentive=>data.incentives.includes(incentive)))
+  if(req.body.description.incentives){
+    if(req.body.incentives.every(incentive=>data.incentive.includes(incentive)))
+    flag = true;
+    else  return false;
+  }
+  // experience validation
+  if(req.body.description.experience){
+    if(data.experience.some(experience=>experience===req.body.description.experience))
+    flag = true;
+    else  return false;
+  }
+  //type validation
+  if(req.body.description.type){
+    if(data.type.some(type=>type===req.body.description.type))
     flag = true;
     else  return false;
   }
   //tag validation
-  if(req.body.tag && data.tags.includes(req.body.tag))
-  flag = true;
-  //else return false;
+  if(req.body.tag){
+    if(data.tags.includes(req.body.tag))
+    flag = true;
+    else return false;
+  }
   // profession specialization superspecialization validation
   if(req.body.superSpecialization){
-    if(data.superSpecialization.some(data=>
-      data.superSpecialization===req.body.superSpecialization &&
+    if(data.superSpecializations.some(data=>
+      data.superSpecialization.includes(req.body.superSpecialization) &&
       data.specialization===req.body.specialization && 
       data.profession===req.body.profession
     ))
     flag = true;
   }
   else if(req.body.specialization){
-    if(data.specialization2.some(data=>
-      data.specialization===req.body.specialization && 
+    if(data.specializations.some(data=>
+      data.specialization.includes(req.body.specialization) && 
       data.profession===req.body.profession
     ))
     flag = true;
   }
   else if(req.body.profession){
-    if(data.superSpecialization.some(data=>
-      data.profession===req.body.profession
+    if(data.professions.some(profession=>
+      profession===req.body.profession
     ))
     flag = true;
   }
   else flag = false;
+  return flag;
+
+}
+async function validateUpdateRequest(req){
+
+  let data = await readFileAsync();
+  var flag = false;
+  // perform validation
+  // incentives validation
+  if(req.body.description.incentives){
+    if(req.body.incentives.every(incentive=>data.incentive.includes(incentive)))
+    flag = true;
+    else return false;
+  }
+  // experience validation
+  if(req.body.description.experience){
+    if(data.experience.some(experience=>experience===req.body.description.experience))
+    flag = true;
+    else return false;
+  }
+  //type validation
+  if(req.body.description.type){
+    if(data.type.some(type=>type===req.body.description.type))
+    flag = true;
+    else return false;
+  }
+  //tag validation
+  if(req.body.tag){
+    if(data.tags.includes(req.body.tag))
+    flag = true;
+    else return false;
+  }
+  //else return false;
+  // profession specialization superspecialization validation
+  if(req.body.superSpecialization){
+    if(data.superSpecializations.some(data=>
+      data.superSpecialization.includes(req.body.superSpecialization) &&
+      data.specialization===req.body.specialization && 
+      data.profession===req.body.profession
+    ))
+    flag = true;
+  }
+  else if(req.body.specialization){
+    if(data.specializations.some(data=>
+      data.specialization.includes(req.body.specialization) && 
+      data.profession===req.body.profession
+    ))
+    flag = true;
+  }
+  else if(req.body.profession){
+    if(data.professions.some(profession=>
+      profession===req.body.profession
+    ))
+    flag = true;
+  }
   return flag;
 
 }

@@ -1,8 +1,41 @@
 
 require("dotenv").config();
-const secretKey=process.env.CAPTCHA_BACKEND;
+const checkbox_secret_key=process.env.CAPTCHA_BACKEND;
+const invisible_secret_key = process.env.CAPTCHA_INVISIBLE_BACKEND;
 const request = require('request');
 
+async function verifyCheckBoxCaptcha(req){
+    //&remoteip=${req.connection.remoteAddress}
+    let token = req.body.captcha;
+    let flag = false
+    const url = `https://www.google.com/recaptcha/api/siteverify?secret=${checkbox_secret_key}&response=${token}`;
+    if(token === null || token === undefined)
+    return false;
+    return new Promise((resolve, reject)=>{
+        request(url,function(err,response,body){
+            body = JSON.parse(body);
+            if(body.success!==true)
+            reject(false);
+        resolve(true);
+        });
+});
+}
+
+async function verifyInvisibleCaptcha(req){
+    let token = req.body.captcha;
+    let flag = false
+    const url = `https://www.google.com/recaptcha/api/siteverify?secret=${invisible_secret_key}&response=${token}`;
+    if(token === null || token === undefined)
+    return false;
+    return new Promise((resolve, reject)=>{
+        request(url,function(err,response,body){
+            body = JSON.parse(body);
+            if(body.success!==true)
+            reject(false);
+        resolve(true);
+        });
+});
+}
 async function EmployerProfileUpdateBuilder(req) {
     var query = {};
     query.update = {};
@@ -61,50 +94,29 @@ async function UserProfileUpdateBuilder(req) {
     return query;
 }
 
-async function verifyCaptcha(req){
+async function readFileAsync(){
+    var data=null;
+    return new Promise((resolve, reject)=>{
+        fs.readFile(filePath, function(err, rawdata) {
+                if (err) throw err;
+                data=JSON.parse(rawdata);
+                //console.log(data);
+                resolve(data);
+           });
+        })
+  }
+  
 
-    let token = req.body.captcha;
-    const url = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${token}&remoteip=${req.connection.remoteAddress}`;
-    if(token === null || token === undefined)
-    return false;
-    request(url,function(err,response,body){
-        body = JSON.parse(body);
-        if(body.success!==undefined || !data.success)
-        return false;
-    return true;
-    });
-
-
+async function updateRequestValidator(req){
+    let data = await readFileAsync();
+    var flag = false;
+    // perform validation
 }
-// function jobRequestValidator(req){
-
-//     if (req.body.profession)
-//        {
-//             Profession.findOne({name:req.body.profession}).then((profession)=>{
-//                 if (req.body.specialization)
-//                 {
-//                     Specialization.findOne({profession:req.body.profession,specialization:req.body.specialization})
-//                     .then((specialization)=>{
-//                         if (req.body.specialization)
-//                         {
-//                             Specialization.findOne({specialization:req.body.specialization,superSpecialization:req.body.superSpecialization})
-//                            .then((specialization)=>{
-//                                return true;
-//                             }).catch((err)=>{return false});
-//                         }
-//                         else return false
-//                     }).catch((err)=>{return false});
-//                 }
-//                 else return false
-//             }).catch((err)=>{return false});
-//        }
-//     else return false
-
-// }
 
 const validationController = {};
 exports.validationController = {
     EmployerProfileUpdateBuilder,
     UserProfileUpdateBuilder,
-    verifyCaptcha,
+    verifyCheckBoxCaptcha,
+    verifyInvisibleCaptcha
 };
