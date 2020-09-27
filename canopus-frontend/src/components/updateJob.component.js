@@ -28,8 +28,8 @@ import {
     faArrowAltCircleDown,
     faPen,
     faArrowAltCircleUp,
-    faArrowDown,
-    faArrowUp,
+    faChevronDown,
+    faChevronUp,
 } from "@fortawesome/free-solid-svg-icons";
 const block = {
     borderRadius: " 0.25rem",
@@ -57,6 +57,11 @@ const UpdateJob = (props) => {
     const dateRef = useRef(null);
     const endTimeRef = useRef(null);
     const startTimeRef = useRef(null);
+
+    const currentDate = new Date();
+    const date60 = new Date(currentDate.setDate(currentDate.getDate() + 60));
+    const date90 = new Date(currentDate.setDate(currentDate.getDate() + 30));
+    const [job, setJob] = useState({});
     const [showDetail, setShowDetail] = useState(false);
     const [showSkill, setShowSkill] = useState(false);
     const [showOtherDetail, setShowOtherDetail] = useState(false);
@@ -228,6 +233,7 @@ const UpdateJob = (props) => {
                 )
                 .then(({ data }) => {
                     console.log(data);
+                    setJob(data);
                     setId(data._id);
                     setTitle(data.title);
                     setCompany(
@@ -360,6 +366,7 @@ const UpdateJob = (props) => {
                 )
                 .then(({ data }) => {
                     setId(data._id);
+                    setJob(data);
                     setTitle(data.title);
                     setCompany(
                         data.description.company
@@ -698,6 +705,50 @@ const UpdateJob = (props) => {
                 toggleError();
             });
     };
+    const extend = () => {
+        if (jobType === "post")
+            axios
+                .put(`/api/job/extend/${props.match.params.id}`)
+                .then((data) => {
+                    console.log(data);
+                    setMessError(`Job extended`);
+                    toggleError();
+                    window.location = "/applications";
+                })
+                .catch((err) => {
+                    console.log(err.response);
+                    const error = err.response.data
+                        ? err.response.data.err
+                        : "";
+                    // alert("Unable to post job : " + error);
+                    err.response.data
+                        ? setMessError(err.response.data.err)
+                        : setMessError("Error extending job");
+
+                    toggleError();
+                });
+        if (jobType === "close")
+            axios
+                .put(`/api/job/extend/expired/${props.match.params.id}`)
+                .then((data) => {
+                    console.log(data);
+                    setMessError(`Job extended`);
+                    toggleError();
+                    window.location = "/applications";
+                })
+                .catch((err) => {
+                    console.log(err.response);
+                    const error = err.response.data
+                        ? err.response.data.err
+                        : "";
+                    // alert("Unable to post job : " + error);
+                    err.response.data
+                        ? setMessError(err.response.data.err)
+                        : setMessError("Error extending job");
+
+                    toggleError();
+                });
+    };
     return (
         <div>
             <Nav tabs className='justify-content-between '>
@@ -767,7 +818,7 @@ const UpdateJob = (props) => {
                             }}> */}
 
                         <FontAwesomeIcon
-                            icon={showDetail ? faArrowUp : faArrowDown}
+                            icon={showDetail ? faChevronUp : faChevronDown}
                             className='text-info'
                             size='md'
                             onClick={toggleDetail}
@@ -1111,16 +1162,15 @@ const UpdateJob = (props) => {
                     )}
                 </div>
 
-                <hr />
-                <div className=' p-2 p-sm-3' style={block}>
+                <div className=' p-2 p-sm-3 my-2' style={block}>
                     <div className='row justify-content-between'>
                         <h4 className='col-9 col-sm-10'>Description</h4>
                         <FontAwesomeIcon
-                            icon={showSkill ? faArrowUp : faArrowDown}
+                            icon={showSkill ? faChevronUp : faChevronDown}
                             className='text-info'
                             size='md'
                             onClick={toggleSkill}
-                            className='col-3 col-sm-1'
+                            className='col-3 col-sm-1 my-auto'
                         />
                     </div>
                     {showSkill && (
@@ -1177,16 +1227,15 @@ const UpdateJob = (props) => {
                     )}
                 </div>
 
-                <hr />
-                <div className=' p-2 p-sm-3' style={block}>
+                <div className=' p-2 p-sm-3 my-2' style={block}>
                     <div className='row justify-content-between'>
                         <h4 className='col-9 col-sm-10'>Other Details</h4>
                         <FontAwesomeIcon
-                            icon={showOtherDetail ? faArrowUp : faArrowDown}
+                            icon={showOtherDetail ? faChevronUp : faChevronDown}
                             className='text-info'
                             size='md'
                             onClick={toggleOtherDetail}
-                            className='col-3 col-sm-1'
+                            className='col-3 col-sm-1 my-auto'
                         />
                     </div>
                     {showOtherDetail && (
@@ -1270,10 +1319,10 @@ const UpdateJob = (props) => {
                         </FormGroup>
                     )}
                 </div>
-                <hr />
+
                 {(type === "Day Job" || type === "Locum Position") && (
                     <div
-                        className='  p-2 p-sm-3'
+                        className='  p-2 p-sm-3 my-2'
                         style={{
                             height: "max-content",
                         }}
@@ -1340,6 +1389,18 @@ const UpdateJob = (props) => {
                                             id='exampleDate'
                                             placeholder='date placeholder'
                                             defaultValue={startDate}
+                                            min={`${new Date().getFullYear()}-${(
+                                                "0" +
+                                                (new Date().getMonth() + 1)
+                                            ).slice(-2)}-${(
+                                                "0" + new Date().getDate()
+                                            ).slice(-2)}`}
+                                            max={`${date60.getFullYear()}-${(
+                                                "0" +
+                                                (date60.getMonth() + 1)
+                                            ).slice(-2)}-${(
+                                                "0" + date60.getDate()
+                                            ).slice(-2)}`}
                                             className=''
                                             onChange={handleChange}
                                             required
@@ -1366,6 +1427,18 @@ const UpdateJob = (props) => {
                                                 type='date'
                                                 name='EndDate'
                                                 id='exampleDate'
+                                                min={`${new Date().getFullYear()}-${(
+                                                    "0" +
+                                                    (new Date().getMonth() + 1)
+                                                ).slice(-2)}-${(
+                                                    "0" + new Date().getDate()
+                                                ).slice(-2)}`}
+                                                max={`${date90.getFullYear()}-${(
+                                                    "0" +
+                                                    (date90.getMonth() + 1)
+                                                ).slice(-2)}-${(
+                                                    "0" + date90.getDate()
+                                                ).slice(-2)}`}
                                                 placeholder='date placeholder'
                                                 className=''
                                                 onChange={handleChange}
@@ -1429,6 +1502,7 @@ const UpdateJob = (props) => {
                                                 placeholder='time placeholder'
                                                 className=''
                                                 // ref={endTimeRef}
+
                                                 onChange={handleChange}
                                                 invalid={
                                                     valid.endTime === undefined
@@ -1444,7 +1518,52 @@ const UpdateJob = (props) => {
                         )}
                     </div>
                 )}
+                {/* {(currentDate - new Date(job.expireAt)) / (1000 * 3600 * 24)} */}
                 <FormGroup className='ml-auto mr-1 mt-3 w-100 text-align-end row justify-content-end'>
+                    {jobType === "post" &&
+                        type !== "Day Job" &&
+                        type !== "Locum Position" &&
+                        job.extension === 1 &&
+                        (currentDate - new Date(job.expireAt)) /
+                            (1000 * 3600 * 24) <=
+                            7 && (
+                            <div className='col-3 col-md-2 px-1'>
+                                <Button
+                                    onClick={(e) => {
+                                        setMess("extend");
+                                        // history.push({
+                                        //     pathname: "/post",
+                                        //     state: { id, type2, jobType },
+                                        // });
+                                        toggle();
+                                    }}
+                                    className='w-100'
+                                    color='success'>
+                                    Extend
+                                </Button>
+                            </div>
+                        )}
+                    {jobType === "close" &&
+                        type !== "Day Job" &&
+                        type !== "Locum Position" &&
+                        job.status === "active" &&
+                        job.extension === 1 && (
+                            <div className='col-3 col-md-2 px-1'>
+                                <Button
+                                    onClick={(e) => {
+                                        setMess("extend");
+                                        // history.push({
+                                        //     pathname: "/post",
+                                        //     state: { id, type2, jobType },
+                                        // });
+                                        toggle();
+                                    }}
+                                    className='w-100'
+                                    color='success'>
+                                    Extend
+                                </Button>
+                            </div>
+                        )}
                     {jobType === "post" && (
                         <div className='col-3 col-md-2 px-1'>
                             <Button
@@ -1522,6 +1641,7 @@ const UpdateJob = (props) => {
                     {mess === "post" && "Update the Job?"}
                     {mess === "discard" && "Discard the Job?"}
                     {mess === "close" && "Close the Job?"}
+                    {mess === "extend" && "Extend the Job?"}
 
                     {/* {mess.split("_")[0] === "accept" && "Confirm Accept"} */}
                 </ModalHeader>
@@ -1537,6 +1657,8 @@ const UpdateJob = (props) => {
                         "You will not be able to recover this job."}
                     {mess === "close" &&
                         "Applicants will no longer be able to apply for this job."}
+                    {mess === "extend" &&
+                        "Are you sure you want to extend this job ?"}
                 </ModalBody>
                 <ModalFooter>
                     {mess === "post" && (
@@ -1583,7 +1705,17 @@ const UpdateJob = (props) => {
                             Close
                         </Button>
                     )}
-
+                    {mess === "extend" && (
+                        <Button
+                            size='sm'
+                            color='info'
+                            onClick={(e) => {
+                                toggle();
+                                extend();
+                            }}>
+                            Extend
+                        </Button>
+                    )}
                     <Button color='secondary' size='sm' onClick={toggle}>
                         {(mess === "discard" || mess === "close") && "Keep"}
                         {mess === "post" && "Wait"}

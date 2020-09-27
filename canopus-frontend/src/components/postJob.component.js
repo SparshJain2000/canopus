@@ -28,8 +28,8 @@ import {
     faEnvelope,
     faArrowAltCircleDown,
     faArrowAltCircleUp,
-    faArrowDown,
-    faArrowUp,
+    faChevronUp,
+    faChevronDown,
     // faShareAlt,
 } from "@fortawesome/free-solid-svg-icons";
 const block = {
@@ -60,6 +60,10 @@ const PostJob = (props) => {
     const endTimeRef = useRef(null);
     const startTimeRef = useRef(null);
     const categoryRef = useRef(null);
+
+    const currentDate = new Date();
+    const date60 = new Date(currentDate.setDate(currentDate.getDate() + 60));
+    const date90 = new Date(currentDate.setDate(currentDate.getDate() + 30));
     const [showDetail, setShowDetail] = useState(false);
     const [showSkill, setShowSkill] = useState(false);
     const [showOtherDetail, setShowOtherDetail] = useState(false);
@@ -696,7 +700,7 @@ const PostJob = (props) => {
                             }}> */}
 
                         <FontAwesomeIcon
-                            icon={showDetail ? faArrowUp : faArrowDown}
+                            icon={showDetail ? faChevronUp : faChevronDown}
                             className='text-info'
                             size='md'
                             onClick={toggleDetail}
@@ -1045,12 +1049,11 @@ const PostJob = (props) => {
                     )}
                 </div>
 
-                <hr />
-                <div className=' p-2 p-sm-3' style={block}>
+                <div className=' p-2 p-sm-3 my-2' style={block}>
                     <div className='row justify-content-between'>
                         <h4 className='col-9 col-sm-10'>Description</h4>
                         <FontAwesomeIcon
-                            icon={showSkill ? faArrowUp : faArrowDown}
+                            icon={showSkill ? faChevronUp : faChevronDown}
                             className='text-info'
                             size='md'
                             onClick={toggleSkill}
@@ -1107,12 +1110,11 @@ const PostJob = (props) => {
                     )}
                 </div>
 
-                <hr />
-                <div className=' p-2 p-sm-3' style={block}>
+                <div className=' p-2 p-sm-3 my-2' style={block}>
                     <div className='row justify-content-between'>
                         <h4 className='col-9 col-sm-10'>Other Details</h4>
                         <FontAwesomeIcon
-                            icon={showOtherDetail ? faArrowUp : faArrowDown}
+                            icon={showOtherDetail ? faChevronUp : faChevronDown}
                             className='text-info'
                             size='md'
                             onClick={toggleOtherDetail}
@@ -1233,10 +1235,10 @@ const PostJob = (props) => {
                         </FormGroup>
                     )}
                 </div>
-                <hr />
+
                 {(type === "Day Job" || type === "Locum Position") && (
                     <div
-                        className='  p-2 p-sm-3'
+                        className='  p-2 p-sm-3 my-2'
                         style={{
                             height: "max-content",
                         }}
@@ -1302,11 +1304,11 @@ const PostJob = (props) => {
                                             ).slice(-2)}-${(
                                                 "0" + new Date().getDate()
                                             ).slice(-2)}`}
-                                            max={`${new Date().getFullYear()}-${(
+                                            max={`${date60.getFullYear()}-${(
                                                 "0" +
-                                                (new Date().getMonth() + 1)
+                                                (date60.getMonth() + 1)
                                             ).slice(-2)}-${(
-                                                "0" + new Date().getDate()
+                                                "0" + date60.getDate()
                                             ).slice(-2)}`}
                                             className=''
                                             onChange={handleChange}
@@ -1315,6 +1317,7 @@ const PostJob = (props) => {
                                                     ? false
                                                     : !valid.startDate
                                             }
+
                                             // defaultValue={
                                             //     new Date(
                                             //         new Date().getTime() +
@@ -1341,22 +1344,20 @@ const PostJob = (props) => {
                                                 name='EndDate'
                                                 id='exampleDate'
                                                 placeholder='date placeholder'
-                                                // ref={dateRef}
                                                 className=''
+                                                min={`${new Date().getFullYear()}-${(
+                                                    "0" +
+                                                    (new Date().getMonth() + 1)
+                                                ).slice(-2)}-${(
+                                                    "0" + new Date().getDate()
+                                                ).slice(-2)}`}
+                                                max={`${date90.getFullYear()}-${(
+                                                    "0" +
+                                                    (date90.getMonth() + 1)
+                                                ).slice(-2)}-${(
+                                                    "0" + date90.getDate()
+                                                ).slice(-2)}`}
                                                 onChange={handleChange}
-                                                // defaultValue={endDate}
-                                                // defaultValue={new Date(
-                                                //     new Date().getTime() +
-                                                //         90 *
-                                                //             24 *
-                                                //             60 *
-                                                //             60 *
-                                                //             1000,
-                                                // )
-                                                //     .toISOString()
-                                                //     .substring(0, 10)}
-                                                // ref={endDateRef}
-                                                // onChange={handleChange}
                                                 invalid={
                                                     valid.endDate === undefined
                                                         ? false
