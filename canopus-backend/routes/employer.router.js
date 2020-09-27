@@ -21,9 +21,9 @@ const User           = require("../models/user.model"),
 //Sign up route
 router.post("/", async (req, res) => {
   //captcha validation
-  // const captcha = await validationController.verifyCaptcha(req);
-  // if(!captcha)
-  // return res.json({err:"Invalid Captcha"});
+  const captcha = await validationController.verifyCaptcha(req);
+  if(!captcha)
+  return res.json({err:"Invalid Captcha"});
   const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
   const employer = new Employer({
     username: req.body.username,
