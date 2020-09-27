@@ -15,8 +15,8 @@ const express = require("express"),
     adminRouter = require("./routes/admin.router"),
     GoogleStrategy = require("passport-google-oauth").OAuth2Strategy,
     FacebookStrategy = require("passport-facebook").Strategy,
-    bodyParser = require("body-parser");
-
+    bodyParser = require("body-parser"),
+    path = require('path');
 require("dotenv").config();
 const GOOGLE_ANALYTICS=process.env.GOOGLE_ANALYTICS;
 var ua = require("universal-analytics");
@@ -171,9 +171,9 @@ app.use("/api/admin", adminRouter);
 app.use("/api/search",searchRouter);
 //===========================================================================
 //render frontend file (deployment)
-app.use("*", function (req, res) {
-    res.sendFile(path.join(__dirname, "canopus-frontend/build/index.html"));
-});
+// app.use("*", function (req, res) {
+//     res.sendFile(path.join(__dirname, "canopus-frontend/build/index.html"));
+// });
 //===========================================================================
 
 const port = process.env.PORT || 8080;

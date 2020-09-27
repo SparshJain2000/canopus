@@ -43,8 +43,8 @@ const fs = require("fs"),
   }
 //create job
 async function createJob(req,data,employer,extension){
-   let valid = await validateRequest(req);
-  if(!valid)return false; 
+  //  let valid = await validateRequest(req);
+  // if(!valid)return false; 
     let author = {};
     author.username = req.user.username;
     author.id = req.user._id;
@@ -106,8 +106,8 @@ async function createJob(req,data,employer,extension){
 }
 //create saved job
 async function createSavedJob(req,data,status){
-  let valid = await validateRequest(req);
-  if(!valid)return false; 
+  // let valid = await validateRequest(req);
+  // if(!valid)return false; 
   let author = {};
     author.username = req.user.username;
     author.id = req.user._id;
@@ -162,8 +162,8 @@ async function createSavedJob(req,data,status){
 }
 
 async function updateQueryBuilder(req){
-  let valid = await validateUpdateRequest(req);
-  if(!valid)return false; 
+  // let valid = await validateUpdateRequest(req);
+  // if(!valid)return false; 
   var query={};
   if(req.body.title) query["title"]=req.body.title;
   if(req.body.profession) query["profession"]=req.body.profession;

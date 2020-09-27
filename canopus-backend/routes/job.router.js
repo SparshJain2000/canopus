@@ -219,11 +219,11 @@ router.put("/save/:id",middleware.isLoggedIn,middleware.checkSavedOwnership, asy
     //DB operations start here
     if(req.body.category === "Full-time" || req.body.category === "Part-time"){
       //update job
-      await savedJob.findOneAndUpdate({ jobRef: job._id }, { $set: query },{ session: session });
+      await savedJob.findOneAndUpdate({ jobRef: req.params.id}, { $set: query },{ session: session });
     } 
     else {
       if(req.body.endDate){
-        var days = (expiry - Date.now()) / (1000 * 60 * 60 * 24);
+        var days = (req.body.endDate - Date.now()) / (1000 * 60 * 60 * 24);
         if (days < 0 || days > 30)
           throw client_error;
       }
