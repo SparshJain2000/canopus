@@ -334,6 +334,7 @@ export default class JobSearch extends Component {
             startDate: "",
             endDate: "",
             sortBy: "Relevance",
+            geoLocation: false,
             // isSticky:false
         };
         this.toggleTab = this.toggleTab.bind(this);
@@ -359,24 +360,31 @@ export default class JobSearch extends Component {
                     const lat = position.coords.latitude;
                     const long = position.coords.longitude;
                     console.log("Latitude: " + lat + "\nLongitude: " + long);
-                    if (this.location.current)
-                        this.location.current.state.value = {
-                            label: "Your Location",
-                            value: "Your Location",
-                        };
+
                     axios
                         .get(
-                            `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${long}&sensor=false&key=${process.env.REACT_APP_MAP_KEY}`,
+                            `https://revgeocode.search.hereapi.com/v1/revgeocode?at=${lat}%2c${long}&lang=en-US&apiKey=${process.env.REACT_APP_HERE_KEY}`,
                         )
-                        .then((data) => console.log(data))
+                        .then(({ data }) => {
+                            console.log(data);
+                            const str = `${data.items[0].address.city}`;
+                            console.log(str);
+                            this.setState({
+                                coordinates: [lat, long],
+                                geoLocation: true,
+                                location: str,
+                            });
+                            if (this.location.current)
+                                this.location.current.state.value = {
+                                    label: str,
+                                    value: data.items[0].address.city,
+                                };
+                        })
                         .catch((err) => {
                             console.log(err);
                             console.log(err.response);
                         });
-                    this.setState({
-                        coordinates: [lat, long],
-                        location: "Your Location",
-                    });
+
                     // console.log(this.state);
                     console.log("----------------");
                     console.log(this.state.isZero);
@@ -593,14 +601,11 @@ export default class JobSearch extends Component {
             // this.type.current.state.value &&
             // this.type.current.state.value.map((obj) => obj.value),
             location:
-                this.state.location !== "" &&
-                this.state.location !== "Your Location"
+                this.state.location !== "" && this.state.geoLocation === false
                     ? [this.state.location]
                     : [],
             coordinates:
-                this.state.location === "Your Location"
-                    ? this.state.coordinates
-                    : null,
+                this.state.geoLocation === true ? this.state.coordinates : null,
 
             // limit: 2,
             // skip: 2,
@@ -629,7 +634,7 @@ export default class JobSearch extends Component {
                 };
                 console.log(query);
                 axios
-                    .post(`/api/search/visitor-job`, query)
+                    .post(`/api/search/visitor-jobs`, query)
                     .then(({ data }) => {
                         console.log(data);
                         this.setState({
@@ -815,17 +820,27 @@ export default class JobSearch extends Component {
                                             autosize={true}
                                             placeholder='Location'
                                             options={locationArray}
+                                            value={
+                                                this.state.location !== "" && {
+                                                    label: this.state.location,
+                                                    value: this.state.location,
+                                                }
+                                            }
                                             ref={this.location}
                                             onChange={(e) => {
-                                                console.log(e);
                                                 this.setState({
                                                     location: e ? e.value : "",
+                                                    geoLocation: false,
                                                 });
                                             }}
                                         />
                                     </div>
                                     <button
-                                        className='btn btn-secondary btn-hover col-2 px-2 '
+                                        className={`btn ${
+                                            this.state.geoLocation
+                                                ? "btn-info"
+                                                : "btn-secondary"
+                                        } btn-hover col-2 px-2`}
                                         onClick={this.getLocation}>
                                         <FontAwesomeIcon
                                             icon={faMapMarkerAlt}
@@ -1314,6 +1329,7 @@ export default class JobSearch extends Component {
                                                         location: e
                                                             ? e.value
                                                             : "",
+                                                        geoLocation: false,
                                                     });
                                                     this.location.current.state.value = {
                                                         label: this.state
