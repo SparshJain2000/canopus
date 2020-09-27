@@ -24,7 +24,12 @@
         "M.Pharm",
         "GNM",
         "ANM",
-        "Certificate"
+        "Certificate",
+        "MPT",
+        "MBA",
+        "B.Pharm. (Hons.)",
+        "B.Pharm + M.B.A.",
+        "MCh"
     ],
     "instituteType": [
         "Government Hospital",
@@ -99,7 +104,8 @@
         "Therapist",
         "Technicians",
         "Pharmacist",
-        "Medical Translator"
+        "Medical Translator",
+        "Dietician"
     ],
     "specializations": [
         {
@@ -165,9 +171,27 @@
         {
             "profession": "Therapist",
             "specialization": [
-                "Physiotherapist",
-                "Psychologist",
-                "Nutritionist"
+                "Physiotherapy",
+                "Psychology"
+            ]
+        },
+        {
+            "profession": "Technicians",
+            "specialization": [
+                "CT Scan",
+                "Anesthesia",
+                "Laboratory",
+                "MRI",
+                "X-Ray",
+                "Dental Mechanics",
+                "Operation Theatre",
+                "Pathology",
+                "Optical Laboratory",
+                "Sleep Laboratory",
+                "Physiotherapy",
+                "Plaster",
+                "Renal Dialysis",
+                "Radiology"
             ]
         }
     ],

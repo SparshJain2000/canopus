@@ -77,10 +77,12 @@ router.post("/post", middleware.isLoggedIn, middleware.dateValidator, async (req
       });
     //save changes to employer
     await employer.save({ session });
-
+    
     //commit transaction
     await session.commitTransaction();
     session.endSession();
+    // if(job.attachedApplicants)
+    // mailController.welcomeMail(req,job,employer);
     res.json({status:"200"});
 
   } catch (err) {

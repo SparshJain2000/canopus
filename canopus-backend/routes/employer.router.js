@@ -27,13 +27,8 @@ router.post("/", async (req, res) => {
   const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
   const employer = new Employer({
     username: req.body.username,
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    address: req.body.address,
-    links: req.body.links,
-    description: req.body.description,
-    youtube: req.body.youtube,
     emailVerifiedToken:token,
+    emailVerified:false,
     role: "Employer",
     jobtier: {
       allowed: 10,
@@ -71,11 +66,11 @@ router.post("/", async (req, res) => {
 });
 //===========================================================================
 //Login route
-router.post("/login", function (req, res, next) {
+router.post("/login", async function (req, res, next) {
   //captcha validation
-  const captcha = await validationController.verifyInvisibleCaptcha(req);
-  if(!captcha)
-  return res.json({err:"Invalid Captcha"});
+  // const captcha = await validationController.verifyInvisibleCaptcha(req);
+  // if(!captcha)
+  // return res.json({err:"Invalid Captcha"});
   passport.authenticate("employer", function (err, employer, info) {
     if (err) {
       return res.status(400).json({ err: err });

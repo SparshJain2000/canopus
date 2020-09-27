@@ -62,7 +62,7 @@ passport.use(
         {
             clientID: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-            callbackURL: "http://curoid.co/auth/google/callback",
+            callbackURL: "http://www.curoid.co/auth/google/callback",
         },
         function (accessToken, refreshToken, profile, done) {
             User.findOne({ "google.id": profile.id }, function (err, user) {
@@ -100,7 +100,7 @@ passport.use(
         {
             clientID: process.env.FACEBOOK_APP_ID,
             clientSecret: process.env.FACEBOOK_APP_SECRET,
-            callbackURL: "http://curoid.co/auth/facebook/callback",
+            callbackURL: "http://www.curoid.co/auth/facebook/callback",
             profileFields: [
                 "id",
                 "email",
@@ -171,9 +171,9 @@ app.use("/api/admin", adminRouter);
 app.use("/api/search",searchRouter);
 //===========================================================================
 //render frontend file (deployment)
-// app.use("*", function (req, res) {
-//     res.sendFile(path.join(__dirname, "canopus-frontend/build/index.html"));
-// });
+app.use("*", function (req, res) {
+    res.sendFile(path.join(__dirname, "canopus-frontend/build/index.html"));
+});
 //===========================================================================
 
 const port = process.env.PORT || 8080;

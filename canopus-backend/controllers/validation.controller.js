@@ -94,9 +94,23 @@ async function UserProfileUpdateBuilder(req) {
     return query;
 }
 
+async function readFileAsync(){
+    var data=null;
+    return new Promise((resolve, reject)=>{
+        fs.readFile(filePath, function(err, rawdata) {
+                if (err) throw err;
+                data=JSON.parse(rawdata);
+                //console.log(data);
+                resolve(data);
+           });
+        })
+  }
+  
 
 async function updateRequestValidator(req){
-    
+    let data = await readFileAsync();
+    var flag = false;
+    // perform validation
 }
 
 const validationController = {};
