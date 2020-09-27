@@ -21,7 +21,7 @@ const User           = require("../models/user.model"),
 //Sign up route
 router.post("/", async (req, res) => {
   //captcha validation
-  const captcha = await validationController.verifyCaptcha(req);
+  const captcha = await validationController.verifyCheckboxCaptcha(req);
   if(!captcha)
   return res.json({err:"Invalid Captcha"});
   const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
@@ -72,6 +72,10 @@ router.post("/", async (req, res) => {
 //===========================================================================
 //Login route
 router.post("/login", function (req, res, next) {
+  //captcha validation
+  const captcha = await validationController.verifyInvisibleCaptcha(req);
+  if(!captcha)
+  return res.json({err:"Invalid Captcha"});
   passport.authenticate("employer", function (err, employer, info) {
     if (err) {
       return res.status(400).json({ err: err });
@@ -100,6 +104,10 @@ router.post("/login", function (req, res, next) {
 });
 //===========================================================================
 router.post("/forgot", async (req, res) => {
+  //captcha validation
+  const captcha = await validationController.verifyInvisibleCaptcha(req);
+  if(!captcha)
+  return res.json({err:"Invalid Captcha"});
   const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
   if(req.body.username=='' || !req.body.username)
   return res.status(400).json({err:"Bad request"});
