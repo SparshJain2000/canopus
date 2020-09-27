@@ -6,6 +6,7 @@ import doctor from "../images/doctor.png";
 
 import { Button, Alert } from "reactstrap";
 import { Redirect, Link } from "react-router-dom";
+import video from "../images/video.mp4";
 
 const Home = (props) => {
     let professionArray = [];
@@ -37,8 +38,16 @@ const Home = (props) => {
             )}
             <div className='flex flex-column justify-content-between main-container'>
                 <div
-                    className='main py-5 '
+                    className='main py-5 position-relative'
                     style={{ height: "100%", flexGrow: 1 }}>
+                    <video
+                        className='d-none d-sm-block'
+                        playsinline='playsinline'
+                        autoplay='autoplay'
+                        muted='muted'
+                        loop='loop'>
+                        <source src={video} type='video/mp4' />
+                    </video>
                     <h1
                         className='text-white px-2'
                         style={{ textAlign: "center" }}>
