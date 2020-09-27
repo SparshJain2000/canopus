@@ -41,8 +41,8 @@ const fs = require("fs"),
   }
 //create job
 async function createJob(req,data,employer,extension){
-  // let valid = await validateRequest(req);
-  // if(!valid){console.log(req);return false; }
+   let valid = await validateRequest(req);
+  if(!valid){console.log(req);return false; }
     let author = {};
     author.username = req.user.username;
     author.id = req.user._id;
@@ -214,22 +214,22 @@ async function validateRequest(req){
   //else return false;
   // profession specialization superspecialization validation
   if(req.body.superSpecialization){
-    if(data.superSpecialization.some(data=>
-      data.superSpecialization===req.body.superSpecialization &&
+    if(data.superSpecializations.some(data=>
+      data.superSpecialization.includes(req.body.superSpecialization) &&
       data.specialization===req.body.specialization && 
       data.profession===req.body.profession
     ))
     flag = true;
   }
   else if(req.body.specialization){
-    if(data.specialization2.some(data=>
-      data.specialization===req.body.specialization && 
+    if(data.specializations.some(data=>
+      data.specialization.includes(req.body.specialization) && 
       data.profession===req.body.profession
     ))
     flag = true;
   }
   else if(req.body.profession){
-    if(data.superSpecialization.some(data=>
+    if(data.professions.some(data=>
       data.profession===req.body.profession
     ))
     flag = true;
