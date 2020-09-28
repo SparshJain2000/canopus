@@ -43,8 +43,8 @@ const fs = require("fs"),
   }
 //create job
 async function createJob(req,data,employer,extension){
-  //  let valid = await validateRequest(req);
-  // if(!valid)return false; 
+   let valid = await validateRequest(req);
+  if(!valid)return false; 
     let author = {};
     author.username = req.user.username;
     author.id = req.user._id;
@@ -106,8 +106,8 @@ async function createJob(req,data,employer,extension){
 }
 //create saved job
 async function createSavedJob(req,data,status){
-  // let valid = await validateRequest(req);
-  // if(!valid)return false; 
+  let valid = await validateRequest(req);
+  if(!valid)return false; 
   let author = {};
     author.username = req.user.username;
     author.id = req.user._id;
@@ -162,8 +162,8 @@ async function createSavedJob(req,data,status){
 }
 
 async function updateQueryBuilder(req){
-  // let valid = await validateUpdateRequest(req);
-  // if(!valid)return false; 
+  let valid = await validateUpdateRequest(req);
+  if(!valid)return false; 
   var query={};
   if(req.body.title) query["title"]=req.body.title;
   if(req.body.profession) query["profession"]=req.body.profession;
@@ -176,7 +176,24 @@ async function updateQueryBuilder(req){
   if(req.body.endDate){query["endDate"]=req.body.endDate;query["expireAt"]=req.body.endDate;}
   return query;
 }
-
+async function attachedApplicantValidator(req,employer){
+  if(req.body.attachedApplicants){
+    const acceptedMail = employer.acceptedApplicants.map(applicant=>{
+      return applicant.username;
+    });
+    const attachedMail = req.body.attachedApplicants.map(applicant => {
+      return applicant.username;
+    });
+    if(!attachedMail.every(mail=> acceptedMail.includes(mail)))
+      return false;
+    else{
+      console.log(attachedMail);
+      return true;
+      //mail notify
+    }
+  }
+  else return true;
+}
 async function createApplicant(user){
   return {
     id: user._id,
@@ -309,4 +326,4 @@ async function validateUpdateRequest(req){
   return flag;
 
 }
-exports.jobController = { createJob, createSavedJob, assignTier, updateQueryBuilder ,createApplicant};
+exports.jobController = { createJob, createSavedJob, assignTier, updateQueryBuilder ,createApplicant, attachedApplicantValidator};

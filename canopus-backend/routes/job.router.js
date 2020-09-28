@@ -40,6 +40,13 @@ router.post("/post", middleware.isLoggedIn, middleware.dateValidator, async (req
     //error if invalid tier 
     if(!employer) throw client_error;
 
+    //check attached applicants validity
+    if(!(await jobController.attachedApplicantValidator(req,employer)))
+      throw client_error;
+    else if(req.body.attachedApplicants && req.body.attachedApplicants.length!=0){
+      console.log("ok");
+      //send mail
+    }
     //DB operations start here
     //create job
     let job = await jobController.createJob(req,req.body,employer);
@@ -245,8 +252,6 @@ router.put("/save/:id",middleware.isLoggedIn,middleware.checkSavedOwnership, asy
   } 
 });
 
-
-//TODO:
 //sponsor a job
 router.put("/sponsor/:id", middleware.checkPostOwnership, async (req, res) => {
     //start transaction
@@ -334,11 +339,19 @@ router.put("/activate/:id", middleware.checkSavedOwnership, async (req,res) => {
       type = "jobs";
     }
     else{
+      //check attached applicants validity
+    if(!(await jobController.attachedApplicantValidator(req,employer)))
+      throw client_error;
+    else if(req.body.attachedApplicants && req.body.attachedApplicants.length!=0){
+      console.log("ok");
+      //send mail
+    }
       job = await Freelance.create([job],{ session: session });
       employer.savedFreelance.splice(employer.savedFreelance.indexOf(sjob._id), 1);
       if(req.body.category === "Locum") employer.locumtier.saved += -1;
       else employer.freelancetier.saved += -1;
       type = "freelanceJobs";
+      
     }
     //only arrays can be used in transactions so casting is necessary
     job = job[0];
