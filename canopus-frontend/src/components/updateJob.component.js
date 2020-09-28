@@ -28,6 +28,7 @@ import {
     faArrowAltCircleDown,
     faPen,
     faArrowAltCircleUp,
+    faExternalLinkAlt,
     faChevronDown,
     faChevronUp,
 } from "@fortawesome/free-solid-svg-icons";
@@ -62,6 +63,8 @@ const UpdateJob = (props) => {
     const date60 = new Date(currentDate.setDate(currentDate.getDate() + 60));
     const date90 = new Date(currentDate.setDate(currentDate.getDate() + 30));
     const [job, setJob] = useState({});
+    const [currentEmployer, setCurrentEmployer] = useState(null);
+
     const [showDetail, setShowDetail] = useState(false);
     const [showSkill, setShowSkill] = useState(false);
     const [showOtherDetail, setShowOtherDetail] = useState(false);
@@ -100,10 +103,49 @@ const UpdateJob = (props) => {
     const [contact, setContact] = useState("");
     const [procedure, setProcedure] = useState("");
     const [sponsored, setSponsored] = useState(false);
+    const [applicants, setAppilcants] = useState([]);
+    const [attachedApplicants2, setAttachedAppilcants2] = useState([]);
 
     const [modalError, setModalError] = useState(false);
     const [messError, setMessError] = useState("");
     const [valid, setValid] = useState({});
+    const [tempArr, setTempArr] = useState([]);
+    // const tempArr = [
+    //     {
+    //         id: "5f622665b56b692428d82f61",
+    //         username: "Sparsh@jain",
+    //         profession: "Physician/Surgeon",
+    //         name: "Dr. sparsh",
+    //         specialization: "General Medicine",
+    //         superSpecialization: ["sp1", "sp2"],
+    //     },
+
+    //     {
+    //         id: "2",
+    //         username: "Kamal@gmal",
+    //         profession: "Dentist",
+    //         name: "Dr. Kamal ",
+    //         specialization: "xyz",
+    //         superSpecialization: ["sp1", "sp2"],
+    //     },
+    //     {
+    //         id: "3",
+    //         username: "Sushant@gmal",
+    //         profession: "Physician/Surgeon",
+    //         name: "Dr. sushi",
+    //         specialization: "General Medicine",
+    //         superSpecialization: ["sp1", "sp2"],
+    //     },
+    //     {
+    //         id: "4",
+    //         username: "Sushant@gmal",
+    //         profession: "Physician/Surgeon",
+    //         name: "Dr. sushi new",
+    //         specialization: "General Medicine",
+    //         superSpecialization: ["sp1", "sp2"],
+    //     },
+    // ];
+    // let attachedApplicants = [];
     let incentivesArray = [],
         experienceArray = [],
         specializationArray = [],
@@ -154,7 +196,7 @@ const UpdateJob = (props) => {
         }));
     }
     const toggle = (e) => {
-        if (e === "discard") setModal(!modal);
+        if (e === "discard" || e === "close") setModal(!modal);
         else {
             let newValid = {
                 title: title !== "",
@@ -221,7 +263,15 @@ const UpdateJob = (props) => {
             .split("&");
         setType2(type2t);
         setJobType(jobTypet);
-
+        axios
+            .get(`/api/employer/current`)
+            .then(({ data }) => {
+                console.log(data.user);
+                setCurrentEmployer(data.user);
+                if (data.user && data.user.acceptedApplicants)
+                    setTempArr(data.user.acceptedApplicants);
+            })
+            .catch((err) => console.log(err));
         if (type2t === "freelance") {
             setFreelance(true);
             console.log(data.startDate);
@@ -246,6 +296,11 @@ const UpdateJob = (props) => {
                             ? data.description.employer
                             : "",
                     );
+                    // data.attachedApplicants &&
+                    //     setAppilcants(data.attachedApplicants);
+
+                    // if (data.attachedApplicants)
+                    //     setAttachedAppilcants2(data.attachedApplicants);
                     setSponsored(data.sponsored ? data.sponsored : false);
                     setContact(
                         data.description.contact
@@ -372,6 +427,10 @@ const UpdateJob = (props) => {
                             ? data.description.employer
                             : "",
                     );
+                    // data.attachedApplicants &&
+                    //     setAppilcants(data.attachedApplicants);
+                    // if (data.attachedApplicants)
+                    //     setAttachedAppilcants2(data.attachedApplicants);
                     setSponsored(data.sponsored ? data.sponsored : false);
                     setContact(
                         data.description.contact
@@ -574,7 +633,11 @@ const UpdateJob = (props) => {
         // setjobType
         let type2;
         setModal(false);
-        let job = {
+        let attArr = tempArr.filter((obj) =>
+            attachedApplicants2.includes(obj.id),
+        );
+
+        let myJob = {
             title: title,
             profession: profession,
             specialization: specialization,
@@ -598,25 +661,29 @@ const UpdateJob = (props) => {
                 procedure: procedure,
             },
         };
+        if (attArr.length > 0) myJob.attachedApplicants = attArr;
+
         if (type === "Day Job") {
             type2 = "freelance";
             if (endDate !== "")
-                job.endDate = new Date(`${startDate} ${endTime}`).toISOString();
+                myJob.endDate = new Date(
+                    `${startDate} ${endTime}`,
+                ).toISOString();
             if (startDate !== "")
-                job.startDate = new Date(
+                myJob.startDate = new Date(
                     `${startDate} ${startTime}`,
                 ).toISOString();
-            job.category = type;
+            myJob.category = type;
         } else if (type === "Locum Position") {
             type2 = "freelance";
             if (endDate !== "")
-                job.endDate = new Date(`${endDate}`).toISOString();
+                myJob.endDate = new Date(`${endDate}`).toISOString();
             if (startDate !== "")
-                job.startDate = new Date(`${startDate}`).toISOString();
-            job.category = "Locum";
+                myJob.startDate = new Date(`${startDate}`).toISOString();
+            myJob.category = "Locum";
         } else {
             type2 = "job";
-            job.category = "Full-time";
+            myJob.category = "Full-time";
             //   job.expireAt =
             //       endDate !== ""
             //           ? new Date(endDate).toISOString()
@@ -624,10 +691,10 @@ const UpdateJob = (props) => {
             //                 new Date() + 45 * 24 * 60 * 60 * 1000,
             //             ).toISOString();
         }
-        console.log(job);
+        console.log(myJob);
         if (jobType === "save")
             axios
-                .put(`/api/job/activate/${props.match.params.id}`, job)
+                .put(`/api/job/activate/${props.match.params.id}`, myJob)
                 .then((data) => {
                     console.log(data);
                     if (data.status === 200) {
@@ -653,7 +720,7 @@ const UpdateJob = (props) => {
         // console.log(job);
         else
             axios
-                .put(`/api/job/post/${props.match.params.id}`, job)
+                .put(`/api/job/post/${props.match.params.id}`, myJob)
                 .then((data) => {
                     console.log(data);
                     if (data.status === 200) {
@@ -804,7 +871,7 @@ const UpdateJob = (props) => {
                 <h3>Edit a Job</h3>
                 <div className=' p-2 p-sm-3 mt-4' style={block}>
                     <div className='row justify-content-between'>
-                        <h4 className='col-9 col-sm-10'>Job Details</h4>
+                        <h4 className='col-9 col-sm-10 pl-2'>Job Details</h4>
                         {/* <Button
                             onClick={toggleDetail}
                             className='col-3 col-sm-1'
@@ -1159,7 +1226,7 @@ const UpdateJob = (props) => {
 
                 <div className=' p-2 p-sm-3 my-2' style={block}>
                     <div className='row justify-content-between'>
-                        <h4 className='col-9 col-sm-10'>Description</h4>
+                        <h4 className='col-9 col-sm-10 pl-2'>Description</h4>
                         <FontAwesomeIcon
                             icon={showSkill ? faChevronUp : faChevronDown}
                             className='text-info'
@@ -1224,7 +1291,7 @@ const UpdateJob = (props) => {
 
                 <div className=' p-2 p-sm-3 my-2' style={block}>
                     <div className='row justify-content-between'>
-                        <h4 className='col-9 col-sm-10'>Other Details</h4>
+                        <h4 className='col-9 col-sm-10 pl-2'>Other Details</h4>
                         <FontAwesomeIcon
                             icon={showOtherDetail ? faChevronUp : faChevronDown}
                             className='text-info'
@@ -1352,70 +1419,31 @@ const UpdateJob = (props) => {
                         </div>
                     </div> */}
                         {(type === "Day Job" || type === "Locum Position") && (
-                            <FormGroup className='row p-2'>
-                                <InputGroup className='col-12  my-1 '>
-                                    <Label className='my-1'>
-                                        <h6>Procedure</h6>
-                                    </Label>
-                                    <InputGroup className='w-100'>
-                                        <textarea
-                                            placeholder='Procedure'
-                                            // ref={lineRef}
-                                            className='form-control'
-                                            rows='4'
-                                            name='Procedure'
-                                            onChange={handleChange}
-                                            defaultValue={procedure}
-                                        />
-                                    </InputGroup>
-                                </InputGroup>
-                                <div className='col-12 row px-0'>
-                                    <InputGroup className='col-12 col-md-6 my-1 pr-md-1'>
-                                        <Label
-                                            className='my-1 col-12'
-                                            for='exampleDate'>
-                                            <h6>
-                                                Start-Date{" "}
-                                                <span className='text-danger'>
-                                                    *
-                                                </span>
-                                            </h6>
+                            <div>
+                                <FormGroup className='row p-2'>
+                                    <InputGroup className='col-12  my-1 '>
+                                        <Label className='my-1'>
+                                            <h6>Procedure</h6>
                                         </Label>
-                                        <Input
-                                            type='date'
-                                            name='StartDate'
-                                            id='exampleDate'
-                                            placeholder='date placeholder'
-                                            defaultValue={startDate}
-                                            min={`${new Date().getFullYear()}-${(
-                                                "0" +
-                                                (new Date().getMonth() + 1)
-                                            ).slice(-2)}-${(
-                                                "0" + new Date().getDate()
-                                            ).slice(-2)}`}
-                                            max={`${date60.getFullYear()}-${(
-                                                "0" +
-                                                (date60.getMonth() + 1)
-                                            ).slice(-2)}-${(
-                                                "0" + date60.getDate()
-                                            ).slice(-2)}`}
-                                            className=''
-                                            onChange={handleChange}
-                                            required
-                                            invalid={
-                                                valid.startDate === undefined
-                                                    ? false
-                                                    : !valid.startDate
-                                            }
-                                        />
+                                        <InputGroup className='w-100'>
+                                            <textarea
+                                                placeholder='Procedure'
+                                                // ref={lineRef}
+                                                className='form-control'
+                                                rows='4'
+                                                name='Procedure'
+                                                onChange={handleChange}
+                                                defaultValue={procedure}
+                                            />
+                                        </InputGroup>
                                     </InputGroup>
-                                    {type === "Locum Position" && (
-                                        <InputGroup className='col-12 col-md-6 my-1 pl-md-1'>
+                                    <div className='col-12 row px-0'>
+                                        <InputGroup className='col-12 col-md-6 my-1 pr-md-1'>
                                             <Label
                                                 className='my-1 col-12'
                                                 for='exampleDate'>
                                                 <h6>
-                                                    End-Date{" "}
+                                                    Start-Date{" "}
                                                     <span className='text-danger'>
                                                         *
                                                     </span>
@@ -1423,97 +1451,265 @@ const UpdateJob = (props) => {
                                             </Label>
                                             <Input
                                                 type='date'
-                                                name='EndDate'
+                                                name='StartDate'
                                                 id='exampleDate'
+                                                placeholder='date placeholder'
+                                                defaultValue={startDate}
                                                 min={`${new Date().getFullYear()}-${(
                                                     "0" +
                                                     (new Date().getMonth() + 1)
                                                 ).slice(-2)}-${(
                                                     "0" + new Date().getDate()
                                                 ).slice(-2)}`}
-                                                max={`${date90.getFullYear()}-${(
+                                                max={`${date60.getFullYear()}-${(
                                                     "0" +
-                                                    (date90.getMonth() + 1)
+                                                    (date60.getMonth() + 1)
                                                 ).slice(-2)}-${(
-                                                    "0" + date90.getDate()
+                                                    "0" + date60.getDate()
                                                 ).slice(-2)}`}
-                                                placeholder='date placeholder'
                                                 className=''
                                                 onChange={handleChange}
+                                                required
                                                 invalid={
-                                                    valid.endDate === undefined
-                                                        ? false
-                                                        : !valid.endDate
-                                                }
-                                                defaultValue={endDate}
-                                            />
-                                        </InputGroup>
-                                    )}
-                                </div>
-                                {type === "Day Job" && (
-                                    <div className='col-12 row px-0'>
-                                        <InputGroup className='col-12 col-sm-6 my-1 pr-md-1'>
-                                            <Label
-                                                className='pr-2 col-12'
-                                                for='exampleDate'>
-                                                <h6>
-                                                    Start Time{" "}
-                                                    <span className='text-danger'>
-                                                        *
-                                                    </span>
-                                                </h6>
-                                            </Label>
-                                            {/* <Label for='exampleTime'>Time</Label> */}
-                                            <Input
-                                                type='time'
-                                                name='StartTime'
-                                                id='exampleTime'
-                                                placeholder='time placeholder'
-                                                className=''
-                                                ref={startTimeRef}
-                                                onChange={handleChange}
-                                                defaultValue={startTime}
-                                                invalid={
-                                                    valid.startTime ===
+                                                    valid.startDate ===
                                                     undefined
                                                         ? false
-                                                        : !valid.startTime
+                                                        : !valid.startDate
                                                 }
                                             />
                                         </InputGroup>
-                                        <InputGroup className='col-12 col-sm-6 my-1 pl-md-1 '>
-                                            <Label
-                                                className='pr-2 col-12'
-                                                for='exampleDate'>
-                                                <h6>
-                                                    End Time{" "}
-                                                    <span className='text-danger'>
-                                                        *
-                                                    </span>
-                                                </h6>
-                                            </Label>
-                                            {/* <Label for='exampleTime'>Time</Label> */}
-                                            <Input
-                                                type='time'
-                                                name='EndTime'
-                                                id='exampleTime'
-                                                placeholder='time placeholder'
-                                                className=''
-                                                // ref={endTimeRef}
-
-                                                onChange={handleChange}
-                                                invalid={
-                                                    valid.endTime === undefined
-                                                        ? false
-                                                        : !valid.endTime
-                                                }
-                                                defaultValue={endTime}
-                                            />
-                                        </InputGroup>
+                                        {type === "Locum Position" && (
+                                            <InputGroup className='col-12 col-md-6 my-1 pl-md-1'>
+                                                <Label
+                                                    className='my-1 col-12'
+                                                    for='exampleDate'>
+                                                    <h6>
+                                                        End-Date{" "}
+                                                        <span className='text-danger'>
+                                                            *
+                                                        </span>
+                                                    </h6>
+                                                </Label>
+                                                <Input
+                                                    type='date'
+                                                    name='EndDate'
+                                                    id='exampleDate'
+                                                    min={`${new Date().getFullYear()}-${(
+                                                        "0" +
+                                                        (new Date().getMonth() +
+                                                            1)
+                                                    ).slice(-2)}-${(
+                                                        "0" +
+                                                        new Date().getDate()
+                                                    ).slice(-2)}`}
+                                                    max={`${date90.getFullYear()}-${(
+                                                        "0" +
+                                                        (date90.getMonth() + 1)
+                                                    ).slice(-2)}-${(
+                                                        "0" + date90.getDate()
+                                                    ).slice(-2)}`}
+                                                    placeholder='date placeholder'
+                                                    className=''
+                                                    onChange={handleChange}
+                                                    invalid={
+                                                        valid.endDate ===
+                                                        undefined
+                                                            ? false
+                                                            : !valid.endDate
+                                                    }
+                                                    defaultValue={endDate}
+                                                />
+                                            </InputGroup>
+                                        )}
                                     </div>
-                                )}
-                            </FormGroup>
+                                    {type === "Day Job" && (
+                                        <div className='col-12 row px-0'>
+                                            <InputGroup className='col-12 col-sm-6 my-1 pr-md-1'>
+                                                <Label
+                                                    className='pr-2 col-12'
+                                                    for='exampleDate'>
+                                                    <h6>
+                                                        Start Time{" "}
+                                                        <span className='text-danger'>
+                                                            *
+                                                        </span>
+                                                    </h6>
+                                                </Label>
+                                                {/* <Label for='exampleTime'>Time</Label> */}
+                                                <Input
+                                                    type='time'
+                                                    name='StartTime'
+                                                    id='exampleTime'
+                                                    placeholder='time placeholder'
+                                                    className=''
+                                                    ref={startTimeRef}
+                                                    onChange={handleChange}
+                                                    defaultValue={startTime}
+                                                    invalid={
+                                                        valid.startTime ===
+                                                        undefined
+                                                            ? false
+                                                            : !valid.startTime
+                                                    }
+                                                />
+                                            </InputGroup>
+                                            <InputGroup className='col-12 col-sm-6 my-1 pl-md-1 '>
+                                                <Label
+                                                    className='pr-2 col-12'
+                                                    for='exampleDate'>
+                                                    <h6>
+                                                        End Time{" "}
+                                                        <span className='text-danger'>
+                                                            *
+                                                        </span>
+                                                    </h6>
+                                                </Label>
+                                                {/* <Label for='exampleTime'>Time</Label> */}
+                                                <Input
+                                                    type='time'
+                                                    name='EndTime'
+                                                    id='exampleTime'
+                                                    placeholder='time placeholder'
+                                                    className=''
+                                                    // ref={endTimeRef}
+
+                                                    onChange={handleChange}
+                                                    invalid={
+                                                        valid.endTime ===
+                                                        undefined
+                                                            ? false
+                                                            : !valid.endTime
+                                                    }
+                                                    defaultValue={endTime}
+                                                />
+                                            </InputGroup>
+                                        </div>
+                                    )}
+                                </FormGroup>
+                            </div>
                         )}
+                    </div>
+                )}
+                {(type === "Day Job" || type === "Locum Position") && (
+                    <div
+                        className='  p-2 p-sm-3 my-2'
+                        style={{
+                            height: "max-content",
+                        }}
+                        style={block}>
+                        <h4 className='pl-2'>Notify Applicants</h4>
+
+                        <FormGroup>
+                            {tempArr.filter(
+                                (obj) =>
+                                    obj.profession === profession &&
+                                    (obj.profession === "Physician/Surgeon"
+                                        ? obj.specialization === specialization
+                                        : true),
+                            ).length === 0 && (
+                                <h6 className='text-align-center'>
+                                    No applicants
+                                </h6>
+                            )}
+                            {tempArr
+                                .filter(
+                                    (obj) =>
+                                        obj.profession === profession &&
+                                        (obj.profession === "Physician/Surgeon"
+                                            ? obj.specialization ===
+                                              specialization
+                                            : true),
+                                )
+                                .reverse()
+                                .slice(0, 10)
+                                .map(
+                                    (x, index) =>
+                                        x.profession === profession && (
+                                            <div className='row my-1'>
+                                                <div className='col-1 position-relative'>
+                                                    <Input
+                                                        type='checkbox'
+                                                        name=''
+                                                        className='ml-0'
+                                                        style={{
+                                                            height: "1.1rem",
+                                                            width: "1.1rem",
+                                                        }}
+                                                        disabled={
+                                                            job.attachedApplicants
+                                                                ? job.attachedApplicants
+                                                                      .map(
+                                                                          (a) =>
+                                                                              a.id,
+                                                                      )
+                                                                      .includes(
+                                                                          x.id,
+                                                                      )
+                                                                : false
+                                                        }
+                                                        defaultChecked={
+                                                            job.attachedApplicants
+                                                                ? job.attachedApplicants
+                                                                      .map(
+                                                                          (a) =>
+                                                                              a.id,
+                                                                      )
+                                                                      .includes(
+                                                                          x.id,
+                                                                      )
+                                                                : true
+                                                        }
+                                                        onChange={(e) => {
+                                                            console.log(
+                                                                e.target
+                                                                    .checked,
+                                                            );
+                                                            let arr = attachedApplicants2;
+                                                            if (
+                                                                e.target.checked
+                                                            ) {
+                                                                arr.push(x.id);
+                                                            } else
+                                                                arr = arr.filter(
+                                                                    (z) =>
+                                                                        z !==
+                                                                        x.id,
+                                                                );
+
+                                                            setAttachedAppilcants2(
+                                                                arr,
+                                                            );
+                                                            console.log(job);
+                                                            console.log(arr);
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div className='col-8'>
+                                                    {`${x.name}; ${
+                                                        x.specialization
+                                                    }, ${x.superSpecialization.join(
+                                                        ", ",
+                                                    )}`}
+                                                </div>
+                                                <div className='col-3'>
+                                                    <a
+                                                        href={`/profile/${x.id}`}
+                                                        target='_blank'
+                                                        className='link'>
+                                                        View Profile
+                                                        <FontAwesomeIcon
+                                                            icon={
+                                                                faExternalLinkAlt
+                                                            }
+                                                            size='xs'
+                                                            className='ml-2'
+                                                        />
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        ),
+                                )}
+                        </FormGroup>
                     </div>
                 )}
                 {/* {(currentDate - new Date(job.expireAt)) / (1000 * 3600 * 24)} */}
@@ -1571,7 +1767,7 @@ const UpdateJob = (props) => {
                                     //     pathname: "/post",
                                     //     state: { id, type2, jobType },
                                     // });
-                                    toggle();
+                                    toggle("close");
                                 }}
                                 className='w-100'
                                 color='danger'>
