@@ -100,7 +100,7 @@ const ApplicantDetails = ({ applicant }) => {
 const Badges = ({ desc, superSpecialization }) => {
     const superSp = superSpecialization ? superSpecialization : [];
     let badges = [];
-    if (desc && desc.type)
+    if (desc && desc.type && desc.incentives)
         badges = [
             desc.experience,
             // ...desc.type,
