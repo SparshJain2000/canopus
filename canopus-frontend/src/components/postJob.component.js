@@ -77,7 +77,7 @@ const PostJob = (props) => {
 
     const [profession, setProfession] = useState("");
     const [specialization, setSpecialization] = useState("");
-    const [superSpecialization, setSuperSpecialization] = useState([]);
+    const [superSpecialization, setSuperSpecialization] = useState("");
     const [skills, setSkills] = useState("");
 
     const [location, setLocation] = useState("");
@@ -212,13 +212,13 @@ const PostJob = (props) => {
             title: title,
             profession: profession,
             specialization: specialization,
-            superSpecialization: superSpecialization.map((x) => x.value),
+            superSpecialization: superSpecialization,
             sponsored: sponsored,
             description: {
                 line: line.trim(),
                 about: skills.trim(),
                 experience: experience,
-                incentives: incentives.map((x) => x.value),
+                incentives: incentives && incentives.map((x) => x.value),
                 type: type,
                 location: location,
                 // skills: skills.trim(),
@@ -297,7 +297,7 @@ const PostJob = (props) => {
             title: title,
             profession: profession,
             specialization: specialization,
-            superSpecialization: superSpecialization.map((x) => x.value),
+            superSpecialization: superSpecialization,
             sponsored: sponsored,
             // instituteName: employer,
 
@@ -305,7 +305,7 @@ const PostJob = (props) => {
                 line: line.trim(),
                 about: skills.trim(),
                 experience: experience,
-                incentives: incentives.map((x) => x.value),
+                incentives: incentives && incentives.map((x) => x.value),
                 type: type,
                 location: location,
                 // skills: skills.trim(),
@@ -503,13 +503,7 @@ const PostJob = (props) => {
                                     : data.description.type
                                 : "",
                         );
-                        setSuperSpecialization(
-                            data.superSpecialization
-                                ? data.superSpecialization.map((x) => {
-                                      return { value: x, label: x };
-                                  })
-                                : [],
-                        );
+                        setSuperSpecialization(data.superSpecialization);
                         setShowDetail(true);
                         // console.log(endDate);
                         // setTitle(data.title);
@@ -608,13 +602,7 @@ const PostJob = (props) => {
                                     : data.description.type
                                 : "",
                         );
-                        setSuperSpecialization(
-                            data.superSpecialization
-                                ? data.superSpecialization.map((x) => {
-                                      return { value: x, label: x };
-                                  })
-                                : [],
-                        );
+                        setSuperSpecialization(data.superSpecialization);
 
                         console.log(endDate);
                         setShowDetail(true);
@@ -923,7 +911,6 @@ const PostJob = (props) => {
                                 </Label>
                                 <div style={{ width: `100%` }}>
                                     <Select
-                                        isMulti
                                         autosize={true}
                                         placeholder='Super specialization'
                                         options={
@@ -938,7 +925,7 @@ const PostJob = (props) => {
                                             console.log(e);
                                             handleChangeSelect(
                                                 "SuperSpecialization",
-                                                e,
+                                                e ? e.value : "",
                                             );
                                         }}
                                     />

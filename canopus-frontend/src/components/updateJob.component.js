@@ -73,7 +73,7 @@ const UpdateJob = (props) => {
 
     const [profession, setProfession] = useState("");
     const [specialization, setSpecialization] = useState("");
-    const [superSpecialization, setSuperSpecialization] = useState([]);
+    const [superSpecialization, setSuperSpecialization] = useState("");
     const [skills, setSkills] = useState("");
 
     const [location, setLocation] = useState("");
@@ -335,13 +335,7 @@ const UpdateJob = (props) => {
                                 : data.description.type
                             : "",
                     );
-                    setSuperSpecialization(
-                        data.superSpecialization
-                            ? data.superSpecialization.map((x) => {
-                                  return { value: x, label: x };
-                              })
-                            : [],
-                    );
+                    setSuperSpecialization(data.superSpecialization);
 
                     // console.log(endDate);
                     // setTitle(data.title);
@@ -473,13 +467,7 @@ const UpdateJob = (props) => {
                                 : data.description.type
                             : "",
                     );
-                    setSuperSpecialization(
-                        data.superSpecialization
-                            ? data.superSpecialization.map((x) => {
-                                  return { value: x, label: x };
-                              })
-                            : [],
-                    );
+                    setSuperSpecialization(data.superSpecialization);
 
                     setShowDetail(true);
                     console.log(data);
@@ -505,14 +493,14 @@ const UpdateJob = (props) => {
             title: title,
             profession: profession,
             specialization: specialization,
-            superSpecialization: superSpecialization.map((x) => x.value),
+            superSpecialization: superSpecialization,
             // instituteName: employer,
 
             description: {
                 line: line.trim(),
                 about: skills.trim(),
                 experience: experience,
-                incentives: incentives.map((x) => x.value),
+                incentives: incentives && incentives.map((x) => x.value),
                 // type: type.map((x) => x.value),
                 type: type,
                 location: location,
@@ -551,11 +539,13 @@ const UpdateJob = (props) => {
             //                new Date() + 45 * 24 * 60 * 60 * 1000,
             //            ).toISOString();
         }
+        console.log(job);
+
         axios
-            .put(`/api/job/post/${props.match.params.id}`, job)
+            .put(`/api/job/save/${props.match.params.id}`, job)
             .then((data) => {
                 console.log(data);
-                if (data.data.updated) {
+                if (data.status === 200) {
                     setMessError("Updated Successfully !");
                     toggleError();
                     window.location = "/applications";
@@ -564,10 +554,15 @@ const UpdateJob = (props) => {
                 //  window.location = "/search-jobs";
             })
             .catch((err) => {
+                console.log(err);
+
                 console.log(err.response);
-                const error = err.response.data ? err.response.data.err : "";
+                const error =
+                    err.response && err.response.data
+                        ? err.response.data.err
+                        : "";
                 // alert("Unable to save job : " + error);
-                err.response.data
+                err.response && err.response.data
                     ? setMessError(err.response.data.err)
                     : setMessError("Error updating job");
 
@@ -583,7 +578,7 @@ const UpdateJob = (props) => {
             title: title,
             profession: profession,
             specialization: specialization,
-            superSpecialization: superSpecialization.map((x) => x.value),
+            superSpecialization: superSpecialization,
             sponsored: sponsored,
             // instituteName: employer,
 
@@ -591,7 +586,7 @@ const UpdateJob = (props) => {
                 line: line.trim(),
                 about: skills.trim(),
                 experience: experience,
-                incentives: incentives.map((x) => x.value),
+                incentives: incentives && incentives.map((x) => x.value),
                 type: type,
                 location: location,
                 // skills: skills.trim(),
@@ -629,12 +624,13 @@ const UpdateJob = (props) => {
             //                 new Date() + 45 * 24 * 60 * 60 * 1000,
             //             ).toISOString();
         }
+        console.log(job);
         if (jobType === "save")
             axios
-                .put(`/api/job/save/${props.match.params.id}`, job)
+                .put(`/api/job/activate/${props.match.params.id}`, job)
                 .then((data) => {
                     console.log(data);
-                    if (data.data.updated) {
+                    if (data.status === 200) {
                         setMessError("Posted Successfully !");
                         toggleError();
                         window.location = "/applications";
@@ -660,7 +656,7 @@ const UpdateJob = (props) => {
                 .put(`/api/job/post/${props.match.params.id}`, job)
                 .then((data) => {
                     console.log(data);
-                    if (data.data.updated) {
+                    if (data.status === 200) {
                         setMessError("Posted Successfully !");
                         toggleError();
                         window.location = "/applications";
@@ -1036,7 +1032,6 @@ const UpdateJob = (props) => {
                                 </Label>
                                 <div style={{ width: `100%` }}>
                                     <Select
-                                        isMulti
                                         autosize={true}
                                         placeholder='Super specialization'
                                         options={
@@ -1051,7 +1046,7 @@ const UpdateJob = (props) => {
                                             console.log(e);
                                             handleChangeSelect(
                                                 "SuperSpecialization",
-                                                e,
+                                                e ? e.value : "",
                                             );
                                         }}
                                     />
@@ -1098,7 +1093,7 @@ const UpdateJob = (props) => {
 
                             <InputGroup className='col-12 col-sm-6 pl-md-1 my-1'>
                                 <Label className='m-1'>
-                                    <h6>Salary</h6>
+                                    <h6>Salary/Fees</h6>
                                 </Label>
                                 <InputGroup className=''>
                                     <Input
@@ -1299,22 +1294,25 @@ const UpdateJob = (props) => {
                             </div>
 
                             <div className='col-12 row justify-content-between'>
-                                <Label className='my-2 col-10'>
-                                    <h5>Promote</h5>
-                                </Label>
-                                <InputGroup className='col-2 position-relative my-2'>
+                                <Label className='my-2 col-9 text-align-left m-1'>
                                     <Input
                                         type='checkbox'
                                         name=''
                                         defaultValue={sponsored}
-                                        className=' my-2 position-absolute'
-                                        style={{ right: 0 }}
+                                        className='  position-absolute'
+                                        style={{
+                                            height: "1.1rem",
+                                            width: "1.1rem",
+                                        }}
                                         onChange={(e) =>
                                             // console.log(e.target.checked)
                                             setSponsored(e.target.checked)
                                         }
                                     />
-                                </InputGroup>
+                                    <span>
+                                        <h5 className='ml-2 my-1'>Promote</h5>
+                                    </span>
+                                </Label>
                             </div>
                         </FormGroup>
                     )}

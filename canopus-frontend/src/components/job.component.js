@@ -165,7 +165,12 @@ class SimilarJobs extends Component {
                                             className='d-none d-md-block col-12 col-md-3 my-auto mx-auto '>
                                             <Media
                                                 object
-                                                src={hospital}
+                                                src={
+                                                    job.author &&
+                                                    job.author.photo
+                                                        ? job.author.photo
+                                                        : hospital
+                                                }
                                                 style={{ maxHeight: "200px" }}
                                                 alt='Generic placeholder image'
                                                 className='img-fluid float-right pr-2 pr-lg-3'
@@ -261,19 +266,27 @@ export default class Job extends Component {
             .get(`/api/search/view/${jobType}/${id}`)
             .then((data) => {
                 console.log(data);
-                this.setState({
-                    job: data.data.job,
-                });
+                if (data.data.job)
+                    this.setState({
+                        job: data.data.job,
+                    });
+                else {
+                    this.setState({
+                        err: "Invalid job",
+                    });
+                }
                 console.log(this.state.job);
             })
-            .catch(({ response }) => {
-                console.log(response);
+            .catch(({ data }) => {
+                console.log(data);
+                const response = data.response;
                 this.setState({
-                    err: response.data.err
-                        ? response.data.err.kind
-                            ? "Invalid Job Id"
-                            : response.data.err
-                        : "Invalid job",
+                    err:
+                        response && response.data.err
+                            ? response.data.err.kind
+                                ? "Invalid Job Id"
+                                : response.data.err
+                            : "Invalid job",
                 });
             });
     }
@@ -315,7 +328,11 @@ export default class Job extends Component {
                                 <div className='col-5 col-md-2'>
                                     <img
                                         object
-                                        src={hospital}
+                                        src={
+                                            job.author && job.author.photo
+                                                ? job.author.photo
+                                                : hospital
+                                        }
                                         alt='Generic placeholder image'
                                         className='img-fluid'
                                         // style={{ maxWidth: "50%" }}
@@ -396,7 +413,9 @@ export default class Job extends Component {
                                     <h6>
                                         <b>Super - Specialization </b>
                                     </h6>
-                                    {job.superSpecialization.join(", ")}
+                                    {Array.isArray(job.superSpecialization)
+                                        ? job.superSpecialization.join(", ")
+                                        : job.superSpecialization}
                                 </div>
                                 <div
                                     className='col-6 col-md-2 my-1'
@@ -494,7 +513,7 @@ export default class Job extends Component {
                                 </div>
                             </div>
                         </div>
-                        <div className='col-9 mx-auto  my-3 p-2 p-sm-3'>
+                        <div className='col-11 col-sm-9 mx-auto my-3 px-0'>
                             <SimilarJobs job={this.state.job} />
                         </div>
 
