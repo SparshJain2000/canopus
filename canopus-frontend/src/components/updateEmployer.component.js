@@ -92,6 +92,7 @@ export default class UpdateEmployer extends Component {
         this.uploadImage = this.uploadImage.bind(this);
         this.uploadLogo = this.uploadLogo.bind(this);
         this.toggleModalError = this.toggleModalError.bind(this);
+        this.getGeoLocation = this.getGeoLocation.bind(this);
     }
     toggleModalError() {
         this.setState({
@@ -199,6 +200,22 @@ export default class UpdateEmployer extends Component {
                 .catch(({ response }) => alert(response.err));
         }
     }
+    getGeoLocation() {
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const lat = position.coords.latitude,
+                    lng = position.coords.longitude;
+
+                this.setState({ lat, lng });
+            },
+            (err) => {
+                console.log(err);
+                this.setState({
+                    coordinates: { lat: 20, lng: 120 },
+                });
+            },
+        );
+    }
     componentDidMount() {
         Axios.get("/api/employer/profile")
             .then(({ data }) => {
@@ -209,6 +226,7 @@ export default class UpdateEmployer extends Component {
                     this.setState({
                         id: user._id,
                     });
+                    if (!user.address.coordinates) this.getGeoLocation();
                     this.setState({
                         id: user._id,
                         // });
@@ -426,7 +444,6 @@ export default class UpdateEmployer extends Component {
             specialityArray = [];
         let locationArray = {};
         if (this.props.data) {
-            console.log(this.props);
             orgTypeArray = this.props.data.instituteType.map((degree) => {
                 return {
                     value: degree,
@@ -451,7 +468,7 @@ export default class UpdateEmployer extends Component {
             for (let i = 0; i < stateArray.length; i++) {
                 locationArray[stateArray[i]] = [];
             }
-            console.log(locationArray);
+            // console.log(locationArray);
 
             this.props.locationData.location.forEach((obj) => {
                 locationArray[obj.state] = [
@@ -460,9 +477,9 @@ export default class UpdateEmployer extends Component {
                 ];
             });
 
-            console.log(locationArray);
-            console.log(stateArray);
-            console.log(cityArray);
+            // console.log(locationArray);
+            // console.log(stateArray);
+            // console.log(cityArray);
         }
         return (
             <div>
@@ -826,7 +843,7 @@ export default class UpdateEmployer extends Component {
 
                             <div className='col-12 col-lg-6'>
                                 <FormGroup className='img-thumbnail'>
-                                    {this.state.lat && this.state.lng ? (
+                                    {this.state.lat && this.state.lng && (
                                         <InputMap
                                             setCoordinates={this.setCoordinates}
                                             coordinates={{
@@ -834,12 +851,13 @@ export default class UpdateEmployer extends Component {
                                                 lng: this.state.lng,
                                             }}
                                         />
-                                    ) : (
+                                    )}
+                                    {/* ) : (
                                         <InputMap
                                             setCoordinates={this.setCoordinates}
                                             coordinates={null}
                                         />
-                                    )}
+                                    )} */}
                                 </FormGroup>
                             </div>
                         </div>
