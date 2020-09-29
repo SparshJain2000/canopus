@@ -20,7 +20,6 @@ const GOOGLE_ANALYTICS = process.env.GOOGLE_ANALYTICS;
 var ua = require("universal-analytics");
 var visitor = ua(GOOGLE_ANALYTICS);
 
-
 //post a job
 router.post("/post", middleware.isLoggedIn, middleware.dateValidator, async (req, res) => {
   //start transaction
@@ -477,7 +476,6 @@ router.put("/extend/expired/:id", middleware.isEmployer, async (req, res) => {
          
 });
 
-//TODO:
 // Accept an day job applicant
 router.put("/apply/freelance/:id",middleware.checkFreelanceJobOwnership, async (req, res) => {
   //start transaction
@@ -496,6 +494,7 @@ try {
   if(!user) throw client_error;
   //check applicants 
   let job = await Freelance.findById(req.params.id).session(session);
+  let sjob = await savedFreelance.findOne({jobRef:job._id}).session(session);
   //if user has applied
   const appliedUserId = job.applicants.map((item) => {
     return mongoose.Types.ObjectId(item.id);
@@ -511,28 +510,34 @@ try {
   //create applicant 
   let applicant = await jobController.createApplicant(user);
   //accept applicants
-  if (job.description.count - job.acceptedApplicants.length === 0){
+  //if (job.description.count - job.acceptedApplicants.length === 0){
     //delete freelance max applicants
     if(job.sponsored==="true")
       employer.sponsors.closed+=1;
     sjob.status = "Closed";
-    await Freelance.deleteOne(req.params.id).session(session);
-  }
-  else{
-    job.acceptedApplicants.push(applicant);
-    await job.save({ session });
-  }
+    await Freelance.deleteOne({_id:req.params.id}).session(session);
+  //}
+  //else{
+    // job.acceptedApplicants.push(applicant);
+    // await job.save({ session });
+  //}
   //save applicant to saved job
-  let sjob = await savedFreelance.findOne({jobRef:job._id}).session(session);
   sjob.acceptedApplicants.push(applicant);
   await sjob.save({ session });
   //save applicant to employer
   employer.acceptedApplicants.push(applicant);
   await employer.save({ session });
-   //commit transaction
-   await session.commitTransaction();
-   session.endSession();
-   res.json({status:"200"});
+  //commit transaction
+  await session.commitTransaction();
+  session.endSession();
+  req.logIn(employer,function (err){
+    if (err) {
+      return res.status(400).json({ err: err });
+    }
+    res.json({status:"200"});
+  });
+
+  
 
   } catch(err){
     // any 500 error in try block aborts transaction

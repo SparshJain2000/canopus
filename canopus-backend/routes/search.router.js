@@ -624,9 +624,9 @@ router.post("/similar-visitor", (req, res) => {
 });
 
 //===========================================================================
-//TODO:
-//router.put("/:id",middleware.isLoggedIn())
-router.post("/apply/job/:id", middleware.isUser, async (req, res) => {
+
+
+router.put("/apply/job/:id", middleware.isUser, async (req, res) => {
     //start transaction
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -635,7 +635,7 @@ router.post("/apply/job/:id", middleware.isUser, async (req, res) => {
   try {
     
     //find applicant
-    const user = User.findById(req.body.id).session(session);
+    let user = User.findById(req.user._id).session(session);
     if(!user) throw client_error;
     //check applicants 
     let job = await Job.findById(req.params.id).session(session);
@@ -660,16 +660,17 @@ router.post("/apply/job/:id", middleware.isUser, async (req, res) => {
     //create applicant 
     let applicant = await jobController.createApplicant(user);
     
-    job.acceptedApplicants.push(applicant);
+    job.applicants.push(applicant);
     await job.save({ session });
     //save applicant to saved job
     let sjob = await savedJob.findOne({jobRef:job._id}).session(session);
-    sjob.acceptedApplicants.push(applicant);
+    sjob.applicants.push(applicant);
     await sjob.save({ session });
     user.applied.push({
       id: job._id,
       title: job.title,
     });
+    await user.save({session});
     //commit transaction
     await session.commitTransaction();
     session.endSession();
@@ -683,9 +684,9 @@ router.post("/apply/job/:id", middleware.isUser, async (req, res) => {
       res.status(500).json({status:"500"});    
     }
 });
-//TODO:
-//router.put("/:id",middleware.isLoggedIn())
-router.post("/apply/freelance/:id", middleware.isUser, async (req, res) => {
+
+
+router.put("/apply/freelance/:id", middleware.isUser, async (req, res) => {
 //start transaction
 const session = await mongoose.startSession();
 session.startTransaction();
@@ -694,7 +695,7 @@ const client_error = new Error("400");
 try {
   
   //find applicant
-  const user = User.findById(req.body.id).session(session);
+  let user = await User.findById(req.user._id).session(session);
   if(!user) throw client_error;
   //check applicants 
   let job = await Freelance.findById(req.params.id).session(session);
@@ -719,16 +720,17 @@ try {
   //create applicant 
   let applicant = await jobController.createApplicant(user);
   
-  job.acceptedApplicants.push(applicant);
+  job.applicants.push(applicant);
   await job.save({ session });
   //save applicant to saved job
   let sjob = await savedFreelance.findOne({jobRef:job._id}).session(session);
-  sjob.acceptedApplicants.push(applicant);
+  sjob.applicants.push(applicant);
   await sjob.save({ session });
-  user.applied.push({
+  user.appliedFreelance.push({
     id: job._id,
     title: job.title,
   });
+  await user.save({session});
   //commit transaction
   await session.commitTransaction();
   session.endSession();

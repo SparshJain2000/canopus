@@ -60,20 +60,11 @@ module.exports = mongoose.model(
 				image:String,
 				phone:String,
                 username:String,
+                profession:String,
+                specialization:String,
+                superSpecialization:String,
             },
-        ],
-        acceptedApplicants: [ 
-            {
-                id:{
-                    type:mongoose.Schema.Types.ObjectId,
-                    ref: "User",
-                },
-                name:String,
-				image:String,
-				phone:String,
-                username:String,
-            }
-        ],
+        ]
         // likes: [
         //     {
         //         id: {

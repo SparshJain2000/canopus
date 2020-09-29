@@ -201,6 +201,9 @@ async function createApplicant(user){
     image: user.image,
     username: user.username,
     phone: user.phone,
+    profession:user.profession,
+    specialization:user.specialization,
+    superSpecialization:user.superSpecialization
   };
 }
 
