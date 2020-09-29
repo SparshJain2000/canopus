@@ -48,7 +48,7 @@ async function createJob(req,data,employer,extension){
     let author = {};
     author.username = req.user.username;
     author.id = req.user._id;
-    author.instituteName = req.user.instituteName;
+    author.instituteName = req.user.description.organization;
     //different author options for employer and user
     if(req.user.role === "Employer"){
     author.photo = req.user.logo;
@@ -113,7 +113,7 @@ async function createSavedJob(req,data,status){
     author.id = req.user._id;
     //different author options for employer and user
     if(req.user.role === "Employer"){
-    author.instituteName = req.user.instituteName;
+    author.instituteName = req.user.description.organization;
     author.photo = req.user.logo;
     }
     else{
@@ -176,6 +176,41 @@ async function updateQueryBuilder(req){
   if(req.body.endDate){query["endDate"]=req.body.endDate;query["expireAt"]=req.body.endDate;}
   return query;
 }
+//date validator
+
+// async function locumDateValidator(req,job,context){
+//   if(context==="post"){
+//     if((req.body.startDate  - Date.now())/ (1000 * 60 * 60 * 24)>60)
+//       return false;
+//     let days =(req.body.endDate - req.body.startDate)/ (1000 * 60 * 60 * 24);
+//     if (days < 0 || days > 30)
+//       return false;
+//     return true;
+//   }
+//   else if(context==="update"){
+//     if(req.body.endDate && req.body.startDate){
+//       if((req.body.startDate  - job.createdAt)/ (1000 * 60 * 60 * 24)>60)
+//         return false;
+//       let days =(req.body.endDate - req.body.startDate)/ (1000 * 60 * 60 * 24);
+//       if (days < 0 || days > 30)
+//         return false;
+//       return true;
+//     }
+//     else if(req.body.endDate){
+//       let days =(req.body.endDate - job.startDate)/ (1000 * 60 * 60 * 24);
+//       if (days < 0 || days > 30)
+//         return false;
+//       else return true;
+//     }
+//     else if(req.body.startDate){
+//       if((req.body.startDate  - job.createdAt)/ (1000 * 60 * 60 * 24)>60)
+//         return false;
+//       else return true;
+//     }
+//     else return true;
+//   }
+//   else return false;
+// }
 async function attachedApplicantValidator(req,employer){
   if(req.body.attachedApplicants){
     const acceptedMail = employer.acceptedApplicants.map(applicant=>{
@@ -226,7 +261,7 @@ async function validateRequest(req){
   // perform validation
   // incentives validation
   if(req.body.description.incentives){
-    if(req.body.incentives.every(incentive=>data.incentive.includes(incentive)))
+    if(req.body.description.incentives.every(incentive=>data.incentive.includes(incentive)))
     flag = true;
     else  return false;
   }
@@ -275,7 +310,9 @@ async function validateRequest(req){
 
 }
 async function validateUpdateRequest(req){
-return true;
+
+  return true;
+
   let data = await readFileAsync();
   var flag = false;
   // perform validation

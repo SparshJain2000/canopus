@@ -68,6 +68,8 @@ router.post("/", async (req, res) => {
 //===========================================================================
 //Login route
 router.post("/login", async function (req, res, next) {
+s, next);
+=======
     //captcha validation
     // const captcha = await validationController.verifyInvisibleCaptcha(req);
     // if(!captcha)

@@ -1,21 +1,24 @@
-const axios = require("axios"),
-Job = require("../models/job.model"),
-Freelance = require("../models/freelance.model");
-const { response } = require("express");
-
-const searchController={};
+const axios = require("axios");
 // query builder function
 
-function addMatchquery(query,path) {
-    let abc = {
-        $match:{path:query},
-    };
-    return abc;
 
-}
 function addQuery(query, path) {
     let abc = {
         text: {
+            query: `${query}`,
+            path: `${path}`
+            // score:{
+            //     "constant":{
+            //         "value":1
+            //     }
+            // }
+        },
+    };
+    return abc;
+}
+function addQueryMust(query, path) {
+    let abc = {
+        phrase: {
             query: `${query}`,
             path: `${path}`
             // score:{
@@ -88,13 +91,14 @@ async function queryBuilder(req) {
     //     query.shouldquery.push(addQuery(req.body.pin, "address.pin"));
     if (req.body.profession)
         query.mustquery.push(addQuery(req.body.profession, "profession"));
-    if (req.body.specialization)
+    if (req.body.specialization){
         query.mustquery.push(
-            addQuery(req.body.specialization, "specialization"),
+            addQueryMust(req.body.specialization, "specialization"),
         );
+        }
     if (req.body.superSpecialization)
         query.mustquery.push(
-            addQuery(
+            addQueryMust(
                 req.body.superSpecialization,
                 "superSpecialization",
             ),
@@ -113,7 +117,7 @@ async function queryBuilder(req) {
     }
     if (req.body.status){
         query.mustquery.push(
-            addQuery(req.body.status, "description.status"),
+            addQueryMust(req.body.status, "description.status"),
         );
         boost=boost+boostval;
     }

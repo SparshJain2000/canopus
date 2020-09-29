@@ -178,8 +178,8 @@ router.put("/post/:id",middleware.isLoggedIn,middleware.checkPostOwnership, asyn
       await savedJob.findOneAndUpdate({ jobRef: job._id }, { $set: query },{ session: session });
     } 
     else {
-      if(req.body.endDate){
-        const job = await Freelance.findById(req.params.id).session(session);
+      if(req.body.endDate || req.body.startDate){
+        let job = await Freelance.findById(req.params.id).session(session);
         const expiry = new Date(req.body.endDate);
         var days = (expiry - job.createdAt) / (1000 * 60 * 60 * 24);
         if (days < 0 || days > 30)

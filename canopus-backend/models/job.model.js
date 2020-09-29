@@ -60,7 +60,7 @@ module.exports = mongoose.model(
                 username:String,
                 profession:String,
                 specialization:String,
-                superSpecialization:String,
+                superSpecialization:Array,
             },
         ]
     }).plugin(passportLocalMongoose),
