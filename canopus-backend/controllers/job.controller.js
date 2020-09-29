@@ -310,7 +310,9 @@ async function validateRequest(req){
 
 }
 async function validateUpdateRequest(req){
+
   return true;
+
   let data = await readFileAsync();
   var flag = false;
   // perform validation
