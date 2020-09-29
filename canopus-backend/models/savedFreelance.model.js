@@ -10,7 +10,7 @@ module.exports = mongoose.model(
         title: String,
         profession: String,
         specialization: String,
-        superSpecialization:Array,
+        superSpecialization:String,
         address: Object,
         createdAt:Date,
         createdBy:String,
@@ -65,6 +65,9 @@ module.exports = mongoose.model(
 				image:String,
 				phone:String,
                 username:String,
+                profession:String,
+                specialization:String,
+                superSpecialization:String,
             },
         ],
         acceptedApplicants: [ 
@@ -77,6 +80,9 @@ module.exports = mongoose.model(
 				image:String,
 				phone:String,
                 username:String,
+                profession:String,
+                specialization:String,
+                superSpecialization:String
             }
         ],
         attachedApplicants:[
@@ -89,6 +95,9 @@ module.exports = mongoose.model(
                 image:String,
                 phone:String,
                 username:String,
+                profession:String,
+                specialization:String,
+                superSpecialization:String,
             }
         ]
         // likes: [

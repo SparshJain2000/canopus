@@ -45,6 +45,7 @@ module.exports = mongoose.model(
             pin: Number,
             city: String,
             state: String,
+            country:String
         },
         image: String,
         description: String,

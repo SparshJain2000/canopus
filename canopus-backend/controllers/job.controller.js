@@ -176,7 +176,24 @@ async function updateQueryBuilder(req){
   if(req.body.endDate){query["endDate"]=req.body.endDate;query["expireAt"]=req.body.endDate;}
   return query;
 }
-
+async function attachedApplicantValidator(req,employer){
+  if(req.body.attachedApplicants){
+    const acceptedMail = employer.acceptedApplicants.map(applicant=>{
+      return applicant.username;
+    });
+    const attachedMail = req.body.attachedApplicants.map(applicant => {
+      return applicant.username;
+    });
+    if(!attachedMail.every(mail=> acceptedMail.includes(mail)))
+      return false;
+    else{
+      console.log(attachedMail);
+      return true;
+      //mail notify
+    }
+  }
+  else return true;
+}
 async function createApplicant(user){
   return {
     id: user._id,
@@ -184,6 +201,9 @@ async function createApplicant(user){
     image: user.image,
     username: user.username,
     phone: user.phone,
+    profession:user.profession,
+    specialization:user.specialization,
+    superSpecialization:user.superSpecialization
   };
 }
 
@@ -309,4 +329,4 @@ async function validateUpdateRequest(req){
   return flag;
 
 }
-exports.jobController = { createJob, createSavedJob, assignTier, updateQueryBuilder ,createApplicant};
+exports.jobController = { createJob, createSavedJob, assignTier, updateQueryBuilder ,createApplicant, attachedApplicantValidator};

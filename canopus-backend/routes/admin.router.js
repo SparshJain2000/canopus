@@ -381,26 +381,26 @@ router.post("/add/jobs" ,middleware.isAdmin, async (req,res)=>{
 });
 
 //analytics
-router.get("/analytics/location",middleware.isAdmin,(req,res)=>{
-    Job.aggregate([
-        { $sortByCount: "$description.location" }
-    ]).then((results)=>{res.json({results:results})});
-});
-router.get("/analytics/profession",middleware.isAdmin,(req,res)=>{
-    Job.aggregate([
-        { $sortByCount: "$profession" }
-    ]).then((results)=>{res.json({results:results})});
-});
-router.get("/analytics/specialization",(req,res)=>{
-    Job.aggregate([
-        { $sortByCount: "$specialization" }
-    ]).then((results)=>{res.json({results:results})});
-});
-router.get("/analytics/superSpecialization",(req,res)=>{
-    Job.aggregate([
-        { $sortByCount: "$superSpecialization" }
-    ]).then((results)=>{res.json({results:results})});
-});
+// router.get("/analytics/location",middleware.isAdmin,(req,res)=>{
+//     Job.aggregate([
+//         { $sortByCount: "$description.location" }
+//     ]).then((results)=>{res.json({results:results})});
+// });
+// router.get("/analytics/profession",middleware.isAdmin,(req,res)=>{
+//     Job.aggregate([
+//         { $sortByCount: "$profession" }
+//     ]).then((results)=>{res.json({results:results})});
+// });
+// router.get("/analytics/specialization",(req,res)=>{
+//     Job.aggregate([
+//         { $sortByCount: "$specialization" }
+//     ]).then((results)=>{res.json({results:results})});
+// });
+// router.get("/analytics/superSpecialization",(req,res)=>{
+//     Job.aggregate([
+//         { $sortByCount: "$superSpecialization" }
+//     ]).then((results)=>{res.json({results:results})});
+// });
 module.exports = router;
 //Testing valodation code this doesnt work but is more efficient
 // Employer.aggregate([{ $project:{"validated" :{ $cond: {

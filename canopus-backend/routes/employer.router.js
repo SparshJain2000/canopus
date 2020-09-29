@@ -21,7 +21,7 @@ const User           = require("../models/user.model"),
 //Sign up route
 router.post("/", async (req, res) => {
   //captcha validation
-  const captcha = await validationController.verifyCheckboxCaptcha(req);
+  const captcha = await validationController.verifyCheckBoxCaptcha(req);
   if(!captcha)
   return res.json({err:"Invalid Captcha"});
   const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
@@ -228,8 +228,9 @@ router.get("/validate/:token", async (req, res) => {
 });
 //Logout route
 router.get("/logout", (req, res) => {
-  req.logout();
+  req.session.destroy((err) => {
   res.json({ message: "Logged Out" });
+  });
 });
 router.get("/current", (req, res) => {
   res.json({ user: req.user });

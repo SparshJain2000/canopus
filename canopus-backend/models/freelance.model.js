@@ -14,7 +14,7 @@ module.exports = mongoose.model(
         title: String,
         profession: String,
         specialization: String,
-        superSpecialization:Array,
+        superSpecialization:String,
         tag: Array,
         address: Object,
         // {
@@ -62,6 +62,9 @@ module.exports = mongoose.model(
 				image:String,
 				phone:String,
                 username:String,
+                profession:String,
+                specialization:String,
+                superSpecialization:String,
             },
         ],
         acceptedApplicants: [ 
@@ -74,6 +77,9 @@ module.exports = mongoose.model(
 				image:String,
 				phone:String,
                 username:String,
+                profession:String,
+                specialization:String,
+                superSpecialization:String
             }
         ],
         attachedApplicants:[
@@ -83,10 +89,13 @@ module.exports = mongoose.model(
                     ref: "User",
                 },
                 name:String,
-				image:String,
-				phone:String,
+                image:String,
+                phone:String,
                 username:String,
+                profession:String,
+                specialization:String,
+                superSpecialization:String,
             }
-        ],
+        ]
     }).plugin(passportLocalMongoose),
 );

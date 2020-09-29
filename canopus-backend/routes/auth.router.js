@@ -1,5 +1,22 @@
 const router = require("express").Router(),
-  passport = require("passport");
+  passport = require("passport"),
+  middleware = require('../middleware/index');
+const User= require('../models/user.model');
+  //google analytics auth
+
+  router.get("/analytics",middleware.isLoggedIn,async (req,res)=>{
+    if(!req.session.analytics){
+      console.log("not");
+    req.session.analytics=true;
+    let user= await User.findById(req.user._id);
+    req.logIn(user,function(err){
+      res.json(req.session);
+    })
+    }
+    else{
+    res.json(req.session);
+    }
+  });
 //Google auth
 router.get(
   "/google",

@@ -15,8 +15,11 @@ const express = require("express"),
     adminRouter = require("./routes/admin.router"),
     GoogleStrategy = require("passport-google-oauth").OAuth2Strategy,
     FacebookStrategy = require("passport-facebook").Strategy,
-    bodyParser = require("body-parser");
-
+    bodyParser = require("body-parser"),
+    path = require('path');
+var session = require('express-session')
+var MemoryStore = require('memorystore')(session)
+ 
 require("dotenv").config();
 const GOOGLE_ANALYTICS=process.env.GOOGLE_ANALYTICS;
 var ua = require("universal-analytics");
@@ -35,12 +38,16 @@ app.use(function (req, res, next) {
     next();
 });
 // app.use(ua.middleware(GOOGLE_ANALYTICS, {cookieName: '_ga'}));
-app.use(
-    require("express-session")({
+app.use(session(
+    {
         secret: process.env.SECRET,
+        cookie: { maxAge: 86400000 },
+        store: new MemoryStore({
+          checkPeriod: 86400000 // prune expired entries every 24h
+        }),
         resave: false,
         saveUninitialized: false,
-    }),
+    })
 );
 app.use((req, res, next) => {
     res.locals.currentUser = req.user;

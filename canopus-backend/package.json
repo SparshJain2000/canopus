@@ -9,7 +9,7 @@
         "build": "cd canopus-frontend && npm run build",
         "install-client": "cd canopus-frontend && npm install",
         "heroku-postbuild": "npm run install-client && npm run build",
-        "react-init":"cd canopus-frontend && npm i"
+        "react-init": "cd canopus-frontend && npm i"
     },
     "author": "sparsh, sushant",
     "license": "ISC",
@@ -25,6 +25,7 @@
         "express-asyncify": "^1.0.1",
         "express-session": "^1.17.1",
         "mailgun-js": "^0.22.0",
+        "memorystore": "^1.6.2",
         "mongoose": "^5.9.16",
         "passport": "^0.4.1",
         "passport-facebook": "^3.0.0",

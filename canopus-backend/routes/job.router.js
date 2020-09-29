@@ -20,7 +20,6 @@ const GOOGLE_ANALYTICS = process.env.GOOGLE_ANALYTICS;
 var ua = require("universal-analytics");
 var visitor = ua(GOOGLE_ANALYTICS);
 
-
 //post a job
 router.post("/post", middleware.isLoggedIn, middleware.dateValidator, async (req, res) => {
   //start transaction
@@ -40,6 +39,13 @@ router.post("/post", middleware.isLoggedIn, middleware.dateValidator, async (req
     //error if invalid tier 
     if(!employer) throw client_error;
 
+    //check attached applicants validity
+    if(!(await jobController.attachedApplicantValidator(req,employer)))
+      throw client_error;
+    else if(req.body.attachedApplicants && req.body.attachedApplicants.length!=0){
+      console.log("ok");
+      //send mail
+    }
     //DB operations start here
     //create job
     let job = await jobController.createJob(req,req.body,employer);
@@ -219,11 +225,11 @@ router.put("/save/:id",middleware.isLoggedIn,middleware.checkSavedOwnership, asy
     //DB operations start here
     if(req.body.category === "Full-time" || req.body.category === "Part-time"){
       //update job
-      await savedJob.findOneAndUpdate({ jobRef: job._id }, { $set: query },{ session: session });
+      await savedJob.findOneAndUpdate({ jobRef: req.params.id}, { $set: query },{ session: session });
     } 
     else {
       if(req.body.endDate){
-        var days = (expiry - Date.now()) / (1000 * 60 * 60 * 24);
+        var days = (req.body.endDate - Date.now()) / (1000 * 60 * 60 * 24);
         if (days < 0 || days > 30)
           throw client_error;
       }
@@ -245,8 +251,6 @@ router.put("/save/:id",middleware.isLoggedIn,middleware.checkSavedOwnership, asy
   } 
 });
 
-
-//TODO:
 //sponsor a job
 router.put("/sponsor/:id", middleware.checkPostOwnership, async (req, res) => {
     //start transaction
@@ -334,11 +338,19 @@ router.put("/activate/:id", middleware.checkSavedOwnership, async (req,res) => {
       type = "jobs";
     }
     else{
+      //check attached applicants validity
+    if(!(await jobController.attachedApplicantValidator(req,employer)))
+      throw client_error;
+    else if(req.body.attachedApplicants && req.body.attachedApplicants.length!=0){
+      console.log("ok");
+      //send mail
+    }
       job = await Freelance.create([job],{ session: session });
       employer.savedFreelance.splice(employer.savedFreelance.indexOf(sjob._id), 1);
       if(req.body.category === "Locum") employer.locumtier.saved += -1;
       else employer.freelancetier.saved += -1;
       type = "freelanceJobs";
+      
     }
     //only arrays can be used in transactions so casting is necessary
     job = job[0];
@@ -464,7 +476,6 @@ router.put("/extend/expired/:id", middleware.isEmployer, async (req, res) => {
          
 });
 
-//TODO:
 // Accept an day job applicant
 router.put("/apply/freelance/:id",middleware.checkFreelanceJobOwnership, async (req, res) => {
   //start transaction
@@ -483,6 +494,7 @@ try {
   if(!user) throw client_error;
   //check applicants 
   let job = await Freelance.findById(req.params.id).session(session);
+  let sjob = await savedFreelance.findOne({jobRef:job._id}).session(session);
   //if user has applied
   const appliedUserId = job.applicants.map((item) => {
     return mongoose.Types.ObjectId(item.id);
@@ -498,28 +510,34 @@ try {
   //create applicant 
   let applicant = await jobController.createApplicant(user);
   //accept applicants
-  if (job.description.count - job.acceptedApplicants.length === 0){
+  //if (job.description.count - job.acceptedApplicants.length === 0){
     //delete freelance max applicants
     if(job.sponsored==="true")
       employer.sponsors.closed+=1;
     sjob.status = "Closed";
-    await Freelance.deleteOne(req.params.id).session(session);
-  }
-  else{
-    job.acceptedApplicants.push(applicant);
-    await job.save({ session });
-  }
+    await Freelance.deleteOne({_id:req.params.id}).session(session);
+  //}
+  //else{
+    // job.acceptedApplicants.push(applicant);
+    // await job.save({ session });
+  //}
   //save applicant to saved job
-  let sjob = await savedFreelance.findOne({jobRef:job._id}).session(session);
   sjob.acceptedApplicants.push(applicant);
   await sjob.save({ session });
   //save applicant to employer
   employer.acceptedApplicants.push(applicant);
   await employer.save({ session });
-   //commit transaction
-   await session.commitTransaction();
-   session.endSession();
-   res.json({status:"200"});
+  //commit transaction
+  await session.commitTransaction();
+  session.endSession();
+  req.logIn(employer,function (err){
+    if (err) {
+      return res.status(400).json({ err: err });
+    }
+    res.json({status:"200"});
+  });
+
+  
 
   } catch(err){
     // any 500 error in try block aborts transaction
