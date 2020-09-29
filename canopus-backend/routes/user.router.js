@@ -15,29 +15,19 @@ const User           = require("../models/user.model"),
       savedJob       = require("../models/savedJobs.model"),
       savedFreelance = require("../models/savedFreelance.model");
 
-//===========================================================================
-//get all users
-router.route("/").get((req, res) => {
-  User.find()
-    .then((users) => {
-      res.json({
-        users: users.map((user) => {
-          return { username: user };
-        }),
-      });
-    })
-    .catch((err) => res.status(400).json({ err: err }));
-});
+
 //===========================================================================
 //Sign up route
-router.post("/", (req, res) => {
+router.post("/", async (req, res) => {
+ //captcha validation
+ const captcha = await validationController.verifyCheckBoxCaptcha(req);
+ if(!captcha)
+ return res.json({err:"Invalid Captcha"});
+ const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
   const user = new User({
     username: req.body.username,
-    salutation: req.body.salutation,
-    firstName: req.body.firstName,
-    lastName: req.body.lastName,
-    address: req.body.address,
-    description: req.body.description,
+    emailVerifiedToken:token,
+    emailVerified:false,
     createdAt: Date.now(),
     validated: false,
     jobtier: {
@@ -62,16 +52,11 @@ router.post("/", (req, res) => {
       posted:0,
       allowed:0,
     },
-    // address: {
-    //     pin: req.body.pin,
-    //     city: req.body.city,
-    //     state: req.body.state,
-    // },
-    experience: req.body.experience,
     role: "User",
   });
   User.register(user, req.body.password)
     .then((user) => {
+      mailController.validateMail(req,user,token);
       passport.authenticate("user")(req, res, () => {
         res.json({ user: user });
       });
@@ -79,11 +64,12 @@ router.post("/", (req, res) => {
     .catch((err) => res.status(400).json({ err: err }));
 });
 //===========================================================================
-//Login route
-// router.post("/login", passport.authenticate("user"), (req, res) => {
-//     res.json({ user: req.user, message: `${req.user.username} Logged in` });
-// });
-router.post("/login", function (req, res, next) {
+
+router.post("/login", async function (req, res, next) {
+  //captcha validation
+  const captcha = await validationController.verifyInvisibleCaptcha(req);
+  if(!captcha)
+  return res.json({err:"Invalid Captcha"});
   passport.authenticate("user", (err, user, info) => {
     console.log(info);
     if (err) {
@@ -96,7 +82,6 @@ router.post("/login", function (req, res, next) {
       if (err) {
         return res.status(400).json({ err: err });
       }
-     // visitor.event("User", "Login").send();
       return res.json({
         user: req.user,
         message: `${req.user.username} Logged in`,
@@ -105,132 +90,145 @@ router.post("/login", function (req, res, next) {
   })(req, res, next);
 });
 //===========================================================================
+router.post("/forgot", async (req, res) => {
+  //captcha validation
+  const captcha = await validationController.verifyInvisibleCaptcha(req);
+  if(!captcha)
+  return res.json({err:"Invalid Captcha"});
+  const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
+  if(req.body.username=='' || !req.body.username)
+  return res.status(400).json({err:"Bad request"});
+  User.findOneAndUpdate(
+    { username: req.body.username },
+    {
+      $set: {
+        resetPasswordToken: token,
+        resetPasswordExpires: Date.now() + 3600000,
+      },
+    }
+  )
+    .then((user) => {
+      console.log(token);
+      mailController.forgotMail(req, user, token);
+      res.json({ status: "Email has been sent" });
+    })
+    .catch((err) => {
+      res.status(400).json({ err: "Wrong email " });
+    });
+});
+
+router.put("/forgot/:token", async (req, res) => {
+   //start transaction
+   const session = await mongoose.startSession();
+   session.startTransaction();
+   const server_error = new Error("500");
+   const client_error = new Error("400");
+   //try block
+   try {
+  var employer = await User.findOne({ resetPasswordToken: req.params.token }).session(session);
+    if (
+      employer.resetPasswordExpires > Date.now() &&
+      crypto.timingSafeEqual(
+        Buffer.from(employer.resetPasswordToken),
+        Buffer.from(req.params.token)
+      )
+    )
+    await employer.setPassword(req.body.password);
+    await employer.save({session});
+    employer = await User.findOneAndUpdate(
+        { resetPasswordToken: req.params.token },
+        { $unset: { resetPasswordToken: 1, resetPasswordExpires: 1 } },
+        { new:true,session:session}
+      );
+        //commit transaction
+    await session.commitTransaction();
+    session.endSession();
+      req.logIn(employer, function (err) {
+        if (err) {
+          return res.status(400).json({ err: err });
+        }
+        return res.json({
+          employer: req.user,
+          message: `${req.user.username} Logged in`,
+        });
+      });
+      } catch (err) {
+
+        console.log(err);
+        // any 500 error in try block aborts transaction
+        await session.abortTransaction();
+        session.endSession();
+        res.status(500).json({status:"501"});
+      } 
+});
+
+router.post("/validate", middleware.isUser,async (req, res) => {
+  const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
+  if(req.body.username=='' || !req.body.username || req.user.emailVerified)
+  return res.status(400).json({err:"Bad request"});
+  User.findOneAndUpdate(
+    { username: req.body.username },
+    {
+      $set: {
+        emailVerifiedToken: token
+      },
+    }
+  )
+    .then((user) => {
+      console.log(token);
+     mailController.validateMail(req, user, token);
+      res.json({ status: "Email has been sent" });
+    })
+    .catch((err) => {
+      res.json({ err: "User not found" });
+    });
+});
+
+router.get("/validate/:token", async (req, res) => {
+     //start transaction
+   const session = await mongoose.startSession();
+   session.startTransaction();
+   const server_error = new Error("500");
+   const client_error = new Error("400");
+   //try block
+   try {
+  var user = await User.findOne({ emailVerifiedToken: req.params.token }).session(session);
+    if (
+      crypto.timingSafeEqual(
+        Buffer.from(user.emailVerifiedToken),
+        Buffer.from(req.params.token)
+      )
+    )
+    user.emailVerified=true;
+    await user.save({session});
+    await User.findOneAndUpdate(
+        { emailVerifiedToken: req.params.token },
+        { $unset: { emailVerifiedToken: 1 } },
+        { session:session}
+      );
+     //commit transaction
+    await session.commitTransaction();
+    session.endSession();
+    res.json({status:"200"});
+      } catch (err) {
+        // any 500 error in try block aborts transaction
+        await session.abortTransaction();
+        session.endSession();
+        console.log(err);
+        res.status(500).json({status:"501"});
+      } 
+});
 //Logout route
 router.get("/logout", (req, res) => {
-  req.logout();
+  req.session.destroy((err) => {
   res.json({ message: "Logged Out" });
+  });
 });
 router.get("/current", (req, res) => {
   res.json({ user: req.user });
 });
 //===========================================================================
-//Forgot password route
 
-router.post("/forgot", async (req, res, next) => {
-  const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
-  User.findOneAndUpdate(
-    { username: req.body.username },
-    {
-      $set: {
-        resetPasswordToken: token,
-        resetPasswordExpires: Date.now() + 3600000,
-      },
-    }
-  )
-    .then((user) => {
-      console.log(token);
-      mailController
-        .forgotMail(req, user, token)
-        .then((response) => {
-          res.json({ status: "Email has been sent" });
-          //res.redirect('/forgot');
-        })
-        .catch((err) => {
-          res.json({ err: "Mail not sent" });
-        });
-    })
-    .catch((err) => {
-      res.json({ err: "User not found" });
-    });
-});
-
-router.post("/reset/:token", async (req, res) => {
-  User.findOne({ resetPasswordToken: req.params.token })
-    .then((user) => {
-      if (
-        user.resetPasswordExpires > Date.now() &&
-        crypto.timingSafeEqual(
-          Buffer.from(user.resetPasswordToken),
-          Buffer.from(req.params.token)
-        )
-      )
-        // console.log(user);
-        // if (!user) {
-        //   req.flash('error', 'Password reset token is invalid or has expired.');
-        //   return res.redirect('/forgot');
-        // }
-        user
-          .setPassword(req.body.password)
-          .then((user) => {
-            //user.save();
-            user
-              .save()
-              .then((user) => {
-                User.findOneAndUpdate(
-                  { resetPasswordToken: req.params.token },
-                  { $unset: { resetPasswordToken: 1, resetPasswordExpires: 1 } }
-                )
-                  .then((user) => {
-                    const resetEmail = {
-                      to: user.username,
-                      from:
-                        "postmaster@sandboxa6c1b3d7a13a4122aaa846d7cd3f96a2.mailgun.org",
-                      subject: "Your password has been changed",
-                      text: `
-              This is a confirmation that the password for your account "${user.username}" has just been changed.
-            `,
-                    };
-                    mailController.transport.sendMail(resetEmail);
-                    res.json({ status: "Updated" });
-                  })
-                  .catch((err) => {
-                    res.status(400).json({ err: "Fields not unset" });
-                  });
-              })
-              .catch((err) => {
-                res.status(400).json({ err: "Password not saved" });
-              });
-          })
-          .catch((err) => {
-            res.status(400).json({ err: "Password not set" });
-          });
-      //req.flash('success', `Success! Your password has been changed.`);
-    })
-    .catch((err) => {
-      res.json({ err: "User not found" });
-    });
-});
-
-//verify email
-
-//regenerate mail verify token
-router.post("/forgot", async (req, res, next) => {
-  const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
-  User.findOneAndUpdate(
-    { username: req.body.username },
-    {
-      $set: {
-        resetPasswordToken: token,
-        resetPasswordExpires: Date.now() + 3600000,
-      },
-    }
-  )
-    .then((user) => {
-      console.log(token);
-      mailController
-        .forgotMail(req, user, token)
-        .then((response) => {
-          res.json({ status: "Email has been sent" });
-          //res.redirect('/forgot');
-        })
-        .catch((err) => {
-          res.json({ err: "Mail not sent" });
-        });
-    })
-    .catch((err) => {
-      res.json({ err: "User not found" });
-    });
-});
 //Get user profile details
 
 router.get("/profile", middleware.isUser, (req, res) => {
