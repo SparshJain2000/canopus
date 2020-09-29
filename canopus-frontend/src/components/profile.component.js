@@ -494,6 +494,10 @@ export default class Profile extends Component {
                                                 <FontAwesomeIcon
                                                     icon={faPhone}
                                                     className='ml-2 mr-3'
+                                                    style={{
+                                                        transform:
+                                                            "rotateY(180deg)",
+                                                    }}
                                                 />
                                             </div>
                                             <div className='col-11 pl-3'>
