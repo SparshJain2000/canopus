@@ -211,7 +211,8 @@ export default class UpdateEmployer extends Component {
             (err) => {
                 console.log(err);
                 this.setState({
-                    coordinates: { lat: 20, lng: 120 },
+                    lat: 20,
+                    lng: 120,
                 });
             },
         );
