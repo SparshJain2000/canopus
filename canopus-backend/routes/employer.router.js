@@ -228,8 +228,9 @@ router.get("/validate/:token", async (req, res) => {
 });
 //Logout route
 router.get("/logout", (req, res) => {
-  req.logout();
+  req.session.destroy((err) => {
   res.json({ message: "Logged Out" });
+  });
 });
 router.get("/current", (req, res) => {
   res.json({ user: req.user });

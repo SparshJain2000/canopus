@@ -17,6 +17,9 @@ const express = require("express"),
     FacebookStrategy = require("passport-facebook").Strategy,
     bodyParser = require("body-parser"),
     path = require('path');
+var session = require('express-session')
+var MemoryStore = require('memorystore')(session)
+ 
 require("dotenv").config();
 const GOOGLE_ANALYTICS=process.env.GOOGLE_ANALYTICS;
 var ua = require("universal-analytics");
@@ -35,12 +38,16 @@ app.use(function (req, res, next) {
     next();
 });
 // app.use(ua.middleware(GOOGLE_ANALYTICS, {cookieName: '_ga'}));
-app.use(
-    require("express-session")({
+app.use(session(
+    {
         secret: process.env.SECRET,
+        cookie: { maxAge: 86400000 },
+        store: new MemoryStore({
+          checkPeriod: 86400000 // prune expired entries every 24h
+        }),
         resave: false,
         saveUninitialized: false,
-    }),
+    })
 );
 app.use((req, res, next) => {
     res.locals.currentUser = req.user;
@@ -171,9 +178,9 @@ app.use("/api/admin", adminRouter);
 app.use("/api/search",searchRouter);
 //===========================================================================
 //render frontend file (deployment)
-// app.use("*", function (req, res) {
-//     res.sendFile(path.join(__dirname, "canopus-frontend/build/index.html"));
-// });
+app.use("*", function (req, res) {
+    res.sendFile(path.join(__dirname, "canopus-frontend/build/index.html"));
+});
 //===========================================================================
 
 const port = process.env.PORT || 8080;
