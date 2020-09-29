@@ -48,7 +48,7 @@ async function createJob(req,data,employer,extension){
     let author = {};
     author.username = req.user.username;
     author.id = req.user._id;
-    author.instituteName = req.user.instituteName;
+    author.instituteName = req.user.description.organization;
     //different author options for employer and user
     if(req.user.role === "Employer"){
     author.photo = req.user.logo;
@@ -113,7 +113,7 @@ async function createSavedJob(req,data,status){
     author.id = req.user._id;
     //different author options for employer and user
     if(req.user.role === "Employer"){
-    author.instituteName = req.user.instituteName;
+    author.instituteName = req.user.description.organization;
     author.photo = req.user.logo;
     }
     else{
@@ -220,13 +220,13 @@ async function readFileAsync(){
 }
 
 async function validateRequest(req){
-
+  return true;
   let data = await readFileAsync();
   var flag = false;
   // perform validation
   // incentives validation
   if(req.body.description.incentives){
-    if(req.body.incentives.every(incentive=>data.incentive.includes(incentive)))
+    if(req.body.description.incentives.every(incentive=>data.incentive.includes(incentive)))
     flag = true;
     else  return false;
   }
@@ -275,7 +275,7 @@ async function validateRequest(req){
 
 }
 async function validateUpdateRequest(req){
-
+  return true;
   let data = await readFileAsync();
   var flag = false;
   // perform validation

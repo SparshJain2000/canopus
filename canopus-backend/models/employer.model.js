@@ -80,6 +80,9 @@ module.exports = mongoose.model(
                 image:String,
                 username:String,
                 phone:String,
+                profession:String,
+                specialization:String,
+                superSpecialization:Array,
             }
         ],
         freelanceJobs: [
