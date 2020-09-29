@@ -59,14 +59,14 @@ export default class LoginUser extends Component {
             axios
                 .post(`/api/user/login`, user)
                 .then((newuser) => {
-                    console.log(newuser.data.employer);
-                    this.props.setUser(newuser.data.employer);
+                    console.log(newuser.data.user);
+                    this.props.setUser(newuser.data.user);
                     ReactGA.event({
-                        category: "Employer",
+                        category: "User",
                         action: "loggedin",
-                        id: `${newuser.data.employer._id}`,
+                        id: `${newuser.data.user._id}`,
                     });
-                    this.props.history.push("/employer");
+                    this.props.history.push("/search-jobs");
                 })
                 .catch((err) => {
                     console.log(err);

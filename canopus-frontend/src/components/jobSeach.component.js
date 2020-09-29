@@ -144,7 +144,9 @@ const Job = ({ job, userId, user }) => {
                                     : "user"
                                 : "employer"
                         }`,
-                    }}>
+                    }}
+                    // target='_blank'
+                >
                     <Media
                         className={`row  justify-content-center my-3 mx-auto p-2 px-md-3 ${
                             job.sponsored === "true" ? "block-info" : "block"
@@ -432,7 +434,7 @@ export default class JobSearch extends Component {
                         } ${this.state.profession}${
                             this.state.profession !== "" &&
                             this.state.specialization != ""
-                                ? " / "
+                                ? " - "
                                 : ""
                         }${this.state.specialization} jobs found`,
                     });
@@ -464,7 +466,7 @@ export default class JobSearch extends Component {
                         } ${this.state.profession}${
                             this.state.profession !== "" &&
                             this.state.specialization != ""
-                                ? " / "
+                                ? " - "
                                 : ""
                         }${this.state.specialization} jobs found`,
                     });
@@ -512,7 +514,7 @@ export default class JobSearch extends Component {
                             }${
                                 this.state.profession !== "" &&
                                 this.state.specialization != ""
-                                    ? " / "
+                                    ? " - "
                                     : ""
                             }${this.state.specialization} jobs found`,
                         });
@@ -560,7 +562,7 @@ export default class JobSearch extends Component {
                             } ${this.state.profession}${
                                 this.state.profession !== "" &&
                                 this.state.specialization != ""
-                                    ? " / "
+                                    ? " - "
                                     : ""
                             }${this.state.specialization} jobs found`,
                         });
@@ -654,7 +656,7 @@ export default class JobSearch extends Component {
                             } ${this.state.profession}${
                                 this.state.profession !== "" &&
                                 this.state.specialization != ""
-                                    ? " / "
+                                    ? " - "
                                     : ""
                             }${this.state.specialization} jobs found`,
                         });
@@ -699,7 +701,7 @@ export default class JobSearch extends Component {
                                   } ${this.state.profession}${
                                       this.state.profession !== "" &&
                                       this.state.specialization != ""
-                                          ? " / "
+                                          ? " - "
                                           : ""
                                   }${this.state.specialization} jobs found`
                                 : "",

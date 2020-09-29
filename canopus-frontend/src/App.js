@@ -178,7 +178,9 @@ class App extends Component {
                         exact
                         path='/job/:id'
                         // render={(props) => <Profile {...props} />}
-                        render={(props) => <Job {...props} />}
+                        render={(props) => (
+                            <Job {...props} user={this.state.user} />
+                        )}
                     />
                     {this.state.user && this.state.user.role === "Employer" && (
                         <Route

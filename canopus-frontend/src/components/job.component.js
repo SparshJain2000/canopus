@@ -11,10 +11,12 @@ import {
     faFileAlt,
     faBriefcaseMedical,
     faPhone,
+    faArrowLeft,
+    faCheckCircle,
 } from "@fortawesome/free-solid-svg-icons";
 import {
     Badge,
-    Tooltip,
+    UncontrolledTooltip,
     Alert,
     Button,
     Modal,
@@ -22,6 +24,7 @@ import {
     ModalBody,
     Media,
     ModalFooter,
+    Input,
 } from "reactstrap";
 import hospital from "../images/hospital.svg";
 import error from "../images/404.svg";
@@ -100,21 +103,23 @@ class SimilarJobs extends Component {
             <div>
                 {this.state.message === "" &&
                     (this.state.jobs ? (
-                        <div>
-                            <h4 style={{ textAlign: "center" }}>
+                        <div className='row justify-content-between'>
+                            <h4
+                                className='col-12'
+                                style={{ textAlign: "center" }}>
                                 {this.state.jobs.length} similar jobs found
                             </h4>
                             {this.state.jobs.map((job) => (
-                                <BounceIn>
+                                <BounceIn className='col-12 col-sm-6 mx-auto'>
                                     <Link
                                         to={`/job/${job._id}`}
-                                        className='row  block justify-content-center my-3 mx-auto p-2 px-md-3 '
+                                        className='row  block justify-content-center mx-auto '
                                         style={{ cursor: "pointer" }}
                                         // onClick={() =>
                                         //     history.push(`/job/${job._id}`)
                                         // }
                                     >
-                                        <Media body className='col-12 my-1 p-1'>
+                                        <Media body className='col-12 my-1 p-2'>
                                             <Media heading>
                                                 <h5>{job.title}</h5>
                                             </Media>
@@ -159,23 +164,6 @@ class SimilarJobs extends Component {
                                                 />
                                             </div>
                                         </Media>
-                                        <Media
-                                            left
-                                            href='#'
-                                            className='d-none d-md-block col-12 col-md-3 my-auto mx-auto '>
-                                            <Media
-                                                object
-                                                src={
-                                                    job.author &&
-                                                    job.author.photo
-                                                        ? job.author.photo
-                                                        : hospital
-                                                }
-                                                style={{ maxHeight: "200px" }}
-                                                alt='Generic placeholder image'
-                                                className='img-fluid float-right pr-2 pr-lg-3'
-                                            />
-                                        </Media>
                                     </Link>
                                 </BounceIn>
                             ))}
@@ -196,7 +184,24 @@ class SimilarJobs extends Component {
         );
     }
 }
+const Banner = () => {
+    return (
+        <div>
+            <a href='/user/login' className='text-info'>
+                Login
+            </a>
+            /
+            <a href='/user/signup' className='text-info'>
+                Signup
+            </a>{" "}
+            to apply
+        </div>
+    );
+};
 export default class Job extends Component {
+    static contextTypes = {
+        router: () => true, // replace with PropTypes.object if you use them
+    };
     constructor(props) {
         super(props);
         this.state = {
@@ -206,41 +211,63 @@ export default class Job extends Component {
             err: "",
             tooltipOpen: false,
             isFreelance: false,
+            modalError: false,
+            modalMess: "",
         };
         if (props.location.search === "?type=freelance")
             this.setState({ isFreelance: true });
         this.applyJob = this.applyJob.bind(this);
         this.toggle = this.toggle.bind(this);
         this.showDetail = this.showDetail.bind(this);
+        this.toggleModalError = this.toggleModalError.bind(this);
         this.toggleTooltip = this.toggleTooltip.bind(this);
+    }
+    toggleModalError() {
+        this.setState({ modalError: !this.state.modalError });
     }
     toggleTooltip() {
         this.setState({ tooltipOpen: !this.state.tooltipOpen });
     }
     showDetail() {
-        if (!this.state.user) {
-            axios
-                .get(`/api/user/current`)
-                .then(({ data }) => {
-                    console.log(data);
-                    this.setState({
-                        user: data.user,
-                        modal: !this.state.modal,
-                    });
-                    // this.toggle();
-                })
-                .catch((err) => {
-                    console.log(err);
-                    // this.setState({ err: response.data.err });
-                });
-        } else this.toggle();
+        if (this.props.user) {
+            this.setState({
+                user: this.props.user,
+                modal: true,
+            });
+        }
+        console.log("oitsode");
+
+        if (!this.props.user) {
+            console.log("insode");
+            this.setState({
+                modalError: true,
+                modalMess: "NOT",
+            });
+        }
+        // if (!this.state.user) {
+        //     axios
+        //         .get(`/api/user/current`)
+        //         .then(({ data }) => {
+        //             console.log(data);
+        //             this.setState({
+        //                 user: data.user,
+        //                 modal: !this.state.modal,
+        //             });
+        //             // this.toggle();
+        //         })
+        //         .catch((err) => {
+        //             console.log(err);
+        //             // this.setState({ err: response.data.err });
+        //         });
+        // } else this.toggle();
     }
     applyJob() {
         // this.toggle();
+
         console.log(this.state.job);
         const type = this.state.job.startDate ? "freelance" : "job";
         axios
-            .post(`/api/search/apply/${type}/${this.state.job._id}`)
+            .put(`/api/search/apply/${type}/${this.state.job._id}`)
             .then(({ data }) => {
                 console.log(data);
                 // setApplied(true);
@@ -277,9 +304,9 @@ export default class Job extends Component {
                 }
                 console.log(this.state.job);
             })
-            .catch(({ data }) => {
-                console.log(data);
-                const response = data.response;
+            .catch((err) => {
+                console.log(err);
+                const response = err.response;
                 this.setState({
                     err:
                         response && response.data.err
@@ -305,7 +332,20 @@ export default class Job extends Component {
                 </Alert>
                 {this.state.job ? (
                     <div className='row'>
-                        <div className='col-11 col-sm-9 main-job mx-auto  my-3 p-2 p-sm-3'>
+                        <div className='col-11 col-sm-9 col-md-8 px-0 mx-auto py-2'>
+                            <button
+                                className='button btn btn-info'
+                                onClick={() => {
+                                    this.props.history.goBack();
+                                }}>
+                                <FontAwesomeIcon
+                                    icon={faArrowLeft}
+                                    className='mr-2'
+                                />{" "}
+                                Back to Search Results
+                            </button>
+                        </div>
+                        <div className='col-11 col-sm-9 col-md-8 main-job mx-auto my-3 p-2 p-sm-3'>
                             <div className='row '>
                                 <div className='col-7 col-md-10 my-auto'>
                                     <h5>{job.title}</h5>
@@ -340,7 +380,7 @@ export default class Job extends Component {
                                 </div>
                             </div>
                             {/* <hr /> */}
-                            <div className=' row justify-content-center'>
+                            <div className=' row justify-content-around'>
                                 <div
                                     className='col-6 col-sm-3 my-1'
                                     style={{ textAlign: "center" }}>
@@ -384,7 +424,7 @@ export default class Job extends Component {
                                 </div>
                             </div>
                             <hr />
-                            <div className='row justify-content-center'>
+                            <div className='row justify-content-around'>
                                 <div
                                     className='col-6 col-md-2 my-1'
                                     style={{ textAlign: "center" }}>
@@ -443,18 +483,6 @@ export default class Job extends Component {
                                     </h6>
                                     {formatter.format(job.description.salary)}
                                 </div>
-                                <div
-                                    className='col-6 col-md-2 my-1'
-                                    style={{ textAlign: "center" }}>
-                                    <h6>
-                                        <b>Number of Applicants</b>
-                                        {/* <FontAwesomeIcon
-                                        icon={faMoneyBillWaveAlt}
-                                        className='ml-1'
-                                    /> */}
-                                    </h6>
-                                    {job.description.count}
-                                </div>
                             </div>
                             <hr />
                             <div className='row p-1'>
@@ -501,19 +529,61 @@ export default class Job extends Component {
                                         </Button>
                                     </CopyToClipboard>
 
-                                    <Tooltip
-                                        placement='top'
-                                        isOpen={this.state.tooltipOpen}
+                                    <UncontrolledTooltip
+                                        placement='down'
+                                        // isOpen={this.state.tooltipOpen}
+                                        trigger='click'
                                         target='t'
-                                        // trigger='click'
-                                        // toggle={this.toggleTooltip}
-                                    >
-                                        URL copied!
-                                    </Tooltip>
+                                        style={{
+                                            minWidth: "max-content",
+                                            backgroundColor:
+                                                "rgba(255,255,255,1)",
+                                            color: "black",
+                                            padding: "0px",
+                                        }}
+                                        className='border'>
+                                        <div
+                                            className='p-3 m-0 border'
+                                            style={{
+                                                minWidth: "min-content",
+                                            }}>
+                                            <h4 className='text-align-center p-1'>
+                                                <FontAwesomeIcon
+                                                    icon={faCheckCircle}
+                                                    className='text-success'
+                                                    size='lg'
+                                                />
+                                            </h4>
+                                            <h5 className=''>
+                                                Link to '{job.title}' copied
+                                            </h5>
+                                            <div className='row'>
+                                                <div className='col-9 pl-0'>
+                                                    <Input
+                                                        type='text'
+                                                        value={
+                                                            window.location.href
+                                                        }
+                                                        className=''
+                                                        disabled
+                                                    />
+                                                </div>
+                                                <CopyToClipboard
+                                                    text={window.location.href}>
+                                                    <Button
+                                                        color='info'
+                                                        size='xs'
+                                                        className='col-3'>
+                                                        Copy
+                                                    </Button>
+                                                </CopyToClipboard>
+                                            </div>
+                                        </div>
+                                    </UncontrolledTooltip>
                                 </div>
                             </div>
                         </div>
-                        <div className='col-11 col-sm-9 mx-auto my-3 px-0'>
+                        <div className='col-11 col-sm-9 col-md-8 mx-auto my-3 px-0'>
                             <SimilarJobs job={this.state.job} />
                         </div>
 
@@ -595,32 +665,40 @@ export default class Job extends Component {
                                                 </div>
                                             </h6>
                                         </div>
-                                        <div className='m-2 mx-auto'>
-                                            <h6 className='row'>
-                                                <div className='col-1 px-0'>
-                                                    <FontAwesomeIcon
-                                                        icon={faPhone}
-                                                        className='ml-2 mr-3'
-                                                    />
+                                        {this.state.user.phone !== undefined &&
+                                            this.state.user.phone !== "" && (
+                                                <div className='m-2 mx-auto'>
+                                                    <h6 className='row'>
+                                                        <div className='col-1 px-0'>
+                                                            <FontAwesomeIcon
+                                                                icon={faPhone}
+                                                                className='ml-2 mr-3'
+                                                                style={{
+                                                                    transform:
+                                                                        "rotateZ(180deg)",
+                                                                }}
+                                                            />
+                                                        </div>
+                                                        <div className='col-11 pl-3'>
+                                                            {"+91-"}
+                                                            {
+                                                                this.state.user
+                                                                    .phone
+                                                            }
+                                                        </div>
+                                                    </h6>
                                                 </div>
-                                                <div className='col-11 pl-3'>
-                                                    {"+91-"}
-                                                    {this.state.user.phone}
-                                                </div>
-                                            </h6>
-                                        </div>
+                                            )}
                                         <div className='m-2 mt-4 mx-auto text-align-center'>
-                                            <Button
-                                                size='sm'
-                                                className='w-75'
-                                                color='info'
+                                            <a
+                                                className='text-info'
                                                 href={this.state.user.resume}>
                                                 Resume
                                                 <FontAwesomeIcon
                                                     className='ml-2'
                                                     icon={faFileAlt}
                                                 />
-                                            </Button>
+                                            </a>
                                         </div>
                                         <hr />
                                         <span>
@@ -628,31 +706,37 @@ export default class Job extends Component {
                                             profile and contact details with{" "}
                                             {job.description.company}
                                         </span>
-                                        {/* <em>
-                                            {this.state.user.description
-                                                ? this.state.user.description
-                                                      .about
-                                                    ? this.state.user
-                                                          .description.about
-                                                    : this.state.user
-                                                          .description
-                                                : ""}
-                                            Lorem ipsum dolor sit amet
-                                            consectetur adipisicing elit. Saepe,
-                                            repudiandae vitae, earum maerat
-                                            doloribus acc
-                                        </em> */}
                                     </div>
                                 </ModalBody>
                                 <ModalFooter>
                                     <Button
                                         color='primary'
                                         onClick={this.applyJob}>
-                                        Apply
+                                        Submit Application
                                     </Button>
                                 </ModalFooter>
                             </Modal>
                         )}
+                        <Modal
+                            isOpen={this.state.modalError}
+                            toggle={this.toggleModalError}
+                            style={{ marginTop: "20vh" }}>
+                            <ModalHeader
+                                toggle={this.toggleModalError}
+                                className='py-1'>
+                                Message
+                            </ModalHeader>
+                            {/* <ModalHeader toggle={toggle}>
+                    {mess === "promote" && "Promote"}
+                </ModalHeader> */}
+                            <ModalBody>
+                                {this.state.modalMess === "NOT" ? (
+                                    <Banner />
+                                ) : (
+                                    this.state.modalMess
+                                )}
+                            </ModalBody>
+                        </Modal>
                     </div>
                 ) : (
                     this.state.err === "" && (
@@ -685,12 +769,12 @@ export default class Job extends Component {
 //          onClick={() => console.log("clicked")}>
 //          Share
 //      </a>
-//  <Tooltip
+//  <UncontrolledTooltip
 //      placement='top'
 //      isOpen={tooltipOpen}
 //      target='t'
 //      // trigger='click'
 //      toggle={toggleTooltip}>
-//      Tooltip Content!
-//  </Tooltip>
+//      UncontrolledTooltip  Content!
+//  </UncontrolledTooltip >
 //  </span>;
