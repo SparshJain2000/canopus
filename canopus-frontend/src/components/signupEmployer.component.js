@@ -60,6 +60,7 @@ export default class SignupEmployer extends Component {
             ErrorModalMess: "",
         };
         this.handleChange = this.handleChange.bind(this);
+        this.handleChangeRecaptcha = this.handleChangeRecaptcha.bind(this);
         this.signUp = this.signUp.bind(this);
         this.setCoordinates = this.setCoordinates.bind(this);
         this.check = this.check.bind(this);
@@ -76,8 +77,13 @@ export default class SignupEmployer extends Component {
             lng: coords.lng,
         });
     }
+    handleChangeRecaptcha(e) {
+        console.log(e);
+        this.setState({
+            recaptcha: e,
+        });
+    }
     handleChange(e, index) {
-        // console.log(this.state);
         console.log(index);
         let { validate } = this.state;
         validate = {
@@ -193,7 +199,8 @@ export default class SignupEmployer extends Component {
                     <ReCAPTCHA
                         sitekey={`${process.env.REACT_APP_CAPTCHA_FRONTEND}`}
                         name='recaptcha'
-                        onChange={this.handleChange}
+                        // size='invisible'
+                        onChange={this.handleChangeRecaptcha}
                     />
                     <div className=' d-flex justify-content-end'>
                         <Button

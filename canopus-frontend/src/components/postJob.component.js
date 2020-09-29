@@ -28,8 +28,9 @@ import {
     faEnvelope,
     faArrowAltCircleDown,
     faArrowAltCircleUp,
-    faArrowDown,
-    faArrowUp,
+    faChevronUp,
+    faChevronDown,
+    faExternalLinkAlt,
     // faShareAlt,
 } from "@fortawesome/free-solid-svg-icons";
 const block = {
@@ -60,6 +61,10 @@ const PostJob = (props) => {
     const endTimeRef = useRef(null);
     const startTimeRef = useRef(null);
     const categoryRef = useRef(null);
+
+    const currentDate = new Date();
+    const date60 = new Date(currentDate.setDate(currentDate.getDate() + 60));
+    const date90 = new Date(currentDate.setDate(currentDate.getDate() + 30));
     const [showDetail, setShowDetail] = useState(false);
     const [showSkill, setShowSkill] = useState(false);
     const [showOtherDetail, setShowOtherDetail] = useState(false);
@@ -73,7 +78,7 @@ const PostJob = (props) => {
 
     const [profession, setProfession] = useState("");
     const [specialization, setSpecialization] = useState("");
-    const [superSpecialization, setSuperSpecialization] = useState([]);
+    const [superSpecialization, setSuperSpecialization] = useState("");
     const [skills, setSkills] = useState("");
 
     const [location, setLocation] = useState("");
@@ -92,6 +97,8 @@ const PostJob = (props) => {
     const [contact, setContact] = useState("");
     const [procedure, setProcedure] = useState("");
     const [sponsored, setSponsored] = useState(false);
+    const [attachApplicants, setAttachAppilcants] = useState([]);
+    const [tempArr, setTempArr] = useState([]);
 
     const [modal, setModal] = useState(false);
     const [mess, setMess] = useState("");
@@ -202,106 +209,141 @@ const PostJob = (props) => {
         setValid(newValid);
     };
     const save = () => {
-        const jobType = "save";
-        let type2;
-        let job = {
-            title: title,
-            profession: profession,
-            specialization: specialization,
-            superSpecialization: superSpecialization.map((x) => x.value),
-            sponsored: sponsored,
-            description: {
-                line: line.trim(),
-                about: skills.trim(),
-                experience: experience,
-                incentives: incentives.map((x) => x.value),
-                type: type,
-                location: location,
-                // skills: skills.trim(),
-                salary: salary,
-                count: numberApp,
-                company:
-                    employer === ""
-                        ? currentEmployer.description
-                            ? currentEmployer.description.organization
-                            : employer
-                        : "",
-                employer:
-                    employer === ""
-                        ? currentEmployer.description
-                            ? currentEmployer.description.organization
-                            : employer
-                        : "",
-                contact: contact,
-                procedure: procedure,
-            },
+        let newValid = {
+            title: title !== "",
+            type: type !== "",
+            profession: profession !== "",
+            specialization: specialization !== "",
+            location: location !== "",
+            experience: experience !== "",
+            line: line !== "",
+            contact: contact !== "",
         };
-        if (type === "Day Job") {
-            type2 = "freelance";
-            if (startDate !== "")
-                job.endDate = new Date(`${startDate} ${endTime}`).toISOString();
-            if (startDate !== "")
-                job.startDate = new Date(
-                    `${startDate} ${startTime}`,
-                ).toISOString();
-            job.category = type;
-        } else if (type === "Locum Position") {
-            type2 = "freelance";
-            if (endDate !== "")
-                job.endDate = new Date(`${endDate}`).toISOString();
-            if (startDate !== "")
-                job.startDate = new Date(`${startDate}`).toISOString();
-            job.category = "Locum";
-        } else {
-            type2 = "job";
-            job.category = "Full-time";
-            // job.expireAt =
-            //     endDate !== ""
-            //         ? new Date(endDate).toISOString()
-            //         : new Date(
-            //               new Date() + 45 * 24 * 60 * 60 * 1000,
-            //           ).toISOString();
+        if (type === "Locum Position") {
+            newValid.startDate = startDate !== "";
+            newValid.endDate = endDate !== "";
         }
-        axios
-            .post(`/api/job/save`, job)
-            .then((data) => {
-                console.log(data);
-                if (data.status === 200) {
-                    // alert("job Saved");
-                    window.location = "/applications";
-                }
-                //  window.location = "/search-jobs";
-            })
-            .catch((err) => {
-                console.log(err.response);
-                const error = err.response.data ? err.response.data.err : "";
+        if (type === "Day Job") {
+            newValid.startDate = startDate !== "";
+            newValid.startTime = startTime !== "";
+            newValid.endTime = endTime !== "";
+        }
+        console.log(newValid);
+        setValid(newValid);
+        const isValid = Object.values(newValid).every((item) => item === true);
+        if (!isValid) {
+            setModalError(true);
+            setMessError("Please fill all the fields !");
+        } else {
+            const jobType = "save";
+            let type2;
 
-                // alert("Unable to post job : " + error);
-                // alert("Unable to post job");
-                err.response.data
-                    ? setMessError(err.response.data.err)
-                    : setMessError("Error saving job");
+            let job = {
+                title: title,
+                profession: profession,
+                specialization: specialization,
+                superSpecialization: superSpecialization,
+                sponsored: sponsored,
 
-                toggleError();
-            });
-        console.log(job);
+                description: {
+                    line: line.trim(),
+                    about: skills.trim(),
+                    experience: experience,
+                    incentives: incentives && incentives.map((x) => x.value),
+                    type: type,
+                    location: location,
+                    // skills: skills.trim(),
+                    salary: salary,
+                    count: numberApp,
+                    company:
+                        employer === ""
+                            ? currentEmployer.description
+                                ? currentEmployer.description.organization
+                                : employer
+                            : "",
+                    employer:
+                        employer === ""
+                            ? currentEmployer.description
+                                ? currentEmployer.description.organization
+                                : employer
+                            : "",
+                    contact: contact,
+                    procedure: procedure,
+                },
+            };
+            if (type === "Day Job") {
+                type2 = "freelance";
+                if (startDate !== "")
+                    job.endDate = new Date(
+                        `${startDate} ${endTime}`,
+                    ).toISOString();
+                if (startDate !== "")
+                    job.startDate = new Date(
+                        `${startDate} ${startTime}`,
+                    ).toISOString();
+                job.category = type;
+            } else if (type === "Locum Position") {
+                type2 = "freelance";
+                if (endDate !== "")
+                    job.endDate = new Date(`${endDate}`).toISOString();
+                if (startDate !== "")
+                    job.startDate = new Date(`${startDate}`).toISOString();
+                job.category = "Locum";
+            } else {
+                type2 = "job";
+                job.category = "Full-time";
+                // job.expireAt =
+                //     endDate !== ""
+                //         ? new Date(endDate).toISOString()
+                //         : new Date(
+                //               new Date() + 45 * 24 * 60 * 60 * 1000,
+                //           ).toISOString();
+            }
+            axios
+                .post(`/api/job/save`, job)
+                .then((data) => {
+                    console.log(data);
+                    if (data.status === 200) {
+                        // alert("job Saved");
+                        window.location = "/applications";
+                    }
+                    //  window.location = "/search-jobs";
+                })
+                .catch((err) => {
+                    console.log(err.response);
+                    const error = err.response.data
+                        ? err.response.data.err
+                        : "";
+
+                    // alert("Unable to post job : " + error);
+                    // alert("Unable to post job");
+                    err.response.data
+                        ? setMessError(err.response.data.err)
+                        : setMessError("Error saving job");
+
+                    toggleError();
+                });
+            console.log(job);
+        }
     };
     const submit = () => {
         const jobType = "post";
         let type2;
+        let attArr = attachApplicants.filter((obj) => obj !== undefined);
         let job = {
             title: title,
             profession: profession,
             specialization: specialization,
-            superSpecialization: superSpecialization.map((x) => x.value),
+            superSpecialization: superSpecialization,
             sponsored: sponsored,
+            // attachedApplicants: attArr,
             // instituteName: employer,
 
             description: {
                 line: line.trim(),
                 about: skills.trim(),
                 experience: experience,
-                incentives: incentives.map((x) => x.value),
+                incentives: incentives && incentives.map((x) => x.value),
                 type: type,
                 location: location,
                 // skills: skills.trim(),
@@ -323,6 +365,7 @@ const PostJob = (props) => {
                 procedure: procedure,
             },
         };
+        if (attArr.length > 0) job.attachedApplicants = attArr;
         if (type === "Day Job") {
             type2 = "freelance";
             if (endDate !== "")
@@ -382,6 +425,8 @@ const PostJob = (props) => {
             .then(({ data }) => {
                 console.log(data.user);
                 setCurrentEmployer(data.user);
+                if (data.user && data.user.acceptedApplicants)
+                    setTempArr(data.user.acceptedApplicants);
             })
             .catch((err) => console.log(err));
         console.log("====================================");
@@ -423,6 +468,7 @@ const PostJob = (props) => {
                                 ? data.description.contact
                                 : "",
                         );
+
                         setProcedure(
                             data.description.procedure
                                 ? data.description.procedure
@@ -499,13 +545,7 @@ const PostJob = (props) => {
                                     : data.description.type
                                 : "",
                         );
-                        setSuperSpecialization(
-                            data.superSpecialization
-                                ? data.superSpecialization.map((x) => {
-                                      return { value: x, label: x };
-                                  })
-                                : [],
-                        );
+                        setSuperSpecialization(data.superSpecialization);
                         setShowDetail(true);
                         // console.log(endDate);
                         // setTitle(data.title);
@@ -604,13 +644,7 @@ const PostJob = (props) => {
                                     : data.description.type
                                 : "",
                         );
-                        setSuperSpecialization(
-                            data.superSpecialization
-                                ? data.superSpecialization.map((x) => {
-                                      return { value: x, label: x };
-                                  })
-                                : [],
-                        );
+                        setSuperSpecialization(data.superSpecialization);
 
                         console.log(endDate);
                         setShowDetail(true);
@@ -686,7 +720,7 @@ const PostJob = (props) => {
                 <h3>Post a Job</h3>
                 <div className=' p-2 p-sm-3 mt-4' style={block}>
                     <div className='row justify-content-between'>
-                        <h4 className='col-9 col-sm-10'>Job Details</h4>
+                        <h4 className='col-9 col-sm-10 pl-2'>Job Details</h4>
                         {/* <Button
                             onClick={toggleDetail}
                             className='col-3 col-sm-1'
@@ -696,7 +730,7 @@ const PostJob = (props) => {
                             }}> */}
 
                         <FontAwesomeIcon
-                            icon={showDetail ? faArrowUp : faArrowDown}
+                            icon={showDetail ? faChevronUp : faChevronDown}
                             className='text-info'
                             size='md'
                             onClick={toggleDetail}
@@ -919,7 +953,6 @@ const PostJob = (props) => {
                                 </Label>
                                 <div style={{ width: `100%` }}>
                                     <Select
-                                        isMulti
                                         autosize={true}
                                         placeholder='Super specialization'
                                         options={
@@ -934,7 +967,7 @@ const PostJob = (props) => {
                                             console.log(e);
                                             handleChangeSelect(
                                                 "SuperSpecialization",
-                                                e,
+                                                e ? e.value : "",
                                             );
                                         }}
                                     />
@@ -1045,12 +1078,11 @@ const PostJob = (props) => {
                     )}
                 </div>
 
-                <hr />
-                <div className=' p-2 p-sm-3' style={block}>
+                <div className=' p-2 p-sm-3 my-2' style={block}>
                     <div className='row justify-content-between'>
-                        <h4 className='col-9 col-sm-10'>Description</h4>
+                        <h4 className='col-9 col-sm-10 pl-2'>Description</h4>
                         <FontAwesomeIcon
-                            icon={showSkill ? faArrowUp : faArrowDown}
+                            icon={showSkill ? faChevronUp : faChevronDown}
                             className='text-info'
                             size='md'
                             onClick={toggleSkill}
@@ -1107,12 +1139,11 @@ const PostJob = (props) => {
                     )}
                 </div>
 
-                <hr />
-                <div className=' p-2 p-sm-3' style={block}>
+                <div className=' p-2 p-sm-3 my-2' style={block}>
                     <div className='row justify-content-between'>
-                        <h4 className='col-9 col-sm-10'>Other Details</h4>
+                        <h4 className='col-9 col-sm-10 pl-2'>Other Details</h4>
                         <FontAwesomeIcon
-                            icon={showOtherDetail ? faArrowUp : faArrowDown}
+                            icon={showOtherDetail ? faChevronUp : faChevronDown}
                             className='text-info'
                             size='md'
                             onClick={toggleOtherDetail}
@@ -1233,16 +1264,17 @@ const PostJob = (props) => {
                         </FormGroup>
                     )}
                 </div>
-                <hr />
+
                 {(type === "Day Job" || type === "Locum Position") && (
-                    <div
-                        className='  p-2 p-sm-3'
-                        style={{
-                            height: "max-content",
-                        }}
-                        style={block}>
-                        <h4 className='pl-2'>Day/Locum Jobs</h4>
-                        {/* <div className='row justify-content-between'>
+                    <div>
+                        <div
+                            className='  p-2 p-sm-3 my-2'
+                            style={{
+                                height: "max-content",
+                            }}
+                            style={block}>
+                            <h4 className='pl-2'>Day/Locum Jobs</h4>
+                            {/* <div className='row justify-content-between'>
                         <div className='col-9 col-sm-10'>
                             <h4>Day/Locum</h4>
                         </div>
@@ -1266,157 +1298,253 @@ const PostJob = (props) => {
                             </label>
                         </div>
                     </div> */}
-                        {(type === "Day Job" || type === "Locum Position") && (
-                            <FormGroup className='row p-2'>
-                                <InputGroup className='col-12  my-1 '>
-                                    <Label className='my-1'>
-                                        <h6>Procedure</h6>
-                                    </Label>
-                                    <InputGroup className='w-100'>
-                                        <textarea
-                                            placeholder='Procedure'
-                                            // ref={lineRef}
-                                            className='form-control'
-                                            rows='4'
-                                            name='Procedure'
-                                            onChange={handleChange}
-                                            defaultValue={procedure}
-                                        />
-                                    </InputGroup>
-                                </InputGroup>
-                                <div className='col-12 row px-0'>
-                                    <InputGroup className='col-12 col-md-6 my-1 pr-md-1'>
-                                        <Label
-                                            className='my-1 col-12'
-                                            for='exampleDate'>
-                                            <h6>Start-Date</h6>
+                            {(type === "Day Job" ||
+                                type === "Locum Position") && (
+                                <FormGroup className='row p-2'>
+                                    <InputGroup className='col-12  my-1 '>
+                                        <Label className='my-1'>
+                                            <h6>Procedure</h6>
                                         </Label>
-                                        <Input
-                                            type='date'
-                                            name='StartDate'
-                                            id='exampleDate'
-                                            placeholder='date placeholder'
-                                            min={`${new Date().getFullYear()}-${(
-                                                "0" +
-                                                (new Date().getMonth() + 1)
-                                            ).slice(-2)}-${(
-                                                "0" + new Date().getDate()
-                                            ).slice(-2)}`}
-                                            max={`${new Date().getFullYear()}-${(
-                                                "0" +
-                                                (new Date().getMonth() + 1)
-                                            ).slice(-2)}-${(
-                                                "0" + new Date().getDate()
-                                            ).slice(-2)}`}
-                                            className=''
-                                            onChange={handleChange}
-                                            invalid={
-                                                valid.startDate === undefined
-                                                    ? false
-                                                    : !valid.startDate
-                                            }
-                                            // defaultValue={
-                                            //     new Date(
-                                            //         new Date().getTime() +
-                                            //             60 *
-                                            //                 24 *
-                                            //                 60 *
-                                            //                 60 *
-                                            //                 1000,
-                                            //     )
-                                            // }
-                                            // ref={endDateRef}
-                                            // onChange={handleChange}
-                                        />
+                                        <InputGroup className='w-100'>
+                                            <textarea
+                                                placeholder='Procedure'
+                                                // ref={lineRef}
+                                                className='form-control'
+                                                rows='4'
+                                                name='Procedure'
+                                                onChange={handleChange}
+                                                defaultValue={procedure}
+                                            />
+                                        </InputGroup>
                                     </InputGroup>
-                                    {type === "Locum Position" && (
-                                        <InputGroup className='col-12 col-md-6 my-1 pl-md-1'>
+                                    <div className='col-12 row px-0'>
+                                        <InputGroup className='col-12 col-md-6 my-1 pr-md-1'>
                                             <Label
                                                 className='my-1 col-12'
                                                 for='exampleDate'>
-                                                <h6>End-Date</h6>
+                                                <h6>Start-Date</h6>
                                             </Label>
                                             <Input
                                                 type='date'
-                                                name='EndDate'
+                                                name='StartDate'
                                                 id='exampleDate'
                                                 placeholder='date placeholder'
-                                                // ref={dateRef}
+                                                min={`${new Date().getFullYear()}-${(
+                                                    "0" +
+                                                    (new Date().getMonth() + 1)
+                                                ).slice(-2)}-${(
+                                                    "0" + new Date().getDate()
+                                                ).slice(-2)}`}
+                                                max={`${date60.getFullYear()}-${(
+                                                    "0" +
+                                                    (date60.getMonth() + 1)
+                                                ).slice(-2)}-${(
+                                                    "0" + date60.getDate()
+                                                ).slice(-2)}`}
                                                 className=''
                                                 onChange={handleChange}
-                                                // defaultValue={endDate}
-                                                // defaultValue={new Date(
-                                                //     new Date().getTime() +
-                                                //         90 *
-                                                //             24 *
-                                                //             60 *
-                                                //             60 *
-                                                //             1000,
-                                                // )
-                                                //     .toISOString()
-                                                //     .substring(0, 10)}
-                                                // ref={endDateRef}
-                                                // onChange={handleChange}
                                                 invalid={
-                                                    valid.endDate === undefined
-                                                        ? false
-                                                        : !valid.endDate
-                                                }
-                                            />
-                                        </InputGroup>
-                                    )}
-                                </div>
-                                {type === "Day Job" && (
-                                    <div className='col-12 row px-0'>
-                                        <InputGroup className='col-12 col-sm-6 my-1 pr-md-1'>
-                                            <Label
-                                                className='pr-2 col-12'
-                                                for='exampleDate'>
-                                                <h6>Start Time</h6>
-                                            </Label>
-                                            {/* <Label for='exampleTime'>Time</Label> */}
-                                            <Input
-                                                type='time'
-                                                name='StartTime'
-                                                id='exampleTime'
-                                                placeholder='time placeholder'
-                                                className=''
-                                                ref={startTimeRef}
-                                                onChange={handleChange}
-                                                invalid={
-                                                    valid.startTime ===
+                                                    valid.startDate ===
                                                     undefined
                                                         ? false
-                                                        : !valid.startTime
+                                                        : !valid.startDate
                                                 }
+
+                                                // defaultValue={
+                                                //     new Date(
+                                                //         new Date().getTime() +
+                                                //             60 *
+                                                //                 24 *
+                                                //                 60 *
+                                                //                 60 *
+                                                //                 1000,
+                                                //     )
+                                                // }
+                                                // ref={endDateRef}
+                                                // onChange={handleChange}
                                             />
                                         </InputGroup>
-                                        <InputGroup className='col-12 col-sm-6 my-1 pl-md-1 '>
-                                            <Label
-                                                className='pr-2 col-12'
-                                                for='exampleDate'>
-                                                <h6>End Time</h6>
-                                            </Label>
-                                            {/* <Label for='exampleTime'>Time</Label> */}
-                                            <Input
-                                                type='time'
-                                                name='EndTime'
-                                                id='exampleTime'
-                                                placeholder='time placeholder'
-                                                className=''
-                                                // ref={endTimeRef}
-                                                onChange={handleChange}
-                                                invalid={
-                                                    valid.endTime === undefined
-                                                        ? false
-                                                        : !valid.endTime
-                                                }
-                                            />
-                                        </InputGroup>
+                                        {type === "Locum Position" && (
+                                            <InputGroup className='col-12 col-md-6 my-1 pl-md-1'>
+                                                <Label
+                                                    className='my-1 col-12'
+                                                    for='exampleDate'>
+                                                    <h6>End-Date</h6>
+                                                </Label>
+                                                <Input
+                                                    type='date'
+                                                    name='EndDate'
+                                                    id='exampleDate'
+                                                    placeholder='date placeholder'
+                                                    className=''
+                                                    min={`${new Date().getFullYear()}-${(
+                                                        "0" +
+                                                        (new Date().getMonth() +
+                                                            1)
+                                                    ).slice(-2)}-${(
+                                                        "0" +
+                                                        new Date().getDate()
+                                                    ).slice(-2)}`}
+                                                    max={`${date90.getFullYear()}-${(
+                                                        "0" +
+                                                        (date90.getMonth() + 1)
+                                                    ).slice(-2)}-${(
+                                                        "0" + date90.getDate()
+                                                    ).slice(-2)}`}
+                                                    onChange={handleChange}
+                                                    invalid={
+                                                        valid.endDate ===
+                                                        undefined
+                                                            ? false
+                                                            : !valid.endDate
+                                                    }
+                                                />
+                                            </InputGroup>
+                                        )}
                                     </div>
+                                    {type === "Day Job" && (
+                                        <div className='col-12 row px-0'>
+                                            <InputGroup className='col-12 col-sm-6 my-1 pr-md-1'>
+                                                <Label
+                                                    className='pr-2 col-12'
+                                                    for='exampleDate'>
+                                                    <h6>Start Time</h6>
+                                                </Label>
+                                                {/* <Label for='exampleTime'>Time</Label> */}
+                                                <Input
+                                                    type='time'
+                                                    name='StartTime'
+                                                    id='exampleTime'
+                                                    placeholder='time placeholder'
+                                                    className=''
+                                                    ref={startTimeRef}
+                                                    onChange={handleChange}
+                                                    invalid={
+                                                        valid.startTime ===
+                                                        undefined
+                                                            ? false
+                                                            : !valid.startTime
+                                                    }
+                                                />
+                                            </InputGroup>
+                                            <InputGroup className='col-12 col-sm-6 my-1 pl-md-1 '>
+                                                <Label
+                                                    className='pr-2 col-12'
+                                                    for='exampleDate'>
+                                                    <h6>End Time</h6>
+                                                </Label>
+                                                {/* <Label for='exampleTime'>Time</Label> */}
+                                                <Input
+                                                    type='time'
+                                                    name='EndTime'
+                                                    id='exampleTime'
+                                                    placeholder='time placeholder'
+                                                    className=''
+                                                    // ref={endTimeRef}
+                                                    onChange={handleChange}
+                                                    invalid={
+                                                        valid.endTime ===
+                                                        undefined
+                                                            ? false
+                                                            : !valid.endTime
+                                                    }
+                                                />
+                                            </InputGroup>
+                                        </div>
+                                    )}
+                                </FormGroup>
+                            )}
+                        </div>
+                        <div
+                            className='  p-2 p-sm-3 my-2'
+                            style={{
+                                height: "max-content",
+                            }}
+                            style={block}>
+                            <h4 className='pl-2'>Notify Applicants</h4>
+
+                            <FormGroup>
+                                {tempArr.filter(
+                                    (obj) => obj.profession === profession,
+                                ).length === 0 && (
+                                    <h6 className='text-align-center'>
+                                        No applicants
+                                    </h6>
                                 )}
+                                {tempArr
+                                    .filter(
+                                        (obj) => obj.profession === profession,
+                                    )
+                                    .reverse()
+                                    .slice(0, 10)
+                                    .map(
+                                        (x, index) =>
+                                            x.profession === profession && (
+                                                <div className='row my-1'>
+                                                    <div className='col-1 position-relative'>
+                                                        <Input
+                                                            type='checkbox'
+                                                            name=''
+                                                            className='ml-0'
+                                                            style={{
+                                                                height:
+                                                                    "1.1rem",
+                                                                width: "1.1rem",
+                                                            }}
+                                                            onChange={(e) => {
+                                                                console.log(
+                                                                    e.target
+                                                                        .checked,
+                                                                );
+                                                                let arr = attachApplicants;
+                                                                if (
+                                                                    e.target
+                                                                        .checked
+                                                                ) {
+                                                                    arr[
+                                                                        index
+                                                                    ] = x;
+                                                                } else {
+                                                                    arr[
+                                                                        index
+                                                                    ] = undefined;
+                                                                }
+                                                                setAttachAppilcants(
+                                                                    arr,
+                                                                );
+                                                                console.log(
+                                                                    arr,
+                                                                );
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <div className='col-8'>
+                                                        {`${x.name}; ${
+                                                            x.specialization
+                                                        }, ${x.superSpecialization.join(
+                                                            ", ",
+                                                        )}`}
+                                                    </div>
+                                                    <div className='col-3'>
+                                                        <a
+                                                            href={`/profile/${x.id}`}
+                                                            target='_blank'
+                                                            className='link'>
+                                                            View Profile
+                                                            <FontAwesomeIcon
+                                                                icon={
+                                                                    faExternalLinkAlt
+                                                                }
+                                                                size='xs'
+                                                                className='ml-2'
+                                                            />
+                                                        </a>
+                                                    </div>
+                                                </div>
+                                            ),
+                                    )}
                             </FormGroup>
-                        )}
+                        </div>
                     </div>
                 )}
 
@@ -1435,8 +1563,7 @@ const PostJob = (props) => {
                     <div className='col-3 col-md-2 px-1'>
                         <Button
                             onClick={(e) => {
-                                setMess("save");
-                                toggle();
+                                save();
                             }}
                             className='w-100'
                             color='info'>

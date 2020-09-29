@@ -1,6 +1,7 @@
 @import url("https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&family=Chivo:wght@400&famliy=Lobster&display=swap");
 html {
     overflow-x: hidden;
+    max-width: 100vw;
 }
 
 body {
@@ -192,4 +193,12 @@ th {
     border: transparent;
     /* border-bottom: 4px solid transparent; */
     transition: 0.1s ease-in-out;
+}
+
+.link {
+    color: #138496
+}
+
+.link:hover {
+    text-decoration: underline;
 }
