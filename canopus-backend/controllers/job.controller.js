@@ -176,6 +176,41 @@ async function updateQueryBuilder(req){
   if(req.body.endDate){query["endDate"]=req.body.endDate;query["expireAt"]=req.body.endDate;}
   return query;
 }
+//date validator
+
+// async function locumDateValidator(req,job,context){
+//   if(context==="post"){
+//     if((req.body.startDate  - Date.now())/ (1000 * 60 * 60 * 24)>60)
+//       return false;
+//     let days =(req.body.endDate - req.body.startDate)/ (1000 * 60 * 60 * 24);
+//     if (days < 0 || days > 30)
+//       return false;
+//     return true;
+//   }
+//   else if(context==="update"){
+//     if(req.body.endDate && req.body.startDate){
+//       if((req.body.startDate  - job.createdAt)/ (1000 * 60 * 60 * 24)>60)
+//         return false;
+//       let days =(req.body.endDate - req.body.startDate)/ (1000 * 60 * 60 * 24);
+//       if (days < 0 || days > 30)
+//         return false;
+//       return true;
+//     }
+//     else if(req.body.endDate){
+//       let days =(req.body.endDate - job.startDate)/ (1000 * 60 * 60 * 24);
+//       if (days < 0 || days > 30)
+//         return false;
+//       else return true;
+//     }
+//     else if(req.body.startDate){
+//       if((req.body.startDate  - job.createdAt)/ (1000 * 60 * 60 * 24)>60)
+//         return false;
+//       else return true;
+//     }
+//     else return true;
+//   }
+//   else return false;
+// }
 async function attachedApplicantValidator(req,employer){
   if(req.body.attachedApplicants){
     const acceptedMail = employer.acceptedApplicants.map(applicant=>{
