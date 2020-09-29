@@ -180,12 +180,13 @@ const NavbarComponent = (props) => {
                                 </div>
                                 <ToastBody className='row justify-content-around mx-1'>
                                     <div>
-                                        <a
-                                            href='#'
+                                        <Link
+                                            to='/user/login'
                                             className='text-primary'
-                                            onClick={toggleModal}>
+                                            // onClick={toggleModal}
+                                        >
                                             Login
-                                        </a>
+                                        </Link>
                                     </div>
                                     <div className=''>
                                         <Link
@@ -208,12 +209,13 @@ const NavbarComponent = (props) => {
                                 </div>
                                 <ToastBody className='row justify-content-around mx-1'>
                                     <div>
-                                        <a
-                                            href='#'
+                                        <Link
+                                            to='/employer/login'
                                             className='text-danger'
-                                            onClick={toggleModalEmployer}>
+                                            // onClick={toggleModalEmployer}
+                                        >
                                             Login
-                                        </a>
+                                        </Link>
                                     </div>
                                     <div className=''>
                                         <a

@@ -21,10 +21,12 @@ import SignupEmployer from "./components/signupEmployer.component";
 import UpdateEmployer from "./components/updateEmployer.component";
 import VerifyEmployer from "./components/verifyEmployer.component";
 import VerifyEmail from "./components/verifyEmail.component";
+import LoginEmployer from "./components/loginEmployer.component";
 import data from "./data/data.json";
 import Test from "./components/test.component";
 import axios from "axios";
 import EmployerProfile from "./components/employerProfile.component";
+import LoginUser from "./components/loginUser.component";
 class App extends Component {
     constructor(props) {
         super(props);
@@ -99,6 +101,19 @@ class App extends Component {
                         exact
                         path='/user/signup'
                         component={() => <SignupUser />}
+                    />
+                    <Route
+                        exact
+                        path='/user/login'
+                        // render={(props) => <Profile {...props} />}
+                        render={(props) => (
+                            <LoginUser
+                                {...props}
+                                user={this.state.user}
+                                setUser={this.setUser}
+                                getUser={this.getUser}
+                            />
+                        )}
                     />
                     <Route exact path='/test' component={() => <Test />} />
                     <Route
@@ -197,6 +212,19 @@ class App extends Component {
                         path='/employer/profile/:id'
                         // render={(props) => <Profile {...props} />}
                         render={(props) => <EmployerProfile {...props} />}
+                    />
+                    <Route
+                        exact
+                        path='/employer/login'
+                        // render={(props) => <Profile {...props} />}
+                        render={(props) => (
+                            <LoginEmployer
+                                {...props}
+                                user={this.state.user}
+                                setUser={this.setUser}
+                                getUser={this.getUser}
+                            />
+                        )}
                     />
                     <Route
                         exact
