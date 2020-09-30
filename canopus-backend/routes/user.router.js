@@ -92,9 +92,9 @@ router.post("/login", async function (req, res, next) {
 //===========================================================================
 router.post("/forgot", async (req, res) => {
   //captcha validation
-  const captcha = await validationController.verifyInvisibleCaptcha(req);
-  if(!captcha)
-  return res.json({err:"Invalid Captcha"});
+  // const captcha = await validationController.verifyInvisibleCaptcha(req);
+  // if(!captcha)
+  // return res.json({err:"Invalid Captcha"});
   const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
   if(req.body.username=='' || !req.body.username)
   return res.status(400).json({err:"Bad request"});

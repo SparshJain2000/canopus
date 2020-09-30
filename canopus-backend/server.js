@@ -41,10 +41,11 @@ app.use(function (req, res, next) {
 app.use(session(
     {
         secret: process.env.SECRET,
-        cookie: { maxAge: 86400000 },
+        cookie: { maxAge: 100*60*15 },
         store: new MemoryStore({
           checkPeriod: 86400000 // prune expired entries every 24h
         }),
+        rolling:true,
         resave: false,
         saveUninitialized: false,
     })

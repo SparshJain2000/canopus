@@ -83,7 +83,7 @@
         "1-2 Years",
         "2-5 Years",
         "5-10 Years",
-        "0-15 Years",
+        "10-15 Years",
         "More than 15 Years"
     ],
     "incentive": [
@@ -162,12 +162,7 @@
                 "Nursing"
             ]
         },
-        {
-            "profession": "Pharmacist",
-            "specialization": [
-                "Pharmacy"
-            ]
-        },
+      
         {
             "profession": "Therapist",
             "specialization": [
@@ -193,6 +188,23 @@
                 "Renal Dialysis",
                 "Radiology"
             ]
+        },
+          {
+            "profession": "Pharmacist",
+            "specialization": [
+                "Pharmacy"
+            ]
+        },
+        {
+            "profession":"Medican Translator",
+            "specialization":[
+
+                "Medical Translator"
+            ]
+        },
+        {
+            "profession":"Dietician",
+            "specialization":[]
         }
     ],
     "superSpecializations": [
