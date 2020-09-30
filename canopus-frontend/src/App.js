@@ -1,6 +1,6 @@
 import React, { Component, createRef } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-import { BrowserRouter, Route, Switch } from "react-router-dom";
+import { BrowserRouter, Route, Switch, Redirect } from "react-router-dom";
 import NavbarComponent from "./components/navbar.component";
 import FooterComponent from "./components/footer.component";
 import Home from "./components/home.component";
@@ -263,32 +263,48 @@ class App extends Component {
                         exact
                         path='/employer'
                         // render={(props) => <Profile {...props} />}
-                        render={(props) => (
-                            <Employer
-                                {...props}
-                                // user={this.state.user}
-                                setUser={this.setUser}
-                            />
-                        )}
+                        render={(props) =>
+                            this.state.user &&
+                            this.state.user.role === "Employer" ? (
+                                <Employer
+                                    {...props}
+                                    // user={this.state.user}
+                                    setUser={this.setUser}
+                                />
+                            ) : (
+                                <Redirect to='/' />
+                            )
+                        }
                     />
 
                     <Route
                         exact
                         path='/post'
                         // render={(props) => <Profile {...props} />}
-                        render={(props) => (
-                            <PostJob
-                                {...props}
-                                data={this.state.data}
-                                locationData={this.state.location}
-                            />
-                        )}
+                        render={(props) =>
+                            this.state.user ? (
+                                <PostJob
+                                    {...props}
+                                    data={this.state.data}
+                                    locationData={this.state.location}
+                                />
+                            ) : (
+                                <Redirect to='/employer/login' />
+                            )
+                        }
                     />
                     <Route
                         exact
                         path='/applications'
                         // render={(props) => <Profile {...props} />}
-                        component={() => <JobApplications />}
+
+                        component={() =>
+                            this.state.user ? (
+                                <JobApplications />
+                            ) : (
+                                <Redirect to='/' />
+                            )
+                        }
                     />
                     <Route component={() => <ErrorPage />} />
                 </Switch>
