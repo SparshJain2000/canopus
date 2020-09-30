@@ -333,8 +333,9 @@ export default class Job extends Component {
                 {this.state.job ? (
                     <div className='row'>
                         <div className='col-11 col-sm-9 col-md-8 px-0 mx-auto py-2'>
-                            <button
-                                className='button btn btn-info'
+                            <a
+                                className='text-info'
+                                style={{ cursor: "pointer" }}
                                 onClick={() => {
                                     this.props.history.goBack();
                                 }}>
@@ -343,7 +344,7 @@ export default class Job extends Component {
                                     className='mr-2'
                                 />{" "}
                                 Back to Search Results
-                            </button>
+                            </a>
                         </div>
                         <div className='col-11 col-sm-9 col-md-8 main-job mx-auto my-3 p-2 p-sm-3'>
                             <div className='row '>
@@ -381,27 +382,21 @@ export default class Job extends Component {
                             </div>
                             {/* <hr /> */}
                             <div className=' row justify-content-around'>
-                                <div
-                                    className='col-6 col-sm-3 my-1'
-                                    style={{ textAlign: "center" }}>
+                                <div className='col-6 col-sm-3 my-1'>
                                     <h6>
                                         <b>Profession</b>
                                     </h6>
                                     {job.profession}
                                 </div>
 
-                                <div
-                                    className='col-6 col-sm-3 my-1'
-                                    style={{ textAlign: "center" }}>
+                                <div className='col-6 col-sm-3 my-1'>
                                     <h6>
                                         <b>Specialization </b>
                                     </h6>
                                     {job.specialization}
                                 </div>
 
-                                <div
-                                    className='col-6 col-sm-3 my-1'
-                                    style={{ textAlign: "center" }}>
+                                <div className='col-6 col-sm-3 my-1'>
                                     <h6>
                                         <b>Experience level</b>
                                         {/* <FontAwesomeIcon
@@ -411,9 +406,7 @@ export default class Job extends Component {
                                     </h6>
                                     {job.description.experience}
                                 </div>
-                                <div
-                                    className='col-6 col-sm-3 my-1'
-                                    style={{ textAlign: "center" }}>
+                                <div className='col-6 col-sm-3 my-1'>
                                     <h6>
                                         <b>Apply By </b>
                                     </h6>
@@ -425,9 +418,7 @@ export default class Job extends Component {
                             </div>
                             <hr />
                             <div className='row justify-content-around'>
-                                <div
-                                    className='col-6 col-md-2 my-1'
-                                    style={{ textAlign: "center" }}>
+                                <div className='col-6 col-sm-3 my-1'>
                                     <h6>
                                         <b>Incentives</b>
                                         {/* <FontAwesomeIcon
@@ -447,9 +438,7 @@ export default class Job extends Component {
                                             ),
                                         )}
                                 </div>
-                                <div
-                                    className='col-6 col-md-2 my-1'
-                                    style={{ textAlign: "center" }}>
+                                <div className='col-6 col-sm-3 my-1'>
                                     <h6>
                                         <b>Super - Specialization </b>
                                     </h6>
@@ -457,9 +446,7 @@ export default class Job extends Component {
                                         ? job.superSpecialization.join(", ")
                                         : job.superSpecialization}
                                 </div>
-                                <div
-                                    className='col-6 col-md-2 my-1'
-                                    style={{ textAlign: "center" }}>
+                                <div className='col-6 col-sm-3 my-1'>
                                     <h6>
                                         <b>Job Type</b>
                                         {/* <FontAwesomeIcon
@@ -471,9 +458,7 @@ export default class Job extends Component {
                                         ? job.description.type[0]
                                         : job.description.type}
                                 </div>
-                                <div
-                                    className='col-6 col-md-2 my-1'
-                                    style={{ textAlign: "center" }}>
+                                <div className='col-6 col-sm-3 my-1'>
                                     <h6>
                                         <b> Salary</b>
                                         {/* <FontAwesomeIcon
@@ -632,7 +617,7 @@ export default class Job extends Component {
                                                         className='ml-2 mr-3'
                                                     />
                                                 </div>
-                                                <div className='col-11 pl-3'>
+                                                <div className='col-11 pl-3 text-capitalize'>
                                                     {`${this.state.user.salutation}. ${this.state.user.firstName} ${this.state.user.lastName}`}
                                                 </div>
                                             </h6>
@@ -701,7 +686,7 @@ export default class Job extends Component {
                                                                 className='ml-2 mr-3'
                                                                 style={{
                                                                     transform:
-                                                                        "rotateZ(180deg)",
+                                                                        "rotateY(180deg)",
                                                                 }}
                                                             />
                                                         </div>
@@ -715,7 +700,7 @@ export default class Job extends Component {
                                                     </h6>
                                                 </div>
                                             )}
-                                        <div className='m-2 mt-4 mx-auto text-align-center'>
+                                        <div className='m-2 mt-4 mx-auto pl-2'>
                                             <a
                                                 className='text-info'
                                                 href={this.state.user.resume}>
