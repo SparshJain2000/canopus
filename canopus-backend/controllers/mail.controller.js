@@ -2,7 +2,7 @@ require("dotenv").config();
 const mailgun = require("mailgun-js");
 const DOMAIN = "curoid.co";
 const api=process.env.MG_API;
-const mg = mailgun({apiKey: api, domain: DOMAIN,host: "api.eu.mailgun.net"});
+const mg = mailgun({apiKey: api, domain: DOMAIN});
 const mailController={}
 async function forgotMail(req,user,token){
     

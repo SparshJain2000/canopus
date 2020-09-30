@@ -255,7 +255,7 @@ async function readFileAsync(){
 }
 
 async function validateRequest(req){
-  return true;
+  //return true;
   let data = await readFileAsync();
   var flag = false;
   // perform validation
@@ -310,15 +310,13 @@ async function validateRequest(req){
 
 }
 async function validateUpdateRequest(req){
-
-  return true;
-
+  //return true;
   let data = await readFileAsync();
   var flag = false;
   // perform validation
   // incentives validation
   if(req.body.description.incentives){
-    if(req.body.incentives.every(incentive=>data.incentive.includes(incentive)))
+    if(req.body.description.incentives.every(incentive=>data.incentive.includes(incentive)))
     flag = true;
     else return false;
   }

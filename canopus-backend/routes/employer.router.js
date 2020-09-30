@@ -68,37 +68,35 @@ router.post("/", async (req, res) => {
 //===========================================================================
 //Login route
 router.post("/login", async function (req, res, next) {
-s, next);
-=======
-    //captcha validation
-    // const captcha = await validationController.verifyInvisibleCaptcha(req);
-    // if(!captcha)
-    // return res.json({err:"Invalid Captcha"});
-    passport.authenticate("employer", function (err, employer, info) {
-        if (err) {
-            return res.status(400).json({ err: err });
-        }
-        if (!employer) {
-            return res.status(400).json({ err: info });
-        }
-        req.logIn(employer, function (err) {
-            if (err) {
-                return res.status(400).json({ err: err });
-            }
-
-            // let params = {
-            //   ec:"Employer",
-            //   ea:"true",
-            //   cd1:"employer",
-            //   userId:req.user._id
-            // };
-            // visitor.event(params).send();
-            return res.json({
-                employer: req.user,
-                message: `${req.user.username} Logged in`,
-            });
-        });
-    })(req, res, next);
+  //captcha validation
+  // const captcha = await validationController.verifyInvisibleCaptcha(req);
+  // if(!captcha)
+  // return res.json({err:"Invalid Captcha"});
+  passport.authenticate("employer", function (err, employer, info) {
+    if (err) {
+      return res.status(400).json({ err: err });
+    }
+    if (!employer) {
+      return res.status(400).json({ err: info });
+    }
+    req.logIn(employer, function (err) {
+      if (err) {
+        return res.status(400).json({ err: err });
+      }
+      
+      // let params = {
+      //   ec:"Employer",
+      //   ea:"true",
+      //   cd1:"employer",
+      //   userId:req.user._id
+      // };
+      // visitor.event(params).send();
+      return res.json({
+        employer: req.user,
+        message: `${req.user.username} Logged in`,
+      });
+    });
+  })(req, res, next);
 });
 //===========================================================================
 router.post("/forgot", async (req, res) => {

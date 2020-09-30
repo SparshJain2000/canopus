@@ -31,16 +31,16 @@ router.get(
       console.log(info);
       if (err) {
         console.log(err);
-        res.redirect(`http://curoid.co?err=${err.name}`);
+        res.redirect(`http://www.curoid.co?err=${err.name}`);
       }
       if (!user) {
-        res.redirect(`http://curoid.co?err=${err.name}`);
+        res.redirect(`http://www.curoid.co?err=${err.name}`);
       }
       req.logIn(user, function (err) {
         if (err) {
-          res.redirect(`http://curoid.co?err=${err.name}`);
+          res.redirect(`http://www.curoid.co?err=${err.name}`);
         }
-        res.redirect(`http://curoid.co/`);
+        res.redirect(`http://www.curoid.co/`);
       });
     })(req, res, next);
   }
