@@ -875,7 +875,7 @@ export default class UpdateEmployer extends Component {
                                     type='number'
                                     placeholder='Number of beds'
                                     name='beds'
-                                    defaultValue={this.state.beds}
+                                    value={Number(this.state.beds)}
                                     onChange={this.handleChange}
                                     // defaultValue={`${this.state.beds}`}
                                 />
@@ -887,7 +887,7 @@ export default class UpdateEmployer extends Component {
                                     placeholder='Number of ICUs'
                                     name='ICUs'
                                     onChange={this.handleChange}
-                                    defaultValue={Number(this.state.ICUs)}
+                                    value={Number(this.state.ICUs)}
                                 />
                             </div>
                             <div className='col-12 col-sm-3 pr-0 pr-sm-1'>
@@ -897,7 +897,7 @@ export default class UpdateEmployer extends Component {
                                     placeholder='Number of OTs'
                                     name='OTs'
                                     onChange={this.handleChange}
-                                    defaultValue={Number(this.state.OTs)}
+                                    value={Number(this.state.OTs)}
                                 />
                             </div>
                             <div className='col-12 col-sm-3 pr-0 pr-sm-1'>
@@ -907,9 +907,7 @@ export default class UpdateEmployer extends Component {
                                     placeholder='Number of OTs'
                                     name='employeeCount'
                                     onChange={this.handleChange}
-                                    defaultValue={Number(
-                                        this.state.employeeCount,
-                                    )}
+                                    value={Number(this.state.employeeCount)}
                                 />
                             </div>
                         </FormGroup>
