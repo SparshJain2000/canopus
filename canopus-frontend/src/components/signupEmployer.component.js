@@ -112,49 +112,41 @@ export default class SignupEmployer extends Component {
         console.log(validate);
         this.setState({ validate: validate });
     }
-    signUp(e) {
+    async signUp(e) {
         e.preventDefault();
-        // if ((this.state.email !== "") & (this.state.password !== ""))
-        //     this.setState({ valid: true });
-
-        const employer = {
-            username: this.state.email,
-            password: this.state.password,
-            captcha: this.state.recaptcha,
-        };
-        console.log(employer);
-        if (this.state.validate.email && this.state.validate.password)
-            Axios.post(`/api/employer`, employer)
-                .then((data) => {
-                    console.log(data);
-                    if (data.status === 200) {
-                        // alert("SignUp successful");
-                        window.location = "/employer/verify";
-                        // this.props.history.push({
-                        //     pathname: "/employer/verify",
-                        //     state: { username: this.state.username },
-                        // });
-                        // return (
-                        //     <Redirect
-                        //         to={{
-                        //             pathname: "/employer/verify",
-                        //             state: { username: this.state.username },
-                        //         }}
-                        //     />
-                        // );
-                    }
-                })
-                .catch((err) => {
-                    console.log(err);
-                    let response = err.response;
-                    console.log(response);
-                    // alert(response.data.err.message);
-                    if (response && response.data && response.data.err)
-                        this.setState({
-                            ErrorModalMess: response.data.err.message,
-                            Errormodal: true,
-                        });
-                });
+        let token;
+        try {
+            token = await this.recaptcha.current.executeAsync();
+            const employer = {
+                username: this.state.email,
+                password: this.state.password,
+                captcha: token,
+            };
+            console.log(employer);
+            if (this.state.validate.email && this.state.validate.password)
+                Axios.post(`/api/employer`, employer)
+                    .then((data) => {
+                        console.log(data);
+                        if (data.status === 200)
+                            window.location = "/employer/verify";
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                        let response = err.response;
+                        console.log(response);
+                        if (response && response.data && response.data.err)
+                            this.setState({
+                                ErrorModalMess: response.data.err.message,
+                                Errormodal: true,
+                            });
+                    });
+        } catch (e) {
+            console.log(e);
+            this.setState({
+                Errormodal: true,
+                ErrorModalMessage: "Captcha problem",
+            });
+        }
     }
     render() {
         return (
@@ -164,9 +156,6 @@ export default class SignupEmployer extends Component {
                         <NavItem className='mx-1 mx-sm-2 '>
                             <NavLink
                                 to='/employer/login'
-                                // onClick={() => {
-                                //     this.toggleTab("1");
-                                // }}
                                 className={` nav-link p-1 p-sm-2`}>
                                 <h6>Login</h6>
                             </NavLink>
@@ -196,7 +185,6 @@ export default class SignupEmployer extends Component {
                         <FormGroup>
                             <h4 className='mb-5'>Sign Up</h4>
                         </FormGroup>
-
                         <FormGroup>
                             <Label>Email</Label>
                             <Input
@@ -205,7 +193,6 @@ export default class SignupEmployer extends Component {
                                 name='email'
                                 onChange={(e) => {
                                     this.handleChange(e);
-                                    // this.check(e);
                                 }}
                                 defaultValue={this.state.email}
                                 required
@@ -233,8 +220,9 @@ export default class SignupEmployer extends Component {
                         <ReCAPTCHA
                             sitekey={`${process.env.REACT_APP_CAPTCHA_FRONTEND}`}
                             name='recaptcha'
-                            // size='invisible'
-                            onChange={this.handleChangeRecaptcha}
+                            size='invisible'
+                            badge='bottomleft'
+                            ref={this.recaptcha}
                         />
                         <div className=' d-flex justify-content-end'>
                             <Button

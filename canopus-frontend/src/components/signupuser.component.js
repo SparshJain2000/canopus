@@ -66,6 +66,7 @@ export default class SignupUser extends Component {
         this.setCoordinates = this.setCoordinates.bind(this);
         this.check = this.check.bind(this);
         this.toggleErrorModal = this.toggleErrorModal.bind(this);
+        this.recaptcha = React.createRef(null);
     }
     toggleErrorModal() {
         this.setState({
@@ -112,49 +113,45 @@ export default class SignupUser extends Component {
         console.log(validate);
         this.setState({ validate: validate });
     }
-    signUp(e) {
+    async signUp(e) {
         e.preventDefault();
         // if ((this.state.email !== "") & (this.state.password !== ""))
         //     this.setState({ valid: true });
+        let token;
+        try {
+            token = await this.recaptcha.current.executeAsync();
 
-        const employer = {
-            username: this.state.email,
-            password: this.state.password,
-            captcha: this.state.recaptcha,
-        };
-        console.log(employer);
-        if (this.state.validate.email && this.state.validate.password)
-            Axios.post(`/api/user`, employer)
-                .then((data) => {
-                    console.log(data);
-                    if (data.status === 200) {
-                        // alert("SignUp successful");
-                        window.location = "/user/verify";
-                        // this.props.history.push({
-                        //     pathname: "/employer/verify",
-                        //     state: { username: this.state.username },
-                        // });
-                        // return (
-                        //     <Redirect
-                        //         to={{
-                        //             pathname: "/employer/verify",
-                        //             state: { username: this.state.username },
-                        //         }}
-                        //     />
-                        // );
-                    }
-                })
-                .catch((err) => {
-                    console.log(err);
-                    let response = err.response;
-                    console.log(response);
-                    // alert(response.data.err.message);
-                    if (response && response.data && response.data.err)
-                        this.setState({
-                            ErrorModalMess: response.data.err.message,
-                            Errormodal: true,
-                        });
-                });
+            const employer = {
+                username: this.state.email,
+                password: this.state.password,
+                captcha: token,
+            };
+            console.log(employer);
+            if (this.state.validate.email && this.state.validate.password)
+                Axios.post(`/api/user`, employer)
+                    .then((data) => {
+                        console.log(data);
+                        if (data.status === 200) {
+                            window.location = "/user/verify";
+                        }
+                    })
+                    .catch((err) => {
+                        console.log(err);
+                        let response = err.response;
+                        console.log(response);
+                        if (response && response.data && response.data.err)
+                            this.setState({
+                                ErrorModalMess: response.data.err.message,
+                                Errormodal: true,
+                            });
+                    });
+        } catch (e) {
+            console.log(e);
+            this.setState({
+                Errormodal: true,
+                ErrorModalMessage: "Captcha problem",
+            });
+        }
     }
     render() {
         return (
@@ -233,13 +230,14 @@ export default class SignupUser extends Component {
                         <ReCAPTCHA
                             sitekey={`${process.env.REACT_APP_CAPTCHA_FRONTEND}`}
                             name='recaptcha'
-                            // size='invisible'
-                            onChange={this.handleChangeRecaptcha}
+                            size='invisible'
+                            badge='bottomleft'
+                            ref={this.recaptcha}
+                            // onChange={this.handleChangeRecaptcha}
                         />
                         <div className=' d-flex justify-content-end'>
                             <Button
                                 onClick={this.signUp}
-                                // className='w-25'
                                 disabled={
                                     this.state.validate.email === false ||
                                     this.state.validate.password === false
