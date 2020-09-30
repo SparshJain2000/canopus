@@ -65,6 +65,7 @@ const PostJob = (props) => {
     const currentDate = new Date();
     const date60 = new Date(currentDate.setDate(currentDate.getDate() + 60));
     const date90 = new Date(currentDate.setDate(currentDate.getDate() + 30));
+    const time2 = new Date(currentDate.setHours(currentDate.getHours() + 2));
     const [showDetail, setShowDetail] = useState(false);
     const [showSkill, setShowSkill] = useState(false);
     const [showOtherDetail, setShowOtherDetail] = useState(false);
@@ -174,8 +175,8 @@ const PostJob = (props) => {
         }
         if (type === "Day Job") {
             newValid.startDate = startDate !== "";
-            newValid.startTime = startTime !== "";
-            newValid.endTime = endTime !== "";
+            // newValid.startTime = startTime !== "";
+            // newValid.endTime = endTime !== "";
         }
         console.log(newValid);
         setValid(newValid);
@@ -225,8 +226,8 @@ const PostJob = (props) => {
         }
         if (type === "Day Job") {
             newValid.startDate = startDate !== "";
-            newValid.startTime = startTime !== "";
-            newValid.endTime = endTime !== "";
+            // newValid.startTime = startTime !== "";
+            // newValid.endTime = endTime !== "";
         }
         console.log(newValid);
         setValid(newValid);
@@ -896,6 +897,8 @@ const PostJob = (props) => {
                                     ref={professionRef}
                                     onChange={(e) => {
                                         console.log(e);
+                                        setSpecialization("");
+                                        setSuperSpecialization("");
                                         handleChangeSelect(
                                             "Profession",
                                             e ? e.value : "",
@@ -920,11 +923,13 @@ const PostJob = (props) => {
                                     autosize={true}
                                     isClearable={true}
                                     placeholder='Specialization'
-                                    defaultValue={
-                                        specialization !== "" && {
-                                            value: specialization,
-                                            label: specialization,
-                                        }
+                                    value={
+                                        specialization !== ""
+                                            ? {
+                                                  value: specialization,
+                                                  label: specialization,
+                                              }
+                                            : null
                                     }
                                     options={
                                         profession === ""
@@ -934,6 +939,8 @@ const PostJob = (props) => {
                                     ref={specializationRef}
                                     onChange={(e) => {
                                         console.log(e);
+
+                                        setSuperSpecialization("");
                                         handleChangeSelect(
                                             "Specialization",
                                             e ? e.value : "",
@@ -954,6 +961,7 @@ const PostJob = (props) => {
                                 <div style={{ width: `100%` }}>
                                     <Select
                                         autosize={true}
+                                        isClearable={true}
                                         placeholder='Super specialization'
                                         options={
                                             superSpecializationObj[
@@ -962,7 +970,14 @@ const PostJob = (props) => {
                                         }
                                         ref={superSpecializationRef}
                                         name='SuperSpecialization'
-                                        defaultValue={superSpecialization}
+                                        value={
+                                            superSpecialization === ""
+                                                ? null
+                                                : {
+                                                      label: superSpecialization,
+                                                      value: superSpecialization,
+                                                  }
+                                        }
                                         onChange={(e) => {
                                             console.log(e);
                                             handleChangeSelect(
@@ -1116,25 +1131,30 @@ const PostJob = (props) => {
                                     />
                                 </InputGroup>
                             </InputGroup>
-                            {!freelance && (
-                                <InputGroup className='col-12 my-1'>
-                                    <Label className='m-1'>
-                                        <h6>Description</h6>
-                                    </Label>
-                                    <InputGroup className='w-100 '>
-                                        <Input
-                                            type='textarea'
-                                            placeholder='Description ..'
-                                            ref={skillsRef}
-                                            className='form-control m-1'
-                                            rows='3'
-                                            name='Skills'
-                                            onChange={handleChange}
-                                            defaultValue={skills}
-                                        />
-                                    </InputGroup>
+                            {/* {  !(type === "Day Job" ||
+                                            type === "Locum Position" )&& ( */}
+                            <InputGroup className='col-12 my-1'>
+                                <Label className='m-1'>
+                                    <h6>Description</h6>
+                                </Label>
+                                <InputGroup className='w-100 '>
+                                    <Input
+                                        type='textarea'
+                                        placeholder='Description ..'
+                                        ref={skillsRef}
+                                        className='form-control m-1'
+                                        rows='3'
+                                        name='Skills'
+                                        onChange={handleChange}
+                                        defaultValue={skills}
+                                        disabled={
+                                            type === "Day Job" ||
+                                            type === "Locum Position"
+                                        }
+                                    />
                                 </InputGroup>
-                            )}
+                            </InputGroup>
+                            {/* )} */}
                         </FormGroup>
                     )}
                 </div>
@@ -1208,12 +1228,12 @@ const PostJob = (props) => {
                                         defaultValue={
                                             contact === ""
                                                 ? currentEmployer &&
-                                                  currentEmployer.description
-                                                    ? currentEmployer
-                                                          .description.phone
+                                                  currentEmployer.phone
+                                                    ? currentEmployer.phone
                                                     : contact
                                                 : contact
                                         }
+                                        maxLength={50}
                                         onChange={handleChange}
                                         required
                                         invalid={
@@ -1309,6 +1329,7 @@ const PostJob = (props) => {
                                             <textarea
                                                 placeholder='Procedure'
                                                 // ref={lineRef}
+                                                maxLength={140}
                                                 className='form-control'
                                                 rows='4'
                                                 name='Procedure'
@@ -1411,6 +1432,7 @@ const PostJob = (props) => {
                                                     <h6>Start Time</h6>
                                                 </Label>
                                                 {/* <Label for='exampleTime'>Time</Label> */}
+
                                                 <Input
                                                     type='time'
                                                     name='StartTime'
@@ -1418,6 +1440,7 @@ const PostJob = (props) => {
                                                     placeholder='time placeholder'
                                                     className=''
                                                     ref={startTimeRef}
+                                                    min={`${time2.getHours()}:${time2.getMinutes()}`}
                                                     onChange={handleChange}
                                                     invalid={
                                                         valid.startTime ===
@@ -1440,6 +1463,7 @@ const PostJob = (props) => {
                                                     id='exampleTime'
                                                     placeholder='time placeholder'
                                                     className=''
+                                                    min={`${time2.getHours()}:${time2.getMinutes()}`}
                                                     // ref={endTimeRef}
                                                     onChange={handleChange}
                                                     invalid={
