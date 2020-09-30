@@ -3,8 +3,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import { faLock, faUser } from "@fortawesome/free-solid-svg-icons";
 import { faFacebook, faGoogle } from "@fortawesome/free-brands-svg-icons";
-import { Link } from "react-router-dom";
-import { Modal, ModalHeader, ModalBody } from "reactstrap";
+import { Link, NavLink } from "react-router-dom";
+import { Modal, ModalHeader, ModalBody, NavItem, Nav } from "reactstrap";
 import ReCAPTCHA from "react-google-recaptcha";
 import ReactGA from "react-ga";
 
@@ -130,103 +130,138 @@ export default class LoginEmployer extends Component {
     }
     render() {
         return (
-            <div className='row m-1 m-sm-2'>
-                <div
-                    className='col-11 col-sm-7 col-md-6 col-lg-4 mx-auto p-4'
-                    style={block}>
-                    <h4 className='mb-5'>Employer Login</h4>
-                    <form className='login-form' onSubmit={this.submitEmployer}>
-                        <div className='form-group'>
-                            <div className='input-group'>
-                                <div className='input-group-prepend'>
-                                    <span className='input-group-text'>
-                                        <FontAwesomeIcon icon={faUser} />
-                                    </span>
-                                </div>
-                                <input
-                                    type='email'
-                                    className='form-control'
-                                    name='username'
-                                    placeholder='Username'
-                                    onChange={this.handleChange}
-                                    required
-                                />
-                            </div>
-                        </div>
-                        <div className='form-group'>
-                            <div className='input-group'>
-                                <div className='input-group-prepend'>
-                                    <span className='input-group-text'>
-                                        <FontAwesomeIcon icon={faLock} />
-                                    </span>
-                                </div>
-                                <input
-                                    type='password'
-                                    className='form-control'
-                                    name='password'
-                                    placeholder='Password'
-                                    onChange={this.handleChange}
-                                    required
-                                />
-                            </div>
-                        </div>
-                        <ReCAPTCHA
-                            sitekey={`${process.env.REACT_APP_CAPTCHA_INVISIBLE}`}
-                            name='recaptcha'
-                            size='invisible'
-                            // onChange={this.handleChangeRecaptcha}
-                            badge='bottomleft'
-                            ref={this.recaptcha}
-                        />
-                        <div className='form-group'>
-                            <button
-                                type='submit'
-                                className='btn btn-primary login-btn btn-block'>
-                                Log in
-                            </button>
-                        </div>
-                        <div className='clearfix'>
-                            <Link
-                                className='text-info float-right'
-                                to='/employer/forgot'>
-                                Forgot Password?
-                            </Link>
-                        </div>
-                        <div className='or-seperator'>
-                            <i>or</i>
-                        </div>
-                        <p className='text-center'>
-                            Login with your social media account
-                        </p>
-                        <div className='text-center social-btn'>
-                            <a href='/' className='btn btn-primary mx-2'>
-                                <FontAwesomeIcon icon={faFacebook} />
-                                &nbsp; Facebook
-                            </a>
-                            <a href='/' className='btn btn-danger mx-2'>
-                                <FontAwesomeIcon icon={faGoogle} />
-                                &nbsp; Google
-                            </a>
-                        </div>
+            <div>
+                <Nav tabs className='justify-content-between '>
+                    <div className='row justify-content-start'>
+                        <NavItem className='mx-1 mx-sm-2 '>
+                            <NavLink
+                                to='/employer/login'
+                                // onClick={() => {
+                                //     this.toggleTab("1");
+                                // }}
+                                className={`active-tab nav-link p-1 p-sm-2`}>
+                                <h6>Login</h6>
+                            </NavLink>
+                        </NavItem>
+                        <NavItem className='mx-1 mx-sm-2'>
+                            <NavLink
+                                to='/employer/signup'
+                                className={`nav-link p-1 p-sm-2`}>
+                                <h6>Signup</h6>
+                            </NavLink>
+                        </NavItem>
+                        <NavItem className='mx-1 mx-sm-2'>
+                            <NavLink
+                                to='/employer/forgot'
+                                className={`nav-link p-1 p-sm-2`}>
+                                <h6>Forgot password</h6>
+                            </NavLink>
+                        </NavItem>
+                    </div>
+                </Nav>
 
-                        <p className='text-center text-muted small'>
-                            Don't have an account?{" "}
-                            <Link to='/employer/signup' className='text-info'>
-                                Sign up here!
-                            </Link>
-                        </p>
-                    </form>
+                <div className='row m-1 m-sm-2'>
+                    <div
+                        className='col-11 col-sm-7 col-md-6 col-lg-5 mx-auto p-4'
+                        style={block}>
+                        <h4 className='mb-5'>Employer Login</h4>
+                        <form
+                            className='login-form'
+                            onSubmit={this.submitEmployer}>
+                            <div className='form-group'>
+                                <div className='input-group'>
+                                    <div className='input-group-prepend'>
+                                        <span className='input-group-text'>
+                                            <FontAwesomeIcon icon={faUser} />
+                                        </span>
+                                    </div>
+                                    <input
+                                        type='email'
+                                        className='form-control'
+                                        name='username'
+                                        placeholder='Username'
+                                        onChange={this.handleChange}
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <div className='form-group'>
+                                <div className='input-group'>
+                                    <div className='input-group-prepend'>
+                                        <span className='input-group-text'>
+                                            <FontAwesomeIcon icon={faLock} />
+                                        </span>
+                                    </div>
+                                    <input
+                                        type='password'
+                                        className='form-control'
+                                        name='password'
+                                        placeholder='Password'
+                                        onChange={this.handleChange}
+                                        required
+                                    />
+                                </div>
+                            </div>
+                            <ReCAPTCHA
+                                sitekey={`${process.env.REACT_APP_CAPTCHA_INVISIBLE}`}
+                                name='recaptcha'
+                                size='invisible'
+                                // onChange={this.handleChangeRecaptcha}
+                                badge='bottomleft'
+                                ref={this.recaptcha}
+                            />
+                            <div className='form-group'>
+                                <button
+                                    type='submit'
+                                    className='btn btn-primary login-btn btn-block'>
+                                    Log in
+                                </button>
+                            </div>
+                            <div className='clearfix'>
+                                <Link
+                                    className='text-info float-right'
+                                    to='/employer/forgot'>
+                                    Forgot Password?
+                                </Link>
+                            </div>
+                            <div className='or-seperator'>
+                                <i>or</i>
+                            </div>
+                            <p className='text-center'>
+                                Login with your social media account
+                            </p>
+                            <div className='text-center social-btn'>
+                                <a href='/' className='btn btn-primary mx-2'>
+                                    <FontAwesomeIcon icon={faFacebook} />
+                                    &nbsp; Facebook
+                                </a>
+                                <a href='/' className='btn btn-danger mx-2'>
+                                    <FontAwesomeIcon icon={faGoogle} />
+                                    &nbsp; Google
+                                </a>
+                            </div>
+
+                            <p className='text-center text-muted small'>
+                                Don't have an account?{" "}
+                                <Link
+                                    to='/employer/signup'
+                                    className='text-info'>
+                                    Sign up here!
+                                </Link>
+                            </p>
+                        </form>
+                    </div>
+                    <Modal
+                        isOpen={this.state.modal}
+                        toggle={this.toggle}
+                        style={{ marginTop: "20vh" }}>
+                        <ModalHeader toggle={this.toggle} className='py-1'>
+                            Error !
+                        </ModalHeader>
+
+                        <ModalBody>{this.state.message}</ModalBody>
+                    </Modal>
                 </div>
-                <Modal
-                    isOpen={this.state.modal}
-                    toggle={this.toggle}
-                    style={{ marginTop: "20vh" }}>
-                    <ModalHeader toggle={this.toggle} className='py-1'>
-                        Error !
-                    </ModalHeader>
-
-                    <ModalBody>{this.state.message}</ModalBody>
-                </Modal>
             </div>
         );
     }

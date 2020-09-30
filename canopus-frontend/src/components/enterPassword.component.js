@@ -19,6 +19,7 @@ export default class EnterPassword extends Component {
         this.state = {
             email: "",
             password: "",
+            role: null,
         };
         this.handleChange = this.handleChange.bind(this);
         this.signUp = this.signUp.bind(this);
@@ -34,19 +35,31 @@ export default class EnterPassword extends Component {
             password: this.state.password,
         };
         console.log(employer);
-        const token = window.location.pathname.split("/")[2];
-        Axios.put(`/api/employer/forgot/${token}`, employer)
+        const token = window.location.pathname.split("/")[3];
+        Axios.put(`/api/${this.state.role}/forgot/${token}`, employer)
             .then((data) => {
                 console.log(data);
                 if (data.status === 200) {
                     console.log("200");
-                    window.location = "/employer/update";
+                    window.location =
+                        this.state.role === "employer"
+                            ? "/employer/update"
+                            : "/search-jobs";
                 }
             })
-            .catch(({ response }) => {
+            .catch((data) => {
+                console.log(data);
+                const { response } = data;
                 console.log(response);
-                alert(response.data.err.message);
+
+                if (response && response.data && response.data.err)
+                    alert(response.data.err.message);
             });
+    }
+    componentDidMount() {
+        console.log(window.location.pathname.split("/"));
+        const role = window.location.pathname.split("/")[1];
+        this.setState({ role });
     }
     render() {
         return (
@@ -56,7 +69,7 @@ export default class EnterPassword extends Component {
                     style={block}
                     onSubmit={this.signUp}>
                     <FormGroup>
-                        <h4>Forgot Password</h4>
+                        <h4>Enter New Password</h4>
                     </FormGroup>
 
                     <FormGroup>

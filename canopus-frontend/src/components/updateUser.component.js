@@ -273,7 +273,7 @@ export default class UpdateUser extends Component {
         const emp =
             this.state.title === "" ||
             this.state.firstName === "" ||
-            this.state.lastname === "" ||
+            this.state.lastName === "" ||
             this.state.gender === "" ||
             this.state.city === "" ||
             this.state.state === "" ||
@@ -1510,6 +1510,7 @@ export default class UpdateUser extends Component {
                                                     type='time'
                                                     name='startTime'
                                                     id='exampleTime'
+                                                    step='1800'
                                                     placeholder='time placeholder'
                                                     onChange={(e) => {
                                                         this.handleChange(
@@ -1552,6 +1553,7 @@ export default class UpdateUser extends Component {
                                                     id='exampleTime'
                                                     placeholder='time placeholder'
                                                     className=''
+                                                    step='1800'
                                                     onChange={(e) => {
                                                         this.handleChange(
                                                             e,

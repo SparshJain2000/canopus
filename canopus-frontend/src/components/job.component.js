@@ -190,7 +190,7 @@ const Banner = () => {
             <a href='/user/login' className='text-info'>
                 Login
             </a>
-            /
+            {" / "}
             <a href='/user/signup' className='text-info'>
                 Signup
             </a>{" "}
@@ -237,13 +237,13 @@ export default class Job extends Component {
         }
         console.log("oitsode");
 
-        if (!this.props.user) {
-            console.log("insode");
-            this.setState({
-                modalError: true,
-                modalMess: "NOT",
-            });
-        }
+        // if (!this.props.user) {
+        //     console.log("insode");
+        //     this.setState({
+        //         modalError: true,
+        //         modalMess: "NOT",
+        //     });
+        // }
         // if (!this.state.user) {
         //     axios
         //         .get(`/api/user/current`)
@@ -507,10 +507,36 @@ export default class Job extends Component {
                                     <Button
                                         // size='lg'
                                         color='info'
+                                        id='apply'
                                         className='w-100'
                                         onClick={this.showDetail}>
                                         Apply
                                     </Button>
+                                    {!this.props.user && (
+                                        <UncontrolledTooltip
+                                            placement='down'
+                                            // isOpen={this.state.tooltipOpen}
+                                            trigger='focus'
+                                            target='apply'
+                                            style={{
+                                                minWidth: "max-content",
+                                                backgroundColor:
+                                                    "rgba(255,255,255,1)",
+                                                color: "black",
+                                                padding: "0px",
+                                            }}
+                                            className='rounded'>
+                                            <div
+                                                className='p-3 m-0 border rounded'
+                                                style={{
+                                                    minWidth: "min-content",
+                                                }}>
+                                                <h6 className='text-align-center p-1'>
+                                                    <Banner />
+                                                </h6>
+                                            </div>
+                                        </UncontrolledTooltip>
+                                    )}
                                 </div>
                                 <div className='col-6'>
                                     <CopyToClipboard
@@ -532,7 +558,7 @@ export default class Job extends Component {
                                     <UncontrolledTooltip
                                         placement='down'
                                         // isOpen={this.state.tooltipOpen}
-                                        trigger='click'
+                                        trigger='focus'
                                         target='t'
                                         style={{
                                             minWidth: "max-content",
@@ -693,7 +719,7 @@ export default class Job extends Component {
                                             <a
                                                 className='text-info'
                                                 href={this.state.user.resume}>
-                                                Resume
+                                                View Resume
                                                 <FontAwesomeIcon
                                                     className='ml-2'
                                                     icon={faFileAlt}
@@ -702,9 +728,7 @@ export default class Job extends Component {
                                         </div>
                                         <hr />
                                         <span>
-                                            On applying, we will share your
-                                            profile and contact details with{" "}
-                                            {job.description.company}
+                                            {`On applying, we will share your profile and contact details with ${job.description.company}.`}
                                         </span>
                                     </div>
                                 </ModalBody>

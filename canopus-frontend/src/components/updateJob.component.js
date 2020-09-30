@@ -1034,10 +1034,14 @@ const UpdateJob = (props) => {
                                     autosize={true}
                                     isClearable={true}
                                     placeholder='Profession'
-                                    defaultValue={{
-                                        value: profession,
-                                        label: profession,
-                                    }}
+                                    value={
+                                        profession === ""
+                                            ? null
+                                            : {
+                                                  value: profession,
+                                                  label: profession,
+                                              }
+                                    }
                                     className={
                                         valid.profession !== undefined &&
                                         !valid.profession
@@ -1048,6 +1052,8 @@ const UpdateJob = (props) => {
                                     ref={professionRef}
                                     onChange={(e) => {
                                         console.log(e);
+                                        setSpecialization("");
+                                        setSuperSpecialization("");
                                         handleChangeSelect(
                                             "Profession",
                                             e ? e.value : "",
@@ -1066,11 +1072,13 @@ const UpdateJob = (props) => {
                                     autosize={true}
                                     isClearable={true}
                                     placeholder='Specialization'
-                                    defaultValue={
-                                        specialization !== "" && {
-                                            value: specialization,
-                                            label: specialization,
-                                        }
+                                    value={
+                                        specialization !== ""
+                                            ? {
+                                                  value: specialization,
+                                                  label: specialization,
+                                              }
+                                            : null
                                     }
                                     className={
                                         valid.specialization !== undefined &&
@@ -1086,6 +1094,8 @@ const UpdateJob = (props) => {
                                     ref={specializationRef}
                                     onChange={(e) => {
                                         console.log(e);
+                                        setSuperSpecialization("");
+
                                         handleChangeSelect(
                                             "Specialization",
                                             e ? e.value : "",
@@ -1095,12 +1105,12 @@ const UpdateJob = (props) => {
                             </div>
                             <InputGroup className='col-12 my-1'>
                                 <Label className='m-1'>
-                                    <h6>Super-Specialization</h6>
+                                    <h6>Super/Sub Specialization</h6>
                                 </Label>
                                 <div style={{ width: `100%` }}>
                                     <Select
                                         autosize={true}
-                                        placeholder='Super specialization'
+                                        placeholder='Super/Sub Specialization'
                                         options={
                                             superSpecializationObj[
                                                 `${profession}+${specialization}`
@@ -1108,7 +1118,14 @@ const UpdateJob = (props) => {
                                         }
                                         ref={superSpecializationRef}
                                         name='SuperSpecialization'
-                                        defaultValue={superSpecialization}
+                                        value={
+                                            superSpecialization !== ""
+                                                ? {
+                                                      value: superSpecialization,
+                                                      label: superSpecialization,
+                                                  }
+                                                : null
+                                        }
                                         onChange={(e) => {
                                             console.log(e);
                                             handleChangeSelect(
