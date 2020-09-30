@@ -88,6 +88,7 @@ passport.use(
                         name: profile.displayName,
                         email: profile.emails[0].value,
                     };
+                    user.salutation = "Dr";
                     user.firstName = profile.name.givenName;
                     user.lastName = profile.name.familyName;
 
