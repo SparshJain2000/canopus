@@ -4,7 +4,8 @@ import {
     Input,
     FormGroup,
     Form,
-    FormText,
+    Nav,
+    NavItem,
     Button,
     FormFeedback,
     Modal,
@@ -19,13 +20,13 @@ import {
     faMinusCircle,
 } from "@fortawesome/free-solid-svg-icons";
 import InputMap from "./map.component";
-import { Redirect, withRouter } from "react-router-dom";
+import { Redirect, withRouter, NavLink } from "react-router-dom";
 import Axios from "axios";
 const block = {
     borderRadius: " 0.25rem",
     border: "0.05rem solid lightgrey",
     /* background-color: rgba(0, 0, 0, 0.15); */
-    // boxShadow: " 3px 3px 6px rgba(0, 0, 0, 0.3)",
+    boxShadow: " 3px 3px 6px rgba(0, 0, 0, 0.3)",
     transition: "0.3s ease-in-out",
 };
 
@@ -157,78 +158,112 @@ export default class SignupEmployer extends Component {
     }
     render() {
         return (
-            <div className='make-small'>
-                <Form className=' p-4 m-3 mx-lg-5' style={block} noValidate>
-                    <FormGroup>
-                        <h4>Sign Up</h4>
-                    </FormGroup>
-
-                    <FormGroup>
-                        <Label>Email</Label>
-                        <Input
-                            type='email'
-                            placeholder='Email Address'
-                            name='email'
-                            onChange={(e) => {
-                                this.handleChange(e);
-                                // this.check(e);
-                            }}
-                            defaultValue={this.state.email}
-                            required
-                            invalid={!this.state.validate.email}
-                        />
-                        <FormFeedback invalid>
-                            Please input a correct email.
-                        </FormFeedback>
-                    </FormGroup>
-                    <FormGroup>
-                        <Label>Password</Label>
-                        <Input
-                            type='password'
-                            placeholder='Password'
-                            name='password'
-                            onChange={(e) => {
-                                this.handleChange(e);
-                                // this.check(e);
-                            }}
-                            defaultValue={this.state.password}
-                            invalid={!this.state.validate.password}
-                            required
-                        />
-                    </FormGroup>
-                    <ReCAPTCHA
-                        sitekey={`${process.env.REACT_APP_CAPTCHA_FRONTEND}`}
-                        name='recaptcha'
-                        // size='invisible'
-                        onChange={this.handleChangeRecaptcha}
-                    />
-                    <div className=' d-flex justify-content-end'>
-                        <Button
-                            onClick={this.signUp}
-                            // className='w-25'
-                            disabled={
-                                this.state.validate.email === false ||
-                                this.state.validate.password === false
-                            }
-                            color='primary'>
-                            Sign Up
-                        </Button>
+            <div>
+                <Nav tabs className='justify-content-between '>
+                    <div className='row justify-content-start'>
+                        <NavItem className='mx-1 mx-sm-2 '>
+                            <NavLink
+                                to='/employer/login'
+                                // onClick={() => {
+                                //     this.toggleTab("1");
+                                // }}
+                                className={` nav-link p-1 p-sm-2`}>
+                                <h6>Login</h6>
+                            </NavLink>
+                        </NavItem>
+                        <NavItem className='mx-1 mx-sm-2'>
+                            <NavLink
+                                to='/employer/signup'
+                                className={`active-tab nav-link p-1 p-sm-2`}>
+                                <h6>Signup</h6>
+                            </NavLink>
+                        </NavItem>
+                        <NavItem className='mx-1 mx-sm-2'>
+                            <NavLink
+                                to='/employer/forgot'
+                                className={`nav-link p-1 p-sm-2`}>
+                                <h6>Forgot password</h6>
+                            </NavLink>
+                        </NavItem>
                     </div>
-                </Form>
-                <Modal
-                    isOpen={this.state.Errormodal}
-                    toggle={this.toggleErrorModal}
-                    style={{ marginTop: "20vh" }}>
-                    <ModalHeader
+                </Nav>
+
+                <div className='row m-1 m-sm-2 '>
+                    <Form
+                        className='col-11 col-sm-7 col-md-6 col-lg-5 mx-auto p-4 '
+                        style={block}
+                        noValidate>
+                        <FormGroup>
+                            <h4 className='mb-5'>Sign Up</h4>
+                        </FormGroup>
+
+                        <FormGroup>
+                            <Label>Email</Label>
+                            <Input
+                                type='email'
+                                placeholder='Email Address'
+                                name='email'
+                                onChange={(e) => {
+                                    this.handleChange(e);
+                                    // this.check(e);
+                                }}
+                                defaultValue={this.state.email}
+                                required
+                                invalid={!this.state.validate.email}
+                            />
+                            <FormFeedback invalid>
+                                Please input a correct email.
+                            </FormFeedback>
+                        </FormGroup>
+                        <FormGroup>
+                            <Label>Password</Label>
+                            <Input
+                                type='password'
+                                placeholder='Password'
+                                name='password'
+                                onChange={(e) => {
+                                    this.handleChange(e);
+                                    // this.check(e);
+                                }}
+                                defaultValue={this.state.password}
+                                invalid={!this.state.validate.password}
+                                required
+                            />
+                        </FormGroup>
+                        <ReCAPTCHA
+                            sitekey={`${process.env.REACT_APP_CAPTCHA_FRONTEND}`}
+                            name='recaptcha'
+                            // size='invisible'
+                            onChange={this.handleChangeRecaptcha}
+                        />
+                        <div className=' d-flex justify-content-end'>
+                            <Button
+                                onClick={this.signUp}
+                                // className='w-25'
+                                disabled={
+                                    this.state.validate.email === false ||
+                                    this.state.validate.password === false
+                                }
+                                color='primary'>
+                                Sign Up
+                            </Button>
+                        </div>
+                    </Form>
+                    <Modal
+                        isOpen={this.state.Errormodal}
                         toggle={this.toggleErrorModal}
-                        className='py-1'>
-                        Message
-                    </ModalHeader>
-                    {/* <ModalHeader toggle={toggle}>
+                        style={{ marginTop: "20vh" }}>
+                        <ModalHeader
+                            toggle={this.toggleErrorModal}
+                            className='py-1'>
+                            Message
+                        </ModalHeader>
+                        {/* <ModalHeader toggle={toggle}>
                     {mess === "promote" && "Promote"}
                 </ModalHeader> */}
-                    <ModalBody>{this.state.ErrorModalMess}</ModalBody>
-                </Modal>
+                        <ModalBody>{this.state.ErrorModalMess}</ModalBody>
+                    </Modal>
+                </div>
             </div>
         );
     }

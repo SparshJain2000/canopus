@@ -97,10 +97,16 @@ class App extends Component {
                             />
                         )}
                     />
+
                     <Route
                         exact
                         path='/user/signup'
                         component={() => <SignupUser />}
+                    />
+                    <Route
+                        exact
+                        path='/user/forgot'
+                        component={() => <EnterUsername />}
                     />
                     <Route
                         exact
@@ -115,6 +121,7 @@ class App extends Component {
                             />
                         )}
                     />
+
                     <Route exact path='/test' component={() => <Test />} />
                     <Route
                         exact
@@ -138,16 +145,40 @@ class App extends Component {
                             )}
                         />
                     )}
+                    {this.state.user && this.state.user.role === "User" && (
+                        <Route
+                            exact
+                            path='/user/verify'
+                            render={(props) => (
+                                <VerifyEmployer
+                                    {...props}
+                                    user={this.state.user}
+                                />
+                            )}
+                        />
+                    )}
                     <Route
                         exact
-                        path='/validate/:token'
+                        path='/user/validate/:token'
                         render={(props) => (
                             <VerifyEmail {...props} user={this.state.user} />
                         )}
                     />
                     <Route
                         exact
-                        path='/forgot/:token'
+                        path='/employer/validate/:token'
+                        render={(props) => (
+                            <VerifyEmail {...props} user={this.state.user} />
+                        )}
+                    />
+                    <Route
+                        exact
+                        path='/employer/forgot/:token'
+                        component={() => <EnterPassword />}
+                    />
+                    <Route
+                        exact
+                        path='/user/forgot/:token'
                         component={() => <EnterPassword />}
                     />
                     <Route
