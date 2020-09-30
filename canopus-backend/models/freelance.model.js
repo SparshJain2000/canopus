@@ -79,7 +79,7 @@ module.exports = mongoose.model(
                 username:String,
                 profession:String,
                 specialization:String,
-                superSpecialization:Array,
+                superSpecialization:Array
             }
         ],
         attachedApplicants:[
