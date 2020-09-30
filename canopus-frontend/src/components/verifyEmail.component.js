@@ -29,9 +29,14 @@ export default class VerifyEmail extends Component {
     }
     resend() {
         if (this.props.user)
-            Axios.post(`/api/employer/validate`, {
-                username: this.props.user.username,
-            }).then((data) => {
+            Axios.post(
+                `/api/${
+                    this.props.user.role === "Employer" ? "employer" : "user"
+                }/validate`,
+                {
+                    username: this.props.user.username,
+                },
+            ).then((data) => {
                 console.log(data);
                 if (data.status === 200) {
                     this.setState({
@@ -42,13 +47,16 @@ export default class VerifyEmail extends Component {
             });
     }
     componentDidMount() {
-        console.log(this.props.match.params.token);
+        console.log(this.props.match);
         const token = this.props.match.params.token;
-        Axios.get(`/api/employer/validate/${token}`)
+        const role = this.props.match.url.split("/")[1];
+        Axios.get(`/api/${role}/validate/${token}`)
             .then((data) => {
                 if (data.status === 200) {
                     console.log(data);
-                    this.props.history.push("/employer/update");
+                    this.props.history.push(
+                        `/${role === "user" ? "profile" : role}/update`,
+                    );
                 }
             })
             .catch((err) => {
@@ -67,7 +75,10 @@ export default class VerifyEmail extends Component {
                     <div className=' p-4 m-3 mx-lg-5' style={block}>
                         <h2>{this.state.data}</h2>
                         Haven't got the mail?{" "}
-                        <Link onClick={this.resend}> Resend again</Link>
+                        <Link onClick={this.resend} className='text-info'>
+                            {" "}
+                            Resend again
+                        </Link>
                     </div>
                 </div>
                 <Modal
