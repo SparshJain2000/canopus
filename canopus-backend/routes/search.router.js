@@ -15,18 +15,17 @@ const User           = require("../models/user.model"),
 //get all jobs
 router.post("/all-jobs", (req, res) => {
   //By default sort by Relevance
-  var sort;
-  sort = { $sort: { score: { $meta: "textScore" } } };
-  if (req.body.order == "New")
+  let sort = { $sort: { score: { $meta: "textScore" } } };
+  if(req.body.order === "New")
     sort = {
       $sort: {
-        _id: -1,
+        _id: 1,
       },
     };
   if (req.body.order == "Old")
     sort = {
       $sort: {
-        _id: 1,
+        _id: -1,
       },
     };
   skip = parseInt(req.body.skip) || 0;
@@ -62,6 +61,7 @@ router.post("/all-jobs", (req, res) => {
             validated: "true",
           },
         },
+        sort,
         {
           $skip: skip,
         },
@@ -156,6 +156,7 @@ router.post("/all-visitor", (req, res) => {
             validated: "true",
           },
         },
+        sort,
         {
           $skip: skip,
         },

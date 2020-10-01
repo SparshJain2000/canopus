@@ -68,8 +68,8 @@ async function UserProfileUpdateBuilder(req) {
     var query = {};
     query.update = {};
     if (req.body.salutation) query.update["salutation"] = req.body.salutation;
-    if (req.body.firstname) query.update["firstname"] = req.body.firstname;
-    if (req.body.lastname) query.update["lastname"] = req.body.lastname;
+    if (req.body.firstName) query.update["firstName"] = req.body.firstName;
+    if (req.body.lastName) query.update["lastName"] = req.body.lastName;
     if (req.body.title) query.update["title"] = req.body.title;
     if (req.body.dob) query.update["dob"] = req.body.dob;
     if (req.body.phone) query.update["phone"] = req.body.phone;

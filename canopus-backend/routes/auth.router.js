@@ -4,23 +4,24 @@ const router = require("express").Router(),
 const User= require('../models/user.model');
   //google analytics auth
 
-router.get("/analytics",middleware.isLoggedInr,async (req,res)=>{
+router.get("/analytics",middleware.isLoggedIn,(req,res)=>{
+  let updated=true;
+  console.log(req.user.lastUpdated);
+  if(req.user.lastUpdated===null || req.user.lastUpdated===undefined)
+  updated=false;
   if(!req.session.analytics){
   req.session.analytics=true;
-  if(req.user.role==="User")
-  res.json({role:"user"});
-  else
-  res.json({role:"employer"});
+  res.json({role:req.user.role,updated:updated});
   }
   else{
-  res.status(400).json({status:"already logged"});
+  res.status(400).json({role:req.user.role,status:"already logged",updated:updated});
   }
 });
 
 //Google auth
 router.get(
   "/google/user",
-  passport.authenticate("google", {
+  passport.authenticate("google", { 
     scope: ["email", "profile"],
   })
 );
@@ -90,7 +91,7 @@ router.get('/linkedin/employer',
     "/linkedin/user/callback",
     (req, res, next) => {
       passport.authenticate("linkedin_user", (err, user, info) => {
-        console.log(info);
+        console.log(err);
         if (err) {
           console.log(err);
           res.redirect(`http://www.curoid.co/user/login?err=${err.name}`);
