@@ -2,7 +2,11 @@ import React, { Component } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import { faLock, faUser } from "@fortawesome/free-solid-svg-icons";
-import { faFacebook, faGoogle } from "@fortawesome/free-brands-svg-icons";
+import {
+    faFacebook,
+    faGoogle,
+    faLinkedin,
+} from "@fortawesome/free-brands-svg-icons";
 import { Link, NavLink } from "react-router-dom";
 import { Modal, ModalHeader, ModalBody, Nav, NavItem } from "reactstrap";
 import ReCAPTCHA from "react-google-recaptcha";
@@ -61,12 +65,7 @@ export default class LoginUser extends Component {
                 .then((newuser) => {
                     console.log(newuser.data.user);
                     this.props.setUser(newuser.data.user);
-                    ReactGA.event({
-                        category: "User",
-                        action: "loggedin",
-                        id: `${newuser.data.user._id}`,
-                    });
-                    this.props.history.push("/search-jobs");
+                    this.props.history.push("/analytics");
                 })
                 .catch((err) => {
                     console.log(err);
@@ -80,10 +79,16 @@ export default class LoginUser extends Component {
                         this.setState({
                             modal: true,
                             message:
-                                err.response.data.err === ""
-                                    ? "Invalid login"
-                                    : err.response.data.err,
+                                err.response.data.err.message === ""
+                                    ? "Invalid Credentials"
+                                    : err.response.data.err.message,
                         });
+                    else {
+                        this.setState({
+                            modal: true,
+                            message: "Invalid Credentials",
+                        });
+                    }
                 });
         } catch (e) {
             console.log(e);
@@ -102,12 +107,11 @@ export default class LoginUser extends Component {
                 .then((newuser) => {
                     console.log(newuser);
                     this.props.setUser(newuser.data.user);
-                    ReactGA.event({
-                        category: "User",
-                        action: "loggedin",
-                        id: `${newuser.data.user._id}`,
+
+                    this.props.history.push({
+                        pathname: "/analytics",
+                        state: { role: "user", data: newuser.data.user },
                     });
-                    this.props.history.push("/search-jobs");
                 })
                 .catch((err) => {
                     console.log(err);
@@ -121,11 +125,27 @@ export default class LoginUser extends Component {
                         this.setState({
                             modal: true,
                             message:
-                                err.response.data.err === ""
-                                    ? "Invalid login"
-                                    : err.response.data.err,
+                                err.response.data.err.message === ""
+                                    ? "Invalid Credentials"
+                                    : err.response.data.err.message,
                         });
+                    else {
+                        this.setState({
+                            modal: true,
+                            message: "Invalid Credentials",
+                        });
+                    }
                 });
+        }
+    }
+    componentDidMount() {
+        if (this.props.location.search !== "") {
+            console.log(this.props.location.search.split("=")[1]);
+            const err = this.props.location.search.split("=")[1];
+            this.setState({
+                modal: true,
+                message: err === "" ? "Unable to login" : err,
+            });
         }
     }
     render() {
@@ -229,11 +249,15 @@ export default class LoginUser extends Component {
                                 Login with your social media account
                             </p>
                             <div className='text-center social-btn'>
-                                <a href='/' className='btn btn-primary mx-2'>
-                                    <FontAwesomeIcon icon={faFacebook} />
-                                    &nbsp; Facebook
+                                <a
+                                    href='/auth/linkedin/user'
+                                    className='btn btn-linkedin mx-2'>
+                                    <FontAwesomeIcon icon={faLinkedin} />
+                                    &nbsp; Linkedin
                                 </a>
-                                <a href='/' className='btn btn-danger mx-2'>
+                                <a
+                                    href='/auth/google/user'
+                                    className='btn btn-danger mx-2 '>
                                     <FontAwesomeIcon icon={faGoogle} />
                                     &nbsp; Google
                                 </a>
