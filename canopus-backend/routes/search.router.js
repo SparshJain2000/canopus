@@ -213,11 +213,11 @@ router.post("/jobs", async (req, res) => {
   // query builder function
   
   var query = await searchController.queryBuilder(req)
-  .then((query)  => {
+  //.then((query)  => {
   var jobcount=[0];
   //if (query.skip == 0)
     
-  Job.aggregate([
+  jobcount = await Job.aggregate([
         query.search,
         {
           $group: {
@@ -227,8 +227,20 @@ router.post("/jobs", async (req, res) => {
             },
           },
         },
-      ])
-      .then((jobcount)=> {
+      ]);
+      //.then((jobcount)=> {
+        //job count pipeline
+      let locumcount = await Freelance.aggregate([
+        query.search,
+        {
+          $group: {
+            _id: null,
+            jobCount: {
+              $sum: 1,
+            },
+          },
+        },
+      ]);
         
           var userid;
           try {
@@ -299,20 +311,20 @@ router.post("/jobs", async (req, res) => {
                 //   var count = 0;
                 //   res.json({ jobs: jobs, count: count });
                 // }
-                res.json({jobs:jobs,count:jobcount[0]||0})
+                res.json({jobs:jobs,count:jobcount[0].jobCount||0,locumcount:locumcount[0].jobCount||0})
               }
             }
           );
-       })
-        .catch((err) => {
-          res.status(400).json({ err: "Error" });
+      //  })
+      //   .catch((err) => {
+      //     res.status(400).json({ err: "Error" });
         });
-    })
-    .catch(function (error) {
-      // handle error
-      console.log(error);
-    });
-});
+    // })
+    // .catch(function (error) {
+    //   // handle error
+    //   console.log(error);
+    // });
+//});
 
 //Similar jobs
 router.post("/similar-jobs", (req, res) => {
