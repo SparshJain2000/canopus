@@ -54,8 +54,8 @@ export default class SignupEmployer extends Component {
             lat: null,
             lng: null,
             validate: {
-                email: false,
-                password: false,
+                // email: false,
+                // password: false,
             },
             Errormodal: false,
             ErrorModalMess: "",
@@ -89,8 +89,17 @@ export default class SignupEmployer extends Component {
         let { validate } = this.state;
         validate = {
             ...validate,
-            [e.target.name]: e.target.value === "" ? false : true,
+            [e.target.name]:
+                e.target.value === "" ||
+                (e.target.name === "email"
+                    ? !/^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/.test(
+                          e.target.value,
+                      )
+                    : false)
+                    ? false
+                    : true,
         };
+
         this.setState({ validate });
         console.log(validate);
         if (index !== undefined) {
@@ -106,7 +115,13 @@ export default class SignupEmployer extends Component {
     }
     check(e) {
         const validate = {
-            email: this.state.email === "" ? false : true,
+            email:
+                this.state.email === "" &&
+                !/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/.test(
+                    this.state.email,
+                )
+                    ? false
+                    : true,
             password: this.state.password === "" ? false : true,
         };
         console.log(validate);
@@ -196,7 +211,11 @@ export default class SignupEmployer extends Component {
                                 }}
                                 defaultValue={this.state.email}
                                 required
-                                invalid={!this.state.validate.email}
+                                invalid={
+                                    this.state.validate.email === undefined
+                                        ? false
+                                        : !this.state.validate.email
+                                }
                             />
                             <FormFeedback invalid>
                                 Please input a correct email.
@@ -213,7 +232,11 @@ export default class SignupEmployer extends Component {
                                     // this.check(e);
                                 }}
                                 defaultValue={this.state.password}
-                                invalid={!this.state.validate.password}
+                                invalid={
+                                    this.state.validate.password === undefined
+                                        ? false
+                                        : !this.state.validate.password
+                                }
                                 required
                             />
                         </FormGroup>
