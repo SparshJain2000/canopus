@@ -89,7 +89,10 @@ router.post("/post", middleware.isLoggedIn, middleware.dateValidator, async (req
     session.endSession();
     // if(job.attachedApplicants)
     // mailController.welcomeMail(req,job,employer);
-    res.json({status:"200"});
+    req.logIn(employer,function(err){
+      if(err)return res.status(500).json({err:"Error logging in"});
+      res.json({status:"200"});
+    });
 
   } catch (err) {
     // any 500 error in try block aborts transaction
@@ -142,7 +145,11 @@ router.post("/save", middleware.isLoggedIn, async (req, res) => {
     //commit transaction
     await session.commitTransaction();
     session.endSession();
-    res.json({status:"200"});
+    req.logIn(employer,function(err){
+      if(err)return res.status(500).json({err:"Error logging in"});
+      res.json({status:"200"});
+    });
+   // res.json({status:"200"});
 
   } catch (err) {
     // any 500 error in try block aborts transaction
@@ -198,7 +205,11 @@ router.put("/post/:id",middleware.isLoggedIn,middleware.checkPostOwnership, asyn
     //commit transaction
     await session.commitTransaction();
     session.endSession();
-    res.json({status:"200"});
+    req.logIn(employer,function(err){
+      if(err)return res.status(500).json({err:"Error logging in"});
+      res.json({status:"200"});
+    });
+   // res.json({status:"200"});
 
   } catch (err) {
     // any 500 error in try block aborts transaction
@@ -288,7 +299,11 @@ router.put("/sponsor/:id", middleware.checkPostOwnership, async (req, res) => {
   //commit transaction
   await session.commitTransaction();
   session.endSession();
-  res.json({status:"200"});
+  req.logIn(employer,function(err){
+    if(err)return res.status(500).json({err:"Error logging in"});
+    res.json({status:"200"});
+  });
+  //res.json({status:"200"});
   } catch(err) {
     // any 500 error in try block aborts transaction
   await session.abortTransaction();
@@ -371,7 +386,11 @@ router.put("/activate/:id", middleware.checkSavedOwnership, async (req,res) => {
     //commit transaction
     await session.commitTransaction();
     session.endSession();
-    res.json({status:"200"});
+    req.logIn(employer,function(err){
+      if(err)return res.status(500).json({err:"Error logging in"});
+      res.json({status:"200"});
+    });
+    //res.json({status:"200"});
 
   } catch(err) {
     // any 500 error in try block aborts transaction
@@ -411,7 +430,11 @@ router.put("/extend/:id",middleware.checkJobOwnership, async(req, res) => {
   // commit transaction
   await session.commitTransaction();
   session.endSession();
-  res.json({status:"200"});
+  req.logIn(employer,function(err){
+    if(err)return res.status(500).json({err:"Error logging in"});
+    res.json({status:"200"});
+  });
+  //res.json({status:"200"});
 
   } catch(err) {
     // any 500 error in try block aborts transaction
@@ -464,7 +487,11 @@ router.put("/extend/expired/:id", middleware.isEmployer, async (req, res) => {
     //commit transaction
     await session.commitTransaction();
     session.endSession();
-    res.json({status:"200"});
+    req.logIn(employer,function(err){
+      if(err)return res.status(500).json({err:"Error logging in"});
+      res.json({status:"200"});
+    });
+    //res.json({status:"200"});
 
     } catch(err) {
       // any 500 error in try block aborts transaction

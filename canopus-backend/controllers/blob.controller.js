@@ -15,7 +15,7 @@ function generateSasToken(container, blobName, permissions) {
     var startDate = new Date();
     startDate.setMinutes(startDate.getMinutes() - 5);
     var expiryDate = new Date(startDate);
-    expiryDate.setMinutes(startDate.getMinutes() + 60);
+    expiryDate.setMinutes(startDate.getMinutes() + 10);
 
     permissions = permissions || azure.BlobUtilities.SharedAccessPermissions.WRITE;
 
