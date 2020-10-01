@@ -79,30 +79,54 @@ router.get(
   }
 );
 
-router.get(
-  "/facebook",
-  passport.authenticate("facebook", {
-    authType: "reauthenticate",
-    scope: ["email"],
-  })
-);
+router.get('/auth/linkedin/user',
+  passport.authenticate('linkedin_user'),
+  function(req, res){
+    // The request will be redirected to LinkedIn for authentication, so this
+    // function will not be called.
+  });
 
-router.get("/facebook/callback", (req, res, next) => {
-  passport.authenticate("facebook", (err, user, info) => {
-    console.log(info);
-    if (err)
-      // return res.status(400).json({ err: err });
-      res.redirect(`http://localhost:3000?err=${err.name}`);
-
-    if (!user) res.redirect(`http://localhost:3000?err=${err.name}`);
-
-    req.logIn(user, function (err) {
-      if (err) {
-        res.redirect(`http://localhost:3000?err=${err.name}`);
-      }
-      res.redirect(`http://localhost:3000/`);
-    });
-  })(req, res, next);
-});
+  router.get(
+    "/linkedin/user/callback",
+    (req, res, next) => {
+      passport.authenticate("linkedin_user", (err, user, info) => {
+        console.log(info);
+        if (err) {
+          console.log(err);
+          res.redirect(`http://www.curoid.co?err=${err.name}`);
+        }
+        if (!user) {
+          res.redirect(`http://www.curoid.co?err=${err.name}`);
+        }
+        req.logIn(user, function (err) {
+          if (err) {
+            res.redirect(`http://www.curoid.co?err=${err.name}`);
+          }
+          res.redirect(`http://www.curoid.co/`);
+        });
+      })(req, res, next);
+    }
+  );
+  router.get(
+    "/linkedin/employer/callback",
+    (req, res, next) => {
+      passport.authenticate("google_employer", (err, user, info) => {
+        console.log(info);
+        if (err) {
+          console.log(err);
+          res.redirect(`http://www.curoid.co?err=${err.name}`);
+        }
+        if (!user) {
+          res.redirect(`http://www.curoid.co?err=${err.name}`);
+        }
+        req.logIn(user, function (err) {
+          if (err) {
+            res.redirect(`http://www.curoid.co?err=${err.name}`);
+          }
+          res.redirect(`http://www.curoid.co/`);
+        });
+      })(req, res, next);
+    }
+  );
 
 module.exports = router;

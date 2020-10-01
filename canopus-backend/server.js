@@ -13,12 +13,15 @@ const express = require("express"),
     uploadRouter = require("./routes/blob.router"),
     employerRouter = require("./routes/employer.router"),
     adminRouter = require("./routes/admin.router"),
+    policyRouter = require("./routes/policy.router"),
     GoogleStrategy = require("passport-google-oauth").OAuth2Strategy,
     FacebookStrategy = require("passport-facebook").Strategy,
     bodyParser = require("body-parser"),
     path = require('path');
 var session = require('express-session')
 var MemoryStore = require('memorystore')(session)
+var LinkedInStrategy = require('@smpincode/passport-linkedin-oauth2v2').Strategy;
+ 
 const { validationController}=require("./controllers/validation.controller")
 require("dotenv").config();
 const GOOGLE_ANALYTICS=process.env.GOOGLE_ANALYTICS;
@@ -56,6 +59,8 @@ app.use((req, res, next) => {
 });
 app.use(passport.initialize());
 app.use(passport.session());
+//app.set('views', __dirname + '/views');
+
 passport.use(
     "employer",
     new LocalStratergy({ usernameField: "username" }, Employer.authenticate()),
@@ -143,6 +148,38 @@ passport.use(
     ),
 );
 
+passport.use("linkedin_user",new LinkedInStrategy({
+  clientID: process.env.LINKEDIN_CLIENT_ID,
+  clientSecret: process.env.LINKEDIN_CLIENT_SECRET,
+  callbackURL: "https://curoid.co/auth/linkedin/user/callback",
+  scope: ['r_emailaddress', 'r_liteprofile'],
+  state:true
+}, function(accessToken, refreshToken, profile, done) {
+    console.log(profile);
+    User.findOne({ "facebook.id": profile.id }, function (err, user) {
+        if (err) return cb(err);
+        if (user) return cb(null, user);
+        else {
+            var user = new User();
+            user.username = profile.emails
+                ? profile.emails[0].value
+                : "";
+            user.role = "User";
+            user.image = profile.photos[0].value;
+            user.facebook = {
+                id: profile.id,
+                token: accessToken,
+            };
+            user.firstName = profile.name.givenName;
+            user.lastName = profile.name.familyName;
+            user.emailVerified = true;
+            user.save((err, user) => {
+                if (!err) return cb(err, user);
+            });
+        }
+    });
+  
+}));
 passport.use(
     "facebook",
     new FacebookStrategy(
@@ -218,6 +255,7 @@ app.use("/api/job", jobRouter);
 app.use("/api/user", userRouter);
 app.use("/api/employer", employerRouter);
 app.use("/auth", authRouter);
+app.use("/privacy",policyRouter);
 app.use("/api/upload", uploadRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/search",searchRouter);
