@@ -151,78 +151,67 @@ passport.use(
 passport.use("linkedin_user",new LinkedInStrategy({
   clientID: process.env.LINKEDIN_CLIENT_ID,
   clientSecret: process.env.LINKEDIN_CLIENT_SECRET,
-  callbackURL: "https://curoid.co/auth/linkedin/user/callback",
+  callbackURL: "https://www.curoid.co/auth/linkedin/user/callback",
   scope: ['r_emailaddress', 'r_liteprofile'],
-  state:true
+  state:false
 }, function(accessToken, refreshToken, profile, done) {
     console.log(profile);
-    User.findOne({ "facebook.id": profile.id }, function (err, user) {
-        if (err) return cb(err);
-        if (user) return cb(null, user);
+    User.findOne({ "linkedin.id": profile.id }, function (err, user) {
+        if (err) return done(err);
+        if (user) return done(null, user);
         else {
             var user = new User();
-            user.username = profile.emails
-                ? profile.emails[0].value
-                : "";
+            user.username = profile.emails[0].value;
             user.role = "User";
             user.image = profile.photos[0].value;
-            user.facebook = {
+            user = validationController.initTier(user);
+            user.linkedin = {
                 id: profile.id,
-                token: accessToken,
+                token: accessToken
             };
+            user.salutation="Dr";
             user.firstName = profile.name.givenName;
             user.lastName = profile.name.familyName;
+
             user.emailVerified = true;
             user.save((err, user) => {
-                if (!err) return cb(err, user);
+                if (!err) return done(err, user);
             });
         }
     });
-  
 }));
-passport.use(
-    "facebook",
-    new FacebookStrategy(
-        {
-            clientID: process.env.FACEBOOK_APP_ID,
-            clientSecret: process.env.FACEBOOK_APP_SECRET,
-            callbackURL: "http://www.curoid.co/auth/facebook/callback",
-            profileFields: [
-                "id",
-                "email",
-                "displayName",
-                "name",
-                "picture.width(400).height(400)",
-            ],
-            enableProof: true,
-        },
-        function (accessToken, refreshToken, profile, cb) {
-            console.log(profile);
-            User.findOne({ "facebook.id": profile.id }, function (err, user) {
-                if (err) return cb(err);
-                if (user) return cb(null, user);
-                else {
-                    var user = new User();
-                    user.username = profile.emails
-                        ? profile.emails[0].value
-                        : "";
-                    user.role = "User";
-                    user.image = profile.photos[0].value;
-                    user.facebook = {
-                        id: profile.id,
-                        token: accessToken,
-                    };
-                    user.firstName = profile.name.givenName;
-                    user.lastName = profile.name.familyName;
-                    user.emailVerified = true;
-                    user.save((err, user) => {
-                        if (!err) return cb(err, user);
-                    });
-                }
-            });
-        },
-    ),
-);
+//employer linkedin
+passport.use("linkedin_employer",new LinkedInStrategy({
+    clientID: process.env.LINKEDIN_CLIENT_ID,
+    clientSecret: process.env.LINKEDIN_CLIENT_SECRET,
+    callbackURL: "https://www.curoid.co/auth/linkedin/employer/callback",
+    scope: ['r_emailaddress', 'r_liteprofile'],
+    state:false
+  }, function(accessToken, refreshToken, profile, done) {
+      console.log(profile);
+      Employer.findOne({ "linkedin.id": profile.id }, function (err, user) {
+          if (err) return done(err);
+          if (user) return done(null, user);
+          else {
+              var user = new Employer();
+              user.username = profile.emails[0].value;
+              user.role = "Employer";
+              //user.image = profile.photos[0].value;
+              user = validationController.initTier(user);
+              user.linkedin = {
+                  id: profile.id,
+                  token: accessToken
+              };
+              user.firstName = profile.name.givenName;
+              user.lastName = profile.name.familyName;
+  
+              user.emailVerified = true;
+              user.save((err, user) => {
+                  if (!err) return done(err, user);
+              });
+          }
+      });
+  }));
 passport.serializeUser((user, done) => {
     //experimental
     user.salt=undefined;

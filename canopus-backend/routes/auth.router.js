@@ -43,14 +43,14 @@ router.get(
       console.log(info);
       if (err) {
         console.log(err);
-        res.redirect(`http://www.curoid.co?err=${err.name}`);
+        res.redirect(`http://www.curoid.co/user/login?err=${err.name}`);
       }
       if (!user) {
-        res.redirect(`http://www.curoid.co?err=${err.name}`);
+        res.redirect(`http://www.curoid.co/user/login?err=${err.name}`);
       }
       req.logIn(user, function (err) {
         if (err) {
-          res.redirect(`http://www.curoid.co?err=${err.name}`);
+          res.redirect(`http://www.curoid.co/user/login?err=${err.name}`);
         }
         res.redirect(`http://www.curoid.co/`);
       });
@@ -64,14 +64,14 @@ router.get(
       console.log(info);
       if (err) {
         console.log(err);
-        res.redirect(`http://www.curoid.co?err=${err.name}`);
+        res.redirect(`http://www.curoid.co/employer/login?err=${err.name}`);
       }
       if (!user) {
-        res.redirect(`http://www.curoid.co?err=${err.name}`);
+        res.redirect(`http://www.curoid.co/employer/login?err=${err.name}`);
       }
       req.logIn(user, function (err) {
         if (err) {
-          res.redirect(`http://www.curoid.co?err=${err.name}`);
+          res.redirect(`http://www.curoid.co/employer/login?err=${err.name}`);
         }
         res.redirect(`http://www.curoid.co/`);
       });
@@ -79,13 +79,18 @@ router.get(
   }
 );
 
-router.get('/auth/linkedin/user',
+router.get('/linkedin/user',
   passport.authenticate('linkedin_user'),
   function(req, res){
     // The request will be redirected to LinkedIn for authentication, so this
     // function will not be called.
   });
-
+router.get('/linkedin/employer',
+  passport.authenticate('linkedin_employer'),
+  function(req, res){
+    // The request will be redirected to LinkedIn for authentication, so this
+    // function will not be called.
+  });
   router.get(
     "/linkedin/user/callback",
     (req, res, next) => {
@@ -93,14 +98,14 @@ router.get('/auth/linkedin/user',
         console.log(info);
         if (err) {
           console.log(err);
-          res.redirect(`http://www.curoid.co?err=${err.name}`);
+          res.redirect(`http://www.curoid.co/user/login?err=${err.name}`);
         }
         if (!user) {
-          res.redirect(`http://www.curoid.co?err=${err.name}`);
+          res.redirect(`http://www.curoid.co/user/login?err=${err.name}`);
         }
         req.logIn(user, function (err) {
           if (err) {
-            res.redirect(`http://www.curoid.co?err=${err.name}`);
+            res.redirect(`http://www.curoid.co/user/login?err=${err.name}`);
           }
           res.redirect(`http://www.curoid.co/`);
         });
@@ -110,18 +115,18 @@ router.get('/auth/linkedin/user',
   router.get(
     "/linkedin/employer/callback",
     (req, res, next) => {
-      passport.authenticate("google_employer", (err, user, info) => {
+      passport.authenticate("linkedin_employer", (err, user, info) => {
         console.log(info);
         if (err) {
           console.log(err);
-          res.redirect(`http://www.curoid.co?err=${err.name}`);
+          res.redirect(`http://www.curoid.co/employer/login?err=${err.name}`);
         }
         if (!user) {
-          res.redirect(`http://www.curoid.co?err=${err.name}`);
+          res.redirect(`http://www.curoid.co/employer/login?err=${err.name}`);
         }
         req.logIn(user, function (err) {
           if (err) {
-            res.redirect(`http://www.curoid.co?err=${err.name}`);
+            res.redirect(`http://www.curoid.co/employer/login?err=${err.name}`);
           }
           res.redirect(`http://www.curoid.co/`);
         });
