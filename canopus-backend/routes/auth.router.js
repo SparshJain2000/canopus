@@ -4,7 +4,7 @@ const router = require("express").Router(),
 const User= require('../models/user.model');
   //google analytics auth
 
-router.get("/analytics",middleware.isLoggedInr,async (req,res)=>{
+router.get("/analytics",middleware.isLoggedIn,async (req,res)=>{
   if(!req.session.analytics){
   req.session.analytics=true;
   if(req.user.role==="User")
