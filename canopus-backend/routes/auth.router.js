@@ -5,22 +5,22 @@ const User= require('../models/user.model');
   //google analytics auth
 
 router.get("/analytics",middleware.isLoggedIn,async (req,res)=>{
+  let updated=false;
+  if(req.user.lastUpdated)
+  updated=true;
   if(!req.session.analytics){
   req.session.analytics=true;
-  if(req.user.role==="User")
-  res.json({role:"user"});
-  else
-  res.json({role:"employer"});
+  res.json({role:req.user.role,updated:updated});
   }
   else{
-  res.status(400).json({status:"already logged"});
+  res.status(400).json({role:req.user.role,status:"already logged",updated:updated});
   }
 });
 
 //Google auth
 router.get(
   "/google/user",
-  passport.authenticate("google", {
+  passport.authenticate("google", { 
     scope: ["email", "profile"],
   })
 );
