@@ -163,6 +163,8 @@ width: 110px;
 }
 */
 
+
+/* 
 .job-found {
     padding-top: 0.94rem;
     font-size: 1.25rem;
@@ -173,4 +175,21 @@ width: 110px;
         padding-top: 0.5rem;
         font-size: 1.2rem;
     }
+} */
+
+div.custom-control-right {
+    padding-right: 24px;
+    padding-left: 0;
+    margin-left: 0;
+    margin-right: 0;
+}
+
+div.custom-control-right .custom-control-label::after {
+    right: -1.5rem;
+    left: auto;
+}
+
+div.custom-control-right .custom-control-label::before {
+    right: -2.35rem;
+    left: auto;
 }
