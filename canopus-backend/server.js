@@ -19,7 +19,7 @@ const express = require("express"),
     path = require('path');
 var session = require('express-session')
 var MemoryStore = require('memorystore')(session)
- 
+const { validationController}=require("./controllers/validation.controller")
 require("dotenv").config();
 const GOOGLE_ANALYTICS=process.env.GOOGLE_ANALYTICS;
 var ua = require("universal-analytics");
@@ -70,7 +70,7 @@ passport.use(
         {
             clientID: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-            callbackURL: "http://www.curoid.co/auth/google/user/callback",
+            callbackURL: "https://www.curoid.co/auth/google/user/callback",
         },
         function (accessToken, refreshToken, profile, done) {
             User.findOne({ "google.id": profile.id }, function (err, user) {
@@ -82,6 +82,7 @@ passport.use(
                     user.role = "User";
                     user.emailVerified = true;
                     user.image = profile.photos[0].value;
+                    user = validationController.initTier(user);
                     user.google = {
                         id: profile.id,
                         token: accessToken,
@@ -103,12 +104,12 @@ passport.use(
     ),
 );
 passport.use(
-    "googleEmployer",
+    "google_employer",
     new GoogleStrategy(
         {
             clientID: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-            callbackURL: "http://www.curoid.co/auth/google/employer/callback",
+            callbackURL: "https://www.curoid.co/auth/google/employer/callback",
         },
         function (accessToken, refreshToken, profile, done) {
             Employer.findOne({ "google.id": profile.id }, function (err, user) {
@@ -119,7 +120,9 @@ passport.use(
                     user.username = profile.emails[0].value;
                     user.role = "Employer";
                     user.emailVerified = true;
-                    user.image = profile.photos[0].value;
+                    //user.image = profile.photos[0].value;
+
+                    user = validationController.initTier(user);
                     user.google = {
                         id: profile.id,
                         token: accessToken,

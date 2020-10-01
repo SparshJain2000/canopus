@@ -4,19 +4,24 @@ const router = require("express").Router(),
 const User= require('../models/user.model');
   //google analytics auth
 
-  router.get("/analytics",middleware.isLoggedIn,async (req,res)=>{
-    if(!req.session.analytics){
-      console.log("not");
-    req.session.analytics=true;
-    let user= await User.findById(req.user._id);
-    req.logIn(user,function(err){
-      res.json(req.session);
-    })
-    }
-    else{
-    res.json(req.session);
-    }
-  });
+router.get("/user/analytics",middleware.isUser,async (req,res)=>{
+  if(!req.session.analytics){
+  req.session.analytics=true;
+  res.json({status:"ok"});
+  }
+  else{
+  res.json({status:"already logged"});
+  }
+});
+router.get("/employer/analytics",middleware.isEmployer,async (req,res)=>{
+  if(!req.session.analytics){
+  req.session.analytics=true;
+  res.json({status:"ok"});
+  }
+  else{
+  res.json({status:"already logged"});
+  }
+});
 //Google auth
 router.get(
   "/google/user",
@@ -27,7 +32,7 @@ router.get(
 //Google auth
 router.get(
   "/google/employer",
-  passport.authenticate("googleEmployer", {
+  passport.authenticate("google_employer", {
     scope: ["email", "profile"],
   })
 );
@@ -55,7 +60,7 @@ router.get(
 router.get(
   "/google/employer/callback",
   (req, res, next) => {
-    passport.authenticate("googleEmployer", (err, user, info) => {
+    passport.authenticate("google_employer", (err, user, info) => {
       console.log(info);
       if (err) {
         console.log(err);

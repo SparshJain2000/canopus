@@ -112,11 +112,38 @@ async function updateRequestValidator(req){
     var flag = false;
     // perform validation
 }
-
+function initTier(user){
+    user.jobtier= {
+        allowed: 10,
+        posted: 0,
+        saved: 0,
+        closed: 0,
+    };
+    user.freelancetier= {
+        allowed: 3,
+        posted: 0,
+        saved: 0,
+        closed: 0,
+    };
+    user.locumtier={
+        allowed: 1,
+        posted: 0,
+        saved: 0,
+        closed: 0,
+    };
+    user.sponsors={
+        allowed: 1,
+        posted: 0,
+    };
+    user.validated=false;
+    user.createdAt= Date.now();
+    return user;
+}
 const validationController = {};
 exports.validationController = {
     EmployerProfileUpdateBuilder,
     UserProfileUpdateBuilder,
     verifyCheckBoxCaptcha,
-    verifyInvisibleCaptcha
+    verifyInvisibleCaptcha,
+    initTier
 };
