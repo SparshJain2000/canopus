@@ -24,7 +24,12 @@
         "M.Pharm",
         "GNM",
         "ANM",
-        "Certificate"
+        "Certificate",
+        "MPT",
+        "MBA",
+        "B.Pharm. (Hons.)",
+        "B.Pharm + M.B.A.",
+        "MCh"
     ],
     "instituteType": [
         "Government Hospital",
@@ -99,10 +104,8 @@
         "Therapist",
         "Technicians",
         "Pharmacist",
-        "Medical Translator"
-    ],
-    "tags": [
-        "Covid-19"
+        "Medical Translator",
+        "Dietician"
     ],
     "specializations": [
         {
@@ -168,9 +171,27 @@
         {
             "profession": "Therapist",
             "specialization": [
-                "Physiotherapist",
-                "Psychologist",
-                "Nutritionist"
+                "Physiotherapy",
+                "Psychology"
+            ]
+        },
+        {
+            "profession": "Technicians",
+            "specialization": [
+                "CT Scan",
+                "Anesthesia",
+                "Laboratory",
+                "MRI",
+                "X-Ray",
+                "Dental Mechanics",
+                "Operation Theatre",
+                "Pathology",
+                "Optical Laboratory",
+                "Sleep Laboratory",
+                "Physiotherapy",
+                "Plaster",
+                "Renal Dialysis",
+                "Radiology"
             ]
         }
     ],
@@ -178,62 +199,127 @@
         {
             "profession": "Physician/Surgeon",
             "specialization": "General Medicine",
-            "superSpecialization": ["Cardiology","Clinical Immunology and Rheumatology","Rheumatology","Endocrinology","Gastroenterology",
-                "Hepatology","Infectious Disease","Medical Genetics","Medical Oncology","Nephrology", "Neurology","Paediatric Neurology",
-                "Pulmonary Medicine","Critical Care Medicine","Interventional Cardiology","Reproductive Medicine","Sports Medicine"]
+            "superSpecialization": [
+                "Cardiology",
+                "Clinical Immunology and Rheumatology",
+                "Rheumatology",
+                "Endocrinology",
+                "Gastroenterology",
+                "Hepatology",
+                "Infectious Disease",
+                "Medical Genetics",
+                "Medical Oncology",
+                "Nephrology",
+                "Neurology",
+                "Paediatric Neurology",
+                "Pulmonary Medicine",
+                "Critical Care Medicine",
+                "Interventional Cardiology",
+                "Reproductive Medicine",
+                "Sports Medicine"
+            ]
         },
         {
             "profession": "Physician/Surgeon",
             "specialization": "General Surgery",
-            "superSpecialization": ["Endocrine Surgery","Head & Neck Surgery", "Surgical Gastroenterology","HepatoPancreatto Billary Surgery",
-                "Neuro Surgery","Paediatrics Surgery","Plastic & Reconstructructive Surgery","Surgical Oncology","Urology","Peripheral Vascular Surgery",
-                "Cardio Vascular & Thoracic Surgery","Thoracic Surgery","Minimal Access Surgery"]
+            "superSpecialization": [
+                "Endocrine Surgery",
+                "Head & Neck Surgery",
+                "Surgical Gastroenterology",
+                "HepatoPancreatto Billary Surgery",
+                "Neuro Surgery",
+                "Paediatrics Surgery",
+                "Plastic & Reconstructructive Surgery",
+                "Surgical Oncology",
+                "Urology",
+                "Peripheral Vascular Surgery",
+                "Cardio Vascular & Thoracic Surgery",
+                "Thoracic Surgery",
+                "Minimal Access Surgery"
+            ]
         },
         {
             "profession": "Physician/Surgeon",
             "specialization": "Pediatrics",
-            "superSpecialization": ["Paediatric Neurology","Pediatric Hepatology","Pediatric Intensive Care","Paediatric Oncology",
-                "Paediatrics Gastroenterology","Neonatology","Pediatric Cardiology","Pediatric Hemato Oncology"]
+            "superSpecialization": [
+                "Paediatric Neurology",
+                "Pediatric Hepatology",
+                "Pediatric Intensive Care",
+                "Paediatric Oncology",
+                "Paediatrics Gastroenterology",
+                "Neonatology",
+                "Pediatric Cardiology",
+                "Pediatric Hemato Oncology"
+            ]
         },
         {
             "profession": "Physician/Surgeon",
             "specialization": "Anaesthesia",
-            "superSpecialization": ["Cardiac Anaesthesia","Neuro Anaesthesia and Critical Care","Critical Care Medicine"]
+            "superSpecialization": [
+                "Cardiac Anaesthesia",
+                "Neuro Anaesthesia and Critical Care",
+                "Critical Care Medicine"
+            ]
         },
         {
             "profession": "Physician/Surgeon",
             "specialization": "Radiology",
-            "superSpecialization": ["Interventional Radiology","Endovascular and Interventional Radiology","Neuro-Radiology"]
+            "superSpecialization": [
+                "Interventional Radiology",
+                "Endovascular and Interventional Radiology",
+                "Neuro-Radiology"
+            ]
         },
         {
             "profession": "Physician/Surgeon",
             "specialization": "Psychiatry",
-            "superSpecialization": ["Geriatric Mental Health"]
+            "superSpecialization": [
+                "Geriatric Mental Health"
+            ]
         },
         {
             "profession": "Physician/Surgeon",
             "specialization": "Pathology",
-            "superSpecialization": ["Clinical Haematology", "Hematology","Onco Pathology","Laboratory Medicine"]
+            "superSpecialization": [
+                "Clinical Haematology",
+                "Hematology",
+                "Onco Pathology",
+                "Laboratory Medicine"
+            ]
         },
         {
             "profession": "Physician/Surgeon",
             "specialization": "Pharmacology",
-            "superSpecialization": ["Clinical Pharmacology"]
+            "superSpecialization": [
+                "Clinical Pharmacology"
+            ]
         },
         {
             "profession": "Physician/Surgeon",
             "specialization": "Obstetrics and Gynecology",
-            "superSpecialization": ["Gynecological Oncology","Reproductive Medicine & Surgery","Pregnancy & Perinatology"]
+            "superSpecialization": [
+                "Gynecological Oncology",
+                "Reproductive Medicine & Surgery",
+                "Pregnancy & Perinatology"
+            ]
         },
         {
             "profession": "Physician/Surgeon",
             "specialization": "Orthopedic surgery",
-            "superSpecialization": ["Hand & Micro Surgery","Spine Surgery"]
+            "superSpecialization": [
+                "Hand & Micro Surgery",
+                "Spine Surgery"
+            ]
         },
         {
             "profession": "Physician/Surgeon",
             "specialization": "Opthalmology",
-            "superSpecialization": ["Vitreo Retinal Surgery"]
+            "superSpecialization": [
+                "Vitreo Retinal Surgery"
+            ]
         }
+    ],
+    "tags": [
+        "Covid-19"
     ]
 }
