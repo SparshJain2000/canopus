@@ -4,24 +4,19 @@ const router = require("express").Router(),
 const User= require('../models/user.model');
   //google analytics auth
 
-router.get("/user/analytics",middleware.isUser,async (req,res)=>{
+router.get("/analytics",middleware.isLoggedInr,async (req,res)=>{
   if(!req.session.analytics){
   req.session.analytics=true;
-  res.json({status:"ok"});
+  if(req.user.role==="User")
+  res.json({role:"user"});
+  else
+  res.json({role:"employer"});
   }
   else{
-  res.json({status:"already logged"});
+  res.status(400).json({status:"already logged"});
   }
 });
-router.get("/employer/analytics",middleware.isEmployer,async (req,res)=>{
-  if(!req.session.analytics){
-  req.session.analytics=true;
-  res.json({status:"ok"});
-  }
-  else{
-  res.json({status:"already logged"});
-  }
-});
+
 //Google auth
 router.get(
   "/google/user",
@@ -52,7 +47,7 @@ router.get(
         if (err) {
           res.redirect(`http://www.curoid.co/user/login?err=${err.name}`);
         }
-        res.redirect(`http://www.curoid.co/`);
+        res.redirect(`http://www.curoid.co/analytics?role=user`);
       });
     })(req, res, next);
   }
@@ -73,7 +68,7 @@ router.get(
         if (err) {
           res.redirect(`http://www.curoid.co/employer/login?err=${err.name}`);
         }
-        res.redirect(`http://www.curoid.co/`);
+        res.redirect(`http://www.curoid.co/analytics?role=employer`);
       });
     })(req, res, next);
   }
@@ -107,7 +102,7 @@ router.get('/linkedin/employer',
           if (err) {
             res.redirect(`http://www.curoid.co/user/login?err=${err.name}`);
           }
-          res.redirect(`http://www.curoid.co/`);
+          res.redirect(`http://www.curoid.co/analytics?role=user`);
         });
       })(req, res, next);
     }
@@ -128,7 +123,7 @@ router.get('/linkedin/employer',
           if (err) {
             res.redirect(`http://www.curoid.co/employer/login?err=${err.name}`);
           }
-          res.redirect(`http://www.curoid.co/`);
+          res.redirect(`http://www.curoid.co/analytics?role=employer`);
         });
       })(req, res, next);
     }

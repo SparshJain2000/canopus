@@ -15,7 +15,6 @@ const express = require("express"),
     adminRouter = require("./routes/admin.router"),
     policyRouter = require("./routes/policy.router"),
     GoogleStrategy = require("passport-google-oauth").OAuth2Strategy,
-    FacebookStrategy = require("passport-facebook").Strategy,
     bodyParser = require("body-parser"),
     path = require('path');
 var session = require('express-session')
