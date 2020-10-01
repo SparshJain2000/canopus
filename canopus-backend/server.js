@@ -13,13 +13,15 @@ const express = require("express"),
     uploadRouter = require("./routes/blob.router"),
     employerRouter = require("./routes/employer.router"),
     adminRouter = require("./routes/admin.router"),
+    policyRouter = require("./routes/policy.router"),
     GoogleStrategy = require("passport-google-oauth").OAuth2Strategy,
-    FacebookStrategy = require("passport-facebook").Strategy,
     bodyParser = require("body-parser"),
     path = require('path');
 var session = require('express-session')
 var MemoryStore = require('memorystore')(session)
+var LinkedInStrategy = require('@smpincode/passport-linkedin-oauth2v2').Strategy;
  
+const { validationController}=require("./controllers/validation.controller")
 require("dotenv").config();
 const GOOGLE_ANALYTICS=process.env.GOOGLE_ANALYTICS;
 var ua = require("universal-analytics");
@@ -56,6 +58,8 @@ app.use((req, res, next) => {
 });
 app.use(passport.initialize());
 app.use(passport.session());
+//app.set('views', __dirname + '/views');
+
 passport.use(
     "employer",
     new LocalStratergy({ usernameField: "username" }, Employer.authenticate()),
@@ -70,7 +74,7 @@ passport.use(
         {
             clientID: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-            callbackURL: "http://www.curoid.co/auth/google/callback",
+            callbackURL: "https://www.curoid.co/auth/google/user/callback",
         },
         function (accessToken, refreshToken, profile, done) {
             User.findOne({ "google.id": profile.id }, function (err, user) {
@@ -82,6 +86,7 @@ passport.use(
                     user.role = "User";
                     user.emailVerified = true;
                     user.image = profile.photos[0].value;
+                    user = validationController.initTier(user);
                     user.google = {
                         id: profile.id,
                         token: accessToken,
@@ -102,51 +107,114 @@ passport.use(
         // User.authenticate(),
     ),
 );
-
 passport.use(
-    "facebook",
-    new FacebookStrategy(
+    "google_employer",
+    new GoogleStrategy(
         {
-            clientID: process.env.FACEBOOK_APP_ID,
-            clientSecret: process.env.FACEBOOK_APP_SECRET,
-            callbackURL: "http://www.curoid.co/auth/facebook/callback",
-            profileFields: [
-                "id",
-                "email",
-                "displayName",
-                "name",
-                "picture.width(400).height(400)",
-            ],
-            enableProof: true,
+            clientID: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            callbackURL: "https://www.curoid.co/auth/google/employer/callback",
         },
-        function (accessToken, refreshToken, profile, cb) {
-            console.log(profile);
-            User.findOne({ "facebook.id": profile.id }, function (err, user) {
-                if (err) return cb(err);
-                if (user) return cb(null, user);
+        function (accessToken, refreshToken, profile, done) {
+            Employer.findOne({ "google.id": profile.id }, function (err, user) {
+                if (err) return done(err);
+                if (user) return done(null, user);
                 else {
-                    var user = new User();
-                    user.username = profile.emails
-                        ? profile.emails[0].value
-                        : "";
-                    user.role = "User";
-                    user.image = profile.photos[0].value;
-                    user.facebook = {
+                    var user = new Employer();
+                    user.username = profile.emails[0].value;
+                    user.role = "Employer";
+                    user.emailVerified = true;
+                    //user.image = profile.photos[0].value;
+
+                    user = validationController.initTier(user);
+                    user.google = {
                         id: profile.id,
                         token: accessToken,
+                        name: profile.displayName,
+                        email: profile.emails[0].value,
                     };
                     user.firstName = profile.name.givenName;
                     user.lastName = profile.name.familyName;
-                    user.emailVerified = true;
+
                     user.save((err, user) => {
-                        if (!err) return cb(err, user);
+                        if (!err) return done(err, user);
                     });
+                    // done(null, userData);
                 }
             });
         },
+        // User.authenticate(),
     ),
 );
+
+passport.use("linkedin_user",new LinkedInStrategy({
+  clientID: process.env.LINKEDIN_CLIENT_ID,
+  clientSecret: process.env.LINKEDIN_CLIENT_SECRET,
+  callbackURL: "https://www.curoid.co/auth/linkedin/user/callback",
+  scope: ['r_emailaddress', 'r_liteprofile'],
+  state:false
+}, function(accessToken, refreshToken, profile, done) {
+    console.log(profile);
+    User.findOne({ "linkedin.id": profile.id }, function (err, user) {
+        if (err) return done(err);
+        if (user) return done(null, user);
+        else {
+            var user = new User();
+            user.username = profile.emails[0].value;
+            user.role = "User";
+            user.image = profile.photos[0].value;
+            user = validationController.initTier(user);
+            user.linkedin = {
+                id: profile.id,
+                token: accessToken
+            };
+            user.salutation="Dr";
+            user.firstName = profile.name.givenName;
+            user.lastName = profile.name.familyName;
+
+            user.emailVerified = true;
+            user.save((err, user) => {
+                if (!err) return done(err, user);
+            });
+        }
+    });
+}));
+//employer linkedin
+passport.use("linkedin_employer",new LinkedInStrategy({
+    clientID: process.env.LINKEDIN_CLIENT_ID,
+    clientSecret: process.env.LINKEDIN_CLIENT_SECRET,
+    callbackURL: "https://www.curoid.co/auth/linkedin/employer/callback",
+    scope: ['r_emailaddress', 'r_liteprofile'],
+    state:false
+  }, function(accessToken, refreshToken, profile, done) {
+      console.log(profile);
+      Employer.findOne({ "linkedin.id": profile.id }, function (err, user) {
+          if (err) return done(err);
+          if (user) return done(null, user);
+          else {
+              var user = new Employer();
+              user.username = profile.emails[0].value;
+              user.role = "Employer";
+              //user.image = profile.photos[0].value;
+              user = validationController.initTier(user);
+              user.linkedin = {
+                  id: profile.id,
+                  token: accessToken
+              };
+              user.firstName = profile.name.givenName;
+              user.lastName = profile.name.familyName;
+  
+              user.emailVerified = true;
+              user.save((err, user) => {
+                  if (!err) return done(err, user);
+              });
+          }
+      });
+  }));
 passport.serializeUser((user, done) => {
+    //experimental
+    user.salt=undefined;
+    user.hash=undefined;
     done(null, user);
 });
 passport.deserializeUser((user, done) => {
@@ -175,6 +243,7 @@ app.use("/api/job", jobRouter);
 app.use("/api/user", userRouter);
 app.use("/api/employer", employerRouter);
 app.use("/auth", authRouter);
+app.use("/privacy",policyRouter);
 app.use("/api/upload", uploadRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/search",searchRouter);

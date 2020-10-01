@@ -312,7 +312,7 @@ async function validateRequest(req){
 async function validateUpdateRequest(req){
   //return true;
   let data = await readFileAsync();
-  var flag = false;
+  var flag = true;
   // perform validation
   // incentives validation
   if(req.body.description.incentives){

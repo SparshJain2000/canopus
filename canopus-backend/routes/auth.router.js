@@ -4,79 +4,129 @@ const router = require("express").Router(),
 const User= require('../models/user.model');
   //google analytics auth
 
-  router.get("/analytics",middleware.isLoggedIn,async (req,res)=>{
-    if(!req.session.analytics){
-      console.log("not");
-    req.session.analytics=true;
-    let user= await User.findById(req.user._id);
-    req.logIn(user,function(err){
-      res.json(req.session);
-    })
-    }
-    else{
-    res.json(req.session);
-    }
-  });
+router.get("/analytics",middleware.isLoggedInr,async (req,res)=>{
+  if(!req.session.analytics){
+  req.session.analytics=true;
+  if(req.user.role==="User")
+  res.json({role:"user"});
+  else
+  res.json({role:"employer"});
+  }
+  else{
+  res.status(400).json({status:"already logged"});
+  }
+});
+
 //Google auth
 router.get(
-  "/google",
+  "/google/user",
   passport.authenticate("google", {
     scope: ["email", "profile"],
   })
 );
+//Google auth
 router.get(
-  "/google/callback",
+  "/google/employer",
+  passport.authenticate("google_employer", {
+    scope: ["email", "profile"],
+  })
+);
+router.get(
+  "/google/user/callback",
   (req, res, next) => {
     passport.authenticate("google", (err, user, info) => {
       console.log(info);
       if (err) {
         console.log(err);
-        res.redirect(`http://www.curoid.co?err=${err.name}`);
+        res.redirect(`http://www.curoid.co/user/login?err=${err.name}`);
       }
       if (!user) {
-        res.redirect(`http://www.curoid.co?err=${err.name}`);
+        res.redirect(`http://www.curoid.co/user/login?err=${err.name}`);
       }
       req.logIn(user, function (err) {
         if (err) {
-          res.redirect(`http://www.curoid.co?err=${err.name}`);
+          res.redirect(`http://www.curoid.co/user/login?err=${err.name}`);
         }
-        res.redirect(`http://www.curoid.co/`);
+        res.redirect(`http://www.curoid.co/analytics?role=user`);
       });
     })(req, res, next);
   }
-  // function (req, res) {
-  //     console.log(req.user);
-  //     var token = req.user.token ? req.user.token : "";
-  //     console.log("===========================");
-  //     console.log(token);
-  //     res.redirect("http://localhost:8080?token=" + token);
-  // },
 );
-
 router.get(
-  "/facebook",
-  passport.authenticate("facebook", {
-    authType: "reauthenticate",
-    scope: ["email"],
-  })
+  "/google/employer/callback",
+  (req, res, next) => {
+    passport.authenticate("google_employer", (err, user, info) => {
+      console.log(info);
+      if (err) {
+        console.log(err);
+        res.redirect(`http://www.curoid.co/employer/login?err=${err.name}`);
+      }
+      if (!user) {
+        res.redirect(`http://www.curoid.co/employer/login?err=${err.name}`);
+      }
+      req.logIn(user, function (err) {
+        if (err) {
+          res.redirect(`http://www.curoid.co/employer/login?err=${err.name}`);
+        }
+        res.redirect(`http://www.curoid.co/analytics?role=employer`);
+      });
+    })(req, res, next);
+  }
 );
 
-router.get("/facebook/callback", (req, res, next) => {
-  passport.authenticate("facebook", (err, user, info) => {
-    console.log(info);
-    if (err)
-      // return res.status(400).json({ err: err });
-      res.redirect(`http://localhost:3000?err=${err.name}`);
-
-    if (!user) res.redirect(`http://localhost:3000?err=${err.name}`);
-
-    req.logIn(user, function (err) {
-      if (err) {
-        res.redirect(`http://localhost:3000?err=${err.name}`);
-      }
-      res.redirect(`http://localhost:3000/`);
-    });
-  })(req, res, next);
-});
+router.get('/linkedin/user',
+  passport.authenticate('linkedin_user'),
+  function(req, res){
+    // The request will be redirected to LinkedIn for authentication, so this
+    // function will not be called.
+  });
+router.get('/linkedin/employer',
+  passport.authenticate('linkedin_employer'),
+  function(req, res){
+    // The request will be redirected to LinkedIn for authentication, so this
+    // function will not be called.
+  });
+  router.get(
+    "/linkedin/user/callback",
+    (req, res, next) => {
+      passport.authenticate("linkedin_user", (err, user, info) => {
+        console.log(info);
+        if (err) {
+          console.log(err);
+          res.redirect(`http://www.curoid.co/user/login?err=${err.name}`);
+        }
+        if (!user) {
+          res.redirect(`http://www.curoid.co/user/login?err=${err.name}`);
+        }
+        req.logIn(user, function (err) {
+          if (err) {
+            res.redirect(`http://www.curoid.co/user/login?err=${err.name}`);
+          }
+          res.redirect(`http://www.curoid.co/analytics?role=user`);
+        });
+      })(req, res, next);
+    }
+  );
+  router.get(
+    "/linkedin/employer/callback",
+    (req, res, next) => {
+      passport.authenticate("linkedin_employer", (err, user, info) => {
+        console.log(info);
+        if (err) {
+          console.log(err);
+          res.redirect(`http://www.curoid.co/employer/login?err=${err.name}`);
+        }
+        if (!user) {
+          res.redirect(`http://www.curoid.co/employer/login?err=${err.name}`);
+        }
+        req.logIn(user, function (err) {
+          if (err) {
+            res.redirect(`http://www.curoid.co/employer/login?err=${err.name}`);
+          }
+          res.redirect(`http://www.curoid.co/analytics?role=employer`);
+        });
+      })(req, res, next);
+    }
+  );
 
 module.exports = router;

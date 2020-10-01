@@ -267,6 +267,7 @@ router.get("/profile/:id", (req, res) => {
             username: 0,
             firstName: 0,
             lastName: 0,
+            acceptedApplicants:0,
         },
     )
         .then((employer) => {
@@ -301,7 +302,9 @@ router.get("/profile/:id/jobs", (req, res) => {
             res.json({ err: "Employer not found" });
         });
 });
-
+router.post("/experiment",(req,res)=>{
+    console.log(req.user);
+  });
 //get multiple freelance jobs
 router.get("/profile/:id/freelance", (req, res) => {
     Employer.findById(req.params.id)
@@ -329,17 +332,8 @@ router.get("/profile/:id/freelance", (req, res) => {
 
 router.put("/profile/update/", middleware.isEmployer, async (req, res) => {
     query = await validationController.EmployerProfileUpdateBuilder(req);
-    Employer.findByIdAndUpdate(
-        { _id: req.user._id },
-        { $set: query.update },
-        { new: true },
-        // the callback function
-        (err, employer) => {
-            console.log(query.jobUpdate);
-            if (
-                employer.jobs.length > 0 &&
-                (req.body.logo || req.body.instituteName)
-            ) {
+    let employer = await Employer.findByIdAndUpdate({ _id: req.user._id },{ $set: query.update },{ new: true });
+    if (employer.jobs.length > 0 &&(req.body.logo || req.body.instituteName)) {
                 const id = employer.jobs.map((item) => {
                     return item.id;
                 });
@@ -362,10 +356,8 @@ router.put("/profile/update/", middleware.isEmployer, async (req, res) => {
                     .catch((err) => {
                         res.status(500).json({ err: "Job not updated" });
                     });
-            } else if (
-                employer.freelanceJobs.length > 0 &&
-                (req.body.logo || req.body.instituteName)
-            ) {
+            }
+    if (employer.freelanceJobs.length > 0 &&(req.body.logo || req.body.instituteName)) {
                 const id = employer.freelanceJobs.map((item) => {
                     return item.id;
                 });
@@ -400,8 +392,8 @@ router.put("/profile/update/", middleware.isEmployer, async (req, res) => {
                 return res.send(employer);
             });
             // return res.send(todo);
-        },
-    );
+       // },
+    //);
 });
 
 //get multiple jobs

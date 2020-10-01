@@ -7,7 +7,6 @@ const router = require("express").Router(),
       mongoose = require("mongoose");
 //initalize models
 const User           = require("../models/user.model"),
-      Employer       = require("../models/employer.model"),
       Job            = require("../models/job.model"),
       Freelance      = require("../models/freelance.model"), 
       savedJob       = require("../models/savedJobs.model"),
@@ -652,11 +651,6 @@ router.put("/apply/job/:id", middleware.isUser, async (req, res) => {
     });
     if (applicants.includes(req.user._id))
       return res.status(400).json({ err: "Already applied to this job" });
-    // const appliedUserId = job.applicants.map((item) => {
-    //   return mongoose.Types.ObjectId(item.id);
-    //   });
-    // if(appliedUserId.includes(req.body.id))
-    //   return res.status(400).json({err:"Candidate already accepted"});
     //create applicant 
     let applicant = await jobController.createApplicant(user);
     
@@ -674,7 +668,11 @@ router.put("/apply/job/:id", middleware.isUser, async (req, res) => {
     //commit transaction
     await session.commitTransaction();
     session.endSession();
-    res.json({status:"200"});
+    req.logIn(user,function(err){
+      if(err)return res.status(500).json({err:"Error logging in"});
+      res.json({status:"200"});
+    });
+    //res.json({status:"200"});
 
     } catch(err){
       // any 500 error in try block aborts transaction
@@ -712,11 +710,6 @@ try {
   });
   if (applicants.includes(req.user._id))
     return res.status(400).json({ err: "Already applied to this job" });
-  // const appliedUserId = job.applicants.map((item) => {
-  //   return mongoose.Types.ObjectId(item.id);
-  //   });
-  // if(appliedUserId.includes(req.body.id))
-  //   return res.status(400).json({err:"Candidate already accepted"});
   //create applicant 
   let applicant = await jobController.createApplicant(user);
   
@@ -734,7 +727,11 @@ try {
   //commit transaction
   await session.commitTransaction();
   session.endSession();
-  res.json({status:"200"});
+  req.logIn(user,function(err){
+    if(err)return res.status(500).json({err:"Error logging in"});
+    res.json({status:"200"});
+  });
+  //res.json({status:"200"});
 
   } catch(err){
     // any 500 error in try block aborts transaction
