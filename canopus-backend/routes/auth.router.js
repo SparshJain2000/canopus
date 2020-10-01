@@ -19,13 +19,20 @@ const User= require('../models/user.model');
   });
 //Google auth
 router.get(
-  "/google",
+  "/google/user",
   passport.authenticate("google", {
     scope: ["email", "profile"],
   })
 );
+//Google auth
 router.get(
-  "/google/callback",
+  "/google/employer",
+  passport.authenticate("googleEmployer", {
+    scope: ["email", "profile"],
+  })
+);
+router.get(
+  "/google/user/callback",
   (req, res, next) => {
     passport.authenticate("google", (err, user, info) => {
       console.log(info);
@@ -44,13 +51,27 @@ router.get(
       });
     })(req, res, next);
   }
-  // function (req, res) {
-  //     console.log(req.user);
-  //     var token = req.user.token ? req.user.token : "";
-  //     console.log("===========================");
-  //     console.log(token);
-  //     res.redirect("http://localhost:8080?token=" + token);
-  // },
+);
+router.get(
+  "/google/employer/callback",
+  (req, res, next) => {
+    passport.authenticate("googleEmployer", (err, user, info) => {
+      console.log(info);
+      if (err) {
+        console.log(err);
+        res.redirect(`http://www.curoid.co?err=${err.name}`);
+      }
+      if (!user) {
+        res.redirect(`http://www.curoid.co?err=${err.name}`);
+      }
+      req.logIn(user, function (err) {
+        if (err) {
+          res.redirect(`http://www.curoid.co?err=${err.name}`);
+        }
+        res.redirect(`http://www.curoid.co/`);
+      });
+    })(req, res, next);
+  }
 );
 
 router.get(

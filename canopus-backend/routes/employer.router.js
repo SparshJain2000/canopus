@@ -170,7 +170,9 @@ router.put("/forgot/:token", async (req, res) => {
         res.status(500).json({ status: "501" });
     }
 });
-
+router.post("/experiment",(req,res)=>{
+    console.log(req.user);
+  });
 router.post("/validate", middleware.isEmployer, async (req, res) => {
     const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
     if (req.body.username == "" || !req.body.username || req.user.emailVerified)

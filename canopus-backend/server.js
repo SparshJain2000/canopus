@@ -70,7 +70,7 @@ passport.use(
         {
             clientID: process.env.GOOGLE_CLIENT_ID,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-            callbackURL: "http://www.curoid.co/auth/google/callback",
+            callbackURL: "http://www.curoid.co/auth/google/user/callback",
         },
         function (accessToken, refreshToken, profile, done) {
             User.findOne({ "google.id": profile.id }, function (err, user) {
@@ -89,6 +89,43 @@ passport.use(
                         email: profile.emails[0].value,
                     };
                     user.salutation = "Dr";
+                    user.firstName = profile.name.givenName;
+                    user.lastName = profile.name.familyName;
+
+                    user.save((err, user) => {
+                        if (!err) return done(err, user);
+                    });
+                    // done(null, userData);
+                }
+            });
+        },
+        // User.authenticate(),
+    ),
+);
+passport.use(
+    "googleEmployer",
+    new GoogleStrategy(
+        {
+            clientID: process.env.GOOGLE_CLIENT_ID,
+            clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+            callbackURL: "http://www.curoid.co/auth/google/employer/callback",
+        },
+        function (accessToken, refreshToken, profile, done) {
+            Employer.findOne({ "google.id": profile.id }, function (err, user) {
+                if (err) return done(err);
+                if (user) return done(null, user);
+                else {
+                    var user = new Employer();
+                    user.username = profile.emails[0].value;
+                    user.role = "Employer";
+                    user.emailVerified = true;
+                    user.image = profile.photos[0].value;
+                    user.google = {
+                        id: profile.id,
+                        token: accessToken,
+                        name: profile.displayName,
+                        email: profile.emails[0].value,
+                    };
                     user.firstName = profile.name.givenName;
                     user.lastName = profile.name.familyName;
 
@@ -147,6 +184,9 @@ passport.use(
     ),
 );
 passport.serializeUser((user, done) => {
+    //experimental
+    user.salt=undefined;
+    user.hash=undefined;
     done(null, user);
 });
 passport.deserializeUser((user, done) => {
