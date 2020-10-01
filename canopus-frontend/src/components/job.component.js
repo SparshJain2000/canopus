@@ -78,8 +78,10 @@ class SimilarJobs extends Component {
         };
     }
     componentDidMount() {
+        console.log("mounted");
         const job = this.props.job;
         const query = {
+            _id: job._id,
             location: job.description.location,
             specialization: job.specialization,
             profession: job.profession,
@@ -107,13 +109,21 @@ class SimilarJobs extends Component {
                             <h4
                                 className='col-12'
                                 style={{ textAlign: "center" }}>
-                                {this.state.jobs.length} similar jobs found
+                                {this.state.jobs.length >= 2
+                                    ? "2"
+                                    : this.state.jobs.length}{" "}
+                                similar jobs found
                             </h4>
-                            {this.state.jobs.map((job) => (
+                            {this.state.jobs.splice(0, 2).map((job) => (
                                 <BounceIn className='col-12 col-sm-6 mx-auto'>
-                                    <Link
-                                        to={`/job/${job._id}`}
-                                        className='row  block justify-content-center mx-auto '
+                                    <a
+                                        href={`/job/${job._id}?${
+                                            job.category === "Locum" ||
+                                            job.category === "Day Job"
+                                                ? "freelance"
+                                                : "job"
+                                        }&employer`}
+                                        className='row  block justify-content-center m-1 '
                                         style={{ cursor: "pointer" }}
                                         // onClick={() =>
                                         //     history.push(`/job/${job._id}`)
@@ -164,7 +174,7 @@ class SimilarJobs extends Component {
                                                 />
                                             </div>
                                         </Media>
-                                    </Link>
+                                    </a>
                                 </BounceIn>
                             ))}
                         </div>
@@ -460,7 +470,14 @@ export default class Job extends Component {
                                 </div>
                                 <div className='col-6 col-sm-3 my-1'>
                                     <h6>
-                                        <b> Salary</b>
+                                        <b>
+                                            {`${
+                                                job.category === "Locum" ||
+                                                job.category === "Day Job"
+                                                    ? "Fees"
+                                                    : "Salary"
+                                            }`}
+                                        </b>
                                         {/* <FontAwesomeIcon
                                         icon={faMoneyBillWaveAlt}
                                         className='ml-1'
@@ -524,78 +541,87 @@ export default class Job extends Component {
                                     )}
                                 </div>
                                 <div className='col-6'>
-                                    <CopyToClipboard
-                                        text={window.location.href}>
-                                        <Button
-                                            // size='lg'
-                                            color='primary'
-                                            className='w-100'
-                                            id='t'
-                                            onClick={() => {
-                                                this.setState({
-                                                    tooltipOpen: true,
-                                                });
-                                            }}>
-                                            Share
-                                        </Button>
-                                    </CopyToClipboard>
+                                    <div>
+                                        <CopyToClipboard
+                                            text={window.location.href}>
+                                            <Button
+                                                // size='lg'
+                                                color='primary'
+                                                className='w-100'
+                                                id='copy'>
+                                                Share
+                                            </Button>
+                                        </CopyToClipboard>
 
-                                    <UncontrolledTooltip
-                                        placement='down'
-                                        // isOpen={this.state.tooltipOpen}
-                                        trigger='focus'
-                                        target='t'
-                                        style={{
-                                            minWidth: "max-content",
-                                            backgroundColor:
-                                                "rgba(255,255,255,1)",
-                                            color: "black",
-                                            padding: "0px",
-                                        }}
-                                        className='border'>
-                                        <div
-                                            className='p-3 m-0 border'
+                                        <UncontrolledTooltip
+                                            placement='down'
+                                            // isOpen={this.state.tooltipOpen}
+                                            trigger='focus'
+                                            target='copy'
                                             style={{
-                                                minWidth: "min-content",
-                                            }}>
-                                            <h4 className='text-align-center p-1'>
-                                                <FontAwesomeIcon
-                                                    icon={faCheckCircle}
-                                                    className='text-success'
-                                                    size='lg'
-                                                />
-                                            </h4>
-                                            <h5 className=''>
-                                                Link to '{job.title}' copied
-                                            </h5>
-                                            <div className='row'>
-                                                <div className='col-9 pl-0'>
-                                                    <Input
-                                                        type='text'
-                                                        value={
-                                                            window.location.href
-                                                        }
-                                                        className=''
-                                                        disabled
+                                                minWidth: "max-content",
+                                                backgroundColor:
+                                                    "rgba(255,255,255,1)",
+                                                color: "black",
+                                                padding: "0px",
+                                            }}
+                                            className='border'>
+                                            <div
+                                                className='p-3 m-0 border'
+                                                style={{
+                                                    minWidth: "min-content",
+                                                }}>
+                                                <h4 className='text-align-center p-1'>
+                                                    <FontAwesomeIcon
+                                                        icon={faCheckCircle}
+                                                        className='text-success'
+                                                        size='lg'
                                                     />
-                                                </div>
-                                                <CopyToClipboard
-                                                    text={window.location.href}>
+                                                </h4>
+                                                <h5 className=''>
+                                                    Link to '
+                                                    {job.title.length > 8
+                                                        ? job.title.substr(
+                                                              0,
+                                                              8 - 1,
+                                                          ) + "..."
+                                                        : job.title}
+                                                    ' copied
+                                                </h5>
+                                                <div className='row'>
+                                                    <div className='col-9 pl-0'>
+                                                        <Input
+                                                            type='text'
+                                                            value={
+                                                                window.location
+                                                                    .href
+                                                            }
+                                                            className=''
+                                                            disabled
+                                                        />
+                                                    </div>
+                                                    {/* <CopyToClipboard
+                                                        text={
+                                                            window.location.href
+                                                        }> */}
                                                     <Button
                                                         color='info'
                                                         size='xs'
                                                         className='col-3'>
                                                         Copy
                                                     </Button>
-                                                </CopyToClipboard>
+                                                    {/* </CopyToClipboard> */}
+                                                </div>
                                             </div>
-                                        </div>
-                                    </UncontrolledTooltip>
+                                        </UncontrolledTooltip>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                         <div className='col-11 col-sm-9 col-md-8 mx-auto my-3 px-0'>
-                            <SimilarJobs job={this.state.job} />
+                            <div>
+                                <SimilarJobs job={this.state.job} />
+                            </div>
                         </div>
 
                         {this.state.user && (
