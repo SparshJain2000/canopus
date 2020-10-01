@@ -2,7 +2,11 @@ import React, { Component } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import { faLock, faUser } from "@fortawesome/free-solid-svg-icons";
-import { faFacebook, faGoogle } from "@fortawesome/free-brands-svg-icons";
+import {
+    faFacebook,
+    faGoogle,
+    faLinkedin,
+} from "@fortawesome/free-brands-svg-icons";
 import { Link, NavLink } from "react-router-dom";
 import { Modal, ModalHeader, ModalBody, NavItem, Nav } from "reactstrap";
 import ReCAPTCHA from "react-google-recaptcha";
@@ -102,12 +106,7 @@ export default class LoginEmployer extends Component {
                 .then((newuser) => {
                     console.log(newuser.data.employer);
                     this.props.setUser(newuser.data.employer);
-                    ReactGA.event({
-                        category: "Employer",
-                        action: "loggedin",
-                        id: `${newuser.data.employer._id}`,
-                    });
-                    this.props.history.push("/employer");
+                    this.props.history.push("/analytics");
                 })
                 .catch((err) => {
                     console.log(err);
@@ -126,6 +125,16 @@ export default class LoginEmployer extends Component {
                                     : err.response.data.err,
                         });
                 });
+        }
+    }
+    componentDidMount() {
+        if (this.props.location.search !== "") {
+            console.log(this.props.location.search.split("=")[1]);
+            const err = this.props.location.search.split("=")[1];
+            this.setState({
+                modal: true,
+                message: err === "" ? "Unable to login" : err,
+            });
         }
     }
     render() {
@@ -231,9 +240,11 @@ export default class LoginEmployer extends Component {
                                 Login with your social media account
                             </p>
                             <div className='text-center social-btn'>
-                                <a href='/' className='btn btn-primary mx-2'>
-                                    <FontAwesomeIcon icon={faFacebook} />
-                                    &nbsp; Facebook
+                                <a
+                                    href='/auth/linkedin/user'
+                                    className='btn btn-linkedin mx-2'>
+                                    <FontAwesomeIcon icon={faLinkedin} />
+                                    &nbsp; Linkedin
                                 </a>
                                 <a href='/' className='btn btn-danger mx-2'>
                                     <FontAwesomeIcon icon={faGoogle} />

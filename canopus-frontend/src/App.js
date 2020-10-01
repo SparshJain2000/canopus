@@ -27,12 +27,15 @@ import Test from "./components/test.component";
 import axios from "axios";
 import EmployerProfile from "./components/employerProfile.component";
 import LoginUser from "./components/loginUser.component";
+import Analytics from "./components/analytic.component";
+import renderHTML from "react-render-html";
 class App extends Component {
     constructor(props) {
         super(props);
         this.state = {
             user: null,
             data: null,
+            html: "",
         };
         this.setUser = this.setUser.bind(this);
         this.getUser = this.getUser.bind(this);
@@ -59,6 +62,15 @@ class App extends Component {
         }
         const node = this.wrapper.current;
         console.log(node);
+        // axios
+        //     .get(
+        //         "https://canopus.blob.core.windows.net/mail-image/privacy_temp.html",
+        //     )
+        //     .then((data) => {
+        //         console.log(data);
+        //         this.setState({ html: data });
+        //     })
+        //     .catch((err) => console.log(err));
         axios.get("/data.json").then((data) => {
             this.setState({ data: data.data });
         });
@@ -97,7 +109,6 @@ class App extends Component {
                             />
                         )}
                     />
-
                     <Route
                         exact
                         path='/user/signup'
@@ -121,7 +132,6 @@ class App extends Component {
                             />
                         )}
                     />
-
                     <Route exact path='/test' component={() => <Test />} />
                     <Route
                         exact
@@ -164,6 +174,13 @@ class App extends Component {
                             <VerifyEmail {...props} user={this.state.user} />
                         )}
                     />
+                    {/* {this.state.html !== "" && (
+                        <Route
+                            exact
+                            path='/privacy'
+                            render={(props) => renderHTML(this.state.html)}
+                        />
+                    )} */}
                     <Route
                         exact
                         path='/employer/validate/:token'
@@ -181,24 +198,28 @@ class App extends Component {
                         path='/user/forgot/:token'
                         component={() => <EnterPassword />}
                     />
-                    <Route
-                        exact
-                        path='/profile'
-                        // render={(props) => <Profile {...props} />}
-                        component={() => <Profile />}
-                    />
-                    <Route
-                        exact
-                        path='/profile/update'
-                        // render={(props) => <Profile {...props} />}
-                        render={(props) => (
-                            <UpdateUser
-                                {...props}
-                                setUser={this.setUser}
-                                data={this.state.data}
-                            />
-                        )}
-                    />
+                    {this.state.user && this.state.user.role === "User" && (
+                        <Route
+                            exact
+                            path='/profile'
+                            // render={(props) => <Profile {...props} />}
+                            component={() => <Profile />}
+                        />
+                    )}
+                    {this.state.user && this.state.user.role === "User" && (
+                        <Route
+                            exact
+                            path='/profile/update'
+                            // render={(props) => <Profile {...props} />}
+                            render={(props) => (
+                                <UpdateUser
+                                    {...props}
+                                    setUser={this.setUser}
+                                    data={this.state.data}
+                                />
+                            )}
+                        />
+                    )}
                     <Route
                         exact
                         path='/profile/:id'
@@ -259,52 +280,54 @@ class App extends Component {
                             />
                         )}
                     />
-                    <Route
-                        exact
-                        path='/employer'
-                        // render={(props) => <Profile {...props} />}
-                        render={(props) =>
-                            this.state.user &&
-                            this.state.user.role === "Employer" ? (
+                    {this.state.user && this.state.user.role === "Employer" && (
+                        <Route
+                            exact
+                            path='/employer'
+                            // render={(props) => <Profile {...props} />}
+                            render={(props) => (
                                 <Employer
                                     {...props}
                                     // user={this.state.user}
                                     setUser={this.setUser}
                                 />
-                            ) : (
-                                <Redirect to='/' />
-                            )
-                        }
-                    />
-
-                    <Route
-                        exact
-                        path='/post'
-                        // render={(props) => <Profile {...props} />}
-                        render={(props) =>
-                            this.state.user ? (
+                            )}
+                        />
+                    )}
+                    {this.state.user && (
+                        <Route
+                            exact
+                            path='/post'
+                            // render={(props) => <Profile {...props} />}
+                            render={(props) => (
                                 <PostJob
                                     {...props}
                                     data={this.state.data}
                                     locationData={this.state.location}
                                 />
-                            ) : (
-                                <Redirect to='/employer/login' />
-                            )
-                        }
-                    />
+                            )}
+                        />
+                    )}
+                    {this.state.user && (
+                        <Route
+                            exact
+                            path='/applications'
+                            // render={(props) => <Profile {...props} />}
+
+                            component={() => <JobApplications />}
+                        />
+                    )}
                     <Route
                         exact
-                        path='/applications'
-                        // render={(props) => <Profile {...props} />}
-
-                        component={() =>
-                            this.state.user ? (
-                                <JobApplications />
-                            ) : (
-                                <Redirect to='/' />
-                            )
-                        }
+                        path='/analytics'
+                        render={(props) => (
+                            <Analytics
+                                {...props}
+                                user={this.state.user}
+                                setUser={this.setUser}
+                                getUser={this.getUser}
+                            />
+                        )}
                     />
                     <Route component={() => <ErrorPage />} />
                 </Switch>
