@@ -22,7 +22,7 @@ const Home = (props) => {
     const [alert, setAlert] = useState(true);
     return (
         <div>
-            {props.location.search !== "" && (
+            {props.location && props.location.search !== "" && (
                 <Alert
                     color='danger'
                     className='mb-0'
@@ -37,6 +37,11 @@ const Home = (props) => {
                 </Alert>
             )}
             <div className='flex flex-column justify-content-between main-container'>
+                {/* <a
+                    href='https://canopus.blob.core.windows.net/mail-image/privacy_temp.html'
+                    target='_blank'>
+                    Privacy
+                </a> */}
                 <div
                     className='main py-5 position-relative'
                     style={{ height: "100%", flexGrow: 1 }}>
