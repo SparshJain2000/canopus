@@ -216,7 +216,31 @@ export default class UpdateUser extends Component {
             this.setState({ uploaded: false });
 
             const file = files[0];
-
+            console.log("------------------------------");
+            console.log(file.size);
+            // console.log(file);
+            // console.log(file.type.split("."));
+            if (
+                !["pdf", "doc", "docx", "docs", "rtf"].includes(
+                    file.name.split(".")[1],
+                )
+            ) {
+                this.setState({
+                    modalError: true,
+                    modalMess: "Invalid file type",
+                    loading: false,
+                });
+                return;
+            }
+            if (file.size >= 5000000) {
+                this.setState({
+                    modalError: true,
+                    modalMess: "File size should be less than 5MB",
+                    loading: false,
+                });
+                return;
+            }
+            console.log("chal rha h");
             let reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = () => {
@@ -374,6 +398,7 @@ export default class UpdateUser extends Component {
                         id: user._id,
                     });
                     this.setState({
+                        username: user.username,
                         id: user._id,
                         title: user.title,
                         firstName: user.firstName,
@@ -477,6 +502,7 @@ export default class UpdateUser extends Component {
                 // ); // true
                 // console.log(`file size ${file.size / 1024 / 1024} MB`); // smaller than maxSizeMB
                 // await uploadToServer(file); // write your own logic
+
                 let reader = new FileReader();
                 reader.readAsDataURL(file);
                 reader.onload = () => {
@@ -566,7 +592,7 @@ export default class UpdateUser extends Component {
             });
             suggestionarray = suggestionarray.map((e) => e.value);
             suggestionarray = [...new Set(suggestionarray)];
-            console.log(suggestionarray);
+            // console.log(suggestionarray);
         }
         return (
             <div>
@@ -1321,99 +1347,93 @@ export default class UpdateUser extends Component {
                         </FormGroup>
 
                         <div className='row'>
-                            <div className='col-12 row justify-content-start'>
-                                {/* <button
-                                            className='btn btn-sm btn-primary px-2'
-                                            onClick={() => {
-                                                this.setState({
-                                                    prevResume: this.state
-                                                        .resume,
-                                                    resume: "",
-                                                });
-                                                // this.update();
-                                            }}>
-                                            Update Resume
-                                            <FontAwesomeIcon
-                                                className='ml-2'
-                                                icon={faPen}
-                                            />
-                                        </button> */}
-                                <div className=' pl-0 pr-0'>
+                            {this.state.loading ? (
+                                <h6>
+                                    <span className='my-auto'>
+                                        Uploading File
+                                    </span>
                                     <div
-                                        className='position-relative'
-                                        style={{
-                                            height: "100%",
-                                        }}>
-                                        <button className='btn btn-primary'>
-                                            <label
-                                                htmlFor='file'
-                                                style={{
-                                                    display:
-                                                        "inline-block-noHover",
-                                                    margin: 0,
-                                                    cursor: "pointer",
-                                                    width: "100%",
-                                                }}>
-                                                Update Resume
-                                                <FontAwesomeIcon
-                                                    className='ml-2'
-                                                    icon={faPen}
-                                                />
-                                            </label>
-                                        </button>
-
-                                        <input
+                                        class='spinner-border spinner-border-sm ml-2 my-auto'
+                                        role='status'>
+                                        <span class='sr-only'>Loading...</span>
+                                    </div>
+                                </h6>
+                            ) : (
+                                <div className='col-12 row justify-content-start'>
+                                    <div className=' pl-0 pr-0'>
+                                        <div
+                                            className='position-relative'
                                             style={{
-                                                position: "absolute",
-                                                zIndex: "-5",
-                                                overflow: "hidden",
-                                                opacity: 0,
-                                                width: "0.1px",
-                                                height: "0.1px",
-                                            }}
-                                            className='p-0 file'
-                                            id='file'
-                                            type='file'
-                                            accept='.pdf,.doc,.docx,.docs,.rtf'
-                                            onChange={this.uploadResume}
-                                            ref={this.resume}
-                                        />
+                                                height: "100%",
+                                            }}>
+                                            <button className='btn btn-primary'>
+                                                <label
+                                                    htmlFor='file'
+                                                    style={{
+                                                        display:
+                                                            "inline-block-noHover",
+                                                        margin: 0,
+                                                        cursor: "pointer",
+                                                        width: "100%",
+                                                    }}>
+                                                    Update Resume
+                                                    <FontAwesomeIcon
+                                                        className='ml-2'
+                                                        icon={faPen}
+                                                    />
+                                                </label>
+                                            </button>
+
+                                            <input
+                                                style={{
+                                                    position: "absolute",
+                                                    zIndex: "-5",
+                                                    overflow: "hidden",
+                                                    opacity: 0,
+                                                    width: "0.1px",
+                                                    height: "0.1px",
+                                                }}
+                                                className='p-0 file'
+                                                id='file'
+                                                type='file'
+                                                accept='.pdf,.doc,.docx,.docs,.rtf'
+                                                onChange={this.uploadResume}
+                                                ref={this.resume}
+                                            />
+                                        </div>
+                                    </div>
+                                    <div className='pl-1 pr-0'>
+                                        {this.state.resume !== undefined &&
+                                            this.state.resume !== "" && (
+                                                <a
+                                                    href={`${this.state.resume}`}
+                                                    className='btn btn-info '>
+                                                    View Resume
+                                                    <FontAwesomeIcon
+                                                        className='ml-2'
+                                                        icon={faFileAlt}
+                                                    />
+                                                </a>
+                                            )}
                                     </div>
                                 </div>
-                                <div className='pl-1 pr-0'>
-                                    {this.state.resume !== undefined &&
-                                        this.state.resume !== "" && (
-                                            <a
-                                                href={`${this.state.resume}`}
-                                                className='btn btn-info '>
-                                                View Resume
-                                                <FontAwesomeIcon
-                                                    className='ml-2'
-                                                    icon={faFileAlt}
-                                                />
-                                            </a>
-                                        )}
-                                </div>
-                                {this.state.progress !== 1 &&
-                                    this.state.progress !== 0 && (
-                                        <div className='my-1 mt-3 col-12'>
-                                            <Progress
-                                                animated
-                                                color='info'
-                                                value={
-                                                    this.state.progress * 100
-                                                }>
-                                                <h6 className='m-0'>
-                                                    {Math.round(
-                                                        this.state.progress *
-                                                            100,
-                                                    )}
-                                                    {"%"}
-                                                </h6>
-                                            </Progress>
-                                        </div>
-                                    )}
-                            </div>
+                            )}
+                            {this.state.progress !== 1 &&
+                                this.state.progress !== 0 && (
+                                    <div className='my-1 mt-3 col-12'>
+                                        <Progress
+                                            animated
+                                            color='info'
+                                            value={this.state.progress * 100}>
+                                            <h6 className='m-0'>
+                                                {Math.round(
+                                                    this.state.progress * 100,
+                                                )}
+                                                {"%"}
+                                            </h6>
+                                        </Progress>
+                                    </div>
+                                )}
                         </div>
                         {/* )} */}
                     </div>
@@ -1728,7 +1748,7 @@ export default class UpdateUser extends Component {
                         )}
                     </div>
                     <div className='p-1 p-sm-4 m-1 m-sm-3 mx-lg-4 d-flex justify-content-start'>
-                        {this.state.loading ? (
+                        {/* {this.state.loading ? (
                             <Button disabled={true} color='primary'>
                                 <span className='my-auto'>Uploading File</span>
 
@@ -1739,15 +1759,15 @@ export default class UpdateUser extends Component {
                                     <span class='sr-only'>Loading...</span>
                                 </div>
                             </Button>
-                        ) : (
-                            <Button
-                                onClick={this.update}
-                                // className='w-25'
-
-                                color='primary'>
-                                Update Profile
-                            </Button>
-                        )}
+                        ) : ( */}
+                        <Button
+                            onClick={this.update}
+                            // className='w-25'
+                            disabled={this.state.loading}
+                            color='primary'>
+                            Update Profile
+                        </Button>
+                        {/* )} */}
                     </div>
                 </div>
                 <Modal
