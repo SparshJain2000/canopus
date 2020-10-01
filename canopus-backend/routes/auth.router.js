@@ -4,10 +4,11 @@ const router = require("express").Router(),
 const User= require('../models/user.model');
   //google analytics auth
 
-router.get("/analytics",middleware.isLoggedIn,async (req,res)=>{
-  let updated=false;
-  if(req.user.lastUpdated)
-  updated=true;
+router.get("/analytics",middleware.isLoggedIn,(req,res)=>{
+  let updated=true;
+  console.log(req.user.lastUpdated);
+  if(req.user.lastUpdated===null || req.user.lastUpdated===undefined)
+  updated=false;
   if(!req.session.analytics){
   req.session.analytics=true;
   res.json({role:req.user.role,updated:updated});
@@ -90,7 +91,7 @@ router.get('/linkedin/employer',
     "/linkedin/user/callback",
     (req, res, next) => {
       passport.authenticate("linkedin_user", (err, user, info) => {
-        console.log(info);
+        console.log(err);
         if (err) {
           console.log(err);
           res.redirect(`http://www.curoid.co/user/login?err=${err.name}`);
