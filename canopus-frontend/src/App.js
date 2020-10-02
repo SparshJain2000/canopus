@@ -314,7 +314,12 @@ class App extends Component {
                             path='/applications'
                             // render={(props) => <Profile {...props} />}
 
-                            component={() => <JobApplications />}
+                            render={(props) => (
+                                <JobApplications
+                                    {...props}
+                                    user={this.state.user}
+                                />
+                            )}
                         />
                     )}
                     <Route
