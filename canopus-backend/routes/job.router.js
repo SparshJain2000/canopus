@@ -172,7 +172,6 @@ router.put("/post/:id",middleware.isLoggedIn,middleware.checkPostOwnership, asyn
   try {
     let query = await jobController.updateQueryBuilder(req);
     if(!query) throw client_error;
-    console.log(query);
     if(req.body.attachedApplicants){
       
     }
@@ -182,9 +181,9 @@ router.put("/post/:id",middleware.isLoggedIn,middleware.checkPostOwnership, asyn
       var employer = await Employer.findById(req.user._id).session(session);
     else if ( req.user.role === "User" )
       var employer = await User.findById(req.user._id).session(session);
-     if(employer.sponsors.allowed-employer.posted>0)
+     if(employer.sponsors.allowed>employer.posted)
      {employer.sponsors.posted+=1
-      query["sponsored"]=true;
+      query["sponsored"]="true";
      }
      else throw client_error;
     }

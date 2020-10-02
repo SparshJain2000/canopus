@@ -23,7 +23,7 @@ const User = require("../models/user.model"),
 //Sign up route
 router.post("/", async (req, res) => {
     //captcha validation
-    const captcha = await validationController.verifyCheckBoxCaptcha(req);
+    const captcha = await validationController.verifyInvisibleCaptcha(req);
     if (!captcha) return res.json({ err: "Invalid Captcha" });
     const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
     const employer = new Employer({
@@ -69,9 +69,9 @@ router.post("/", async (req, res) => {
 //Login route
 router.post("/login", async function (req, res, next) {
   //captcha validation
-  // const captcha = await validationController.verifyInvisibleCaptcha(req);
-  // if(!captcha)
-  // return res.json({err:"Invalid Captcha"});
+//   const captcha = await validationController.verifyInvisibleCaptcha(req);
+//   if(!captcha)
+//   return res.json({err:"Invalid Captcha"});
   passport.authenticate("employer", function (err, employer, info) {
     if (err) {
       return res.status(400).json({ err: err });
@@ -332,32 +332,21 @@ router.get("/profile/:id/freelance", (req, res) => {
 
 router.put("/profile/update/", middleware.isEmployer, async (req, res) => {
     query = await validationController.EmployerProfileUpdateBuilder(req);
-    let employer = await Employer.findByIdAndUpdate({ _id: req.user._id },{ $set: query.update },{ new: true });
+    let employer = await Employer.findOneAndUpdate({ _id: req.user._id },{ $set: query.update },{ new: true });
     if (employer.jobs.length > 0 &&(req.body.logo || req.body.instituteName)) {
                 const id = employer.jobs.map((item) => {
                     return item.id;
                 });
                 Job.updateMany({ _id: { $in: id } }, { $set: query.jobUpdate })
                     .then(() => {
-                        savedJob
-                            .updateMany(
-                                { jobRef: { $in: id } },
-                                { $set: query.jobUpdate },
-                            )
-                            .then(() => {
-                                console.log("Updated");
-                            })
-                            .catch((err) => {
-                                res.status(500).json({
-                                    err: "Saved Job not updated",
-                                });
-                            });
+                        console.log("Updated");
+                        
                     })
                     .catch((err) => {
-                        res.status(500).json({ err: "Job not updated" });
+                        console.log(err);
                     });
             }
-    if (employer.freelanceJobs.length > 0 &&(req.body.logo || req.body.instituteName)) {
+    if (employer.freelanceJobs.length > 0 && (req.body.logo || req.body.instituteName)) {
                 const id = employer.freelanceJobs.map((item) => {
                     return item.id;
                 });
@@ -366,28 +355,18 @@ router.put("/profile/update/", middleware.isEmployer, async (req, res) => {
                     { $set: query.jobUpdate },
                 )
                     .then(() => {
-                        savedFreelance
-                            .updateMany(
-                                { jobRef: { $in: id } },
-                                { $set: query.jobUpdate },
-                            )
-                            .then(() => {
+                        
                                 console.log("Updated");
-                            })
-                            .catch((err) => {
-                                res.status(500).json({
-                                    err: "Saved Job not updated",
-                                });
-                            });
+                           
                     })
                     .catch((err) => {
-                        res.status(500).json({ err: "Job not updated" });
+                       console.log(err);
                     });
             }
             //if(employer.jobs.length)
             // Handle any possible database errors
-            if (err) return res.status(500).send(err);
-            req.login(employer, (err) => {
+           // if (err) return res.status(500).send(err);
+            req.logIn(employer, (err) => {
                 if (err) return res.status(500).send(err);
                 return res.send(employer);
             });

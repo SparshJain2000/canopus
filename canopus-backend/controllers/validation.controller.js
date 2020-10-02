@@ -172,5 +172,6 @@ exports.validationController = {
     UserProfileUpdateBuilder,
     verifyCheckBoxCaptcha,
     verifyInvisibleCaptcha,
-    initTier
+    initTier,
+    initUserTier
 };
