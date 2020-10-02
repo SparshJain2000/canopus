@@ -247,7 +247,7 @@ export default class SignupUser extends Component {
                             />
                         </FormGroup>
                         <ReCAPTCHA
-                            sitekey={`${process.env.REACT_APP_CAPTCHA_FRONTEND}`}
+                            sitekey={`${process.env.REACT_APP_CAPTCHA_INVISIBLE}`}
                             name='recaptcha'
                             size='invisible'
                             badge='bottomleft'

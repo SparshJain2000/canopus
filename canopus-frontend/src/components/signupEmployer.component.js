@@ -65,6 +65,7 @@ export default class SignupEmployer extends Component {
         this.signUp = this.signUp.bind(this);
         this.setCoordinates = this.setCoordinates.bind(this);
         this.check = this.check.bind(this);
+        this.recaptcha = React.createRef(null);
         this.toggleErrorModal = this.toggleErrorModal.bind(this);
     }
     toggleErrorModal() {
@@ -159,7 +160,7 @@ export default class SignupEmployer extends Component {
             console.log(e);
             this.setState({
                 Errormodal: true,
-                ErrorModalMessage: "Captcha problem",
+                ErrorModalMess: "Captcha problem",
             });
         }
     }
@@ -241,7 +242,7 @@ export default class SignupEmployer extends Component {
                             />
                         </FormGroup>
                         <ReCAPTCHA
-                            sitekey={`${process.env.REACT_APP_CAPTCHA_FRONTEND}`}
+                            sitekey={`${process.env.REACT_APP_CAPTCHA_INVISIBLE}`}
                             name='recaptcha'
                             size='invisible'
                             badge='bottomleft'
