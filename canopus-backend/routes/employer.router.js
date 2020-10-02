@@ -56,6 +56,7 @@ router.post("/", async (req, res) => {
         },
         validated: false,
         createdAt: Date.now(),
+        lastUpdated:0,
     });
     Employer.register(employer, req.body.password)
         .then((employer) => {
@@ -70,9 +71,9 @@ router.post("/", async (req, res) => {
 //Login route
 router.post("/login", async function (req, res, next) {
   //captcha validation
-//   const captcha = await validationController.verifyInvisibleCaptcha(req);
-//   if(!captcha)
-//   return res.json({err:"Invalid Captcha"});
+  const captcha = await validationController.verifyInvisibleCaptcha(req);
+  if(!captcha)
+  return res.json({err:"Invalid Captcha"});
   passport.authenticate("employer", function (err, employer, info) {
     if (err) {
       return res.status(400).json({ err: err });
