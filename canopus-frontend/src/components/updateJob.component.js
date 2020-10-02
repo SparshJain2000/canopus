@@ -642,7 +642,7 @@ const UpdateJob = (props) => {
             profession: profession,
             specialization: specialization,
             superSpecialization: superSpecialization,
-            sponsored: sponsored,
+            // sponsored: sponsored,
             // instituteName: employer,
 
             description: {
@@ -1385,7 +1385,7 @@ const UpdateJob = (props) => {
                                 </InputGroup>
                             </div>
 
-                            <div className='col-12 row justify-content-between'>
+                            {/* <div className='col-12 row justify-content-between'>
                                 <Label className='my-2 col-9 text-align-left m-1'>
                                     <Input
                                         type='checkbox'
@@ -1405,7 +1405,7 @@ const UpdateJob = (props) => {
                                         <h5 className='ml-2 my-1'>Promote</h5>
                                     </span>
                                 </Label>
-                            </div>
+                            </div> */}
                         </FormGroup>
                     )}
                 </div>

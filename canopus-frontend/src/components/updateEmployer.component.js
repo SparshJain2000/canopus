@@ -231,7 +231,12 @@ export default class UpdateEmployer extends Component {
                     this.setState({
                         id: user._id,
                     });
-                    if (!user.address.coordinates) this.getGeoLocation();
+                    if (user.address === undefined) this.getGeoLocation();
+                    else if (
+                        !user.address.coordinates.lat ||
+                        !user.address.coordinates.lng
+                    )
+                        this.getGeoLocation();
                     this.setState({
                         id: user._id,
                         // });
@@ -356,9 +361,6 @@ export default class UpdateEmployer extends Component {
                                 parseInt(state.loadedBytes) /
                                 parseInt(file.size),
                         });
-                        // console.log(this.state.progress);
-                        // console.log(state);
-                        // console.log(parseInt(file.size));
                     },
                 },
 
@@ -372,7 +374,6 @@ export default class UpdateEmployer extends Component {
                             //contentEncoding: 'base64'
                             blobContentType: file.mimeType,
                         },
-                        // blobContentType: file.mimeType,
                     },
                 },
             );

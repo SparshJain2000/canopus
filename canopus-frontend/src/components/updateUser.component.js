@@ -64,7 +64,7 @@ export default class UpdateUser extends Component {
             salutation: "",
             firstName: "",
             lastName: "",
-            gender: "",
+            gender: "Male",
             dob: "",
             email: "",
             phone: null,
@@ -184,7 +184,7 @@ export default class UpdateUser extends Component {
     }
 
     handleChange(e, index, name, type) {
-        e.preventDefault();
+        // e.preventDefault();
         if (index !== undefined) {
             let links = this.state[type];
             let obj = links[index];
@@ -206,7 +206,7 @@ export default class UpdateUser extends Component {
                     [e.target.name]: e.target.value !== "",
                 },
             });
-        e.preventDefault();
+        // e.preventDefault();
     }
 
     uploadResume(e) {
@@ -396,15 +396,19 @@ export default class UpdateUser extends Component {
                 if (user) {
                     this.setState({
                         id: user._id,
+                        username: user.username,
+                        firstName: user.firstName,
+                        lastName: user.lastName,
                     });
                     this.setState({
-                        username: user.username,
                         id: user._id,
-                        title: user.title,
+                        username: user.username,
                         firstName: user.firstName,
-                        logo: user.image,
                         lastName: user.lastName,
+                        title: user.title,
                         gender: user.gender,
+                        logo: user.image,
+
                         dob: user.dob,
                         profession:
                             user.profession === undefined
@@ -418,7 +422,6 @@ export default class UpdateUser extends Component {
                         city: user.address.city,
                         state: user.address.state,
                         education: user.education,
-                        username: user.username,
 
                         email:
                             user.email && user.email !== ""
@@ -864,12 +867,8 @@ export default class UpdateUser extends Component {
                                         <Input
                                             placeholder='email'
                                             name='email'
-                                            onChange={this.handleChange}
-                                            defaultValue={
-                                                this.state.username !== ""
-                                                    ? this.state.username
-                                                    : this.state.email
-                                            }
+                                            // onChange={this.handleChange}
+                                            value={this.state.username}
                                             disabled={true}
                                         />
                                     </div>
