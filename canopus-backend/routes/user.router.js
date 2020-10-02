@@ -51,6 +51,7 @@ router.post("/", async (req, res) => {
     sponsors: {
       posted:0,
       allowed:0,
+      closed:0,
     },
     role: "User",
   });

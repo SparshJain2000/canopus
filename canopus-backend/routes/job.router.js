@@ -250,7 +250,7 @@ router.put("/save/:id",middleware.isLoggedIn,middleware.checkSavedOwnership, asy
     //DB operations start here
     if(req.body.category === "Full-time" || req.body.category === "Part-time"){
       //update job
-      await savedJob.findOneAndUpdate({ jobRef: req.params.id}, { $set: query },{ session: session });
+      await savedJob.findOneAndUpdate({ _id: req.params.id}, { $set: query },{ session: session });
     } 
     else {
       // if(req.body.endDate){

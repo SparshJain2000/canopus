@@ -52,6 +52,7 @@ router.post("/", async (req, res) => {
         sponsors: {
             allowed: 1,
             posted: 0,
+            closed:0,
         },
         validated: false,
         createdAt: Date.now(),

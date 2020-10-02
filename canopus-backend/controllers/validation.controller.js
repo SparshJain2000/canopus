@@ -134,6 +134,7 @@ function initTier(user){
     user.sponsors={
         allowed: 1,
         posted: 0,
+        closed:0,
     };
     user.validated=false;
     user.createdAt= Date.now();
@@ -161,6 +162,7 @@ function initUserTier(user){
     user.sponsors={
         allowed: 0,
         posted: 0,
+        closed:0,
     };
     user.validated=false;
     user.createdAt= Date.now();
