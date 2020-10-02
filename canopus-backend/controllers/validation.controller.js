@@ -139,6 +139,33 @@ function initTier(user){
     user.createdAt= Date.now();
     return user;
 }
+function initUserTier(user){
+    user.jobtier= {
+        allowed: 0,
+        posted: 0,
+        saved: 0,
+        closed: 0,
+    };
+    user.freelancetier= {
+        allowed: 0,
+        posted: 0,
+        saved: 0,
+        closed: 0,
+    };
+    user.locumtier={
+        allowed: 0,
+        posted: 0,
+        saved: 0,
+        closed: 0,
+    };
+    user.sponsors={
+        allowed: 0,
+        posted: 0,
+    };
+    user.validated=false;
+    user.createdAt= Date.now();
+    return user;
+}
 const validationController = {};
 exports.validationController = {
     EmployerProfileUpdateBuilder,

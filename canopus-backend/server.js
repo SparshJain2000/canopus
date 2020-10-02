@@ -77,16 +77,26 @@ passport.use(
             callbackURL: "https://www.curoid.co/auth/google/user/callback",
         },
         function (accessToken, refreshToken, profile, done) {
-            User.findOne({ "google.id": profile.id }, function (err, user) {
+            User.findOne({ "username":profile.emails[0].value }, function (err, user) {
                 if (err) return done(err);
-                if (user) return done(null, user);
+                if (user) {
+                    user.google = {
+                        id: profile.id,
+                        token: accessToken,
+                        name: profile.displayName,
+                        email: profile.emails[0].value,
+                    };
+                    user.save().then((user)=>{
+                        return done(null, user);});
+                    //return done(null, user);
+                }
                 else {
                     var user = new User();
                     user.username = profile.emails[0].value;
                     user.role = "User";
                     user.emailVerified = true;
                     user.image = profile.photos[0].value;
-                    user = validationController.initTier(user);
+                    user = validationController.initUserTier(user);
                     user.google = {
                         id: profile.id,
                         token: accessToken,
@@ -116,9 +126,18 @@ passport.use(
             callbackURL: "https://www.curoid.co/auth/google/employer/callback",
         },
         function (accessToken, refreshToken, profile, done) {
-            Employer.findOne({ "google.id": profile.id }, function (err, user) {
+            Employer.findOne({ "username":profile.emails[0].value }, function (err, user) {
                 if (err) return done(err);
-                if (user) return done(null, user);
+                if (user) {
+                    user.google = {
+                        id: profile.id,
+                        token: accessToken,
+                        name: profile.displayName,
+                        email: profile.emails[0].value,
+                    };
+                    user.save().then((user)=>{
+                    return done(null, user);});
+                }
                 else {
                     var user = new Employer();
                     user.username = profile.emails[0].value;
@@ -155,15 +174,23 @@ passport.use("linkedin_user",new LinkedInStrategy({
   state:false
 }, function(accessToken, refreshToken, profile, done) {
     console.log(profile);
-    User.findOne({ "linkedin.id": profile.id }, function (err, user) {
+    User.findOne({ "username":profile.emails[0].value }, function (err, user) {
         if (err) return done(err);
-        if (user) return done(null, user);
+        if (user) {
+            user.linkedin = {
+                id: profile.id,
+                token: accessToken
+            };
+            user.save().then((user)=>{
+                return done(null, user);});
+        //return done(null, user);
+        }
         else {
             var user = new User();
             user.username = profile.emails[0].value;
             user.role = "User";
             user.image = profile.photos[0].value;
-            user = validationController.initTier(user);
+            user = validationController.initUserTier(user);
             user.linkedin = {
                 id: profile.id,
                 token: accessToken
@@ -188,9 +215,17 @@ passport.use("linkedin_employer",new LinkedInStrategy({
     state:false
   }, function(accessToken, refreshToken, profile, done) {
       console.log(profile);
-      Employer.findOne({ "linkedin.id": profile.id }, function (err, user) {
+      Employer.findOne({ "username":profile.emails[0].value }, function (err, user) {
           if (err) return done(err);
-          if (user) return done(null, user);
+          if (user) {
+            user.linkedin = {
+                id: profile.id,
+                token: accessToken
+            };
+            user.save().then((user)=>{
+                return done(null, user);});
+              //return done(null, user);
+          }
           else {
               var user = new Employer();
               user.username = profile.emails[0].value;
