@@ -905,6 +905,7 @@ const UpdateJob = (props) => {
                                     className='form-control'
                                     ref={titleRef}
                                     name='Title'
+                                    maxLength={100}
                                     defaultValue={title}
                                     onChange={handleChange}
                                     invalid={
@@ -1032,6 +1033,7 @@ const UpdateJob = (props) => {
                                 </Label>
                                 <Select
                                     autosize={true}
+                                    isDisabled={jobType === "post"}
                                     isClearable={true}
                                     placeholder='Profession'
                                     value={
@@ -1072,6 +1074,7 @@ const UpdateJob = (props) => {
                                     autosize={true}
                                     isClearable={true}
                                     placeholder='Specialization'
+                                    isDisabled={jobType === "post"}
                                     value={
                                         specialization !== ""
                                             ? {
@@ -1210,6 +1213,11 @@ const UpdateJob = (props) => {
                                         options={incentivesArray}
                                         // className='basic-multi-select'
                                         // classNamePrefix='select'
+
+                                        isDisabled={
+                                            type === "Day Job" ||
+                                            type === "Locum Position"
+                                        }
                                         ref={incentivesRef}
                                         name='Incentives'
                                         defaultValue={incentives}
@@ -1365,7 +1373,7 @@ const UpdateJob = (props) => {
                                         placeholder='Contact'
                                         className='form-control'
                                         name='Contact'
-                                        defaultValue={contact}
+                                        value={contact}
                                         onChange={handleChange}
                                         invalid={
                                             valid.contact === undefined

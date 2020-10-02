@@ -246,7 +246,9 @@ export default class LoginEmployer extends Component {
                                     <FontAwesomeIcon icon={faLinkedin} />
                                     &nbsp; Linkedin
                                 </a>
-                                <a href='/' className='btn btn-danger mx-2'>
+                                <a
+                                    href='/auth/google/user'
+                                    className='btn btn-danger mx-2'>
                                     <FontAwesomeIcon icon={faGoogle} />
                                     &nbsp; Google
                                 </a>
