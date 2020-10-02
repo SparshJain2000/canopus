@@ -21,7 +21,7 @@ var ua = require("universal-analytics");
 var visitor = ua(GOOGLE_ANALYTICS);
 
 //post a job
-router.post("/post", middleware.isLoggedIn, middleware.dateValidator, async (req, res) => {
+router.post("/post", middleware.isLoggedIn, async (req, res) => {
   //start transaction
   const session = await mongoose.startSession();
   session.startTransaction();
@@ -170,10 +170,24 @@ router.put("/post/:id",middleware.isLoggedIn,middleware.checkPostOwnership, asyn
   const client_error = new Error("400");
   //try block
   try {
-    const query = await jobController.updateQueryBuilder(req);
+    let query = await jobController.updateQueryBuilder(req);
     if(!query) throw client_error;
-
+    if(req.body.attachedApplicants){
+      //let applicantMail = arr1.filter(x => !arr2.includes(x));
+      console.log(attachedApplicants);
+    }
     //DB operations start here
+    if(req.body.sponsored=="true"){
+      if ( req.user.role === "Employer" )
+      var employer = await Employer.findById(req.user._id).session(session);
+    else if ( req.user.role === "User" )
+      var employer = await User.findById(req.user._id).session(session);
+     if(employer.sponsors.allowed>employer.posted)
+     {employer.sponsors.posted+=1
+      query["sponsored"]="true";
+     }
+     else throw client_error;
+    }
     if(req.body.category === "Full-time" || req.body.category === "Part-time"){
     //update job
       const job = await Job.findOneAndUpdate(
@@ -182,16 +196,16 @@ router.put("/post/:id",middleware.isLoggedIn,middleware.checkPostOwnership, asyn
         { new: true, session: session }
       );
       //reflect changes on saved job
-      await savedJob.findOneAndUpdate({ jobRef: job._id }, { $set: query },{ session: session });
+      await savedJob.findOneAndUpdate({ jobRef: req.params.id }, { $set: query },{ session: session });
     } 
     else {
-      if(req.body.endDate || req.body.startDate){
-        let job = await Freelance.findById(req.params.id).session(session);
-        const expiry = new Date(req.body.endDate);
-        var days = (expiry - job.createdAt) / (1000 * 60 * 60 * 24);
-        if (days < 0 || days > 30)
-          throw client_error;
-      }
+      // if(req.body.endDate || req.body.startDate){
+      //   let job = await Freelance.findById(req.params.id).session(session);
+      //   const expiry = new Date(req.body.endDate);
+      //   var days = (expiry - job.createdAt) / (1000 * 60 * 60 * 24);
+      //   if (days < 0 || days > 30)
+      //     throw client_error;
+      // }
         //update job
         const job = await Freelance.findOneAndUpdate(
           { _id: req.params.id },
@@ -199,16 +213,16 @@ router.put("/post/:id",middleware.isLoggedIn,middleware.checkPostOwnership, asyn
           { new: true, session: session }
         );
         //reflect changes on saved job
-        await savedFreelance.findOneAndUpdate({ jobRef: job._id }, { $set: query },{ session: session }); 
+        await savedFreelance.findOneAndUpdate({ jobRef: req.params.id }, { $set: query },{ session: session }); 
     }
     
     //commit transaction
     await session.commitTransaction();
     session.endSession();
-    req.logIn(employer,function(err){
-      if(err)return res.status(500).json({err:"Error logging in"});
+    //req.logIn(employer,function(err){
+    //  if(err)return res.status(500).json({err:"Error logging in"});
       res.json({status:"200"});
-    });
+   // });
    // res.json({status:"200"});
 
   } catch (err) {
@@ -239,11 +253,11 @@ router.put("/save/:id",middleware.isLoggedIn,middleware.checkSavedOwnership, asy
       await savedJob.findOneAndUpdate({ jobRef: req.params.id}, { $set: query },{ session: session });
     } 
     else {
-      if(req.body.endDate){
-        var days = (req.body.endDate - Date.now()) / (1000 * 60 * 60 * 24);
-        if (days < 0 || days > 30)
-          throw client_error;
-      }
+      // if(req.body.endDate){
+      //   var days = (req.body.endDate - Date.now()) / (1000 * 60 * 60 * 24);
+      //   if (days < 0 || days > 30)
+      //     throw client_error;
+      // }
         //update job
         await savedFreelance.findOneAndUpdate({ _id:req.params.id }, { $set: query },{ session: session }); 
     }

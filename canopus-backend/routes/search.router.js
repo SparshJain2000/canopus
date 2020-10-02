@@ -15,17 +15,21 @@ const User           = require("../models/user.model"),
 //get all jobs
 router.post("/all-jobs", (req, res) => {
   //By default sort by Relevance
-  let sort = { $sort: { score: { $meta: "textScore" } } };
+  let sort = {
+    $sort: {
+      _id: -1,
+    },
+  };
   if(req.body.order === "New")
     sort = {
       $sort: {
-        _id: 1,
+        _id: -1,
       },
     };
   if (req.body.order == "Old")
     sort = {
       $sort: {
-        _id: -1,
+        _id: 1,
       },
     };
   skip = parseInt(req.body.skip) || 0;
@@ -93,11 +97,19 @@ router.post("/all-jobs", (req, res) => {
           },
         },
       ])
-        .then((jobs) =>
+        .then((jobs) =>{
+          var j_c;
+
+          try{
+            j_c=jobcount[0].jobCount || 0;
+            }catch(err){
+              j_c = 0;
+            }
           res.json({
             jobs: jobs,
-            count: jobcount[0]|| 0,
+            count: j_c,
           })
+        }
         )
         .catch((err) =>
           res.status(400).json({
@@ -110,7 +122,11 @@ router.post("/all-jobs", (req, res) => {
 //get all freelance jobs
 router.post("/all-visitor", (req, res) => {
   var sort;
-  sort = { $sort: { score: { $meta: "textScore" } } };
+  sort = {
+    $sort: {
+      _id: -1,
+    },
+  };
   if (req.body.order == "New")
     sort = {
       $sort: {
@@ -190,11 +206,18 @@ router.post("/all-visitor", (req, res) => {
           },
         },
       ])
-        .then((jobs) =>
+        .then((jobs) =>{
+          var j_c;
+          try{
+            j_c=jobcount[0].jobCount || 0;
+            }catch(err){
+              j_c = 0;
+            }
           res.json({
             jobs: jobs,
-            count: jobcount[0] || 0,
+            count: j_c,
           })
+        }
         )
         .catch((err) =>
           res.status(400).json({
@@ -213,11 +236,12 @@ router.post("/jobs", async (req, res) => {
   // query builder function
   
   var query = await searchController.queryBuilder(req)
-  .then((query)  => {
-  var jobcount=[0];
+  //.then((query)  => {
+  var j_c=0;
+  var l_c=0;
   //if (query.skip == 0)
     
-  Job.aggregate([
+  let jobcount = await Job.aggregate([
         query.search,
         {
           $group: {
@@ -227,8 +251,20 @@ router.post("/jobs", async (req, res) => {
             },
           },
         },
-      ])
-      .then((jobcount)=> {
+      ]);
+      //.then((jobcount)=> {
+        //job count pipeline
+       let locumcount = await Freelance.aggregate([
+        query.search,
+        {
+          $group: {
+            _id: null,
+            jobCount: {
+              $sum: 1,
+            },
+          },
+        },
+      ]);
         
           var userid;
           try {
@@ -292,27 +328,32 @@ router.post("/jobs", async (req, res) => {
                   err: err,
                 });
               else {
-                // try{
-                //   var count = jobcount[0]
-                //   res.json({ jobs: jobs, count: count });
-                // } catch(err){
-                //   var count = 0;
-                //   res.json({ jobs: jobs, count: count });
-                // }
-                res.json({jobs:jobs,count:jobcount[0]||0})
+                try{
+                  l_c=locumcount[0].jobCount 
+                } catch(err){
+                  l_c = 0;
+                }
+               
+                try{
+                j_c=jobcount[0].jobCount || 0;
+                }catch(err){
+                  j_c = 0;
+                }
+                // res.json({jobs:jobs,count:jobcount[0].jobCount||0,locumcount:locumcount[0].jobCount||0})
+                res.json({jobs:jobs,count:j_c,locumcount:l_c})
               }
             }
           );
-       })
-        .catch((err) => {
-          res.status(400).json({ err: "Error" });
+      //  })
+      //   .catch((err) => {
+      //     res.status(400).json({ err: "Error" });
         });
-    })
-    .catch(function (error) {
-      // handle error
-      console.log(error);
-    });
-});
+    // })
+    // .catch(function (error) {
+    //   // handle error
+    //   console.log(error);
+    // });
+//});
 
 //Similar jobs
 router.post("/similar-jobs", (req, res) => {
@@ -537,8 +578,14 @@ router.post("/visitor-jobs", async (req, res) => {
                   err: err,
                 });
               else {
+                var j_c;
+                try{
+                  j_c=jobcount[0].jobCount || 0;
+                  }catch(err){
+                    j_c = 0;
+                  }
                 //console.log(jobs);
-                res.json({ jobs: jobs, count: jobcount[0]||0 });
+                res.json({ jobs: jobs, count: j_c });
               }
             }
           );

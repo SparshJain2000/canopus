@@ -23,7 +23,7 @@ const User = require("../models/user.model"),
 //Sign up route
 router.post("/", async (req, res) => {
     //captcha validation
-    const captcha = await validationController.verifyCheckBoxCaptcha(req);
+    const captcha = await validationController.verifyInvisibleCaptcha(req);
     if (!captcha) return res.json({ err: "Invalid Captcha" });
     const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
     const employer = new Employer({
@@ -69,9 +69,9 @@ router.post("/", async (req, res) => {
 //Login route
 router.post("/login", async function (req, res, next) {
   //captcha validation
-  // const captcha = await validationController.verifyInvisibleCaptcha(req);
-  // if(!captcha)
-  // return res.json({err:"Invalid Captcha"});
+//   const captcha = await validationController.verifyInvisibleCaptcha(req);
+//   if(!captcha)
+//   return res.json({err:"Invalid Captcha"});
   passport.authenticate("employer", function (err, employer, info) {
     if (err) {
       return res.status(400).json({ err: err });
@@ -332,32 +332,21 @@ router.get("/profile/:id/freelance", (req, res) => {
 
 router.put("/profile/update/", middleware.isEmployer, async (req, res) => {
     query = await validationController.EmployerProfileUpdateBuilder(req);
-    let employer = await Employer.findByIdAndUpdate({ _id: req.user._id },{ $set: query.update },{ new: true });
+    let employer = await Employer.findOneAndUpdate({ _id: req.user._id },{ $set: query.update },{ new: true });
     if (employer.jobs.length > 0 &&(req.body.logo || req.body.instituteName)) {
                 const id = employer.jobs.map((item) => {
                     return item.id;
                 });
                 Job.updateMany({ _id: { $in: id } }, { $set: query.jobUpdate })
                     .then(() => {
-                        savedJob
-                            .updateMany(
-                                { jobRef: { $in: id } },
-                                { $set: query.jobUpdate },
-                            )
-                            .then(() => {
-                                console.log("Updated");
-                            })
-                            .catch((err) => {
-                                res.status(500).json({
-                                    err: "Saved Job not updated",
-                                });
-                            });
+                        console.log("Updated");
+                        
                     })
                     .catch((err) => {
-                        res.status(500).json({ err: "Job not updated" });
+                        console.log(err);
                     });
             }
-    if (employer.freelanceJobs.length > 0 &&(req.body.logo || req.body.instituteName)) {
+    if (employer.freelanceJobs.length > 0 && (req.body.logo || req.body.instituteName)) {
                 const id = employer.freelanceJobs.map((item) => {
                     return item.id;
                 });
@@ -366,28 +355,18 @@ router.put("/profile/update/", middleware.isEmployer, async (req, res) => {
                     { $set: query.jobUpdate },
                 )
                     .then(() => {
-                        savedFreelance
-                            .updateMany(
-                                { jobRef: { $in: id } },
-                                { $set: query.jobUpdate },
-                            )
-                            .then(() => {
+                        
                                 console.log("Updated");
-                            })
-                            .catch((err) => {
-                                res.status(500).json({
-                                    err: "Saved Job not updated",
-                                });
-                            });
+                           
                     })
                     .catch((err) => {
-                        res.status(500).json({ err: "Job not updated" });
+                       console.log(err);
                     });
             }
             //if(employer.jobs.length)
             // Handle any possible database errors
-            if (err) return res.status(500).send(err);
-            req.login(employer, (err) => {
+           // if (err) return res.status(500).send(err);
+            req.logIn(employer, (err) => {
                 if (err) return res.status(500).send(err);
                 return res.send(employer);
             });
@@ -664,10 +643,22 @@ router.delete("/post/job/:id", middleware.checkJobOwnership, (req, res) => {
                 .then((sjob) => {
                     // 	console.log(id);
                     // 	savedJob.findByIdAndDelete(id).then((del)=>{
-                    Job.findByIdAndDelete(req.params.id) //.then((del)=>{
+                    Job.findByIdAndDelete(req.params.id) 
+                    //.then((del)=>{
                         // employer.jobs = employer.jobs.filter(job => job.id != req.params.id);
                         // 	employer.save()
-                        .then(() => res.json("Job deleted successfully !"))
+                        .then((job) => {
+                            Employer.findById(req.user._id).then((employer)=>{
+                                if(job.sponsored==="true")
+                                employer.sponsors.closed+=1;
+                                employer.jobtier.closed+=1;
+                                employer.save().then(()=>{;
+                                req.logIn(employer,(err)=>{
+                                res.json("Job deleted successfully !");});
+                            });
+                        });
+                            })
+                            
                         .catch((err) =>
                             res.status(400).json({
                                 err: err,
@@ -745,11 +736,22 @@ router.delete(
                         Freelance.findByIdAndDelete(req.params.id) //.then((del)=>{
                             //employer.freelanceJobs = employer.freelanceJobs.filter(job => job.id != req.params.id);
                             //employer.save()
-                            .then(() =>
-                                res.json(
-                                    "Freelance Job deleted successfully !",
-                                ),
-                            )
+                            .then((job) =>{
+                            Employer.findById(req.user._id).then((employer)=>{
+                                if(job.sponsored==="true")
+                                employer.sponsors.closed+=1;
+                                if(job.category ==="Day Job")
+                                employer.freelancetier.closed+=1;
+                                else if(job.category==="Locum")
+                                employer.locumtier.closed+=1;
+                                employer.save().then(()=>{;
+                                req.logIn(employer,(err)=>{
+                                res.json("Job deleted successfully !");});
+                            }).catch((err)=>
+                                res.status(500).json({err:err})
+                            );
+                        }).catch((err)=>res.status(400).json({err:err}));
+                            })
                             .catch((err) =>
                                 res.status(400).json({
                                     err: err,
@@ -783,18 +785,20 @@ router.delete("/save/freelance/:id", middleware.isEmployer, (req, res) => {
                 ),
                 1,
             );
-            employer.freelancetier.saved += -1;
-            employer
-                .save()
-                .then((semployer) => {
+   
                     savedFreelance
                         .findByIdAndDelete(req.params.id)
-                        .then(() =>
+                        .then((sjob) =>{
+                            if(sjob.category ==="Day Job")
+                                employer.freelancetier.saved+=-1;
+                                else if(sjob.category==="Locum")
+                                employer.locumtier.saved+=-1;
+                                employer.save().then((s_employer)=>{
+                                    req.logIn(s_employer,(err)=>{
                             res.json(
-                                "Saved Freelance Job deleted successfully !",
-                            ),
-                        )
-                        .catch((err) =>
+                                "Saved Freelance Job deleted successfully !");
+                            });
+                        }).catch((err) =>
                             res.status(400).json({
                                 err: err,
                             }),
