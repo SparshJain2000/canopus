@@ -434,7 +434,7 @@ export default class Profile extends Component {
                                                     className='ml-2 mr-3'
                                                 />
                                             </div>
-                                            <div className='col-11 pl-3'>
+                                            <div className='col-11 pl-3 text-capitalize'>
                                                 {`${this.state.profile.salutation}. ${this.state.profile.firstName} ${this.state.profile.lastName}`}
                                             </div>
                                         </h6>
@@ -520,7 +520,7 @@ export default class Profile extends Component {
 
                         <div className='col-12 col-lg-7 mt-lg-0 ml-sm-0 ml-lg-5 '>
                             <div className='p-3 block-noHover'>
-                                <h4 className='position-relative text-capitalize'>
+                                <h4 className='position-relative'>
                                     {this.state.profile.title}
                                 </h4>
                             </div>
