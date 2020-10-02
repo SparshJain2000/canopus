@@ -173,7 +173,8 @@ router.put("/post/:id",middleware.isLoggedIn,middleware.checkPostOwnership, asyn
     let query = await jobController.updateQueryBuilder(req);
     if(!query) throw client_error;
     if(req.body.attachedApplicants){
-      
+      //let applicantMail = arr1.filter(x => !arr2.includes(x));
+      console.log(attachedApplicants);
     }
     //DB operations start here
     if(req.body.sponsored=="true"){

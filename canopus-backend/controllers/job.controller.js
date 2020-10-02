@@ -219,6 +219,30 @@ async function attachedApplicantValidator(req,employer){
     const attachedMail = req.body.attachedApplicants.map(applicant => {
       return applicant.username;
     });
+
+    if(!attachedMail.every(mail=> acceptedMail.includes(mail)))
+      return false;
+    else{
+      console.log(attachedMail);
+      return true;
+      //mail notify
+    }
+  }
+  else return true;
+}
+
+async function attachedApplicantUpdateValidator(req,job,employer){
+  if(req.body.attachedApplicants){
+    const acceptedMail = employer.acceptedApplicants.map(applicant=>{
+      return applicant.username;
+    });
+    const notifiedMail = job.attachedApplicants.map(applicant=>{
+      return applicant.username;
+    });
+    const attachedMail = req.body.attachedApplicants.map(applicant => {
+      return applicant.username;
+    });
+    
     if(!attachedMail.every(mail=> acceptedMail.includes(mail)))
       return false;
     else{
@@ -364,4 +388,4 @@ async function validateUpdateRequest(req){
   return flag;
 
 }
-exports.jobController = { createJob, createSavedJob, assignTier, updateQueryBuilder ,createApplicant, attachedApplicantValidator};
+exports.jobController = { createJob, createSavedJob, assignTier, updateQueryBuilder ,createApplicant, attachedApplicantValidator,attachedApplicantUpdateValidator};

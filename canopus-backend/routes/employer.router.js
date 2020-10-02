@@ -643,10 +643,22 @@ router.delete("/post/job/:id", middleware.checkJobOwnership, (req, res) => {
                 .then((sjob) => {
                     // 	console.log(id);
                     // 	savedJob.findByIdAndDelete(id).then((del)=>{
-                    Job.findByIdAndDelete(req.params.id) //.then((del)=>{
+                    Job.findByIdAndDelete(req.params.id) 
+                    //.then((del)=>{
                         // employer.jobs = employer.jobs.filter(job => job.id != req.params.id);
                         // 	employer.save()
-                        .then(() => res.json("Job deleted successfully !"))
+                        .then((job) => {
+                            Employer.findById(req.user._id).then((employer)=>{
+                                if(job.sponsored==="true")
+                                employer.sponsors.closed+=1;
+                                employer.jobtier.closed+=1;
+                                employer.save().then(()=>{;
+                                req.logIn(employer,(err)=>{
+                                res.json("Job deleted successfully !");});
+                            });
+                        });
+                            })
+                            
                         .catch((err) =>
                             res.status(400).json({
                                 err: err,
@@ -724,11 +736,22 @@ router.delete(
                         Freelance.findByIdAndDelete(req.params.id) //.then((del)=>{
                             //employer.freelanceJobs = employer.freelanceJobs.filter(job => job.id != req.params.id);
                             //employer.save()
-                            .then(() =>
-                                res.json(
-                                    "Freelance Job deleted successfully !",
-                                ),
-                            )
+                            .then((job) =>{
+                            Employer.findById(req.user._id).then((employer)=>{
+                                if(job.sponsored==="true")
+                                employer.sponsors.closed+=1;
+                                if(job.category ==="Day Job")
+                                employer.freelancetier.closed+=1;
+                                else if(job.category==="Locum")
+                                employer.locumtier.closed+=1;
+                                employer.save().then(()=>{;
+                                req.logIn(employer,(err)=>{
+                                res.json("Job deleted successfully !");});
+                            }).catch((err)=>
+                                res.status(500).json({err:err})
+                            );
+                        }).catch((err)=>res.status(400).json({err:err}));
+                            })
                             .catch((err) =>
                                 res.status(400).json({
                                     err: err,
@@ -762,18 +785,20 @@ router.delete("/save/freelance/:id", middleware.isEmployer, (req, res) => {
                 ),
                 1,
             );
-            employer.freelancetier.saved += -1;
-            employer
-                .save()
-                .then((semployer) => {
+   
                     savedFreelance
                         .findByIdAndDelete(req.params.id)
-                        .then(() =>
+                        .then((sjob) =>{
+                            if(sjob.category ==="Day Job")
+                                employer.freelancetier.saved+=-1;
+                                else if(sjob.category==="Locum")
+                                employer.locumtier.saved+=-1;
+                                employer.save().then((s_employer)=>{
+                                    req.logIn(s_employer,(err)=>{
                             res.json(
-                                "Saved Freelance Job deleted successfully !",
-                            ),
-                        )
-                        .catch((err) =>
+                                "Saved Freelance Job deleted successfully !");
+                            });
+                        }).catch((err) =>
                             res.status(400).json({
                                 err: err,
                             }),
