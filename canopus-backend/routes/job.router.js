@@ -531,7 +531,7 @@ try {
   else if ( req.user.role === "User" )
     var employer = await User.findById(req.user._id).session(session);
   //find applicant
-  const user = User.findById(req.body.id).session(session);
+  let user = await User.findById(req.body.id).session(session);
   if(!user) throw client_error;
   //check applicants 
   let job = await Freelance.findById(req.params.id).session(session);
@@ -550,6 +550,7 @@ try {
     return res.status(400).json({err:"Candidate already accepted"});
   //create applicant 
   let applicant = await jobController.createApplicant(user);
+  console.log(applicant);
   //accept applicants
   //if (job.description.count - job.acceptedApplicants.length === 0){
     //delete freelance max applicants

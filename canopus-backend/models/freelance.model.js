@@ -70,7 +70,7 @@ module.exports = mongoose.model(
         acceptedApplicants: [ 
             {
                 id:{
-                    type:mongoose.Schema.Types.ObjectId,
+                    type: mongoose.Schema.Types.ObjectId,
                     ref: "User",
                 },
                 name:String,
@@ -80,7 +80,7 @@ module.exports = mongoose.model(
                 profession:String,
                 specialization:String,
                 superSpecialization:Array
-            }
+            },
         ],
         attachedApplicants:[
             {
@@ -95,7 +95,7 @@ module.exports = mongoose.model(
                 profession:String,
                 specialization:String,
                 superSpecialization:Array,
-            }
+            },
         ]
     }).plugin(passportLocalMongoose),
 );

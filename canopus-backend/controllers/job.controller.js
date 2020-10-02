@@ -242,7 +242,7 @@ async function attachedApplicantUpdateValidator(req,job,employer){
     const attachedMail = req.body.attachedApplicants.map(applicant => {
       return applicant.username;
     });
-    
+
     if(!attachedMail.every(mail=> acceptedMail.includes(mail)))
       return false;
     else{
