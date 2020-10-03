@@ -8,8 +8,12 @@ router.get("/analytics",middleware.isLoggedIn,(req,res)=>{
   let updated=true;
   let d = Date(req.user.lastUpdated).toString;
   let o = new Date(0).toString;
-  if(d===o)
+  console.log(d);
+  console.log(o);
+  if(d===o){
+    console.log("ok");
   updated=false;
+  }
   if(!req.session.analytics){
   req.session.analytics=true;
   res.json({role:req.user.role,updated:updated});

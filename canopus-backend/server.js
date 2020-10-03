@@ -13,7 +13,6 @@ const express = require("express"),
     uploadRouter = require("./routes/blob.router"),
     employerRouter = require("./routes/employer.router"),
     adminRouter = require("./routes/admin.router"),
-    policyRouter = require("./routes/policy.router"),
     GoogleStrategy = require("passport-google-oauth").OAuth2Strategy,
     bodyParser = require("body-parser"),
     path = require('path');
@@ -278,7 +277,6 @@ app.use("/api/job", jobRouter);
 app.use("/api/user", userRouter);
 app.use("/api/employer", employerRouter);
 app.use("/auth", authRouter);
-app.use("/privacy",policyRouter);
 app.use("/api/upload", uploadRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/search",searchRouter);

@@ -243,7 +243,7 @@ async function attachedApplicantUpdateValidator(req,job,employer){
       return applicant.username;
     });
 
-    if(!attachedMail.every(mail=> acceptedMail.includes(mail)))
+    if(!attachedMail.every(mail=> acceptedMail.includes(mail) && !notifiedMail.includes(mail)))
       return false;
     else{
       console.log(attachedMail);
