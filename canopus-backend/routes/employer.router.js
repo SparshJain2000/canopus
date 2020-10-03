@@ -60,7 +60,7 @@ router.post("/", async (req, res) => {
         },
         validated: false,
         createdAt: Date.now(),
-        lastUpdated:0,
+        lastUpdated:new Date(0),
     });
     Employer.register(employer, req.body.password)
         .then((employer) => {

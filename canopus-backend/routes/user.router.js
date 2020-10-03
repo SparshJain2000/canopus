@@ -57,7 +57,7 @@ router.post("/", async (req, res) => {
       closed:0,
     },
     role: "User",
-    lastUpdated:0
+    lastUpdated:new Date(0),
   });
   User.register(user, req.body.password)
     .then((user) => {

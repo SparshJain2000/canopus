@@ -6,8 +6,8 @@ const User= require('../models/user.model');
 
 router.get("/analytics",middleware.isLoggedIn,(req,res)=>{
   let updated=true;
-  let d = Date(req.user.lastUpdated).toString;
-  let o = new Date(0).toString;
+  let d = new Date(req.user.lastUpdated).toString();
+  let o = new Date(0).toString();
   console.log(d);
   console.log(o);
   if(d===o){
