@@ -105,20 +105,24 @@ async function queryBuilder(req) {
         );
     if (req.body.incentives){
         query.shouldquery.push(
-            addQuery(req.body.incentives, "description.incentives"),
+            addQueryMust(req.body.incentives, "description.incentives"),
         );
         boost=boost+boostval;
     }
     if (req.body.type){
         query.shouldquery.push(
-            addQuery(req.body.type, "description.type"),
+            addQueryMust(req.body.type, "description.type"),
         );
         boost=boost+boostval;
     }
-    if (req.body.status){
-        query.mustquery.push(
-            addQueryMust(req.body.status, "description.status"),
-        );
+    // if (req.body.status){
+    //     query.mustquery.push(
+    //         addQueryMust(req.body.status, "description.status"),
+    //     );
+    //     boost=boost+boostval;
+    // }
+    if (req.body.experience){
+        query.shouldquery.push(addQueryMust(req.body.experience,"description.experience"));
         boost=boost+boostval;
     }
        // query.mustquery.push(addQuery(true,"validated"));

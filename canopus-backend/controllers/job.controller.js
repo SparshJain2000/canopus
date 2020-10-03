@@ -242,8 +242,8 @@ async function attachedApplicantUpdateValidator(req,job,employer){
     const attachedMail = req.body.attachedApplicants.map(applicant => {
       return applicant.username;
     });
-    
-    if(!attachedMail.every(mail=> acceptedMail.includes(mail)))
+
+    if(!attachedMail.every(mail=> acceptedMail.includes(mail) && !notifiedMail.includes(mail)))
       return false;
     else{
       console.log(attachedMail);

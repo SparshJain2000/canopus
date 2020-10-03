@@ -13,7 +13,6 @@ const express = require("express"),
     uploadRouter = require("./routes/blob.router"),
     employerRouter = require("./routes/employer.router"),
     adminRouter = require("./routes/admin.router"),
-    policyRouter = require("./routes/policy.router"),
     GoogleStrategy = require("passport-google-oauth").OAuth2Strategy,
     bodyParser = require("body-parser"),
     path = require('path');
@@ -106,7 +105,7 @@ passport.use(
                     user.salutation = "Dr";
                     user.firstName = profile.name.givenName;
                     user.lastName = profile.name.familyName;
-
+                    user.lastUpdated = new Date(0);
                     user.save((err, user) => {
                         if (!err) return done(err, user);
                     });
@@ -154,7 +153,7 @@ passport.use(
                     };
                     user.firstName = profile.name.givenName;
                     user.lastName = profile.name.familyName;
-
+                    user.lastUpdated = new Date(0);
                     user.save((err, user) => {
                         if (!err) return done(err, user);
                     });
@@ -198,7 +197,7 @@ passport.use("linkedin_user",new LinkedInStrategy({
             user.salutation="Dr";
             user.firstName = profile.name.givenName;
             user.lastName = profile.name.familyName;
-
+            user.lastUpdated = new Date(0);
             user.emailVerified = true;
             user.save((err, user) => {
                 if (!err) return done(err, user);
@@ -238,7 +237,7 @@ passport.use("linkedin_employer",new LinkedInStrategy({
               };
               user.firstName = profile.name.givenName;
               user.lastName = profile.name.familyName;
-  
+              user.lastUpdated = new Date(0);
               user.emailVerified = true;
               user.save((err, user) => {
                   if (!err) return done(err, user);
@@ -278,7 +277,6 @@ app.use("/api/job", jobRouter);
 app.use("/api/user", userRouter);
 app.use("/api/employer", employerRouter);
 app.use("/auth", authRouter);
-app.use("/privacy",policyRouter);
 app.use("/api/upload", uploadRouter);
 app.use("/api/admin", adminRouter);
 app.use("/api/search",searchRouter);

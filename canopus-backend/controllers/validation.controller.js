@@ -29,6 +29,7 @@ async function verifyInvisibleCaptcha(req){
     return false;
     return new Promise((resolve, reject)=>{
         request(url,function(err,response,body){
+            if(err)reject(false);
             body = JSON.parse(body);
             if(body.success!==true)
             reject(false);

@@ -83,7 +83,7 @@ module.exports = mongoose.model(
                 profession:String,
                 specialization:String,
                 superSpecialization:Array,
-            }
+            },
         ],
         freelanceJobs: [
             {

@@ -172,22 +172,19 @@ router.put("/post/:id",middleware.isLoggedIn,middleware.checkPostOwnership, asyn
   try {
     let query = await jobController.updateQueryBuilder(req);
     if(!query) throw client_error;
-    if(req.body.attachedApplicants){
-      //let applicantMail = arr1.filter(x => !arr2.includes(x));
-      console.log(attachedApplicants);
-    }
+    
     //DB operations start here
-    if(req.body.sponsored=="true"){
-      if ( req.user.role === "Employer" )
-      var employer = await Employer.findById(req.user._id).session(session);
-    else if ( req.user.role === "User" )
-      var employer = await User.findById(req.user._id).session(session);
-     if(employer.sponsors.allowed>employer.posted)
-     {employer.sponsors.posted+=1
-      query["sponsored"]="true";
-     }
-     else throw client_error;
-    }
+    // if(req.body.sponsored=="true"){
+    //   if ( req.user.role === "Employer" )
+    //   var employer = await Employer.findById(req.user._id).session(session);
+    // else if ( req.user.role === "User" )
+    //   var employer = await User.findById(req.user._id).session(session);
+    //  if(employer.sponsors.allowed>employer.posted)
+    //  {employer.sponsors.posted+=1
+    //   query["sponsored"]="true";
+    //  }
+    //  else throw client_error;
+    // }
     if(req.body.category === "Full-time" || req.body.category === "Part-time"){
     //update job
       const job = await Job.findOneAndUpdate(
@@ -207,7 +204,25 @@ router.put("/post/:id",middleware.isLoggedIn,middleware.checkPostOwnership, asyn
       //     throw client_error;
       // }
         //update job
-        const job = await Freelance.findOneAndUpdate(
+        if(req.body.attachedApplicants){
+          if ( req.user.role === "Employer" )
+            var employer = await Employer.findById(req.user._id).session(session);
+          else if ( req.user.role === "User" )
+            var employer = await User.findById(req.user._id).session(session);
+          let job = await Freelance.findById(req.params.id).session(session);
+         if(!await jobController.attachedApplicantUpdateValidator(req,job,employer))
+          throw client_error;
+         else{
+           req.body.attachedApplicants.every(applicant=>job.attachedApplicants.push(applicant));
+           //job.attachedApplicants.concat(req.body.attachedApplicants);
+           //notify applicants
+           console.log(job.attachedApplicants);
+           console.log("ok");
+            await job.save({session});
+         }
+          
+        }
+        await Freelance.findOneAndUpdate(
           { _id: req.params.id },
           { $set: query },
           { new: true, session: session }
@@ -390,6 +405,8 @@ router.put("/activate/:id", middleware.checkSavedOwnership, async (req,res) => {
         id: job._id,
         sid: sjob._id,
       });
+    if(req.body.attachedApplicants)
+    sjob.attachedApplicants=req.body.attachedApplicants;
     sjob.extension = 1;
     sjob.jobRef = job._id;
     sjob.status = "Active";
@@ -531,7 +548,7 @@ try {
   else if ( req.user.role === "User" )
     var employer = await User.findById(req.user._id).session(session);
   //find applicant
-  const user = User.findById(req.body.id).session(session);
+  let user = await User.findById(req.body.id).session(session);
   if(!user) throw client_error;
   //check applicants 
   let job = await Freelance.findById(req.params.id).session(session);
@@ -550,6 +567,7 @@ try {
     return res.status(400).json({err:"Candidate already accepted"});
   //create applicant 
   let applicant = await jobController.createApplicant(user);
+  console.log(applicant);
   //accept applicants
   //if (job.description.count - job.acceptedApplicants.length === 0){
     //delete freelance max applicants
