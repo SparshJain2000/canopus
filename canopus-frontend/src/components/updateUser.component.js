@@ -13,6 +13,7 @@ import {
     ModalHeader,
     ModalBody,
     ButtonGroup,
+    Alert,
 } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "../stylesheets/updateUser.css";
@@ -112,6 +113,8 @@ export default class UpdateUser extends Component {
             ICUs: 0,
             modalError: false,
             modalMess: "",
+            showError: false,
+            resumeError: "",
             valid: {
                 organization: true,
                 type: true,
@@ -224,19 +227,28 @@ export default class UpdateUser extends Component {
                 !["pdf", "doc", "docx", "rtf"].includes(file.name.split(".")[1])
             ) {
                 this.setState({
-                    modalError: true,
-                    modalMess: "Invalid file type",
+                    // modalError: true,
+                    // modalMess: "Invalid file type",
                     loading: false,
+                    showError: true,
+                    resumeError:
+                        "Invalid File - Please ensure the file size is less than 5MB and file type is doc, docx, rtf or pdf.",
                 });
                 return;
-            }
-            if (file.size >= 5000000) {
+            } else if (file.size >= 5000000) {
                 this.setState({
-                    modalError: true,
-                    modalMess: "File size should be less than 5MB",
+                    // modalError: true,
+                    // modalMess: "File size should be less than 5MB",
                     loading: false,
+                    showError: true,
+                    resumeError:
+                        "Invalid File - Please ensure the file size is less than 5MB and file type is doc, docx, rtf or pdf.",
                 });
                 return;
+            } else {
+                this.setState({
+                    showError: false,
+                });
             }
             console.log("chal rha h");
             let reader = new FileReader();
@@ -269,6 +281,7 @@ export default class UpdateUser extends Component {
                                         prevResume: "",
                                         loading: false,
                                         uploadingLogo: false,
+                                        showError: false,
                                     });
                                     // this.update();
                                     this.setState({ uploaded: true });
@@ -278,8 +291,9 @@ export default class UpdateUser extends Component {
                         .catch((e) => console.log(e));
                 else {
                     this.setState({
-                        modalError: true,
-                        modalMess: "File should be less than 5 MB",
+                        showError: true,
+                        resumeError:
+                            "Invalid File - Please ensure the file size is less than 5MB and file type is doc, docx, rtf or pdf.",
                         uploading: false,
                         loading: false,
                     });
@@ -1416,13 +1430,27 @@ export default class UpdateUser extends Component {
                                         </div>
                                     </div>
                                     <div
-                                        className='pl-1 my-auto text-danger'
+                                        className='pl-3 my-auto text-black-50'
                                         style={{ height: "max-content" }}>
                                         Files Allowed: docx, doc, rtf, pdf, upto
                                         5MB in size
                                     </div>
                                 </div>
                             )}
+
+                            {this.state.showError && (
+                                <div className='my-1 mt-3 col-12 text-danger'>
+                                    {this.state.resumeError}
+                                </div>
+                            )}
+                            {/* <Alert
+                                color='danger'
+                                isOpen={this.state.showError}
+                                toggle={() => {
+                                    this.setState({ showError: false });
+                                }}>
+                                {this.state.resumeError}
+                            </Alert> */}
                             {this.state.progress !== 1 &&
                                 this.state.progress !== 0 && (
                                     <div className='my-1 mt-3 col-12'>
