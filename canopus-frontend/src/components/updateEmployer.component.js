@@ -230,16 +230,24 @@ export default class UpdateEmployer extends Component {
                 if (user) {
                     this.setState({
                         id: user._id,
+                        firstName: user.firstName,
+                        username: user.username,
+                        lastName: user.lastName,
                     });
-                    if (!user.address.coordinates) this.getGeoLocation();
+                    if (user.address === undefined) this.getGeoLocation();
+                    else if (
+                        !user.address.coordinates.lat ||
+                        !user.address.coordinates.lng
+                    )
+                        this.getGeoLocation();
                     this.setState({
                         id: user._id,
                         // });
                         // this.setState({
                         //     id: user._id,
                         firstName: user.firstName,
-                        logo: user.logo,
                         lastName: user.lastName,
+                        logo: user.logo,
                         links: user.links,
                         username: user.username,
                         youtube: user.youtube,
@@ -356,9 +364,6 @@ export default class UpdateEmployer extends Component {
                                 parseInt(state.loadedBytes) /
                                 parseInt(file.size),
                         });
-                        // console.log(this.state.progress);
-                        // console.log(state);
-                        // console.log(parseInt(file.size));
                     },
                 },
 
@@ -372,7 +377,6 @@ export default class UpdateEmployer extends Component {
                             //contentEncoding: 'base64'
                             blobContentType: file.mimeType,
                         },
-                        // blobContentType: file.mimeType,
                     },
                 },
             );
@@ -426,6 +430,7 @@ export default class UpdateEmployer extends Component {
                                         image: [...imgs, url],
                                         loading: false,
                                         uploadingImage: false,
+                                        progress: 0,
                                     });
                                     // console.log(profile);
                                     console.log(res);
@@ -1037,7 +1042,7 @@ export default class UpdateEmployer extends Component {
                                             // style={{
                                             //     borderRadius: "50%",
                                             // }}
-                                        >
+                                            disabled={this.state.loading}>
                                             <label
                                                 htmlFor='image'
                                                 style={{
@@ -1063,6 +1068,7 @@ export default class UpdateEmployer extends Component {
                                             id='image'
                                             accept='image/*'
                                             // ref={this.image}
+                                            disabled={this.state.loading}
                                             onChange={this.uploadImage}
                                         />
                                     </div>
@@ -1082,10 +1088,12 @@ export default class UpdateEmployer extends Component {
                             <div
                                 className='mx-auto'
                                 style={{ maxWidth: "600px" }}>
-                                <ImageCarousel
-                                    className='col-12 text-align-center'
-                                    items={this.state.image}
-                                />
+                                {this.state.image && (
+                                    <ImageCarousel
+                                        className='col-12 text-align-center'
+                                        items={this.state.image}
+                                    />
+                                )}
                             </div>
 
                             {this.state.image.map((x, i) => (
@@ -1098,7 +1106,15 @@ export default class UpdateEmployer extends Component {
                                             this.handleChange(e, i)
                                         }
                                         value={this.state.image[i]}
+                                        style={{ opacity: 0, height: ".1px" }}
+                                        // className='col-10 col-sm-10 col-md-11'
+                                    />
+                                    <Input
+                                        value={
+                                            this.state.image[i].split("_")[1]
+                                        }
                                         className='col-10 col-sm-10 col-md-11'
+                                        disabled
                                     />
                                     <FontAwesomeIcon
                                         icon={faMinusCircle}

@@ -314,7 +314,12 @@ class App extends Component {
                             path='/applications'
                             // render={(props) => <Profile {...props} />}
 
-                            component={() => <JobApplications />}
+                            render={(props) => (
+                                <JobApplications
+                                    {...props}
+                                    user={this.state.user}
+                                />
+                            )}
                         />
                     )}
                     <Route
@@ -334,7 +339,7 @@ class App extends Component {
                         path='/privacy'
                         component={() => (
                             <Iframe
-                                url='https://canopus.blob.core.windows.net/mail-image/privacy_temp.html'
+                                url='https://canopus.blob.core.windows.net/mail-image/privacy.html'
                                 id='myId'
                                 className='iframe'
                                 display='initial'
