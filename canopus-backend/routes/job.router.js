@@ -172,10 +172,7 @@ router.put("/post/:id",middleware.isLoggedIn,middleware.checkPostOwnership, asyn
   try {
     let query = await jobController.updateQueryBuilder(req);
     if(!query) throw client_error;
-    if(req.body.attachedApplicants){
-      //let applicantMail = arr1.filter(x => !arr2.includes(x));
-      console.log(attachedApplicants);
-    }
+    
     //DB operations start here
     // if(req.body.sponsored=="true"){
     //   if ( req.user.role === "Employer" )
@@ -216,9 +213,11 @@ router.put("/post/:id",middleware.isLoggedIn,middleware.checkPostOwnership, asyn
          if(!await jobController.attachedApplicantUpdateValidator(req,job,employer))
           throw client_error;
          else{
-           //TODO:
-           job.attachedApplicants.concat(req.body.attachedApplicants);
+           req.body.attachedApplicants.every(applicant=>job.attachedApplicants.push(applicant));
+           //job.attachedApplicants.concat(req.body.attachedApplicants);
            //notify applicants
+           console.log(job.attachedApplicants);
+           console.log("ok");
             await job.save({session});
          }
           
