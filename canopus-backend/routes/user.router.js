@@ -20,9 +20,12 @@ const User           = require("../models/user.model"),
 //Sign up route
 router.post("/", async (req, res) => {
  //captcha validation
- const captcha = await validationController.verifyInvisibleCaptcha(req);
- if(!captcha)
- return res.json({err:"Invalid Captcha"});
+ let captcha = true;
+  try{
+       captcha = await validationController.verifyInvisibleCaptcha(req);
+    } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
+  if(!captcha)
+  return res.status(400).json({err:"Invalid Captcha"});
  const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
   const user = new User({
     username: req.body.username,
@@ -97,9 +100,12 @@ router.post("/login", async function (req, res, next) {
 //===========================================================================
 router.post("/forgot", async (req, res) => {
   //captcha validation
-  const captcha = await validationController.verifyInvisibleCaptcha(req);
+  let captcha = true;
+  try{
+       captcha = await validationController.verifyInvisibleCaptcha(req);
+    } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
   if(!captcha)
-  return res.json({err:"Invalid Captcha"});
+  return res.status(400).json({err:"Invalid Captcha"});
   const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
   if(req.body.username=='' || !req.body.username)
   return res.status(400).json({err:"Bad request"});
