@@ -225,7 +225,8 @@ const UpdateJob = (props) => {
                 (item) => item === true,
             );
             if (isValid) {
-                setModal(!modal);
+                if (e === "save") save();
+                else setModal(!modal);
             } else {
                 setModalError(true);
                 setMessError("Please fill all the fields !");
@@ -605,7 +606,7 @@ const UpdateJob = (props) => {
             .then((data) => {
                 console.log(data);
                 if (data.status === 200) {
-                    setMessError("Updated Successfully !");
+                    setMessError("Saved Successfully !");
                     toggleError();
                     window.location = "/applications";
                 }
@@ -623,7 +624,7 @@ const UpdateJob = (props) => {
                 // alert("Unable to save job : " + error);
                 err.response && err.response.data
                     ? setMessError(err.response.data.err)
-                    : setMessError("Error updating job");
+                    : setMessError("Error saving job");
 
                 toggleError();
             });
@@ -1805,7 +1806,7 @@ const UpdateJob = (props) => {
                             <Button
                                 onClick={(e) => {
                                     setMess("save");
-                                    toggle();
+                                    toggle("save");
                                 }}
                                 className='w-100'
                                 color='info'>
