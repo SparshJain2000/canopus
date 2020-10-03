@@ -69,11 +69,14 @@ router.post("/", async (req, res) => {
 });
 //===========================================================================
 //Login route
-router.post("/login", async function (req, res, next) {
+router.post("/login", async function (req, res,next) {
   //captcha validation
-  const captcha = await validationController.verifyInvisibleCaptcha(req);
+  let captcha = true;
+  try{
+       captcha = await validationController.verifyInvisibleCaptcha(req);
+    } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
   if(!captcha)
-  return res.json({err:"Invalid Captcha"});
+  return res.status(400).json({err:"Invalid Captcha"});
   passport.authenticate("employer", function (err, employer, info) {
     if (err) {
       return res.status(400).json({ err: err });

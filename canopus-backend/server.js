@@ -106,7 +106,7 @@ passport.use(
                     user.salutation = "Dr";
                     user.firstName = profile.name.givenName;
                     user.lastName = profile.name.familyName;
-                    user.lastUpdated = Date(0);
+                    user.lastUpdated = new Date(0);
                     user.save((err, user) => {
                         if (!err) return done(err, user);
                     });
@@ -154,7 +154,7 @@ passport.use(
                     };
                     user.firstName = profile.name.givenName;
                     user.lastName = profile.name.familyName;
-                    user.lastUpdated = Date(0);
+                    user.lastUpdated = new Date(0);
                     user.save((err, user) => {
                         if (!err) return done(err, user);
                     });
@@ -198,7 +198,7 @@ passport.use("linkedin_user",new LinkedInStrategy({
             user.salutation="Dr";
             user.firstName = profile.name.givenName;
             user.lastName = profile.name.familyName;
-            user.lastUpdated = Date(0);
+            user.lastUpdated = new Date(0);
             user.emailVerified = true;
             user.save((err, user) => {
                 if (!err) return done(err, user);
@@ -238,7 +238,7 @@ passport.use("linkedin_employer",new LinkedInStrategy({
               };
               user.firstName = profile.name.givenName;
               user.lastName = profile.name.familyName;
-              user.lastUpdated = Date(0);
+              user.lastUpdated = new Date(0);
               user.emailVerified = true;
               user.save((err, user) => {
                   if (!err) return done(err, user);
