@@ -27,6 +27,7 @@ export default class VerifyEmployer extends Component {
         });
     }
     resend() {
+        console.log("sad");
         if (this.props.user)
             Axios.post(`/api/employer/validate`, {
                 username: this.props.user.username,
@@ -50,7 +51,13 @@ export default class VerifyEmployer extends Component {
                     <div className=' p-4 m-3 mx-lg-5' style={block}>
                         <h2>Check You Email </h2>
                         Haven't got the mail?{" "}
-                        <Link onClick={this.resend}> Resend again</Link>
+                        <div
+                            onClick={this.resend}
+                            style={{ pointer: "cursor" }}
+                            className='text-info '>
+                            {" "}
+                            Resend again
+                        </div>
                     </div>
                 </div>
                 <Modal
