@@ -85,6 +85,10 @@ export default class UpdateEmployer extends Component {
                 firstName: true,
                 phone: true,
                 youtube: true,
+                OTs: true,
+                beds: true,
+                ICUs: true,
+                employeeCount: true,
             },
         };
         this.handleChange = this.handleChange.bind(this);
@@ -135,13 +139,29 @@ export default class UpdateEmployer extends Component {
             e.target.name !== "line" &&
             e.target.name !== "speciality" &&
             e.target.name !== "pin"
-        )
-            this.setState({
-                valid: {
-                    ...this.state.valid,
-                    [e.target.name]: e.target.value !== "",
-                },
-            });
+        ) {
+            if (
+                e.target.name === "OTs" ||
+                e.target.name === "ICUs" ||
+                e.target.name === "beds" ||
+                e.target.name === "employeeCount"
+            )
+                this.setState({
+                    valid: {
+                        ...this.state.valid,
+                        [e.target.name]:
+                            Number(e.target.value) >= 0 &&
+                            Number(e.target.value) <= 100000,
+                    },
+                });
+            else
+                this.setState({
+                    valid: {
+                        ...this.state.valid,
+                        [e.target.name]: e.target.value !== "",
+                    },
+                });
+        }
     }
     checkYoutube() {
         let valid = true;
@@ -755,10 +775,7 @@ export default class UpdateEmployer extends Component {
                                     />
                                 </div>
                                 <div className='col-12  my-1 my-sm-2'>
-                                    <Label>
-                                        Speciality{" "}
-                                        <span className='text-danger'>*</span>
-                                    </Label>
+                                    <Label>Speciality</Label>
                                     {/* <Input
                                 placeholder='Organization Type'
                                 name='type'
@@ -791,7 +808,7 @@ export default class UpdateEmployer extends Component {
                                 </div>
 
                                 <div className='col-12  my-1'>
-                                    <Label>Description</Label>
+                                    <Label>About Organization</Label>
 
                                     <textarea
                                         name=''
@@ -957,6 +974,8 @@ export default class UpdateEmployer extends Component {
                                     name='beds'
                                     value={Number(this.state.beds)}
                                     onChange={this.handleChange}
+                                    invalid={!this.state.valid.beds}
+
                                     // defaultValue={`${this.state.beds}`}
                                 />
                             </div>
@@ -968,6 +987,7 @@ export default class UpdateEmployer extends Component {
                                     name='ICUs'
                                     onChange={this.handleChange}
                                     value={Number(this.state.ICUs)}
+                                    invalid={!this.state.valid.ICUs}
                                 />
                             </div>
                             <div className='col-12 col-sm-3 pr-0 pr-sm-1'>
@@ -978,6 +998,7 @@ export default class UpdateEmployer extends Component {
                                     name='OTs'
                                     onChange={this.handleChange}
                                     value={Number(this.state.OTs)}
+                                    invalid={!this.state.valid.OTs}
                                 />
                             </div>
                             <div className='col-12 col-sm-3 pr-0 pr-sm-1'>
@@ -987,6 +1008,7 @@ export default class UpdateEmployer extends Component {
                                     placeholder='Number of OTs'
                                     name='employeeCount'
                                     onChange={this.handleChange}
+                                    invalid={!this.state.valid.employeeCount}
                                     value={Number(this.state.employeeCount)}
                                 />
                             </div>
@@ -1000,13 +1022,19 @@ export default class UpdateEmployer extends Component {
                                     icon={faPlusCircle}
                                     size='lg'
                                     onClick={() => {
-                                        let links = this.state.links;
-                                        links.push("");
-                                        this.setState({
-                                            links: links,
-                                        });
+                                        if (this.state.links.length < 5) {
+                                            let links = this.state.links;
+                                            links.push("");
+                                            this.setState({
+                                                links: links,
+                                            });
+                                        }
                                     }}
-                                    className='col-3 col-sm-1 text-info'
+                                    className={`col-3 col-sm-1 ${
+                                        this.state.links.length < 5
+                                            ? "text-info"
+                                            : "text-secondary"
+                                    }`}
                                     style={{ cursor: "pointer" }}
                                 />
                             </Label>
@@ -1047,7 +1075,10 @@ export default class UpdateEmployer extends Component {
                                             // style={{
                                             //     borderRadius: "50%",
                                             // }}
-                                            disabled={this.state.loading}>
+                                            disabled={
+                                                this.state.loading ||
+                                                this.state.image.length >= 5
+                                            }>
                                             <label
                                                 htmlFor='image'
                                                 style={{
@@ -1073,7 +1104,10 @@ export default class UpdateEmployer extends Component {
                                             id='image'
                                             accept='image/*'
                                             // ref={this.image}
-                                            disabled={this.state.loading}
+                                            disabled={
+                                                this.state.loading ||
+                                                this.state.image.length >= 5
+                                            }
                                             onChange={this.uploadImage}
                                         />
                                     </div>
@@ -1105,8 +1139,8 @@ export default class UpdateEmployer extends Component {
                                 <div className='my-1 row'>
                                     <Input
                                         id={i}
-                                        placeholder='Youtube Links'
-                                        name='youtube'
+                                        placeholder='Image Links'
+                                        name='image'
                                         onChange={(e) =>
                                             this.handleChange(e, i)
                                         }
@@ -1144,14 +1178,21 @@ export default class UpdateEmployer extends Component {
                                 <FontAwesomeIcon
                                     icon={faPlusCircle}
                                     size='lg'
+                                    disabled={this.state.youtube.length >= 5}
                                     onClick={() => {
-                                        let youtube = this.state.youtube;
-                                        youtube.push("");
-                                        this.setState({
-                                            youtube: youtube,
-                                        });
+                                        if (this.state.youtube.length < 5) {
+                                            let youtube = this.state.youtube;
+                                            youtube.push("");
+                                            this.setState({
+                                                youtube: youtube,
+                                            });
+                                        }
                                     }}
-                                    className='col-3 col-sm-1 text-info'
+                                    className={`col-3 col-sm-1 ${
+                                        this.state.youtube.length < 5
+                                            ? "text-info"
+                                            : "text-secondary"
+                                    }`}
                                     style={{ cursor: "pointer" }}
                                 />
                             </Label>
@@ -1182,7 +1223,7 @@ export default class UpdateEmployer extends Component {
                                     />
                                 </div>
                             ))}
-                            <hr />
+                            {/* <hr />
                             <FormGroup>
                                 <h5>About Organization</h5>
                                 <textarea
@@ -1193,7 +1234,7 @@ export default class UpdateEmployer extends Component {
                                     onChange={this.handleChange}
                                     rows='4'
                                     placeholder='About Organization'></textarea>
-                            </FormGroup>
+                            </FormGroup> */}
                             <hr />
                             <FormGroup className='row'>
                                 <h5 className='col-12'>Contact Detalis</h5>
