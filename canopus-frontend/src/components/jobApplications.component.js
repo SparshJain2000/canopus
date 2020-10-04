@@ -132,6 +132,7 @@ const Job = ({
     getOpenJobs,
     getSavedJobs,
     canSponsor,
+    banner,
 }) => {
     // console.log(window.location);
     const history = useHistory();
@@ -156,7 +157,6 @@ const Job = ({
                 .then((data) => {
                     console.log(data);
                     setMessError("Job Promoted Successfully !");
-                    // toggleError();
                     getOpenJobs();
                 })
                 .catch((err) => {
@@ -167,7 +167,7 @@ const Job = ({
                     }
                 });
         else {
-            setMessError("Contact Curoid at +11239213 for promoting this job");
+            setMessError(banner);
             setModalError(true);
         }
     };
@@ -742,6 +742,8 @@ export default class JobApplications extends Component {
         this[`get${this.state.jobType}Jobs`]();
     }
     render() {
+        let banner;
+        if (this.props.data) banner = this.props.data.sponsor_banner;
         return (
             <div className='w-100'>
                 {window.location.pathname === "/applications" && (
@@ -901,6 +903,7 @@ export default class JobApplications extends Component {
                                                     canSponsor={
                                                         this.state.canSponsor
                                                     }
+                                                    banner={banner}
                                                 />
                                             ),
                                     )}
@@ -949,6 +952,7 @@ export default class JobApplications extends Component {
                                                     canSponsor={
                                                         this.state.canSponsor
                                                     }
+                                                    banner={banner}
                                                 />
                                             ),
                                     )}
