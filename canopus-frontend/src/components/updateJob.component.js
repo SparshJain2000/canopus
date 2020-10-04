@@ -666,7 +666,7 @@ const UpdateJob = (props) => {
 
         if (type === "Day Job") {
             type2 = "freelance";
-            if (endDate !== "")
+            if (startDate !== "")
                 myJob.endDate = new Date(
                     `${startDate} ${endTime}`,
                 ).toISOString();
