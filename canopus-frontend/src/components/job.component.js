@@ -24,6 +24,8 @@ import {
     ModalHeader,
     ModalBody,
     Media,
+    UncontrolledPopover,
+    PopoverBody,
     ModalFooter,
     Input,
 } from "reactstrap";
@@ -432,7 +434,13 @@ export default class Job extends Component {
                                     <Link
                                         to={`/employer/profile/${job.author.id}`}>
                                         <h6 className='text-info'>
-                                            {job.description.company
+                                            {job.author &&
+                                            job.author.instituteName
+                                                ? job.author.instituteName
+                                                : job.instituteName
+                                                ? job.instituteName
+                                                : job.description &&
+                                                  job.description.company
                                                 ? job.description.company
                                                 : "Company"}
                                         </h6>
@@ -587,7 +595,7 @@ export default class Job extends Component {
                                         <UncontrolledTooltip
                                             placement='down'
                                             // isOpen={this.state.tooltipOpen}
-                                            trigger='click'
+                                            trigger='legacy'
                                             target='apply'
                                             style={{
                                                 minWidth: "max-content",
@@ -612,7 +620,7 @@ export default class Job extends Component {
                                         <UncontrolledTooltip
                                             placement='down'
                                             // isOpen={this.state.tooltipOpen}
-                                            trigger='click'
+                                            trigger='legacy'
                                             target='apply'
                                             style={{
                                                 minWidth: "max-content",
@@ -637,7 +645,7 @@ export default class Job extends Component {
                                             <UncontrolledTooltip
                                                 placement='down'
                                                 // isOpen={this.state.tooltipOpen}
-                                                trigger='click'
+                                                trigger='legacy'
                                                 target='apply'
                                                 style={{
                                                     minWidth: "max-content",
@@ -673,10 +681,10 @@ export default class Job extends Component {
                                             </Button>
                                         </CopyToClipboard>
 
-                                        <UncontrolledTooltip
+                                        <UncontrolledPopover
                                             placement='down'
                                             // isOpen={this.state.tooltipOpen}
-                                            trigger='focus'
+                                            trigger='legacy'
                                             target='copy'
                                             style={{
                                                 minWidth: "max-content",
@@ -703,7 +711,7 @@ export default class Job extends Component {
                                                     {job.title.length > 8
                                                         ? job.title.substr(
                                                               0,
-                                                              8 - 1,
+                                                              15 - 1,
                                                           ) + "..."
                                                         : job.title}
                                                     ' copied
@@ -725,15 +733,15 @@ export default class Job extends Component {
                                                             window.location.href
                                                         }> */}
                                                     <Button
-                                                        color='info'
+                                                        color='success'
                                                         size='xs'
                                                         className='col-3'>
-                                                        Copy
+                                                        Copied
                                                     </Button>
                                                     {/* </CopyToClipboard> */}
                                                 </div>
                                             </div>
-                                        </UncontrolledTooltip>
+                                        </UncontrolledPopover>
                                     </div>
                                 </div>
                             </div>
