@@ -77,7 +77,7 @@ export default class UpdateEmployer extends Component {
             valid: {
                 organization: true,
                 type: true,
-                speciality: true,
+                // speciality: true,
                 city: true,
                 state: true,
                 firstName: true,
@@ -128,22 +128,48 @@ export default class UpdateEmployer extends Component {
         } else
             this.setState({
                 [e.target.name]: e.target.value,
+            });
+        if (
+            e.target.name !== "about" &&
+            e.target.name !== "about2" &&
+            e.target.name !== "line" &&
+            e.target.name !== "speciality" &&
+            e.target.name !== "pin"
+        )
+            this.setState({
                 valid: {
                     ...this.state.valid,
                     [e.target.name]: e.target.value !== "",
                 },
             });
     }
+    checkYoutube() {
+        let valid = true;
+        this.state.youtube.forEach((l) => {
+            valid =
+                valid &&
+                (l.startsWith("https://youtu.be") ||
+                    l.startsWith("https://youtube.com") ||
+                    l.startsWith("https://www.youtube.com"));
+        });
+        return valid;
+    }
     update() {
         const isValid = Object.values(this.state.valid).every(
             (item) => item === true,
         );
-
+        const validYoutube =
+            this.state.youtube.length > 0 ? this.checkYoutube() : true;
         console.log(isValid);
         if (!isValid) {
             this.setState({
                 modalError: true,
                 modalMess: "Please fill the required fields !",
+            });
+        } else if (!validYoutube) {
+            this.setState({
+                modalError: true,
+                modalMess: "Please provide correct Youtube links !",
             });
         } else {
             const employer = {
@@ -166,6 +192,7 @@ export default class UpdateEmployer extends Component {
                 },
                 description: {
                     about: this.state.about,
+                    about2: this.state.about2,
                     ICUs: Number(this.state.ICUs),
                     OTs: Number(this.state.OTs),
                     beds: Number(this.state.beds),
@@ -738,52 +765,29 @@ export default class UpdateEmployer extends Component {
                                 onChange={this.handleChange}
                                 defaultValue={this.state.type}
                             /> */}
-                                    <Select
-                                        autosize={true}
-                                        isClearable={true}
-                                        className={
-                                            !this.state.valid.speciality
-                                                ? "border-invalid"
-                                                : ""
-                                        }
-                                        placeholder='Organization Type'
-                                        value={
-                                            this.state.speciality !== ""
-                                                ? {
-                                                      value: this.state
-                                                          .speciality,
-                                                      label: this.state
-                                                          .speciality,
-                                                  }
-                                                : null
-                                        }
-                                        options={data.speciality.map((type) => {
-                                            return { label: type, value: type };
-                                        })}
-                                        onChange={(e) => {
-                                            console.log(e);
-                                            this.handleChangeSelect(
-                                                "speciality",
-                                                e ? e.value : "",
-                                            );
-                                        }}
-                                        style={{
-                                            control: (base, state) => ({
-                                                // ...base,
-                                                // state.isFocused can display different borderColor if you need it
-                                                borderColor: "red",
-                                                // overwrittes hover style
-                                                // "&:hover": {
-                                                //     borderColor: state.isFocused
-                                                //         ? "#ddd"
-                                                //         : this.state.valid
-                                                //               .speciality
-                                                //         ? "#ddd"
-                                                //         : "red",
-                                                // },
-                                            }),
-                                        }}
+                                    <Input
+                                        // autosize={true}
+                                        // isClearable={true}
+                                        // className={
+                                        //     !this.state.valid.speciality
+                                        //         ? "border-invalid"
+                                        //         : ""
+                                        // }
+                                        name='speciality'
+                                        placeholder='Speciality'
+                                        value={this.state.speciality}
+                                        onChange={this.handleChange}
                                     />
+                                    <datalist>
+                                        {/* options= */}
+                                        {data.speciality.map((type) => {
+                                            return (
+                                                <option value={type}>
+                                                    {type}
+                                                </option>
+                                            );
+                                        })}
+                                    </datalist>
                                 </div>
 
                                 <div className='col-12  my-1'>
@@ -838,9 +842,10 @@ export default class UpdateEmployer extends Component {
                                                 *
                                             </span>
                                         </Label>
-                                        <Input
+                                        <select
                                             placeholder='state'
                                             name='state'
+                                            className='custom-select'
                                             onChange={(e) => {
                                                 this.setState({ city: "" });
                                                 this.handleChange(e);
@@ -849,16 +854,16 @@ export default class UpdateEmployer extends Component {
                                             invalid={!this.state.valid.state}
                                             // onChange={this.props.handleChange("email")}
                                             // defaultValue={values.email}
-                                            list='states'
-                                        />
-                                        <datalist id='states'>
+                                            list='states'>
+                                            {/* <datalist id='states'> */}
                                             {stateArray.length !== 0 &&
                                                 stateArray.map((state) => (
                                                     <option value={state}>
                                                         {state}
                                                     </option>
                                                 ))}
-                                        </datalist>
+                                            {/* </datalist> */}
+                                        </select>
                                     </div>
                                 </FormGroup>
                                 <FormGroup>
@@ -893,7 +898,7 @@ export default class UpdateEmployer extends Component {
                                               ))}
                                     </datalist>
                                 </FormGroup>
-                                <FormGroup className='row '>
+                                {/* <FormGroup className='row '>
                                     <div className='col-12 col-sm-6 pr-1'>
                                         <Label>Latitude</Label>
                                         <Input
@@ -914,7 +919,7 @@ export default class UpdateEmployer extends Component {
                                             disabled
                                         />
                                     </div>
-                                </FormGroup>
+                                </FormGroup> */}
                             </div>
 
                             <div className='col-12 col-lg-6'>
@@ -1183,8 +1188,8 @@ export default class UpdateEmployer extends Component {
                                 <textarea
                                     name=''
                                     className='form-control'
-                                    name='about'
-                                    value={this.state.about}
+                                    name='about2'
+                                    value={this.state.about2}
                                     onChange={this.handleChange}
                                     rows='4'
                                     placeholder='About Organization'></textarea>
@@ -1234,7 +1239,7 @@ export default class UpdateEmployer extends Component {
                                     </Label>
                                     <Input
                                         type='number'
-                                        max='999999999'
+                                        // max='999999999'
                                         pattern='[1-9]{1}[0-9]{9}'
                                         placeholder='Phone Number'
                                         name='phone'
