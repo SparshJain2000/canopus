@@ -329,9 +329,7 @@ const Job = ({
                                                         setMess("promote");
                                                         toggle();
                                                     } else {
-                                                        setMessError(
-                                                            "Contact Curoid at +11239213 for promoting this job",
-                                                        );
+                                                        setMessError(banner);
                                                         setModalError(true);
                                                     }
                                                 }}>
