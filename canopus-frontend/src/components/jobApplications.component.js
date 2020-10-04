@@ -873,25 +873,86 @@ export default class JobApplications extends Component {
                             </DropdownMenu>
                         </Dropdown>
                     </div>
+                    <div className='row w-100'>
+                        {this.state.freelanceJobs ? (
+                            this.state.freelanceJobs.length !== 0 && (
+                                <div className='row w-100 px-2'>
+                                    <h3 className='col-12 px-2 px-sm-3'>
+                                        Locum/Day Jobs
+                                    </h3>
+
+                                    {this.state.freelanceJobs.map(
+                                        (job) =>
+                                            job && (
+                                                <Job
+                                                    key={job._id}
+                                                    job={job}
+                                                    jobType={this.state.jobType}
+                                                    type2='freelance'
+                                                    getOpenJobs={
+                                                        this.getOpenJobs
+                                                    }
+                                                    getClosedJobs={
+                                                        this.getClosedJobs
+                                                    }
+                                                    getSavedJobs={
+                                                        this.getSavedJobs
+                                                    }
+                                                    canSponsor={
+                                                        this.state.canSponsor
+                                                    }
+                                                />
+                                            ),
+                                    )}
+                                    <hr className='w-100' />
+                                </div>
+                            )
+                        ) : (
+                            <div
+                                className='mx-auto my-auto col-12 '
+                                style={{ textAlign: "center" }}>
+                                <Loader
+                                    type='Bars'
+                                    color='#17a2b8'
+                                    height={300}
+                                    width={220}
+                                />
+                            </div>
+                        )}
+                    </div>
+
                     <div className='row px-2 w-100'>
-                        <h3 className='col-12 px-2 px-sm-3'>Regular Jobs</h3>
                         {this.state.jobs !== null &&
                         this.state.jobs !== undefined ? (
-                            this.state.jobs.length !== 0 &&
-                            this.state.jobs.map(
-                                (job) =>
-                                    job && (
-                                        <Job
-                                            key={job._id}
-                                            job={job}
-                                            jobType={this.state.jobType}
-                                            type2='job'
-                                            getOpenJobs={this.getOpenJobs}
-                                            getClosedJobs={this.getClosedJobs}
-                                            getSavedJobs={this.getSavedJobs}
-                                            canSponsor={this.state.canSponsor}
-                                        />
-                                    ),
+                            this.state.jobs.length !== 0 && (
+                                <div className='row w-100 px-2'>
+                                    <h3 className='col-12 px-2 px-sm-3'>
+                                        Regular Jobs
+                                    </h3>
+                                    {this.state.jobs.map(
+                                        (job) =>
+                                            job && (
+                                                <Job
+                                                    key={job._id}
+                                                    job={job}
+                                                    jobType={this.state.jobType}
+                                                    type2='job'
+                                                    getOpenJobs={
+                                                        this.getOpenJobs
+                                                    }
+                                                    getClosedJobs={
+                                                        this.getClosedJobs
+                                                    }
+                                                    getSavedJobs={
+                                                        this.getSavedJobs
+                                                    }
+                                                    canSponsor={
+                                                        this.state.canSponsor
+                                                    }
+                                                />
+                                            ),
+                                    )}
+                                </div>
                             )
                         ) : (
                             <div
@@ -906,48 +967,7 @@ export default class JobApplications extends Component {
                             </div>
                         )}
 
-                        <hr className='w-100' />
                         {/* <h3 className='text-align-center w-100'>Locum Jobs</h3> */}
-
-                        <div className='row w-100'>
-                            <h3 className='col-12 px-2 px-sm-3'>
-                                Locum/Day Jobs
-                            </h3>
-
-                            {this.state.freelanceJobs ? (
-                                this.state.freelanceJobs.length !== 0 &&
-                                this.state.freelanceJobs.map(
-                                    (job) =>
-                                        job && (
-                                            <Job
-                                                key={job._id}
-                                                job={job}
-                                                jobType={this.state.jobType}
-                                                type2='freelance'
-                                                getOpenJobs={this.getOpenJobs}
-                                                getClosedJobs={
-                                                    this.getClosedJobs
-                                                }
-                                                getSavedJobs={this.getSavedJobs}
-                                                canSponsor={
-                                                    this.state.canSponsor
-                                                }
-                                            />
-                                        ),
-                                )
-                            ) : (
-                                <div
-                                    className='mx-auto my-auto col-12 '
-                                    style={{ textAlign: "center" }}>
-                                    <Loader
-                                        type='Bars'
-                                        color='#17a2b8'
-                                        height={300}
-                                        width={220}
-                                    />
-                                </div>
-                            )}
-                        </div>
                     </div>
                 </div>
             </div>
