@@ -169,7 +169,7 @@ class App extends Component {
                             path='/user/verify'
                             render={(props) =>
                                 this.state.user &&
-                                this.state.user.role === "Employer" ? (
+                                this.state.user.role === "User" ? (
                                     <VerifyEmployer
                                         {...props}
                                         user={this.state.user}
@@ -256,7 +256,13 @@ class App extends Component {
                             exact
                             path='/profile/:id'
                             // render={(props) => <Profile {...props} />}
-                            render={(props) => <Profile {...props} />}
+                            render={(props) =>
+                                this.state.user ? (
+                                    <Profile {...props} />
+                                ) : (
+                                    <Redirect to='/' />
+                                )
+                            }
                         />
                         <Route
                             exact
@@ -338,6 +344,7 @@ class App extends Component {
                                         {...props}
                                         // user={this.state.user}
                                         setUser={this.setUser}
+                                        data={this.state.data}
                                     />
                                 ) : (
                                     <Redirect to='/' />
@@ -376,6 +383,7 @@ class App extends Component {
                                     <JobApplications
                                         {...props}
                                         user={this.state.user}
+                                        data={this.state.data}
                                     />
                                 ) : (
                                     <Redirect to='/' />
