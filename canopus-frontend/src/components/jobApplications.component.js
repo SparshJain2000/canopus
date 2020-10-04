@@ -226,6 +226,15 @@ const Job = ({
                 toggleError();
             });
     };
+    const options = {
+        hour: "numeric",
+        minute: "numeric",
+    };
+    const optionsDate = {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+    };
     return (
         <div className='col-12 col-md-6'>
             <Media
@@ -399,27 +408,37 @@ const Job = ({
                         <div className='col-12'>
                             {job.startDate && (
                                 <div className='row'>
-                                    {new Date(
-                                        job.startDate,
-                                    ).toLocaleDateString()}
+                                    {new Intl.DateTimeFormat(
+                                        "en-US",
+                                        optionsDate,
+                                    ).format(new Date(job.startDate))}
+
+                                    {job.category === "Locum" &&
+                                        ` - ${new Intl.DateTimeFormat(
+                                            "en-US",
+                                            optionsDate,
+                                        ).format(new Date(job.endDate))}`}
                                 </div>
                             )}
+
                             {job.category === "Day Job" && (
                                 <div className='row'>
                                     {job.startDate && (
                                         <div className=''>
-                                            {new Date(
-                                                job.startDate,
-                                            ).toLocaleTimeString()}
+                                            {new Intl.DateTimeFormat(
+                                                "en-US",
+                                                options,
+                                            ).format(new Date(job.startDate))}
                                             {" - "}
                                         </div>
                                     )}
 
                                     {job.endDate && (
                                         <div className=''>
-                                            {new Date(
-                                                job.endDate,
-                                            ).toLocaleTimeString()}
+                                            {new Intl.DateTimeFormat(
+                                                "en-US",
+                                                options,
+                                            ).format(new Date(job.endDate))}
                                         </div>
                                     )}
                                 </div>
