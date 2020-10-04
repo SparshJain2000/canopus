@@ -61,7 +61,7 @@ router.post("/", async (req, res) => {
   });
   User.register(user, req.body.password)
     .then((user) => {
-      mailController.validateMail(req,user,token);
+      mailController.validateMailUser(req,user,token);
       passport.authenticate("user")(req, res, () => {
         res.json({ user: user });
       });
@@ -120,7 +120,7 @@ router.post("/forgot", async (req, res) => {
   )
     .then((user) => {
       console.log(token);
-      mailController.forgotMail(req, user, token);
+      mailController.forgotMailUser(req, user, token);
       res.json({ status: "Email has been sent" });
     })
     .catch((err) => {
@@ -187,7 +187,7 @@ router.post("/validate", middleware.isUser,async (req, res) => {
   )
     .then((user) => {
       console.log(token);
-     mailController.validateMail(req, user, token);
+     mailController.validateMailUser(req, user, token);
       res.json({ status: "Email has been sent" });
     })
     .catch((err) => {

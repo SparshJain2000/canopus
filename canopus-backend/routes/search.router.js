@@ -682,7 +682,7 @@ router.put("/apply/job/:id", middleware.isUser, async (req, res) => {
   try {
     
     //find applicant
-    let user = User.findById(req.user._id).session(session);
+    let user = await User.findById(req.user._id).session(session);
     if(!user) throw client_error;
     //check applicants 
     let job = await Job.findById(req.params.id).session(session);
