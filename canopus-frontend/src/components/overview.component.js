@@ -86,11 +86,7 @@ export default class Overview extends Component {
                                             : 0}{" "}
                                         employees */}
                                     </h6>
-                                    <h6>
-                                        {this.state.employer.specialty
-                                            ? this.state.employer.specialty
-                                            : "Speciality"}
-                                    </h6>
+                                    <h6>{this.state.employer.specialty}</h6>
                                     {this.state.employer.validated && (
                                         <Badge color='success'>
                                             <FontAwesomeIcon
