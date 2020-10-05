@@ -13,6 +13,7 @@ import {
     ModalHeader,
     ModalBody,
     ButtonGroup,
+    CustomInput,
     Alert,
 } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -78,13 +79,18 @@ export default class UpdateUser extends Component {
             profession: "",
             specialization: "",
             superSpecialization: [],
-            education: [],
+            education: [
+                {
+                    degree: "",
+                    speciality: "",
+                },
+            ],
             locum: false,
             startTime: "",
             endTime: "",
             resume: "",
             days: [],
-            availability: [],
+            availability: [{ startTime: "", endTime: "", days: [] }],
             progress: 0,
             prevResume: "",
             //===============
@@ -348,7 +354,9 @@ export default class UpdateUser extends Component {
                 profession: this.state.profession,
                 specialization: this.state.specialization,
                 superSpecialization: this.state.superSpecialization,
-                education: this.state.education,
+                education: this.state.education.filter(
+                    (e) => e.degree !== "" && e.speciality !== "",
+                ),
                 resume:
                     this.state.resume === ""
                         ? this.state.prevResume
@@ -368,7 +376,9 @@ export default class UpdateUser extends Component {
                 // };
                 user = {
                     ...user,
-                    availability: this.state.availability,
+                    availability: this.state.availability.filter(
+                        (e) => e.startTime !== "" && e.endTime !== "",
+                    ),
                 };
             }
             Object.keys(user).forEach(
@@ -708,62 +718,45 @@ export default class UpdateUser extends Component {
                                         key={"title"}
                                     />
                                 </div>
-                                <div className='col-12 col-sm-7 pr-0 pr-sm-1 row my-1 my-sm-2'>
-                                    <Label className='mb-1 col-12'>
+                                <div className='col-3 col-sm-2 pl-0 pr-0 pr-sm-1 row my-1 my-sm-2'>
+                                    <Label
+                                        className='mb-1'
+                                        style={{
+                                            display: "flex",
+                                            flexDirection: "column",
+                                            justifyContent: "center",
+                                        }}>
+                                        <h6 className='mb-0 small-heading'>
+                                            Prefix{" "}
+                                            <span className='text-danger'>
+                                                *
+                                            </span>
+                                        </h6>
+                                    </Label>
+                                    <CustomInput
+                                        placeholder='Salutation'
+                                        type='select'
+                                        className='pl-1 m-0'
+                                        style={{ height: "auto" }}
+                                        onChange={this.handleChange}
+                                        name='salutation'
+                                        value={this.state.salutation}
+                                        invalid={!this.state.valid.salutation}>
+                                        <option>Dr</option>
+                                        <option>Mr</option>
+                                        <option>Mrs</option>
+                                        <option>Ms</option>
+                                        <option>Prof</option>
+                                    </CustomInput>
+                                </div>
+                                <div className='col-9 col-sm-5 pl-1 pl-sm-1 pr-0 my-1 my-sm-2'>
+                                    <Label className='mb-1'>
                                         <h6 className='mb-0 small-heading'>
                                             First Name{" "}
                                             <span className='text-danger'>
                                                 *
                                             </span>
                                         </h6>
-                                    </Label>
-                                    <div className='col-3 pl-0 pr-0 '>
-                                        <Input
-                                            placeholder='Salutation'
-                                            type='select'
-                                            className='pl-1'
-                                            onChange={this.handleChange}
-                                            value={this.state.salutation}
-                                            invalid={
-                                                !this.state.valid.salutation
-                                            }>
-                                            <option value='Dr'>Dr</option>
-                                            <option value='Mr'>Mr</option>
-                                            <option value='Mrs'>Mrs</option>
-                                            <option value='Ms'>Ms</option>
-                                            <option value='Prof'>Prof</option>
-                                        </Input>
-                                    </div>
-                                    <div className='col-9 pr-0 pr-sm-1 '>
-                                        <Input
-                                            placeholder='First Name'
-                                            name='firstName'
-                                            onChange={this.handleChange}
-                                            value={this.state.firstName}
-                                            invalid={
-                                                !this.state.valid.firstName
-                                            }
-                                        />
-                                    </div>
-                                </div>
-                                {/* <div className='col-4 col-sm-2 pl-0 pr-0 my-1 my-sm-2'>
-                                    <Input
-                                        placeholder='Salutation'
-                                        type='select'
-                                        onChange={this.handleChange}
-                                        value={this.state.salutation}
-                                        invalid={!this.state.valid.salutation}>
-                                        <option value='Dr'>Dr</option>
-                                        <option value='Mr'>Mr</option>
-                                        <option value='Mrs'>Mrs</option>
-                                        <option value='Ms'>Ms</option>
-                                        <option value='Prof'>Prof</option>
-                                    </Input>
-                                </div>
-                                <div className='col-8 col-sm-5 pr-0 pr-sm-1 my-1 my-sm-2'>
-                                    <Label>
-                                        First Name{" "}
-                                        <span className='text-danger'>*</span>
                                     </Label>
                                     <Input
                                         placeholder='First Name'
@@ -772,7 +765,7 @@ export default class UpdateUser extends Component {
                                         value={this.state.firstName}
                                         invalid={!this.state.valid.firstName}
                                     />
-                                </div> */}
+                                </div>
                                 <div className='col-12 col-sm-5 pl-0 pl-sm-1 my-1 my-sm-2'>
                                     <Label className='mb-1'>
                                         <h6 className='mb-0 small-heading'>
