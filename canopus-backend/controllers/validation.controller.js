@@ -48,11 +48,13 @@ async function EmployerProfileUpdateBuilder(req) {
         query.update["logo"] = req.body.logo;
         query.jobUpdate["author.photo"] = req.body.logo;
     }
-    if (req.body.instituteName) {
-        query.update["instituteName"] = req.body.institutename;
-        query.jobUpdate["author.instituteName"] = req.body.instituteName;
+    if (req.body.description.organization) {
+       // query.update["instituteName"] = req.body.institutename;
+        query.jobUpdate["author.instituteName"] = req.body.description.organization;
+        //console.log(req.body.description.organization);
     }
     if (req.body.specialty) query.update["specialty"] = req.body.specialty;
+    if(req.body.specialty==="")query.update["specialty"]="";
     if (req.body.links) query.update["links"] = req.body.links;
     if (req.body.image) query.update["image"] = req.body.image;
     if (req.body.address) query.update["address"] = req.body.address;

@@ -64,7 +64,7 @@ router.post("/", async (req, res) => {
     });
     Employer.register(employer, req.body.password)
         .then((employer) => {
-            mailController.validateMailEmployer(req, employer, token);
+           // mailController.validateMailEmployer(req, employer, token);
             passport.authenticate("employer")(req, res, () => {
                 res.json({ employer: employer });
             });
@@ -202,7 +202,7 @@ router.post("/validate", middleware.isEmployer, async (req, res) => {
             res.json({ status: "Email has been sent" });
         })
         .catch((err) => {
-            res.json({ err: "User not found" });
+            res.status(400).json({ err: "User not found" });
         });
 });
 
@@ -315,9 +315,7 @@ router.get("/profile/:id/jobs", (req, res) => {
             res.json({ err: "Employer not found" });
         });
 });
-router.post("/experiment",(req,res)=>{
-    console.log(req.user);
-  });
+
 //get multiple freelance jobs
 router.get("/profile/:id/freelance", (req, res) => {
     Employer.findById(req.params.id)
@@ -346,7 +344,7 @@ router.get("/profile/:id/freelance", (req, res) => {
 router.put("/profile/update/", middleware.isEmployer, async (req, res) => {
     query = await validationController.EmployerProfileUpdateBuilder(req);
     let employer = await Employer.findOneAndUpdate({ _id: req.user._id },{ $set: query.update },{ new: true });
-    if (employer.jobs.length > 0 &&(req.body.logo || req.body.instituteName)) {
+    if (employer.jobs.length > 0 &&(req.body.logo || req.body.description.organization)) {
                 const id = employer.jobs.map((item) => {
                     return item.id;
                 });
@@ -359,7 +357,7 @@ router.put("/profile/update/", middleware.isEmployer, async (req, res) => {
                         console.log(err);
                     });
             }
-    if (employer.freelanceJobs.length > 0 && (req.body.logo || req.body.instituteName)) {
+    if (employer.freelanceJobs.length > 0 && (req.body.logo || req.body.description.organization)) {
                 const id = employer.freelanceJobs.map((item) => {
                     return item.id;
                 });

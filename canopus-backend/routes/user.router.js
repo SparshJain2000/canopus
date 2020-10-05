@@ -61,7 +61,7 @@ router.post("/", async (req, res) => {
   });
   User.register(user, req.body.password)
     .then((user) => {
-      mailController.validateMailUser(req,user,token);
+     // mailController.validateMailUser(req,user,token);
       passport.authenticate("user")(req, res, () => {
         res.json({ user: user });
       });
