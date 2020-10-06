@@ -6,7 +6,7 @@ module.exports = mongoose.model(
         username: String,
         resetPasswordToken: String,
         resetPasswordExpires: Date,
-        emailVerifyToken: String,
+        emailVerifiedToken: String,
         emailVerified: Boolean,
         createdAt: Date,
         lastUpdated: Date,

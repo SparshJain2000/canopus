@@ -39,18 +39,20 @@ router.post("/post", middleware.isLoggedIn, async (req, res) => {
     //error if invalid tier 
     if(!employer) throw client_error;
 
-    //check attached applicants validity
-    if(!(await jobController.attachedApplicantValidator(req,employer)))
-      throw client_error;
-    else if(req.body.attachedApplicants && req.body.attachedApplicants.length!=0){
-      console.log("ok");
-      //send mail
-    }
     //DB operations start here
     //create job
     let job = await jobController.createJob(req,req.body,employer);
     if(!job) throw client_error;
 
+    //check attached applicants validity
+    if(!(await jobController.attachedApplicantValidator(req,employer)))
+      throw client_error;
+    else if(req.body.attachedApplicants && req.body.attachedApplicants.length!=0){
+      if(job.category==="Day Job")
+        req.body.attachedApplicants.every(applicant=>mailController.attachDay(applicant,employer,job));
+      else if(job.category==="Locum")
+        req.body.attachedApplicants.every(applicant=>mailController.attachLocum(applicant,employer,job));
+    }
     //insert job
     if(req.body.category === "Full-time" || req.body.category === "Part-time")
       job = await Job.create([job], { session: session });
@@ -215,9 +217,11 @@ router.put("/post/:id",middleware.isLoggedIn,middleware.checkPostOwnership, asyn
           throw client_error;
          else{
            req.body.attachedApplicants.every(applicant=>job.attachedApplicants.push(applicant));
-           //job.attachedApplicants.concat(req.body.attachedApplicants);
+           if(job.category==="Day Job")
+           req.body.attachedApplicants.every(applicant=>mailController.attachDay(applicant,employer,job));
+           else if(job.category==="Locum")
+            req.body.attachedApplicants.every(applicant=>mailController.attachLocum(applicant,employer,job));
            //notify applicants
-           console.log(job.attachedApplicants);
            console.log("ok");
             await job.save({session});
          }
@@ -387,7 +391,10 @@ router.put("/activate/:id", middleware.checkSavedOwnership, async (req,res) => {
     if(!(await jobController.attachedApplicantValidator(req,employer)))
       throw client_error;
     else if(req.body.attachedApplicants && req.body.attachedApplicants.length!=0){
-      console.log("ok");
+      if(job.category==="Day Job")
+      req.body.attachedApplicants.every(applicant=>mailController.attachDay(applicant,employer,job));
+      else if(job.category==="Locum")
+      req.body.attachedApplicants.every(applicant=>mailController.attachLocum(applicant,employer,job));
       //send mail
     }
       job = await Freelance.create([job],{ session: session });
@@ -568,7 +575,10 @@ try {
     return res.status(400).json({err:"Candidate already accepted"});
   //create applicant 
   let applicant = await jobController.createApplicant(user);
-  console.log(applicant);
+  if(job.category==="Day Job")
+    mailController.acceptApplicantDay(applicant,employer,job);
+  else if(job.category==="Locum")
+    mailController.acceptApplicantLocum(applicant,employer,job);
   //accept applicants
   //if (job.description.count - job.acceptedApplicants.length === 0){
     //delete freelance max applicants
@@ -585,6 +595,7 @@ try {
   sjob.acceptedApplicants.push(applicant);
   await sjob.save({ session });
   //save applicant to employer
+  if(!employer.acceptedApplicants.some(acc=>acc.username===applicant.username))
   employer.acceptedApplicants.push(applicant);
   await employer.save({ session });
   //commit transaction

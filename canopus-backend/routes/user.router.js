@@ -20,12 +20,12 @@ const User           = require("../models/user.model"),
 //Sign up route
 router.post("/", async (req, res) => {
  //captcha validation
- let captcha = true;
-  try{
-       captcha = await validationController.verifyInvisibleCaptcha(req);
-    } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
-  if(!captcha)
-  return res.status(400).json({err:"Invalid Captcha"});
+//  let captcha = true;
+//   try{
+//        captcha = await validationController.verifyInvisibleCaptcha(req);
+//     } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
+//   if(!captcha)
+//   return res.status(400).json({err:"Invalid Captcha"});
  const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
   const user = new User({
     username: req.body.username,
@@ -72,12 +72,12 @@ router.post("/", async (req, res) => {
 
 router.post("/login", async function (req, res, next) {
   //captcha validation
-  let captcha = true;
-  try{
-       captcha = await validationController.verifyInvisibleCaptcha(req);
-    } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
-  if(!captcha)
-  return res.status(400).json({err:"Invalid Captcha"});
+  // let captcha = true;
+  // try{
+  //      captcha = await validationController.verifyInvisibleCaptcha(req);
+  //   } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
+  // if(!captcha)
+  // return res.status(400).json({err:"Invalid Captcha"});
   passport.authenticate("user", (err, user, info) => {
     console.log(info);
     if (err) {
@@ -100,12 +100,12 @@ router.post("/login", async function (req, res, next) {
 //===========================================================================
 router.post("/forgot", async (req, res) => {
   //captcha validation
-  let captcha = true;
-  try{
-       captcha = await validationController.verifyInvisibleCaptcha(req);
-    } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
-  if(!captcha)
-  return res.status(400).json({err:"Invalid Captcha"});
+  // let captcha = true;
+  // try{
+  //      captcha = await validationController.verifyInvisibleCaptcha(req);
+  //   } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
+  // if(!captcha)
+  // return res.status(400).json({err:"Invalid Captcha"});
   const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
   if(req.body.username=='' || !req.body.username)
   return res.status(400).json({err:"Bad request"});
@@ -191,7 +191,7 @@ router.post("/validate", middleware.isUser,async (req, res) => {
       res.json({ status: "Email has been sent" });
     })
     .catch((err) => {
-      res.json({ err: "User not found" });
+      res.status(400).json({ err: "User not found" });
     });
 });
 

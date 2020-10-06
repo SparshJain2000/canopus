@@ -5,6 +5,10 @@ const api = process.env.MG_API;
 const mg = mailgun({ apiKey: api, domain: DOMAIN });
 const mailController = {};
 
+//date time format
+var date_options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric',timeZone:"Asia/Kolkata" };
+var time_options = { hour: 'numeric', minute: 'numeric',timeZone: 'Asia/Kolkata' };
+
 async function forgotMail(req, user, token, context) {
   const data = {
     from: "Curoid.co <no-reply@curoid.co>",
@@ -51,22 +55,25 @@ async function welcomeMail(req, employer) {
       else return body;
     });
   }
-async function attachDay(req, user, job) {
+async function attachDay(applicant,employer,job) {
+
+  let start_hour = new Intl.DateTimeFormat('en-US', time_options).format(new Date(job.startDate));
+  let end_hour = new Intl.DateTimeFormat('en-US', time_options).format(new Date(job.endDate));
+  let date = new Intl.DateTimeFormat('en-US',date_options).format(new Date(job.endDate));
   const data = {
     from: "Curoid.co <no-reply@curoid.co>",
-    to: req.body.username,
+    to: applicant.username,
     subject: "New Day Job",
     template: "attach_day",
     "h:X-Mailgun-Variables": JSON.stringify({
-      title: "test",
-      first_name: "test_first_name",
-      organization: "test_organization",
-      title: "test_title",
-      procedure_name: "test_procedure_name",
-      location: "test_location",
-      start_time: "test_start_time",
-      end_time: "test_end_time",
-      link: "test_link",
+      first_name: applicant.name,
+      organization: employer.description.organization,
+      title: job.title,
+      procedure_name: job.description.procedure,
+      location: job.description.location,
+      start_time: `${start_hour}`,
+      end_time: `${end_hour} ${date}`,
+      link: `www.curoid.co/job/${job._id}?freelance&employer`
     }),
   };
   mg.messages().send(data, function (error, body) {
@@ -74,22 +81,23 @@ async function attachDay(req, user, job) {
     else return body;
   });
 }
-async function attachLocum(req, user, job) {
+async function attachLocum(applicant,employer,job) {
+    let start_date = new Intl.DateTimeFormat('en-US', date_options).format(new Date(job.startDate));
+  let end_date = new Intl.DateTimeFormat('en-US',date_options).format(new Date(job.endDate));
   const data = {
     from: "Curoid.co <no-reply@curoid.co>",
-    to: req.body.username,
-    subject: "New Day Job",
+    to: applicant.username,
+    subject: "New Locum Position",
     template: "attach_locum",
     "h:X-Mailgun-Variables": JSON.stringify({
-      title: "test",
-      first_name: "test_first_name",
-      organization: "test_organization",
-      title: "test_title",
-      procedure_name: "test_procedure_name",
-      location: "test_location",
-      start_date: "test_start_date",
-      end_date: "test_end_date",
-      link: "test_link",
+        first_name: applicant.name,
+        organization: employer.description.organization,
+        title: job.title,
+        procedure_name: job.description.procedure,
+        location: job.description.location,
+      start_date: `${start_date}`,
+      end_date: `${end_date}`,
+      link: `https://www.curoid.co/job/${job._id}?freelance&employer`,
     }),
   };
   mg.messages().send(data, function (error, body) {
@@ -138,16 +146,23 @@ async function jobPost(req, user, job) {
   });
 }
 
-async function acceptApplicantDay(req, user, job) {
+async function acceptApplicantDay(applicant,employer,job) {
+    let start_hour = new Intl.DateTimeFormat('en-US', time_options).format(new Date(job.startDate));
+    let end_hour = new Intl.DateTimeFormat('en-US', time_options).format(new Date(job.endDate));
+    let date = new Intl.DateTimeFormat('en-US',date_options).format(new Date(job.endDate));
   const data = {
     from: "Curoid.co <no-reply@curoid.co>",
-    to: req.body.username,
-    subject: "<Institute Name> has confirmed your position",
+    to: applicant.username,
+    subject: `${employer.description.organization} has confirmed your position`,
     template: "accept_day",
     "h:X-Mailgun-Variables": JSON.stringify({
-      title: "test",
-      name: "test",
-      profile_title: "test",
+        first_name: applicant.name,
+        organization: employer.description.organization,
+        title: job.title,
+        procedure_name: job.description.procedure,
+        location: job.description.location,
+        start_time: `${start_hour}`,
+        end_time: `${end_hour} ${date}`,
     }),
   };
   mg.messages().send(data, function (error, body) {
@@ -164,17 +179,23 @@ let json = {
   start_time: "test_start_time",
   end_time: "test_end_time",
 };
-async function acceptApplicantLocum(req, user, job) {
-  console.log(new Intl.DateTimeFormat("en-US").format(date));
+async function acceptApplicantLocum(applicant,employer,job) {
+  
+    let start_date = new Intl.DateTimeFormat('en-US', date_options).format(new Date(job.startDate));
+  let end_date = new Intl.DateTimeFormat('en-US',date_options).format(new Date(job.endDate));
   const data = {
     from: "Curoid.co <no-reply@curoid.co>",
-    to: req.body.username,
-    subject: "<Institute Name> has confirmed your position",
+    to: applicant.username,
+    subject:  `${employer.description.organization} has confirmed your position`,
     template: "accept_locum",
     "h:X-Mailgun-Variables": JSON.stringify({
-      title: "test",
-      name: "test",
-      profile_title: "test",
+        first_name: applicant.name,
+        organization: employer.description.organization,
+        title: job.title,
+        procedure_name: job.description.procedure,
+        location: job.description.location,
+      start_date: `${start_date}`,
+      end_date: `${end_date}`,
     }),
   };
   mg.messages().send(data, function (error, body) {
