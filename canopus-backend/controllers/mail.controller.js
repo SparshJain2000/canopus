@@ -4,6 +4,7 @@ const DOMAIN = "curoid.co";
 const api = process.env.MG_API;
 const mg = mailgun({ apiKey: api, domain: DOMAIN });
 const mailController = {};
+
 async function forgotMail(req, user, token, context) {
   const data = {
     from: "Curoid.co <no-reply@curoid.co>",
@@ -11,7 +12,7 @@ async function forgotMail(req, user, token, context) {
     subject: "Reset Password",
     template: "forgot_password",
     "h:X-Mailgun-Variables": JSON.stringify({
-      test: `http://${req.headers.host}/${context}/forgot/${token}`,
+      link: `http://${req.headers.host}/${context}/forgot/${token}`,
     }),
   };
   mg.messages().send(data, function (error, body) {
@@ -25,9 +26,9 @@ async function validateMail(req, user, token, context) {
     from: "Curoid.co <no-reply@curoid.co>",
     to: req.user.username,
     subject: "Confirm Your Email",
-    template: "forgot_password",
+    template: "validate_name",
     "h:X-Mailgun-Variables": JSON.stringify({
-      test: `http://${req.headers.host}/${context}/forgot/${token}`,
+      link: `http://${req.headers.host}/${context}/validate/${token}`,
     }),
   };
   mg.messages().send(data, function (error, body) {
@@ -35,7 +36,21 @@ async function validateMail(req, user, token, context) {
     else return body;
   });
 }
-
+async function welcomeMail(req, employer) {
+    const data = {
+      from: "Curoid.co <no-reply@curoid.co>",
+      to: employer.username,
+      subject: "Welcome to Curoid!",
+      template: "welcome_employer",
+      "h:X-Mailgun-Variables": JSON.stringify({
+        first_name: employer.firstName,
+      }),
+    };
+    mg.messages().send(data, function (error, body) {
+      if (error) return error;
+      else return body;
+    });
+  }
 async function attachDay(req, user, job) {
   const data = {
     from: "Curoid.co <no-reply@curoid.co>",
@@ -83,32 +98,18 @@ async function attachLocum(req, user, job) {
   });
 }
 
-async function welcomeMail(req, employer) {
-  const data = {
-    from: "Curoid.co <no-reply@curoid.co>",
-    to: req.body.username,
-    subject: "Welcome to Curoid!",
-    template: "welcome_employer",
-    "h:X-Mailgun-Variables": JSON.stringify({
-      first_name: employer.firstName,
-    }),
-  };
-  mg.messages().send(data, function (error, body) {
-    if (error) return error;
-    else return body;
-  });
-}
 
+//TODO
 async function newApplicantMail(req, user, job) {
   const data = {
     from: "Curoid.co <no-reply@curoid.co>",
-    to: req.body.username,
+    to: job.author.username,
     subject: "New Job Application",
     template: "new_applicant",
     "h:X-Mailgun-Variables": JSON.stringify({
-      title: "test",
-      name: "test",
-      profile_title: "test",
+      title: job.title,
+      name:`${user.salutation} ${user.firstName} ${user.lastName}`,
+      profile_title: user.title,
     }),
   };
   mg.messages().send(data, function (error, body) {
@@ -118,14 +119,17 @@ async function newApplicantMail(req, user, job) {
 }
 
 async function jobPost(req, user, job) {
+    let category = "freelance";
+    if(job.category==="Full-time"|| job.category==="Part-time")
+    category="job";
   const data = {
     from: "Curoid.co <no-reply@curoid.co>",
-    to: req.body.username,
+    to: user.username,
     subject: "Job Posted Successfully",
     template: "job_post",
     "h:X-Mailgun-Variables": JSON.stringify({
-      title: "test",
-      link: "test",
+      title: job.title,
+      link: `https://www.curoid.co/job/${job._id}?${category}&employer`,
     }),
   };
   mg.messages().send(data, function (error, body) {

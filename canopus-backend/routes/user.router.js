@@ -120,7 +120,7 @@ router.post("/forgot", async (req, res) => {
   )
     .then((user) => {
       console.log(token);
-      mailController.forgotMailUser(req, user, token);
+      mailController.forgotMail(req, user, token,"user");
       res.json({ status: "Email has been sent" });
     })
     .catch((err) => {
@@ -187,7 +187,7 @@ router.post("/validate", middleware.isUser,async (req, res) => {
   )
     .then((user) => {
       console.log(token);
-     mailController.validateMailUser(req, user, token);
+     mailController.validateMail(req, user, token,"user");
       res.json({ status: "Email has been sent" });
     })
     .catch((err) => {
@@ -298,357 +298,357 @@ router.get("/applied/freelance",middleware.isUser,(req ,res) =>{
 });
 
 // request to post jobs
-router.post("/request", middleware.isUser,async  (req, res) => {
-    //start transaction
-    const session = await mongoose.startSession();
-    session.startTransaction();
-    const server_error = new Error("500");
-    const client_error = new Error("400");
-    try{
-    var user = await User.findById(req.user._id).session(session);
-    if (user.jobtier.allowed + user.freelancetier.allowed + user.locumtier.allowed != 0 )
-      return res.status(400).json({ err: "Already Applied for jobs" });
-    if (req.body.endDate) {
-      const expiry = new Date(req.body.endDate);
-      var days = (expiry - Date.now()) / (1000 * 60 * 60 * 24);
-      if (days < 0 || days > 90)
-        return res.status(400).send("Invalid time format");
-    }
-    var type
-    if(req.body.category === "Full-time" || req.body.category === "Part-time")
-      type = "jobtier";
-    else if(req.body.category === "Day Job")
-      type = "freelancetier";
-    else if(req.body.category === "Locum")
-      type = "locumtier";
-    else return res.status(400).json({status:"400"});
-    user[type] = {
-        allowed: 1,
-        posted: 1,
-        saved: 0,
-        closed: 0,
-    };
-    //DB operations start here
-    //create job
-    let job = await jobController.createJob(req,req.body,user);
-    if(!job) throw client_error;
+// router.post("/request", middleware.isUser,async  (req, res) => {
+//     //start transaction
+//     const session = await mongoose.startSession();
+//     session.startTransaction();
+//     const server_error = new Error("500");
+//     const client_error = new Error("400");
+//     try{
+//     var user = await User.findById(req.user._id).session(session);
+//     if (user.jobtier.allowed + user.freelancetier.allowed + user.locumtier.allowed != 0 )
+//       return res.status(400).json({ err: "Already Applied for jobs" });
+//     if (req.body.endDate) {
+//       const expiry = new Date(req.body.endDate);
+//       var days = (expiry - Date.now()) / (1000 * 60 * 60 * 24);
+//       if (days < 0 || days > 90)
+//         return res.status(400).send("Invalid time format");
+//     }
+//     var type
+//     if(req.body.category === "Full-time" || req.body.category === "Part-time")
+//       type = "jobtier";
+//     else if(req.body.category === "Day Job")
+//       type = "freelancetier";
+//     else if(req.body.category === "Locum")
+//       type = "locumtier";
+//     else return res.status(400).json({status:"400"});
+//     user[type] = {
+//         allowed: 1,
+//         posted: 1,
+//         saved: 0,
+//         closed: 0,
+//     };
+//     //DB operations start here
+//     //create job
+//     let job = await jobController.createJob(req,req.body,user);
+//     if(!job) throw client_error;
 
-    //insert job
-    if(req.body.category === "Full-time" || req.body.category === "Part-time")
-      job = await Job.create([job], { session: session });
-    else
-      job = await Freelance.create([job],{ session: session });
-    //only arrays can be used in transactions so casting is necessary
-    job = job[0];
+//     //insert job
+//     if(req.body.category === "Full-time" || req.body.category === "Part-time")
+//       job = await Job.create([job], { session: session });
+//     else
+//       job = await Freelance.create([job],{ session: session });
+//     //only arrays can be used in transactions so casting is necessary
+//     job = job[0];
 
-    //create saved job
-    let sjob = await jobController.createSavedJob(req,job,"Active");
-    if(!sjob) throw client_error;
+//     //create saved job
+//     let sjob = await jobController.createSavedJob(req,job,"Active");
+//     if(!sjob) throw client_error;
 
-    var type;
-    if(req.body.category === "Full-time" || req.body.category === "Part-time"){
-      sjob = await savedJob.create([sjob], { session: session });
-      type = "jobs";
-    }
-    else {
-      sjob = await savedFreelance.create([sjob],{ session: session });
-      type = "freelanceJobs";
-    }
-    sjob = sjob[0];
+//     var type;
+//     if(req.body.category === "Full-time" || req.body.category === "Part-time"){
+//       sjob = await savedJob.create([sjob], { session: session });
+//       type = "jobs";
+//     }
+//     else {
+//       sjob = await savedFreelance.create([sjob],{ session: session });
+//       type = "freelanceJobs";
+//     }
+//     sjob = sjob[0];
 
-    //update employer add job and saved job ref
-    user[type].push(
-      {
-        title: job.title,
-        id: job._id,
-        sid: sjob._id,
-      });
-    //save changes to employer
-    await job.save({ session });
-    await user.save({ session });
-    //commit transaction
-    await session.commitTransaction();
-    session.endSession();
-    res.json({status:"200"});
-    } catch(err) {
-      // any 500 error in try block aborts transaction
-    await session.abortTransaction();
-    session.endSession();
-    console.log(err);
-    res.status(500).json({status:"500"});  
-    }
-});
+//     //update employer add job and saved job ref
+//     user[type].push(
+//       {
+//         title: job.title,
+//         id: job._id,
+//         sid: sjob._id,
+//       });
+//     //save changes to employer
+//     await job.save({ session });
+//     await user.save({ session });
+//     //commit transaction
+//     await session.commitTransaction();
+//     session.endSession();
+//     res.json({status:"200"});
+//     } catch(err) {
+//       // any 500 error in try block aborts transaction
+//     await session.abortTransaction();
+//     session.endSession();
+//     console.log(err);
+//     res.status(500).json({status:"500"});  
+//     }
+// });
 
 
-//get multiple jobs
-router.get("/all/jobs", middleware.isUser, (req, res) => {
-  User.findById(req.user._id)
-    .then((user) => {
-      const id = user.jobs.map((job) => {
-        return job.id;
-      });
-      console.log(id);
-      Job.find({ _id: { $in: id } })
-        .then((jobs) => {
-          res.json({ jobs: jobs });
-        })
-        .catch((err) => {
-          res.json({ err: "Jobs not found" });
-        });
-    })
-    .catch((err) => {
-      res.json({ err: "User not found" });
-    });
-});
+// //get multiple jobs
+// router.get("/all/jobs", middleware.isUser, (req, res) => {
+//   User.findById(req.user._id)
+//     .then((user) => {
+//       const id = user.jobs.map((job) => {
+//         return job.id;
+//       });
+//       console.log(id);
+//       Job.find({ _id: { $in: id } })
+//         .then((jobs) => {
+//           res.json({ jobs: jobs });
+//         })
+//         .catch((err) => {
+//           res.json({ err: "Jobs not found" });
+//         });
+//     })
+//     .catch((err) => {
+//       res.json({ err: "User not found" });
+//     });
+// });
 
-//get multiple freelance jobs
-router.get("/all/freelance", middleware.isUser, (req, res) => {
-  User.findById(req.user._id)
-    .then((user) => {
-      const id = user.freelanceJobs.map((job) => {
-        return job.id;
-      });
-      console.log(id);
-      Freelance.find({ _id: { $in: id } })
-        .then((jobs) => {
-          res.json({ jobs: jobs });
-        })
-        .catch((err) => {
-          res.json({ err: "Jobs not found" });
-        });
-    })
-    .catch((err) => {
-      res.json({ err: "User not found" });
-    });
-});
+// //get multiple freelance jobs
+// router.get("/all/freelance", middleware.isUser, (req, res) => {
+//   User.findById(req.user._id)
+//     .then((user) => {
+//       const id = user.freelanceJobs.map((job) => {
+//         return job.id;
+//       });
+//       console.log(id);
+//       Freelance.find({ _id: { $in: id } })
+//         .then((jobs) => {
+//           res.json({ jobs: jobs });
+//         })
+//         .catch((err) => {
+//           res.json({ err: "Jobs not found" });
+//         });
+//     })
+//     .catch((err) => {
+//       res.json({ err: "User not found" });
+//     });
+// });
 
-// get multiple saved jobs
-router.get("/all/savedJobs", middleware.isUser, (req, res) => {
-  User.findById(req.user._id)
-    .then((user) => {
-      const ID = user.savedJobs.map((item) => {
-        return mongoose.Types.ObjectId(item.id);
-      });
-      savedJob
-        .find({ _id: { $in: ID } })
-        .then((jobs) => {
-          res.json({ jobs: jobs });
-        })
-        .catch((err) => {
-          res.json({ err: "Jobs not found" });
-        });
-    })
-    .catch((err) => {
-      res.json({ err: "User not found" });
-    });
-});
+// // get multiple saved jobs
+// router.get("/all/savedJobs", middleware.isUser, (req, res) => {
+//   User.findById(req.user._id)
+//     .then((user) => {
+//       const ID = user.savedJobs.map((item) => {
+//         return mongoose.Types.ObjectId(item.id);
+//       });
+//       savedJob
+//         .find({ _id: { $in: ID } })
+//         .then((jobs) => {
+//           res.json({ jobs: jobs });
+//         })
+//         .catch((err) => {
+//           res.json({ err: "Jobs not found" });
+//         });
+//     })
+//     .catch((err) => {
+//       res.json({ err: "User not found" });
+//     });
+// });
 
-//  get multiple saved freelance jobs
-router.get("/all/savedFreelance", middleware.isUser, (req, res) => {
-  User.findById(req.user._id)
-    .then((user) => {
-      const ID = user.savedFreelance.map((item) => {
-        return mongoose.Types.ObjectId(item.id);
-      });
-      console.log(ID);
-      savedFreelance
-        .find({ _id: { $in: ID } })
-        .then((jobs) => {
-          res.json({ jobs: jobs });
-        })
-        .catch((err) => {
-          res.json({ err: "Jobs not found" });
-        });
-    })
-    .catch((err) => {
-      res.json({ err: "User not found" });
-    });
-});
-// get expired jobs
-router.get("/all/expiredJobs", middleware.isUser, (req, res) => {
-  User.findById(req.user._id)
-    .then((user) => {
-      const ID = user.jobs.map((item) => {
-        return mongoose.Types.ObjectId(item.id);
-      });
-      console.log(ID);
-      var active = [];
-      var inactive = [];
-      let promises = [];
-      for (let i = 0; i < ID.length; i++) {
-        promises.push(
-          new Promise((resolve, reject) => {
-            const id = ID[i];
-            Job.findById(id)
-              .then((job) => {
-                if (job == null) inactive.push(id);
-                else active.push(id);
-                resolve("Done");
-              })
-              .catch((err) => {
-                inactive.push(id);
-                resolve("Done");
-              });
-          })
-        );
-      }
-      Promise.all(promises)
-        .then((msg) => {
-          console.log(inactive);
-          savedJob
-            .find({ jobRef: { $in: inactive } })
-            .then((jobs) => {
-              res.json({ jobs: jobs });
-            })
-            .catch((err) => {
-              res.json({ err: "Error finding expired jobs" });
-            });
-        })
-        .catch((err) => res.json({ err: "Couldn't find expired jobs" }));
-    })
-    .catch((err) => res.json({ err: "Couldn't find User" }));
-});
-// get expired freelance jobs
-router.get("/all/expiredFreelance", middleware.isUser, (req, res) => {
-  console.log(req.user._id);
-  User.findById(req.user._id)
-    .then((user) => {
-      const ID = user.freelanceJobs.map((item) => {
-        return mongoose.Types.ObjectId(item.id);
-      });
-      var active = [];
-      var inactive = [];
-      let promises = [];
-      for (let i = 0; i < ID.length; i++) {
-        promises.push(
-          new Promise((resolve, reject) => {
-            const id = ID[i];
-            Freelance.findById(id)
-              .then((job) => {
-                if (job == null) inactive.push(id);
-                else active.push(id);
-                resolve("Done");
-              })
-              .catch((err) => {
-                inactive.push(id);
-                resolve("Done");
-              });
-          })
-        );
-      }
-      Promise.all(promises)
-        .then((msg) => {
-          console.log(inactive);
-          savedFreelance
-            .find({ jobRef: { $in: inactive } })
-            .then((jobs) => {
-              res.json({ jobs: jobs });
-            })
-            .catch((err) => {
-              res.json({ err: "Error finding expired jobs" });
-            });
-        })
-        .catch((err) => res.json({ err: "Couldn't find expired jobs" }));
-    })
-    .catch((err) => res.json({ err: "Couldn't find user" }));
-});
-//get saved job
-router.get("/save/job/:id", middleware.isUser, (req, res) => {
-  savedJob
-    .findById(req.params.id)
-    .then((job) => {
-      res.json(job);
-    })
-    .catch((err) => res.status(400).json({ err: "Job not found" }));
-});
-//get saved freelance job
-router.get("/save/freelance/:id", middleware.isUser, (req, res) => {
-  savedFreelance
-    .findById(req.params.id)
-    .then((job) => {
-      res.json(job);
-    })
-    .catch((err) => res.status(400).json({ err: "Job not found" }));
-});
-//get a job by id
-router.get("/post/job/:id", (req, res) => {
-  Job.findById(req.params.id)
-    .then((job) => {
-      res.json(job);
-    })
-    .catch((err) => res.status(400).json({ err: err }));
-});
-//get a freelance job by id
-router.get("/post/freelance/:id", (req, res) => {
-  Freelance.findById(req.params.id)
-    .then((job) => {
-      res.json(job);
-    })
-    .catch((err) => res.status(400).json({ err: err }));
-});
+// //  get multiple saved freelance jobs
+// router.get("/all/savedFreelance", middleware.isUser, (req, res) => {
+//   User.findById(req.user._id)
+//     .then((user) => {
+//       const ID = user.savedFreelance.map((item) => {
+//         return mongoose.Types.ObjectId(item.id);
+//       });
+//       console.log(ID);
+//       savedFreelance
+//         .find({ _id: { $in: ID } })
+//         .then((jobs) => {
+//           res.json({ jobs: jobs });
+//         })
+//         .catch((err) => {
+//           res.json({ err: "Jobs not found" });
+//         });
+//     })
+//     .catch((err) => {
+//       res.json({ err: "User not found" });
+//     });
+// });
+// // get expired jobs
+// router.get("/all/expiredJobs", middleware.isUser, (req, res) => {
+//   User.findById(req.user._id)
+//     .then((user) => {
+//       const ID = user.jobs.map((item) => {
+//         return mongoose.Types.ObjectId(item.id);
+//       });
+//       console.log(ID);
+//       var active = [];
+//       var inactive = [];
+//       let promises = [];
+//       for (let i = 0; i < ID.length; i++) {
+//         promises.push(
+//           new Promise((resolve, reject) => {
+//             const id = ID[i];
+//             Job.findById(id)
+//               .then((job) => {
+//                 if (job == null) inactive.push(id);
+//                 else active.push(id);
+//                 resolve("Done");
+//               })
+//               .catch((err) => {
+//                 inactive.push(id);
+//                 resolve("Done");
+//               });
+//           })
+//         );
+//       }
+//       Promise.all(promises)
+//         .then((msg) => {
+//           console.log(inactive);
+//           savedJob
+//             .find({ jobRef: { $in: inactive } })
+//             .then((jobs) => {
+//               res.json({ jobs: jobs });
+//             })
+//             .catch((err) => {
+//               res.json({ err: "Error finding expired jobs" });
+//             });
+//         })
+//         .catch((err) => res.json({ err: "Couldn't find expired jobs" }));
+//     })
+//     .catch((err) => res.json({ err: "Couldn't find User" }));
+// });
+// // get expired freelance jobs
+// router.get("/all/expiredFreelance", middleware.isUser, (req, res) => {
+//   console.log(req.user._id);
+//   User.findById(req.user._id)
+//     .then((user) => {
+//       const ID = user.freelanceJobs.map((item) => {
+//         return mongoose.Types.ObjectId(item.id);
+//       });
+//       var active = [];
+//       var inactive = [];
+//       let promises = [];
+//       for (let i = 0; i < ID.length; i++) {
+//         promises.push(
+//           new Promise((resolve, reject) => {
+//             const id = ID[i];
+//             Freelance.findById(id)
+//               .then((job) => {
+//                 if (job == null) inactive.push(id);
+//                 else active.push(id);
+//                 resolve("Done");
+//               })
+//               .catch((err) => {
+//                 inactive.push(id);
+//                 resolve("Done");
+//               });
+//           })
+//         );
+//       }
+//       Promise.all(promises)
+//         .then((msg) => {
+//           console.log(inactive);
+//           savedFreelance
+//             .find({ jobRef: { $in: inactive } })
+//             .then((jobs) => {
+//               res.json({ jobs: jobs });
+//             })
+//             .catch((err) => {
+//               res.json({ err: "Error finding expired jobs" });
+//             });
+//         })
+//         .catch((err) => res.json({ err: "Couldn't find expired jobs" }));
+//     })
+//     .catch((err) => res.json({ err: "Couldn't find user" }));
+// });
+// //get saved job
+// router.get("/save/job/:id", middleware.isUser, (req, res) => {
+//   savedJob
+//     .findById(req.params.id)
+//     .then((job) => {
+//       res.json(job);
+//     })
+//     .catch((err) => res.status(400).json({ err: "Job not found" }));
+// });
+// //get saved freelance job
+// router.get("/save/freelance/:id", middleware.isUser, (req, res) => {
+//   savedFreelance
+//     .findById(req.params.id)
+//     .then((job) => {
+//       res.json(job);
+//     })
+//     .catch((err) => res.status(400).json({ err: "Job not found" }));
+// });
+// //get a job by id
+// router.get("/post/job/:id", (req, res) => {
+//   Job.findById(req.params.id)
+//     .then((job) => {
+//       res.json(job);
+//     })
+//     .catch((err) => res.status(400).json({ err: err }));
+// });
+// //get a freelance job by id
+// router.get("/post/freelance/:id", (req, res) => {
+//   Freelance.findById(req.params.id)
+//     .then((job) => {
+//       res.json(job);
+//     })
+//     .catch((err) => res.status(400).json({ err: err }));
+// });
 
-//delete a job
+// //delete a job
 
-router.delete("/post/job/:id", middleware.checkJobOwnership, (req, res) => {
-  Job.findByIdAndDelete(req.params.id)
-    .then(() => res.json("Job deleted successfully !"))
-    .catch((err) =>
-      res.status(400).json({
-        err: err,
-      })
-    );
-});
-//delete a job
+// router.delete("/post/job/:id", middleware.checkJobOwnership, (req, res) => {
+//   Job.findByIdAndDelete(req.params.id)
+//     .then(() => res.json("Job deleted successfully !"))
+//     .catch((err) =>
+//       res.status(400).json({
+//         err: err,
+//       })
+//     );
+// });
+// //delete a job
 
-router.delete("/save/job/:id", middleware.isUser, (req, res) => {
-  User.findById(req.user._id)
-    .then((user) => {
-      if (user.savedJobs.includes(req.params.id))
-        savedJob
-          .findByIdAndDelete(req.params.id)
-          .then(() => res.json("Saved Job deleted successfully !"))
-          .catch((err) =>
-            res.status(400).json({
-              err: err,
-            })
-          );
-    })
-    .catch((err) => {
-      res.json({ err: "Job doesn't belong to you" });
-    });
-});
-//delete a job
+// router.delete("/save/job/:id", middleware.isUser, (req, res) => {
+//   User.findById(req.user._id)
+//     .then((user) => {
+//       if (user.savedJobs.includes(req.params.id))
+//         savedJob
+//           .findByIdAndDelete(req.params.id)
+//           .then(() => res.json("Saved Job deleted successfully !"))
+//           .catch((err) =>
+//             res.status(400).json({
+//               err: err,
+//             })
+//           );
+//     })
+//     .catch((err) => {
+//       res.json({ err: "Job doesn't belong to you" });
+//     });
+// });
+// //delete a job
 
-router.delete(
-  "/post/freelance/:id",
-  middleware.checkFreelanceJobOwnership,
-  (req, res) => {
-    Freelance.findByIdAndDelete(req.params.id)
-      .then(() => res.json("Freelance Job deleted successfully !"))
-      .catch((err) =>
-        res.status(400).json({
-          err: err,
-        })
-      );
-  }
-);
-//delete a job
+// router.delete(
+//   "/post/freelance/:id",
+//   middleware.checkFreelanceJobOwnership,
+//   (req, res) => {
+//     Freelance.findByIdAndDelete(req.params.id)
+//       .then(() => res.json("Freelance Job deleted successfully !"))
+//       .catch((err) =>
+//         res.status(400).json({
+//           err: err,
+//         })
+//       );
+//   }
+// );
+// //delete a job
 
-router.delete("/save/freelance/:id", middleware.isUser, (req, res) => {
-  User.findById(req.user._id)
-    .then((user) => {
-      if (user.savedJobs.includes(req.params.id))
-        savedFreelance
-          .findByIdAndDelete(req.params.id)
-          .then(() => res.json("Saved Freelance Job deleted successfully !"))
-          .catch((err) =>
-            res.status(400).json({
-              err: err,
-            })
-          );
-    })
-    .catch((err) => {
-      res.json({ err: "Job doesn't belong to you" });
-    });
-});
+// router.delete("/save/freelance/:id", middleware.isUser, (req, res) => {
+//   User.findById(req.user._id)
+//     .then((user) => {
+//       if (user.savedJobs.includes(req.params.id))
+//         savedFreelance
+//           .findByIdAndDelete(req.params.id)
+//           .then(() => res.json("Saved Freelance Job deleted successfully !"))
+//           .catch((err) =>
+//             res.status(400).json({
+//               err: err,
+//             })
+//           );
+//     })
+//     .catch((err) => {
+//       res.json({ err: "Job doesn't belong to you" });
+//     });
+// });
 module.exports = router;

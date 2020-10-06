@@ -23,12 +23,12 @@ const User = require("../models/user.model"),
 //Sign up route
 router.post("/", async (req, res) => {
     //captcha validation
-    let captcha = true;
-  try{
-       captcha = await validationController.verifyInvisibleCaptcha(req);
-    } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
-  if(!captcha)
-  return res.status(400).json({err:"Invalid Captcha"});
+//     let captcha = true;
+//   try{
+//        captcha = await validationController.verifyInvisibleCaptcha(req);
+//     } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
+//   if(!captcha)
+//   return res.status(400).json({err:"Invalid Captcha"});
     const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
     const employer = new Employer({
         username: req.body.username,
@@ -75,12 +75,12 @@ router.post("/", async (req, res) => {
 //Login route
 router.post("/login", async function (req, res,next) {
   //captcha validation
-  let captcha = true;
-  try{
-       captcha = await validationController.verifyInvisibleCaptcha(req);
-    } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
-  if(!captcha)
-  return res.status(400).json({err:"Invalid Captcha"});
+//   let captcha = true;
+//   try{
+//        captcha = await validationController.verifyInvisibleCaptcha(req);
+//     } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
+//   if(!captcha)
+//   return res.status(400).json({err:"Invalid Captcha"});
   passport.authenticate("employer", function (err, employer, info) {
     if (err) {
       return res.status(400).json({ err: err });
@@ -110,12 +110,12 @@ router.post("/login", async function (req, res,next) {
 //===========================================================================
 router.post("/forgot", async (req, res) => {
     //captcha validation
-    let captcha = true;
-  try{
-       captcha = await validationController.verifyInvisibleCaptcha(req);
-    } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
-  if(!captcha)
-  return res.status(400).json({err:"Invalid Captcha"});
+//     let captcha = true;
+//   try{
+//        captcha = await validationController.verifyInvisibleCaptcha(req);
+//     } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
+//   if(!captcha)
+//   return res.status(400).json({err:"Invalid Captcha"});
     const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
     if (req.body.username == "" || !req.body.username)
         return res.status(400).json({ err: "Bad request" });
@@ -130,7 +130,7 @@ router.post("/forgot", async (req, res) => {
     )
         .then((user) => {
             console.log(token);
-            mailController.forgotMailEmployer(req, user, token);
+            mailController.forgotMail(req, user, token,"employer");
             res.json({ status: "Email has been sent" });
         })
         .catch((err) => {
@@ -186,7 +186,7 @@ router.put("/forgot/:token", async (req, res) => {
 
 router.post("/validate", middleware.isEmployer, async (req, res) => {
     const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
-    if (req.body.username == "" || !req.body.username || req.user.emailVerified)
+    if (req.body.username == "" || !req.body.username || req.user.emailVerified===true)
         return res.status(400).json({ err: "Bad request" });
     Employer.findOneAndUpdate(
         { username: req.body.username },
@@ -198,7 +198,7 @@ router.post("/validate", middleware.isEmployer, async (req, res) => {
     )
         .then((user) => {
             console.log(token);
-            mailController.validateMailEmployer(req, user, token);
+            mailController.validateMail(req, user, token,"employer");
             res.json({ status: "Email has been sent" });
         })
         .catch((err) => {
@@ -377,6 +377,10 @@ router.put("/profile/update/", middleware.isEmployer, async (req, res) => {
             //if(employer.jobs.length)
             // Handle any possible database errors
            // if (err) return res.status(500).send(err);
+           let d = new Date(req.user.lastUpdated).toString();
+            let o = new Date(0).toString();
+           if(d===o)
+            mailController.welcomeMail(req,employer);
             req.logIn(employer, (err) => {
                 if (err) return res.status(500).send(err);
                 return res.send(employer);

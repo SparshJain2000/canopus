@@ -83,7 +83,8 @@ router.post("/post", middleware.isLoggedIn, async (req, res) => {
       });
     //save changes to employer
     await employer.save({ session });
-    
+    //send mail
+    mailController.jobPost(req,employer,job);
     //commit transaction
     await session.commitTransaction();
     session.endSession();
