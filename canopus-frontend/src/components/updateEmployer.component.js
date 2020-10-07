@@ -11,6 +11,7 @@ import {
     NavItem,
     ModalHeader,
     ModalBody,
+    Alert,
 } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { NavLink, Link } from "react-router-dom";
@@ -74,6 +75,10 @@ export default class UpdateEmployer extends Component {
             ICUs: 0,
             modalError: false,
             modalMess: "",
+            showError2: false,
+            logoError: "",
+            showError3: false,
+            imageError: "",
             valid: {
                 organization: true,
                 type: true,
@@ -441,6 +446,25 @@ export default class UpdateEmployer extends Component {
         if (files.length !== 0) {
             this.setState({ uploadingImage: true });
             let profile = this.state.profile;
+            if (
+                files[0].type.split("/")[0] !== "image" ||
+                files[0].size > 5000000
+            ) {
+                console.log("wrong");
+                this.setState({
+                    loading: false,
+                    showError3: true,
+                    imageError: "Invalid File Format or Size",
+                    loading: false,
+                    uploadingImage: false,
+                    progress: 0,
+                });
+                return;
+            } else {
+                this.setState({
+                    showError3: false,
+                });
+            }
             const options = {
                 maxSizeMB: 0.512, // (default: Number.POSITIVE_INFINITY)
                 maxWidthOrHeight: 1920,
@@ -478,6 +502,7 @@ export default class UpdateEmployer extends Component {
                                         loading: false,
                                         uploadingImage: false,
                                         progress: 0,
+                                        showError3: false,
                                     });
                                     // console.log(profile);
                                     console.log(res);
@@ -498,7 +523,24 @@ export default class UpdateEmployer extends Component {
         const files = Array.from(e.target.files);
         if (files.length !== 0) {
             this.setState({ uploadingLogo: true });
-            // let profile = this.state.profile;
+            if (
+                files[0].type.split("/")[0] !== "image" ||
+                files[0].size > 5000000
+            ) {
+                console.log("wrong");
+                this.setState({
+                    loading: false,
+                    showError2: true,
+                    logoError: "Invalid File Format or Size",
+                    loading: false,
+                    uploadingLogo: false,
+                });
+                return;
+            } else {
+                this.setState({
+                    showError2: false,
+                });
+            }
             const options = {
                 maxSizeMB: 0.256, // (default: Number.POSITIVE_INFINITY)
                 maxWidthOrHeight: 1920,
@@ -533,6 +575,7 @@ export default class UpdateEmployer extends Component {
                                         logo: url,
                                         loading: false,
                                         uploadingLogo: false,
+                                        showError2: false,
                                     });
 
                                     console.log(res);
@@ -657,6 +700,14 @@ export default class UpdateEmployer extends Component {
                         <FormGroup className='row'>
                             <div className='col-12 col-md-3 text-align-center'>
                                 {/* <Label className='w-100'>Logo</Label> */}
+                                <Alert
+                                    color='warning'
+                                    isOpen={this.state.showError2}
+                                    toggle={() => {
+                                        this.setState({ showError2: false });
+                                    }}>
+                                    {this.state.logoError}
+                                </Alert>
                                 {this.state.logo && this.state.logo !== "" && (
                                     <img
                                         src={this.state.logo}
@@ -692,7 +743,9 @@ export default class UpdateEmployer extends Component {
                                                 // style={{
                                                 //     borderRadius: "50%",
                                                 // }}
-                                            >
+                                                disabled={
+                                                    this.state.uploadingLogo
+                                                }>
                                                 <label
                                                     htmlFor='image'
                                                     style={{
@@ -718,6 +771,9 @@ export default class UpdateEmployer extends Component {
                                                 id='image'
                                                 accept='image/*'
                                                 // ref={this.image}
+                                                disabled={
+                                                    this.state.uploadingLogo
+                                                }
                                                 onChange={this.uploadLogo}
                                             />
                                         </div>
@@ -1067,6 +1123,14 @@ export default class UpdateEmployer extends Component {
                             </div>
                         ))}
                         <hr />
+                        <Alert
+                            color='warning'
+                            isOpen={this.state.showError3}
+                            toggle={() => {
+                                this.setState({ showError3: false });
+                            }}>
+                            {this.state.imageError}
+                        </Alert>
                         <Label className='row mt-2'>
                             <h5 className='col-9 col-sm-11 pl-0'>Image</h5>
                             <div className='col-3 col-sm-1'>
