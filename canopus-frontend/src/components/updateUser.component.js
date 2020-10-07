@@ -199,11 +199,12 @@ export default class UpdateUser extends Component {
         if (index !== undefined) {
             let links = this.state[type];
             let obj = links[index];
-            if (type === "education") {
-                obj.startYear = "1975";
-                obj.endYear = "2020";
-            }
+
             obj = { ...obj, [name]: e.target.value };
+            if (type === "education") {
+                if (obj.startYear === "") obj.startYear = "1975";
+                if (obj.endYear === "") obj.endYear = "2020";
+            }
             links[index] = obj;
             console.log(links);
             this.setState({
@@ -356,9 +357,7 @@ export default class UpdateUser extends Component {
                 profession: this.state.profession,
                 specialization: this.state.specialization,
                 superSpecialization: this.state.superSpecialization,
-                education: this.state.education.filter(
-                    (e) => e.degree !== "" && e.speciality !== "",
-                ),
+                education: this.state.education.filter((e) => e.degree !== ""),
                 resume:
                     this.state.resume === ""
                         ? this.state.prevResume
@@ -1237,9 +1236,6 @@ export default class UpdateUser extends Component {
                                     <div className='col-12 col-md-3 col-sm-4 px-0 row my-1'>
                                         <div className='col-12 px-0 pl-sm-1 pr-sm-1 row'>
                                             <div className='col-6 pr-1 pl-0'>
-                                                {/* <Label className='m-1 d-block d-sm-none'>
-                                                    <h6>From </h6>
-                                                </Label> */}
                                                 <Input
                                                     placeholder='startYear'
                                                     type='select'
@@ -1252,7 +1248,7 @@ export default class UpdateUser extends Component {
                                                             "education",
                                                         );
                                                     }}
-                                                    defaultValue={
+                                                    value={
                                                         this.state.education[
                                                             i
                                                         ] &&
@@ -1275,7 +1271,9 @@ export default class UpdateUser extends Component {
                                                         .fill()
                                                         .map(
                                                             (_, idx) =>
-                                                                1975 + idx,
+                                                                Number(
+                                                                    new Date().getFullYear(),
+                                                                ) - idx,
                                                         )
                                                         .map((x) => (
                                                             <option value={x}>
@@ -1300,7 +1298,7 @@ export default class UpdateUser extends Component {
                                                             "education",
                                                         );
                                                     }}
-                                                    defaultValue={
+                                                    value={
                                                         this.state.education[i]
                                                             ? this.state
                                                                   .education[i]
