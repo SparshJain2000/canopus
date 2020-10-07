@@ -448,7 +448,7 @@ export default class UpdateEmployer extends Component {
             let profile = this.state.profile;
             if (
                 files[0].type.split("/")[0] !== "image" ||
-                files[0].size > 5000000
+                files[0].size > 10000000
             ) {
                 console.log("wrong");
                 this.setState({
