@@ -11,6 +11,7 @@ import {
     NavItem,
     ModalHeader,
     ModalBody,
+    Alert,
 } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { NavLink, Link } from "react-router-dom";
@@ -74,6 +75,10 @@ export default class UpdateEmployer extends Component {
             ICUs: 0,
             modalError: false,
             modalMess: "",
+            showError2: false,
+            logoError: "",
+            showError3: false,
+            imageError: "",
             valid: {
                 organization: true,
                 type: true,
@@ -441,6 +446,25 @@ export default class UpdateEmployer extends Component {
         if (files.length !== 0) {
             this.setState({ uploadingImage: true });
             let profile = this.state.profile;
+            if (
+                files[0].type.split("/")[0] !== "image" ||
+                files[0].size > 10000000
+            ) {
+                console.log("wrong");
+                this.setState({
+                    loading: false,
+                    showError3: true,
+                    imageError: "Invalid File Format or Size",
+                    loading: false,
+                    uploadingImage: false,
+                    progress: 0,
+                });
+                return;
+            } else {
+                this.setState({
+                    showError3: false,
+                });
+            }
             const options = {
                 maxSizeMB: 0.512, // (default: Number.POSITIVE_INFINITY)
                 maxWidthOrHeight: 1920,
@@ -478,6 +502,7 @@ export default class UpdateEmployer extends Component {
                                         loading: false,
                                         uploadingImage: false,
                                         progress: 0,
+                                        showError3: false,
                                     });
                                     // console.log(profile);
                                     console.log(res);
@@ -498,7 +523,24 @@ export default class UpdateEmployer extends Component {
         const files = Array.from(e.target.files);
         if (files.length !== 0) {
             this.setState({ uploadingLogo: true });
-            // let profile = this.state.profile;
+            if (
+                files[0].type.split("/")[0] !== "image" ||
+                files[0].size > 5000000
+            ) {
+                console.log("wrong");
+                this.setState({
+                    loading: false,
+                    showError2: true,
+                    logoError: "Invalid File Format or Size",
+                    loading: false,
+                    uploadingLogo: false,
+                });
+                return;
+            } else {
+                this.setState({
+                    showError2: false,
+                });
+            }
             const options = {
                 maxSizeMB: 0.256, // (default: Number.POSITIVE_INFINITY)
                 maxWidthOrHeight: 1920,
@@ -533,6 +575,7 @@ export default class UpdateEmployer extends Component {
                                         logo: url,
                                         loading: false,
                                         uploadingLogo: false,
+                                        showError2: false,
                                     });
 
                                     console.log(res);
@@ -657,6 +700,14 @@ export default class UpdateEmployer extends Component {
                         <FormGroup className='row'>
                             <div className='col-12 col-md-3 text-align-center'>
                                 {/* <Label className='w-100'>Logo</Label> */}
+                                <Alert
+                                    color='warning'
+                                    isOpen={this.state.showError2}
+                                    toggle={() => {
+                                        this.setState({ showError2: false });
+                                    }}>
+                                    {this.state.logoError}
+                                </Alert>
                                 {this.state.logo && this.state.logo !== "" && (
                                     <img
                                         src={this.state.logo}
@@ -692,7 +743,9 @@ export default class UpdateEmployer extends Component {
                                                 // style={{
                                                 //     borderRadius: "50%",
                                                 // }}
-                                            >
+                                                disabled={
+                                                    this.state.uploadingLogo
+                                                }>
                                                 <label
                                                     htmlFor='image'
                                                     style={{
@@ -718,6 +771,9 @@ export default class UpdateEmployer extends Component {
                                                 id='image'
                                                 accept='image/*'
                                                 // ref={this.image}
+                                                disabled={
+                                                    this.state.uploadingLogo
+                                                }
                                                 onChange={this.uploadLogo}
                                             />
                                         </div>
@@ -1013,283 +1069,274 @@ export default class UpdateEmployer extends Component {
                                 />
                             </div>
                         </FormGroup>
-                        <hr />
+                    </div>
+                    <div className='p-4 my-3 mx-2 mx-lg-5' style={block}>
                         <FormGroup>
-                            <Label className='row'>
-                                <h5 className='col-9  col-sm-11 pl-0'>Links</h5>
+                            <h4>Media</h4>
+                        </FormGroup>
+                        <Label className='row'>
+                            <h5 className='col-9  col-sm-11 pl-0'>Links</h5>
 
-                                <FontAwesomeIcon
-                                    icon={faPlusCircle}
-                                    size='lg'
-                                    onClick={() => {
-                                        if (this.state.links.length < 5) {
-                                            let links = this.state.links;
-                                            links.push("");
-                                            this.setState({
-                                                links: links,
-                                            });
-                                        }
-                                    }}
-                                    className={`col-3 col-sm-1 ${
-                                        this.state.links.length < 5
-                                            ? "text-info"
-                                            : "text-secondary"
-                                    }`}
-                                    style={{ cursor: "pointer" }}
+                            <FontAwesomeIcon
+                                icon={faPlusCircle}
+                                size='lg'
+                                onClick={() => {
+                                    if (this.state.links.length < 5) {
+                                        let links = this.state.links;
+                                        links.push("");
+                                        this.setState({
+                                            links: links,
+                                        });
+                                    }
+                                }}
+                                className={`col-3 col-sm-1 ${
+                                    this.state.links.length < 5
+                                        ? "text-info"
+                                        : "text-secondary"
+                                }`}
+                                style={{ cursor: "pointer" }}
+                            />
+                        </Label>
+                        {this.state.links.map((x, i) => (
+                            <div className='my-1 row'>
+                                <Input
+                                    id={i}
+                                    placeholder='Social Media Links'
+                                    name='links'
+                                    onChange={(e) => this.handleChange(e, i)}
+                                    value={this.state.links[i]}
+                                    className='col-9 col-sm-10 col-md-11'
                                 />
-                            </Label>
-                            {this.state.links.map((x, i) => (
-                                <div className='my-1 row'>
-                                    <Input
-                                        id={i}
-                                        placeholder='Social Media Links'
-                                        name='links'
-                                        onChange={(e) =>
-                                            this.handleChange(e, i)
-                                        }
-                                        value={this.state.links[i]}
-                                        className='col-9 col-sm-10 col-md-11'
-                                    />
-                                    <FontAwesomeIcon
-                                        icon={faMinusCircle}
-                                        className='text-danger my-auto col-3 col-sm-1 col-md-1'
-                                        size='lg'
-                                        style={{ cursor: "pointer" }}
-                                        onClick={(e) => {
-                                            let links = this.state.links;
-                                            links.splice(i, 1);
-                                            this.setState({
-                                                links: links,
-                                            });
-                                        }}
-                                    />
-                                </div>
-                            ))}
-                            <hr />
-                            <Label className='row mt-2'>
-                                <h5 className='col-9 col-sm-11 pl-0'>Image</h5>
-                                <div className='col-3 col-sm-1'>
-                                    <div className='my-1 mt-3'>
-                                        <button
-                                            className='btn btn-info btn-sm m-2 btn-float'
-                                            // style={{
-                                            //     borderRadius: "50%",
-                                            // }}
-                                            disabled={
-                                                this.state.loading ||
-                                                this.state.image.length >= 5
-                                            }>
-                                            <label
-                                                htmlFor='image'
-                                                style={{
-                                                    display: "inline-block",
-                                                    margin: 0,
-                                                    cursor: "pointer",
-                                                    width: "100%",
-                                                }}>
-                                                {/* <FontAwesomeIcon icon={faPen} /> */}
-                                                Add
-                                            </label>
-                                        </button>
-
-                                        <input
-                                            type='file'
-                                            style={{
-                                                // position: "absolute",
-                                                zIndex: "-1",
-                                                overflow: "hidden",
-                                                opacity: 0,
-                                                cursor: "pointer",
-                                            }}
-                                            id='image'
-                                            accept='image/*'
-                                            // ref={this.image}
-                                            disabled={
-                                                this.state.loading ||
-                                                this.state.image.length >= 5
-                                            }
-                                            onChange={this.uploadImage}
-                                        />
-                                    </div>
-                                </div>
-                            </Label>
-                            {this.state.uploadingImage && (
-                                <Progress
-                                    animated
-                                    color='info'
-                                    value={this.state.progress * 100}>
-                                    <h6 className='m-0'>
-                                        {Math.round(this.state.progress * 100)}
-                                        {"%"}
-                                    </h6>
-                                </Progress>
-                            )}
-                            <div
-                                className='mx-auto'
-                                style={{ maxWidth: "600px" }}>
-                                {this.state.image && (
-                                    <ImageCarousel
-                                        className='col-12 text-align-center'
-                                        items={this.state.image}
-                                    />
-                                )}
+                                <FontAwesomeIcon
+                                    icon={faMinusCircle}
+                                    className='text-danger my-auto col-3 col-sm-1 col-md-1'
+                                    size='lg'
+                                    style={{ cursor: "pointer" }}
+                                    onClick={(e) => {
+                                        let links = this.state.links;
+                                        links.splice(i, 1);
+                                        this.setState({
+                                            links: links,
+                                        });
+                                    }}
+                                />
                             </div>
+                        ))}
+                        <hr />
+                        <Alert
+                            color='warning'
+                            isOpen={this.state.showError3}
+                            toggle={() => {
+                                this.setState({ showError3: false });
+                            }}>
+                            {this.state.imageError}
+                        </Alert>
+                        <Label className='row mt-2'>
+                            <h5 className='col-9 col-sm-11 pl-0'>Image</h5>
+                            <div className='col-3 col-sm-1'>
+                                <div className='my-1 mt-3'>
+                                    <button
+                                        className='btn btn-info btn-sm m-2 btn-float'
+                                        // style={{
+                                        //     borderRadius: "50%",
+                                        // }}
+                                        disabled={
+                                            this.state.loading ||
+                                            this.state.image.length >= 5
+                                        }>
+                                        <label
+                                            htmlFor='image'
+                                            style={{
+                                                display: "inline-block",
+                                                margin: 0,
+                                                cursor: "pointer",
+                                                width: "100%",
+                                            }}>
+                                            {/* <FontAwesomeIcon icon={faPen} /> */}
+                                            Add
+                                        </label>
+                                    </button>
 
-                            {this.state.image.map((x, i) => (
-                                <div className='my-1 row'>
-                                    <Input
-                                        id={i}
-                                        placeholder='Image Links'
-                                        name='image'
-                                        onChange={(e) =>
-                                            this.handleChange(e, i)
-                                        }
-                                        value={this.state.image[i]}
-                                        style={{ opacity: 0, height: ".1px" }}
-                                        // className='col-10 col-sm-10 col-md-11'
-                                    />
-                                    <Input
-                                        value={
-                                            this.state.image[i].split("_")[1]
-                                        }
-                                        className='col-10 col-sm-10 col-md-11'
-                                        disabled
-                                    />
-                                    <FontAwesomeIcon
-                                        icon={faMinusCircle}
-                                        className='text-danger col-2 col-sm-2 col-md-1 my-auto'
-                                        size='lg'
-                                        style={{ cursor: "pointer" }}
-                                        onClick={(e) => {
-                                            let image = this.state.image;
-                                            image.splice(i, 1);
-                                            this.setState({
-                                                image: image,
-                                            });
+                                    <input
+                                        type='file'
+                                        style={{
+                                            // position: "absolute",
+                                            zIndex: "-1",
+                                            overflow: "hidden",
+                                            opacity: 0,
+                                            cursor: "pointer",
                                         }}
+                                        id='image'
+                                        accept='image/*'
+                                        // ref={this.image}
+                                        disabled={
+                                            this.state.loading ||
+                                            this.state.image.length >= 5
+                                        }
+                                        onChange={this.uploadImage}
                                     />
                                 </div>
-                            ))}
-                            <hr />
-                            <Label className='row mt-2'>
-                                <h5 className='col-9 col-sm-11 pl-0'>
-                                    Youtube Links
-                                </h5>
-                                <FontAwesomeIcon
-                                    icon={faPlusCircle}
-                                    size='lg'
-                                    disabled={this.state.youtube.length >= 5}
-                                    onClick={() => {
-                                        if (this.state.youtube.length < 5) {
-                                            let youtube = this.state.youtube;
-                                            youtube.push("");
-                                            this.setState({
-                                                youtube: youtube,
-                                            });
-                                        }
-                                    }}
-                                    className={`col-3 col-sm-1 ${
-                                        this.state.youtube.length < 5
-                                            ? "text-info"
-                                            : "text-secondary"
-                                    }`}
-                                    style={{ cursor: "pointer" }}
+                            </div>
+                        </Label>
+                        {this.state.uploadingImage && (
+                            <Progress
+                                animated
+                                color='info'
+                                value={this.state.progress * 100}>
+                                <h6 className='m-0'>
+                                    {Math.round(this.state.progress * 100)}
+                                    {"%"}
+                                </h6>
+                            </Progress>
+                        )}
+                        <div className='mx-auto' style={{ maxWidth: "600px" }}>
+                            {this.state.image && (
+                                <ImageCarousel
+                                    className='col-12 text-align-center'
+                                    items={this.state.image}
                                 />
-                            </Label>
-                            {this.state.youtube.map((x, i) => (
-                                <div className='my-1 row'>
-                                    <Input
-                                        id={i}
-                                        placeholder='Youtube Links'
-                                        name='youtube'
-                                        onChange={(e) =>
-                                            this.handleChange(e, i)
-                                        }
-                                        value={this.state.youtube[i]}
-                                        className='col-10 col-sm-10 col-md-11'
-                                    />
-                                    <FontAwesomeIcon
-                                        icon={faMinusCircle}
-                                        className='text-danger col-2 col-sm-2 col-md-1 my-auto'
-                                        size='lg'
-                                        style={{ cursor: "pointer" }}
-                                        onClick={(e) => {
-                                            let youtube = this.state.youtube;
-                                            youtube.splice(i, 1);
-                                            this.setState({
-                                                youtube: youtube,
-                                            });
-                                        }}
-                                    />
-                                </div>
-                            ))}
-                            {/* <hr />
-                            <FormGroup>
-                                <h5>About Organization</h5>
-                                <textarea
-                                    name=''
-                                    className='form-control'
-                                    name='about2'
-                                    value={this.state.about2}
+                            )}
+                        </div>
+
+                        {this.state.image.map((x, i) => (
+                            <div className='my-1 row'>
+                                <Input
+                                    id={i}
+                                    placeholder='Image Links'
+                                    name='image'
+                                    onChange={(e) => this.handleChange(e, i)}
+                                    value={this.state.image[i]}
+                                    style={{ opacity: 0, height: ".1px" }}
+                                    // className='col-10 col-sm-10 col-md-11'
+                                />
+                                <Input
+                                    value={this.state.image[i].split("_")[1]}
+                                    className='col-10 col-sm-10 col-md-11'
+                                    disabled
+                                />
+                                <FontAwesomeIcon
+                                    icon={faMinusCircle}
+                                    className='text-danger col-2 col-sm-2 col-md-1 my-auto'
+                                    size='lg'
+                                    style={{ cursor: "pointer" }}
+                                    onClick={(e) => {
+                                        let image = this.state.image;
+                                        image.splice(i, 1);
+                                        this.setState({
+                                            image: image,
+                                        });
+                                    }}
+                                />
+                            </div>
+                        ))}
+                        <hr />
+                        <Label className='row mt-2'>
+                            <h5 className='col-9 col-sm-11 pl-0'>
+                                Youtube Links
+                            </h5>
+                            <FontAwesomeIcon
+                                icon={faPlusCircle}
+                                size='lg'
+                                disabled={this.state.youtube.length >= 5}
+                                onClick={() => {
+                                    if (this.state.youtube.length < 5) {
+                                        let youtube = this.state.youtube;
+                                        youtube.push("");
+                                        this.setState({
+                                            youtube: youtube,
+                                        });
+                                    }
+                                }}
+                                className={`col-3 col-sm-1 ${
+                                    this.state.youtube.length < 5
+                                        ? "text-info"
+                                        : "text-secondary"
+                                }`}
+                                style={{ cursor: "pointer" }}
+                            />
+                        </Label>
+                        {this.state.youtube.map((x, i) => (
+                            <div className='my-1 row'>
+                                <Input
+                                    id={i}
+                                    placeholder='Youtube Links'
+                                    name='youtube'
+                                    onChange={(e) => this.handleChange(e, i)}
+                                    value={this.state.youtube[i]}
+                                    className='col-10 col-sm-10 col-md-11'
+                                />
+                                <FontAwesomeIcon
+                                    icon={faMinusCircle}
+                                    className='text-danger col-2 col-sm-2 col-md-1 my-auto'
+                                    size='lg'
+                                    style={{ cursor: "pointer" }}
+                                    onClick={(e) => {
+                                        let youtube = this.state.youtube;
+                                        youtube.splice(i, 1);
+                                        this.setState({
+                                            youtube: youtube,
+                                        });
+                                    }}
+                                />
+                            </div>
+                        ))}
+                    </div>
+                    <div className='p-4 my-3 mx-2 mx-lg-5' style={block}>
+                        <FormGroup>
+                            <h4>Contact Details</h4>
+                        </FormGroup>
+                        <FormGroup className='row'>
+                            <div className='col-12 col-md-6  p-0 pr-1  my-1'>
+                                <Label>
+                                    First Name{" "}
+                                    <span className='text-danger'> *</span>
+                                </Label>
+                                <Input
+                                    placeholder='First Name'
+                                    name='firstName'
                                     onChange={this.handleChange}
-                                    rows='4'
-                                    placeholder='About Organization'></textarea>
-                            </FormGroup> */}
-                            <hr />
-                            <FormGroup className='row'>
-                                <h5 className='col-12'>Contact Detalis</h5>
-                                <div className='col-12 col-md-6  p-0 pr-1  my-1'>
-                                    <Label>
-                                        First Name{" "}
-                                        <span className='text-danger'> *</span>
-                                    </Label>
-                                    <Input
-                                        placeholder='First Name'
-                                        name='firstName'
-                                        onChange={this.handleChange}
-                                        value={this.state.firstName}
-                                        invalid={!this.state.valid.firstName}
-                                    />
-                                </div>
-                                <div className='col-12 col-md-6  p-0 pl-1  my-1'>
-                                    <Label>
-                                        Last Name{" "}
-                                        <span className='text-danger'>*</span>
-                                    </Label>
-                                    <Input
-                                        placeholder='Last Name'
-                                        name='lastName'
-                                        onChange={this.handleChange}
-                                        value={this.state.lastName}
-                                    />
-                                </div>
-                                <div className='col-12 col-md-6  p-0 pr-1  my-1'>
-                                    <Label>E-mail</Label>
-                                    <Input
-                                        placeholder='Email'
-                                        // name='firstName'
-                                        // onChange={this.handleChange}
-                                        value={this.state.username}
-                                        disabled={true}
-                                    />
-                                </div>
-                                <div className='col-12 col-md-6  p-0 pl-1  my-1'>
-                                    <Label>
-                                        Phone no.{" "}
-                                        <span className='text-danger'>*</span>
-                                    </Label>
-                                    <Input
-                                        type='number'
-                                        // max='999999999'
-                                        pattern='[1-9]{1}[0-9]{9}'
-                                        placeholder='Phone Number'
-                                        name='phone'
-                                        onChange={this.handleChange}
-                                        value={this.state.phone}
-                                        invalid={!this.state.valid.phone}
-                                    />
-                                </div>
-                            </FormGroup>
+                                    value={this.state.firstName}
+                                    invalid={!this.state.valid.firstName}
+                                />
+                            </div>
+                            <div className='col-12 col-md-6  p-0 pl-1  my-1'>
+                                <Label>
+                                    Last Name{" "}
+                                    <span className='text-danger'>*</span>
+                                </Label>
+                                <Input
+                                    placeholder='Last Name'
+                                    name='lastName'
+                                    onChange={this.handleChange}
+                                    value={this.state.lastName}
+                                />
+                            </div>
+                            <div className='col-12 col-md-6  p-0 pr-1  my-1'>
+                                <Label>E-mail</Label>
+                                <Input
+                                    placeholder='Email'
+                                    // name='firstName'
+                                    // onChange={this.handleChange}
+                                    value={this.state.username}
+                                    disabled={true}
+                                />
+                            </div>
+                            <div className='col-12 col-md-6  p-0 pl-1  my-1'>
+                                <Label>
+                                    Phone no.{" "}
+                                    <span className='text-danger'>*</span>
+                                </Label>
+                                <Input
+                                    type='number'
+                                    // max='999999999'
+                                    pattern='[1-9]{1}[0-9]{9}'
+                                    placeholder='Phone Number'
+                                    name='phone'
+                                    onChange={this.handleChange}
+                                    value={this.state.phone}
+                                    invalid={!this.state.valid.phone}
+                                />
+                            </div>
                         </FormGroup>
                     </div>
                     <div className='p-4 m-3 mx-lg-4 d-flex justify-content-end'>

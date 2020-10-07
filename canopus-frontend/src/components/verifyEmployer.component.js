@@ -20,6 +20,7 @@ export default class VerifyEmployer extends Component {
             role: null,
             showError: false,
             error: "",
+            color: "success",
         };
         this.resend = this.resend.bind(this);
         this.toggleModal = this.toggleModal.bind(this);
@@ -38,9 +39,9 @@ export default class VerifyEmployer extends Component {
                     console.log(data);
                     if (data.status === 200) {
                         this.setState({
-                            modal: true,
-                            message:
-                                "Email has been sent. Check your mailbox !",
+                            showError: true,
+                            color: "success",
+                            error: "Email has been sent. Check your mailbox !",
                         });
                     }
                 })
@@ -50,6 +51,7 @@ export default class VerifyEmployer extends Component {
                     this.setState({
                         showError: true,
                         error: "Email already verified",
+                        color: "warning",
                     });
                 });
     }
@@ -67,9 +69,9 @@ export default class VerifyEmployer extends Component {
                     console.log(data);
                     if (data.status === 200) {
                         this.setState({
-                            modal: true,
-                            message:
-                                "Email has been sent. Check your mailbox !",
+                            showError: true,
+                            error: "Email has been sent. Check your mailbox !",
+                            color: "success",
                         });
                     }
                 })
@@ -79,6 +81,7 @@ export default class VerifyEmployer extends Component {
                     this.setState({
                         showError: true,
                         error: "Email already verified",
+                        color: "warning",
                     });
                 });
     }
@@ -86,7 +89,7 @@ export default class VerifyEmployer extends Component {
         return (
             <div>
                 <Alert
-                    color='danger'
+                    color={this.state.color}
                     isOpen={this.state.showError}
                     toggle={() => {
                         this.setState({ showError: false });
