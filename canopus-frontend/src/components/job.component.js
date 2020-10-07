@@ -214,7 +214,7 @@ const BannerLogin = () => {
 const BannerVerify = () => {
     return (
         <div>
-            Email verification pending.
+            Email verification pending.{" "}
             <a href='/user/verify' className='text-info'>
                 Click here
             </a>{" "}
@@ -222,14 +222,17 @@ const BannerVerify = () => {
         </div>
     );
 };
-const BannerUpdate = () => {
+const BannerUpdate = ({ mess, checkProf, checkSpec }) => {
     return (
         <div>
-            Please{" "}
+            {`${
+                !checkProf
+                    ? "Your Profession must match Job Profession."
+                    : "Your Profession/Speciality must match Job Profession/Speciality"
+            } Click here to `}
             <a href='/profile/update' className='text-info'>
-                Update
-            </a>{" "}
-            Your profile to apply for this job
+                update profile
+            </a>
         </div>
     );
 };
@@ -252,6 +255,7 @@ export default class Job extends Component {
             checkSpecialization: true,
             checkUpdated: false,
             checkResume: false,
+            bannerMessage: "",
         };
         if (props.location.search === "?type=freelance")
             this.setState({ isFreelance: true });
@@ -661,7 +665,35 @@ export default class Job extends Component {
                                                         minWidth: "min-content",
                                                     }}>
                                                     <h6 className='text-align-center p-1'>
-                                                        <BannerUpdate />
+                                                        <BannerUpdate
+                                                            mess={
+                                                                this.state
+                                                                    .bannerMessage
+                                                            }
+                                                            checkProf={
+                                                                this.props.user
+                                                                    .profession ===
+                                                                this.state.job
+                                                                    .profession
+                                                            }
+                                                            checkSpec={
+                                                                this.state.job
+                                                                    .profession ===
+                                                                    this.props
+                                                                        .user
+                                                                        .profession &&
+                                                                this.state.job
+                                                                    .profession ===
+                                                                    "Physician/Surgeon"
+                                                                    ? this.props
+                                                                          .user
+                                                                          .specialization ===
+                                                                      this.state
+                                                                          .job
+                                                                          .specialization
+                                                                    : true
+                                                            }
+                                                        />
                                                     </h6>
                                                 </div>
                                             </UncontrolledTooltip>
@@ -717,7 +749,7 @@ export default class Job extends Component {
                                                     ' copied
                                                 </h5>
                                                 <div className='row'>
-                                                    <div className='col-9 pl-0'>
+                                                    <div className='col-12 pl-0'>
                                                         <Input
                                                             type='text'
                                                             value={
@@ -732,12 +764,12 @@ export default class Job extends Component {
                                                         text={
                                                             window.location.href
                                                         }> */}
-                                                    <Button
+                                                    {/* <Button
                                                         color='success'
                                                         size='xs'
                                                         className='col-3'>
                                                         Copied
-                                                    </Button>
+                                                    </Button> */}
                                                     {/* </CopyToClipboard> */}
                                                 </div>
                                             </div>
