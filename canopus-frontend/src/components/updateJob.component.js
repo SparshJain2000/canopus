@@ -152,6 +152,8 @@ const UpdateJob = (props) => {
         specializationArray = [],
         professionArray = [],
         locationArray = [],
+        jobTypeArray = [],
+        locumTypeArray = [],
         typeArray = [];
     let specializationObj = {},
         superSpecializationObj = {};
@@ -160,7 +162,15 @@ const UpdateJob = (props) => {
             label: opt,
             value: opt,
         }));
-        experienceArray = data.experience.map((opt) => ({
+        experienceArray = props.data.experience.map((opt) => ({
+            label: opt,
+            value: opt,
+        }));
+        jobTypeArray = props.data.jobtype.map((opt) => ({
+            label: opt,
+            value: opt,
+        }));
+        locumTypeArray = props.data.locumtype.map((opt) => ({
             label: opt,
             value: opt,
         }));
@@ -270,7 +280,7 @@ const UpdateJob = (props) => {
             .then(({ data }) => {
                 console.log(data.user);
                 setCurrentEmployer(data.user);
-                
+
                 if (data.user && data.user.acceptedApplicants)
                     setTempArr(data.user.acceptedApplicants);
             })
@@ -597,12 +607,6 @@ const UpdateJob = (props) => {
         } else {
             job.category = "Full-time";
             type2 = "job";
-            //  job.expireAt =
-            //      endDate !== ""
-            //          ? new Date(endDate).toISOString()
-            //          : new Date(
-            //                new Date() + 45 * 24 * 60 * 60 * 1000,
-            //            ).toISOString();
         }
         console.log(job);
 
@@ -949,7 +953,12 @@ const UpdateJob = (props) => {
 
                                         autosize={true}
                                         placeholder='Type'
-                                        options={typeArray}
+                                        options={
+                                            job.category === "Locum" ||
+                                            job.category === "Day Job"
+                                                ? locumTypeArray
+                                                : jobTypeArray
+                                        }
                                         className={
                                             valid.type !== undefined &&
                                             !valid.type
@@ -973,7 +982,6 @@ const UpdateJob = (props) => {
                                                 e ? e.value : "",
                                             );
                                         }}
-                                        isDisabled={true}
                                     />
                                 </div>
                             </InputGroup>
