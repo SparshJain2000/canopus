@@ -101,6 +101,7 @@ const UpdateJob = (props) => {
     const [category, setCategory] = useState("");
     const [employer, setEmployer] = useState("");
     const [contact, setContact] = useState("");
+    const [instituteName, setInstituteName] = useState("");
     const [procedure, setProcedure] = useState("");
     const [sponsored, setSponsored] = useState(false);
     const [applicants, setAppilcants] = useState([]);
@@ -269,6 +270,7 @@ const UpdateJob = (props) => {
             .then(({ data }) => {
                 console.log(data.user);
                 setCurrentEmployer(data.user);
+                
                 if (data.user && data.user.acceptedApplicants)
                     setTempArr(data.user.acceptedApplicants);
             })
@@ -287,6 +289,7 @@ const UpdateJob = (props) => {
                     setJob(data);
                     setId(data._id);
                     setTitle(data.title);
+                    setInstituteName(data.author.instituteName);
                     setCompany(
                         data.description.company
                             ? data.description.company
@@ -423,6 +426,8 @@ const UpdateJob = (props) => {
                             ? data.description.company
                             : "",
                     );
+                    setInstituteName(data.author.instituteName);
+
                     setEmployer(
                         data.description.employer
                             ? data.description.employer
@@ -1336,11 +1341,10 @@ const UpdateJob = (props) => {
                                     placeholder='Employer'
                                     className='form-control'
                                     name='Employer'
-                                    defaultValue={
-                                        employer !== "" ? employer : null
-                                    }
-                                    onChange={handleChange}
-                                    required
+                                    value={instituteName}
+                                    // onChange={handleChange}
+                                    disabled={true}
+                                    // required
                                 />
                             </div>
                             <div className='col-12 col-md-6 pl-md-2 my-1'>
@@ -1385,28 +1389,6 @@ const UpdateJob = (props) => {
                                     />
                                 </InputGroup>
                             </div>
-
-                            {/* <div className='col-12 row justify-content-between'>
-                                <Label className='my-2 col-9 text-align-left m-1'>
-                                    <Input
-                                        type='checkbox'
-                                        name=''
-                                        defaultValue={sponsored}
-                                        className='  position-absolute'
-                                        style={{
-                                            height: "1.1rem",
-                                            width: "1.1rem",
-                                        }}
-                                        onChange={(e) =>
-                                            // console.log(e.target.checked)
-                                            setSponsored(e.target.checked)
-                                        }
-                                    />
-                                    <span>
-                                        <h5 className='ml-2 my-1'>Promote</h5>
-                                    </span>
-                                </Label>
-                            </div> */}
                         </FormGroup>
                     )}
                 </div>
@@ -1419,31 +1401,6 @@ const UpdateJob = (props) => {
                         }}
                         style={block}>
                         <h4 className='pl-2'>Day/Locum Jobs</h4>
-
-                        {/* <div className='row justify-content-between'>
-                        <div className='col-9 col-sm-10'>
-                            <h4>Day/Locum</h4>
-                        </div>
-                        <div className='col-3 col-sm-1'>
-                            <input
-                                className='react-switch-checkbox'
-                                id={`react-switch-new`}
-                                type='checkbox'
-                                ref={freelanceRef}
-                                //   checked={this.state.freelance}
-                            />
-
-                            <label
-                                className='react-switch-label float-right'
-                                htmlFor={`react-switch-new`}
-                                onClick={() => {
-                                    console.log(freelanceRef.current.checked);
-                                    setFreelance(!freelanceRef.current.checked);
-                                }}>
-                                <span className={`react-switch-button`} />
-                            </label>
-                        </div>
-                    </div> */}
                         {(type === "Day Job" || type === "Locum Position") && (
                             <div>
                                 <FormGroup className='row p-2'>
