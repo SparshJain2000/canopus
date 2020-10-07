@@ -121,6 +121,8 @@ export default class UpdateUser extends Component {
             modalMess: "",
             showError: false,
             resumeError: "",
+            showError2: false,
+            logoError: "",
             valid: {
                 organization: true,
                 type: true,
@@ -515,19 +517,36 @@ export default class UpdateUser extends Component {
         const files = Array.from(e.target.files);
         if (files.length !== 0) {
             this.setState({ uploadingLogo: true });
-            // let profile = this.state.profile;
+            console.log(files[0]);
+            if (
+                files[0].type.split("/")[0] !== "image" ||
+                files[0].size > 5000000
+            ) {
+                console.log("wrong");
+                this.setState({
+                    loading: false,
+                    showError2: true,
+                    logoError: "Invalid File Format or Size",
+                    loading: false,
+                    uploadingLogo: false,
+                });
+                return;
+            } else {
+                this.setState({
+                    showError2: false,
+                });
+            }
+            // this.setState({
+            //     loading: false,
+            //     showError: true,
+            //     resumeError:
+            //         "Invalid File - Please ensure the file size is less than 5MB and file type is doc, docx, rtf or pdf.",
+            // });
             const options = {
                 maxSizeMB: 0.256, // (default: Number.POSITIVE_INFINITY)
                 maxWidthOrHeight: 1920,
             };
             imageCompression(files[0], options).then((file) => {
-                // console.log(
-                //     "compressedFile instanceof Blob",
-                //     file instanceof Blob,
-                // ); // true
-                // console.log(`file size ${file.size / 1024 / 1024} MB`); // smaller than maxSizeMB
-                // await uploadToServer(file); // write your own logic
-
                 let reader = new FileReader();
                 reader.readAsDataURL(file);
                 reader.onload = () => {
@@ -555,6 +574,7 @@ export default class UpdateUser extends Component {
                                         logo: url,
                                         loading: false,
                                         uploadingLogo: false,
+                                        showError2: false,
                                     });
 
                                     console.log(res);
@@ -628,6 +648,14 @@ export default class UpdateUser extends Component {
                         </FormGroup>
                         <FormGroup className='row'>
                             <div className='col-12 col-md-3 text-align-center'>
+                                <Alert
+                                    color='warning'
+                                    isOpen={this.state.showError2}
+                                    toggle={() => {
+                                        this.setState({ showError2: false });
+                                    }}>
+                                    {this.state.logoError}
+                                </Alert>
                                 <div
                                     className='my-auto position-relative mx-auto'
                                     style={{ width: "fit-content" }}>
@@ -644,6 +672,7 @@ export default class UpdateUser extends Component {
                                     <div className='position-relative'>
                                         <button
                                             className='btn btn-info btn-sm m-2 btn-float'
+                                            disabled={this.state.uploadingLogo}
                                             style={{
                                                 borderRadius: "50%",
                                             }}>
@@ -668,13 +697,19 @@ export default class UpdateUser extends Component {
                                                 overflow: "hidden",
                                                 opacity: 0,
                                             }}
+                                            disabled={this.state.uploadingLogo}
                                             id='image'
                                             ref={this.image}
+                                            accept='image/*'
                                             onChange={this.uploadLogo}
                                         />
                                     </div>
                                 </div>
                                 {/* )} */}
+
+                                <div className='col-12 text-black-50'>
+                                    Upto 5 MB
+                                </div>
                                 <div className='col-12'>
                                     {this.state.uploadingLogo &&
                                         this.state.progress !== 1 &&
@@ -699,7 +734,7 @@ export default class UpdateUser extends Component {
                                     <div className='my-1 mt-3'></div>
                                 </div>
                             </div>
-                            <div className='col-md-9 row px-0 pl-sm-3'>
+                            <div className='col-md-9 row px-0 pl-sm-3 '>
                                 <div className='col-12 my-1 my-sm-0'>
                                     <Label className='mb-1'>
                                         <h6 className='mb-0 small-heading'>
