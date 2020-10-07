@@ -98,14 +98,14 @@ const ApplicantDetails = ({ applicant }) => {
     return <div>{!error && data && data.username}</div>;
 };
 const Badges = ({ desc, superSpecialization }) => {
-    const superSp = superSpecialization ? superSpecialization : [];
+    const superSp = superSpecialization ? superSpecialization : "";
     let badges = [];
     if (desc && desc.type && desc.incentives)
         badges = [
             desc.experience,
             // ...desc.type,
             ...desc.incentives,
-            ...superSp,
+            superSp,
         ];
     const number = badges.length - 5;
     badges = badges.slice(0, 3);
