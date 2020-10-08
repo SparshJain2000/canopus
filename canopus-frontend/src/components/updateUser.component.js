@@ -422,6 +422,7 @@ export default class UpdateUser extends Component {
                         username: user.username,
                         firstName: user.firstName,
                         lastName: user.lastName,
+                        logo: user.image,
                     });
                     this.setState({
                         id: user._id,
