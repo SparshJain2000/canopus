@@ -96,6 +96,9 @@ export default class UpdateEmployer extends Component {
                 employeeCount: true,
             },
         };
+        this.logo = React.createRef();
+        this.image = React.createRef();
+
         this.handleChange = this.handleChange.bind(this);
         this.update = this.update.bind(this);
         this.setCoordinates = this.setCoordinates.bind(this);
@@ -459,6 +462,7 @@ export default class UpdateEmployer extends Component {
                     uploadingImage: false,
                     progress: 0,
                 });
+                this.image.current.value = "";
                 return;
             } else {
                 this.setState({
@@ -535,6 +539,8 @@ export default class UpdateEmployer extends Component {
                     loading: false,
                     uploadingLogo: false,
                 });
+                this.logo.current.value = "";
+
                 return;
             } else {
                 this.setState({
@@ -770,7 +776,7 @@ export default class UpdateEmployer extends Component {
                                                 }}
                                                 id='image'
                                                 accept='image/*'
-                                                // ref={this.image}
+                                                ref={this.logo}
                                                 disabled={
                                                     this.state.uploadingLogo
                                                 }
@@ -1168,7 +1174,7 @@ export default class UpdateEmployer extends Component {
                                         }}
                                         id='image'
                                         accept='image/*'
-                                        // ref={this.image}
+                                        ref={this.image}
                                         disabled={
                                             this.state.loading ||
                                             this.state.image.length >= 5

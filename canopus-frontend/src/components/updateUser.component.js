@@ -140,6 +140,7 @@ export default class UpdateUser extends Component {
             },
         };
         this.resume = React.createRef();
+        this.logo = React.createRef();
         this.handleChange = this.handleChange.bind(this);
         this.update = this.update.bind(this);
         this.setCoordinates = this.setCoordinates.bind(this);
@@ -236,13 +237,12 @@ export default class UpdateUser extends Component {
                 !["pdf", "doc", "docx", "rtf"].includes(file.name.split(".")[1])
             ) {
                 this.setState({
-                    // modalError: true,
-                    // modalMess: "Invalid file type",
                     loading: false,
                     showError: true,
                     resumeError:
                         "Invalid File - Please ensure the file size is less than 5MB and file type is doc, docx, rtf or pdf.",
                 });
+                this.resume.current.value = "";
                 return;
             } else if (file.size >= 5000000) {
                 this.setState({
@@ -512,7 +512,7 @@ export default class UpdateUser extends Component {
 
     uploadLogo(e) {
         // console.log(this.image.current.value);
-        this.setState({ loading: true });
+        this.setState({ loading: true, uploadingLogo: false });
         console.log(this.state);
         const files = Array.from(e.target.files);
         if (files.length !== 0) {
@@ -530,6 +530,7 @@ export default class UpdateUser extends Component {
                     loading: false,
                     uploadingLogo: false,
                 });
+                this.logo.current.value = "";
                 return;
             } else {
                 this.setState({
@@ -581,7 +582,17 @@ export default class UpdateUser extends Component {
                                 },
                             );
                         })
-                        .catch((e) => console.log(e.response));
+                        .catch((e) => {
+                            console.log(e.response);
+                            this.setState({
+                                loading: false,
+                                showError2: true,
+                                logoError:
+                                    "Something went wrong, Please try again.",
+                                loading: false,
+                                uploadingLogo: false,
+                            });
+                        });
                 };
             });
         }
@@ -699,7 +710,7 @@ export default class UpdateUser extends Component {
                                             }}
                                             disabled={this.state.uploadingLogo}
                                             id='image'
-                                            ref={this.image}
+                                            ref={this.logo}
                                             accept='image/*'
                                             onChange={this.uploadLogo}
                                         />
@@ -1395,7 +1406,9 @@ export default class UpdateUser extends Component {
                                     <div
                                         class='spinner-border spinner-border-sm ml-2 my-auto'
                                         role='status'>
-                                        <span class='sr-only'>Loading...</span>
+                                        <span className='sr-only'>
+                                            Loading...
+                                        </span>
                                     </div>
                                 </h6>
                             ) : (
