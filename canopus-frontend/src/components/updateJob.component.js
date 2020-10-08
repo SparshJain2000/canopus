@@ -630,11 +630,9 @@ const UpdateJob = (props) => {
                     err.response && err.response.data
                         ? err.response.data.err
                         : "";
-                // alert("Unable to save job : " + error);
                 err.response && err.response.data
                     ? setMessError(err.response.data.err)
                     : setMessError("Error saving job");
-
                 toggleError();
             });
         console.log(job);
@@ -982,6 +980,7 @@ const UpdateJob = (props) => {
                                                 e ? e.value : "",
                                             );
                                         }}
+                                        isDisabled={jobType !== "save"}
                                     />
                                 </div>
                             </InputGroup>
