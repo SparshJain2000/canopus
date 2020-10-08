@@ -453,24 +453,26 @@ export default class Profile extends Component {
                                             </div>
                                         </h6>
                                     </div>
-                                    <div className='m-2 mx-auto'>
-                                        <h6 className='row'>
-                                            <div className='col-1 px-0'>
-                                                <FontAwesomeIcon
-                                                    icon={faPhone}
-                                                    className='ml-2 mr-3'
-                                                    style={{
-                                                        transform:
-                                                            "rotateY(180deg)",
-                                                    }}
-                                                />
-                                            </div>
-                                            <div className='col-11 pl-3'>
-                                                {"+91-"}
-                                                {this.state.profile.phone}
-                                            </div>
-                                        </h6>
-                                    </div>
+                                    {this.state.profile.phone !== "" && (
+                                        <div className='m-2 mx-auto'>
+                                            <h6 className='row'>
+                                                <div className='col-1 px-0'>
+                                                    <FontAwesomeIcon
+                                                        icon={faPhone}
+                                                        className='ml-2 mr-3'
+                                                        style={{
+                                                            transform:
+                                                                "rotateY(180deg)",
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div className='col-11 pl-3'>
+                                                    {"+91-"}
+                                                    {this.state.profile.phone}
+                                                </div>
+                                            </h6>
+                                        </div>
+                                    )}
                                     {/* {this.state.editable && (
                                         <button
                                             className='btn btn-info btn-sm m-2 btn-float'

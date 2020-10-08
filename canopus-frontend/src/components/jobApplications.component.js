@@ -659,6 +659,7 @@ const Job = ({
                         {mess === "discard" && "Keep"}
                         {mess === "post" && "Wait"}
                         {mess === "promote" && "No"}
+                        {mess.split("_")[0] === "accept" && "No"}
                     </Button>
                 </ModalFooter>
             </Modal>
