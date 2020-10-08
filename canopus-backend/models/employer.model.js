@@ -13,6 +13,8 @@ module.exports = mongoose.model(
         lastUpdated:Date,
         //Empoyer valid status
         validated: Boolean,
+        linkedin:Object,
+        google:Object,
         firstName: String,
         lastName: String,
         password: String,

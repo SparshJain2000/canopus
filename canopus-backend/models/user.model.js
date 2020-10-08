@@ -52,7 +52,7 @@ module.exports = mongoose.model(
         resume: String,
         availability: Object, // for locum calendar
         google: Object,
-        facebook: Object,
+        linkedin: Object,
         sponsors: {
             allowed: Number,
             posted: Number,

@@ -188,7 +188,7 @@ passport.use("linkedin_user",new LinkedInStrategy({
             var user = new User();
             user.username = profile.emails[0].value;
             user.role = "User";
-            user.image = profile.photos[0].value;
+            user.image = profile.photos[3].value;
             user = validationController.initUserTier(user);
             user.linkedin = {
                 id: profile.id,
@@ -197,8 +197,6 @@ passport.use("linkedin_user",new LinkedInStrategy({
             user.salutation="Dr";
             user.firstName = profile.name.givenName;
             user.lastName = profile.name.familyName;
-            user.lastUpdated = new Date(0);
-            user.emailVerified = true;
             user.save((err, user) => {
                 if (!err) return done(err, user);
             });
@@ -229,7 +227,8 @@ passport.use("linkedin_employer",new LinkedInStrategy({
               var user = new Employer();
               user.username = profile.emails[0].value;
               user.role = "Employer";
-              //user.image = profile.photos[0].value;
+              //user.image = profile.photos;
+              //user.image = profile._json.pictureUrl;
               user = validationController.initTier(user);
               user.linkedin = {
                   id: profile.id,

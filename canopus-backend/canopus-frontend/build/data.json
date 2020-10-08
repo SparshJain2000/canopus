@@ -202,6 +202,12 @@
             "specialization": [
                 "Medical Translator"
             ]
+        },
+        {
+            "profession":"Dietician",
+            "specialization":[
+                "Nutrition"
+            ]
         }
     ],
     "superSpecializations": [

@@ -23,12 +23,12 @@ const User = require("../models/user.model"),
 //Sign up route
 router.post("/", async (req, res) => {
     //captcha validation
-//     let captcha = true;
-//   try{
-//        captcha = await validationController.verifyInvisibleCaptcha(req);
-//     } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
-//   if(!captcha)
-//   return res.status(400).json({err:"Invalid Captcha"});
+    let captcha = true;
+  try{
+       captcha = await validationController.verifyInvisibleCaptcha(req);
+    } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
+  if(!captcha)
+  return res.status(400).json({err:"Invalid Captcha"});
     const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
     const employer = new Employer({
         username: req.body.username,
@@ -75,12 +75,12 @@ router.post("/", async (req, res) => {
 //Login route
 router.post("/login", async function (req, res,next) {
   //captcha validation
-//   let captcha = true;
-//   try{
-//        captcha = await validationController.verifyInvisibleCaptcha(req);
-//     } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
-//   if(!captcha)
-//   return res.status(400).json({err:"Invalid Captcha"});
+  let captcha = true;
+  try{
+       captcha = await validationController.verifyInvisibleCaptcha(req);
+    } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
+  if(!captcha)
+  return res.status(400).json({err:"Invalid Captcha"});
   passport.authenticate("employer", function (err, employer, info) {
     if (err) {
       return res.status(400).json({ err: err });
@@ -110,12 +110,12 @@ router.post("/login", async function (req, res,next) {
 //===========================================================================
 router.post("/forgot", async (req, res) => {
     //captcha validation
-//     let captcha = true;
-//   try{
-//        captcha = await validationController.verifyInvisibleCaptcha(req);
-//     } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
-//   if(!captcha)
-//   return res.status(400).json({err:"Invalid Captcha"});
+    let captcha = true;
+  try{
+       captcha = await validationController.verifyInvisibleCaptcha(req);
+    } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
+  if(!captcha)
+  return res.status(400).json({err:"Invalid Captcha"});
     const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
     if (req.body.username == "" || !req.body.username)
         return res.status(400).json({ err: "Bad request" });
@@ -299,7 +299,7 @@ router.get("/profile/:id/jobs", (req, res) => {
             const id = employer.jobs.map((job) => {
                 return job.id;
             });
-            console.log(id);
+             
             Job.find(
                 { _id: { $in: id } },
                 { applicants: 0, acceptedApplicants: 0 },
@@ -323,7 +323,7 @@ router.get("/profile/:id/freelance", (req, res) => {
             const id = employer.freelanceJobs.map((job) => {
                 return job.id;
             });
-            console.log(id);
+
             Freelance.find(
                 { _id: { $in: id } },
                 { applicants: 0, acceptedApplicants: 0 },
@@ -397,7 +397,6 @@ router.get("/all/jobs", middleware.isEmployer, (req, res) => {
             const id = employer.jobs.map((job) => {
                 return job.id;
             });
-            console.log(id);
             Job.find({ _id: { $in: id } })
                 .then((jobs) => {
                     res.json({ jobs: jobs });
@@ -418,7 +417,6 @@ router.get("/all/freelance", middleware.isEmployer, (req, res) => {
             const id = employer.freelanceJobs.map((job) => {
                 return job.id;
             });
-            console.log(id);
             Freelance.find({ _id: { $in: id } })
                 .then((jobs) => {
                     res.json({ jobs: jobs });
@@ -460,7 +458,7 @@ router.get("/all/savedFreelance", middleware.isEmployer, (req, res) => {
             const ID = employer.savedFreelance.map((item) => {
                 return mongoose.Types.ObjectId(item.id);
             });
-            console.log(ID);
+
             savedFreelance
                 .find({ _id: { $in: ID } })
                 .then((jobs) => {
@@ -481,7 +479,6 @@ router.get("/all/expiredJobs", middleware.isEmployer, (req, res) => {
             const ID = employer.jobs.map((item) => {
                 return mongoose.Types.ObjectId(item.id);
             });
-            console.log(ID);
             var active = [];
             var inactive = [];
             let promises = [];
@@ -504,7 +501,6 @@ router.get("/all/expiredJobs", middleware.isEmployer, (req, res) => {
             }
             Promise.all(promises)
                 .then((msg) => {
-                    console.log(inactive);
                     savedJob
                         .find({ jobRef: { $in: inactive } })
                         .then((jobs) => {
@@ -522,7 +518,6 @@ router.get("/all/expiredJobs", middleware.isEmployer, (req, res) => {
 });
 // get expired freelance jobs
 router.get("/all/expiredFreelance", middleware.isEmployer, (req, res) => {
-    console.log(req.user._id);
     Employer.findById(req.user._id)
         .then((employer) => {
             const ID = employer.freelanceJobs.map((item) => {
@@ -550,7 +545,6 @@ router.get("/all/expiredFreelance", middleware.isEmployer, (req, res) => {
             }
             Promise.all(promises)
                 .then((msg) => {
-                    console.log(inactive);
                     savedFreelance
                         .find({ jobRef: { $in: inactive } })
                         .then((jobs) => {

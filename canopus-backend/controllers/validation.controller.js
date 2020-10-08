@@ -144,6 +144,8 @@ function initTier(user){
     };
     user.validated=false;
     user.createdAt= Date.now();
+    user.lastUpdated = new Date(0);
+    user.emailVerified = true;
     return user;
 }
 function initUserTier(user){
@@ -172,6 +174,8 @@ function initUserTier(user){
     };
     user.validated=false;
     user.createdAt= Date.now();
+    user.lastUpdated = new Date(0);
+    user.emailVerified = true;
     return user;
 }
 const validationController = {};

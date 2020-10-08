@@ -45,13 +45,15 @@ router.post("/post", middleware.isLoggedIn, async (req, res) => {
     if(!job) throw client_error;
 
     //check attached applicants validity
-    if(!(await jobController.attachedApplicantValidator(req,employer)))
-      throw client_error;
-    else if(req.body.attachedApplicants && req.body.attachedApplicants.length!=0){
-      if(job.category==="Day Job")
-        req.body.attachedApplicants.every(applicant=>mailController.attachDay(applicant,employer,job));
-      else if(job.category==="Locum")
-        req.body.attachedApplicants.every(applicant=>mailController.attachLocum(applicant,employer,job));
+    if(job.category==="Locum" || job.category==="Day Job"){
+      if(!(await jobController.attachedApplicantValidator(req,employer)))
+        throw client_error;
+      else if(req.body.attachedApplicants && req.body.attachedApplicants.length>0){
+        if(job.category==="Day Job")
+          req.body.attachedApplicants.every(applicant=>mailController.attachDay(applicant,employer,job));
+        else if(job.category==="Locum")
+          req.body.attachedApplicants.every(applicant=>mailController.attachLocum(applicant,employer,job));
+      }
     }
     //insert job
     if(req.body.category === "Full-time" || req.body.category === "Part-time")
@@ -273,13 +275,25 @@ router.put("/save/:id",middleware.isLoggedIn,middleware.checkSavedOwnership, asy
       await savedJob.findOneAndUpdate({ _id: req.params.id}, { $set: query },{ session: session });
     } 
     else {
-      // if(req.body.endDate){
-      //   var days = (req.body.endDate - Date.now()) / (1000 * 60 * 60 * 24);
-      //   if (days < 0 || days > 30)
-      //     throw client_error;
-      // }
         //update job
+        //inefficient
+        let sjob = savedFreelance.findOne({_id:req.params.id}).session(session);
+        if(sjob.category===req.body.category)
         await savedFreelance.findOneAndUpdate({ _id:req.params.id }, { $set: query },{ session: session }); 
+        else{
+          let employer = await Employer.findOne({_id:req.user._id}).session(session);
+          if(req.body.category==="Locum"){
+            employer.freelancetier.saved+=-1;
+            employer.locumtier.saved+=1;
+          }
+          else if(req.body.category==="Day Job"){
+            employer.freelancetier.saved+=1;
+            employer.locumtier.saved+=-1;
+          }
+          await employer.save({session});
+          query["category"]=req.body.category;
+          await savedFreelance.findOneAndUpdate({ _id:req.params.id }, { $set: query },{ session: session }); 
+        }
     }
     
     //commit transaction
@@ -388,14 +402,16 @@ router.put("/activate/:id", middleware.checkSavedOwnership, async (req,res) => {
     }
     else{
       //check attached applicants validity
-    if(!(await jobController.attachedApplicantValidator(req,employer)))
-      throw client_error;
-    else if(req.body.attachedApplicants && req.body.attachedApplicants.length!=0){
-      if(job.category==="Day Job")
-      req.body.attachedApplicants.every(applicant=>mailController.attachDay(applicant,employer,job));
-      else if(job.category==="Locum")
-      req.body.attachedApplicants.every(applicant=>mailController.attachLocum(applicant,employer,job));
-      //send mail
+    if(req.body.category === "Locum" || req.body.category === "Day Job"){
+      if(!(await jobController.attachedApplicantValidator(req,employer)))
+        throw client_error;
+      else if(req.body.attachedApplicants && req.body.attachedApplicants.length!=0){
+        if(job.category==="Day Job")
+        req.body.attachedApplicants.every(applicant=>mailController.attachDay(applicant,employer,job));
+        else if(job.category==="Locum")
+        req.body.attachedApplicants.every(applicant=>mailController.attachLocum(applicant,employer,job));
+        //send mail
+      }
     }
       job = await Freelance.create([job],{ session: session });
       employer.savedFreelance.splice(employer.savedFreelance.indexOf(sjob._id), 1);
@@ -504,7 +520,6 @@ router.put("/extend/expired/:id", middleware.isEmployer, async (req, res) => {
       return res.status(400).json({status:"400"});
     let job = await jobController.createJob(req,sjob,employer,0);
     if(!job) return res.status(400).json({status:"400"});
-    console.log(job);
     job = await Job.create([job], { session: session });
     job = job [0];
     sjob.jobRef = job._id;
@@ -584,6 +599,10 @@ try {
     //delete freelance max applicants
     if(job.sponsored==="true")
       employer.sponsors.closed+=1;
+    if(job.category==="Day Job")
+      employer.freelancetier.closed+=1;
+    if(job.category==="Locum")
+      employer.locumtier.closed+=1;
     sjob.status = "Closed";
     await Freelance.deleteOne({_id:req.params.id}).session(session);
   //}
