@@ -319,7 +319,14 @@ export default class Job extends Component {
             })
             .catch(({ response }) => {
                 console.log(response);
-                this.setState({ err: response.data.err });
+                if (response && response !== undefined)
+                    this.setState({
+                        err:
+                            response.data.err !== undefined &&
+                            response.data.err !== ""
+                                ? response.data.err
+                                : "Something went wrong, Please try again.",
+                    });
                 this.toggle();
             });
     }

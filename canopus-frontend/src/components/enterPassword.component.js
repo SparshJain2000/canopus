@@ -50,7 +50,12 @@ export default class EnterPassword extends Component {
                 console.log(response);
 
                 if (response && response.data && response.data.err)
-                    alert(response.data.err.message);
+                    alert(
+                        response.data.err.message !== undefined &&
+                            response.data.err.message !== ""
+                            ? response.data.err.message
+                            : "Something went wrong, Please try again.",
+                    );
             });
     }
     componentDidMount() {

@@ -133,6 +133,15 @@ const Job = ({ job, userId, user }) => {
             })
             .catch((err) => console.log(err.response));
     };
+    const options = {
+        hour: "numeric",
+        minute: "numeric",
+    };
+    const optionsDate = {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+    };
     return (
         <div>
             <BounceIn>
@@ -192,14 +201,39 @@ const Job = ({ job, userId, user }) => {
                             <hr />
                             {job.startDate && (
                                 <div className='row'>
-                                    {new Date(
-                                        job.startDate,
-                                    ).toLocaleTimeString()}
+                                    {new Intl.DateTimeFormat(
+                                        "en-US",
+                                        optionsDate,
+                                    ).format(new Date(job.startDate))}
+
+                                    {job.category === "Locum" &&
+                                        ` - ${new Intl.DateTimeFormat(
+                                            "en-US",
+                                            optionsDate,
+                                        ).format(new Date(job.endDate))}`}
                                 </div>
                             )}
-                            {job.endDate && (
+
+                            {job.category === "Day Job" && (
                                 <div className='row'>
-                                    {new Date(job.endDate).toLocaleTimeString()}
+                                    {job.startDate && (
+                                        <div className=''>
+                                            {new Intl.DateTimeFormat(
+                                                "en-US",
+                                                options,
+                                            ).format(new Date(job.startDate))}
+                                        </div>
+                                    )}
+
+                                    {job.endDate && (
+                                        <div className=''>
+                                            {" - "}
+                                            {new Intl.DateTimeFormat(
+                                                "en-US",
+                                                options,
+                                            ).format(new Date(job.endDate))}
+                                        </div>
+                                    )}
                                 </div>
                             )}
 
@@ -342,6 +376,8 @@ export default class JobSearch extends Component {
             sortBy: "Relevance",
             geoLocation: false,
             locumCount: null,
+            modalError: false,
+            messError: "",
             // isSticky:false
         };
         this.toggleTab = this.toggleTab.bind(this);
@@ -357,9 +393,13 @@ export default class JobSearch extends Component {
         this.incentives = React.createRef();
         this.superSpecialization = React.createRef();
         this.freelance = React.createRef();
-        // this.filter=React.createRef();
+        this.toggleModal = this.toggleModal.bind(this);
     }
-
+    toggleModal() {
+        this.setState({
+            modalError: !this.state.modalError,
+        });
+    }
     getLocation() {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
@@ -398,6 +438,10 @@ export default class JobSearch extends Component {
                 },
                 (err) => {
                     console.log(err);
+                    this.setState({
+                        modalError: true,
+                        messError: "Something went wrong, Please try again.",
+                    });
                 },
             );
         } else {
@@ -442,7 +486,13 @@ export default class JobSearch extends Component {
                         } found`,
                     });
                 })
-                .catch((ERR) => console.log(ERR));
+                .catch((ERR) => {
+                    console.log(ERR);
+                    this.setState({
+                        modalError: true,
+                        messError: "Something went wrong, Please try again.",
+                    });
+                });
         } else {
             const query = {
                 limit: this.state.pageSize,
@@ -477,7 +527,10 @@ export default class JobSearch extends Component {
                 .catch((err) => {
                     console.log(err);
                     console.log(err.response);
-                    // window.location = "/";
+                    this.setState({
+                        modalError: true,
+                        messError: "Something went wrong, Please try again.",
+                    });
                 });
         }
     }
@@ -648,7 +701,13 @@ export default class JobSearch extends Component {
                     })
                     .catch((err) => {
                         console.log(err.response);
-                        this.setState({ loaded: true });
+
+                        this.setState({
+                            loaded: true,
+                            modalError: true,
+                            messError:
+                                "Something went wrong, Please try again.",
+                        });
                     });
             } else if (locum === undefined ? this.state.freelance : !locum) {
                 query = {
@@ -695,9 +754,18 @@ export default class JobSearch extends Component {
                     .catch((err) => {
                         console.log(err);
                         console.log(err.response);
-                        this.setState({ loaded: true });
+                        this.setState({
+                            loaded: true,
+                        });
                         if (err && err.response && err.response.data)
-                            alert(err.response.data.err);
+                            this.setState({
+                                modalError: true,
+                                messError:
+                                    err.response.data.err !== undefined &&
+                                    err.response.data.err !== ""
+                                        ? err.response.data.err
+                                        : "Something went wrong, Please try again.",
+                            });
                     });
             }
         } else this.getAllJobs(skipNo, locum);
@@ -2040,6 +2108,12 @@ export default class JobSearch extends Component {
                         </Pagination>
                     </div>
                 </div>
+                <Modal
+                    isOpen={this.state.modalError}
+                    toggle={this.toggleModal}
+                    style={{ marginTop: "20vh" }}>
+                    <ModalBody>{this.state.messError}</ModalBody>
+                </Modal>
             </div>
         );
     }

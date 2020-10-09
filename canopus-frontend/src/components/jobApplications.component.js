@@ -162,7 +162,12 @@ const Job = ({
                 .catch((err) => {
                     console.log(err.response);
                     if (err.response.data && err.response.data.err) {
-                        setMessError(err.response.data.err);
+                        setMessError(
+                            err.response.data.err !== undefined &&
+                                err.response.data.err !== ""
+                                ? err.response.data.err
+                                : "Something went wrong, Please try again.",
+                        );
                         toggleError();
                     }
                 });
@@ -186,7 +191,12 @@ const Job = ({
             .catch((err) => {
                 console.log(err.response);
                 if (err.response.data && err.response.data.err) {
-                    setMessError(err.response.data.err);
+                    setMessError(
+                        err.response.data.err !== undefined &&
+                            err.response.data.err !== ""
+                            ? err.response.data.err
+                            : "Something went wrong, Please try again.",
+                    );
                     toggleError();
                 }
             });
@@ -204,7 +214,18 @@ const Job = ({
                     getSavedJobs();
                 }
             })
-            .catch((err) => console.log(err.response));
+            .catch((err) => {
+                console.log(err.response);
+                if (err.response.data && err.response.data.err) {
+                    setMessError(
+                        err.response.data.err !== undefined &&
+                            err.response.data.err !== ""
+                            ? err.response.data.err
+                            : "Something went wrong, Please try again.",
+                    );
+                    toggleError();
+                }
+            });
     };
     const discard = () => {
         axios
@@ -222,7 +243,12 @@ const Job = ({
             .catch((err) => {
                 console.log(err.response);
                 if (err.response.data && err.response.data.err)
-                    setMessError(err.response.data.err);
+                    setMessError(
+                        err.response.data.err !== undefined &&
+                            err.response.data.err !== ""
+                            ? err.response.data.err
+                            : "Something went wrong, Please try again.",
+                    );
                 toggleError();
             });
     };
@@ -690,11 +716,19 @@ export default class JobApplications extends Component {
             closedJobs: null,
             savedJobs: null,
             canSponsor: false,
+            modalError: false,
+            messError: "",
         };
         this.toggleTab = this.toggleTab.bind(this);
         this.getSavedJobs = this.getSavedJobs.bind(this);
         this.getOpenJobs = this.getOpenJobs.bind(this);
         this.getClosedJobs = this.getClosedJobs.bind(this);
+        this.toggleModal = this.toggleModal.bind(this);
+    }
+    toggleModal() {
+        this.setState({
+            modalError: !this.state.modalError,
+        });
     }
     toggleTab(tab) {
         if (this.state.activeTab !== tab) this.setState({ activeTab: tab });
@@ -706,7 +740,13 @@ export default class JobApplications extends Component {
                 console.log(data);
                 this.setState({ jobs: data.jobs });
             })
-            .catch((err) => console.log(err.response));
+            .catch((err) => {
+                console.log(err.response);
+                this.setState({
+                    modalError: true,
+                    messError: "Something went wrong, Please try again.",
+                });
+            });
         axios
             .get("/api/employer/all/expiredFreelance")
             .then(({ data }) => {
@@ -714,7 +754,13 @@ export default class JobApplications extends Component {
                 this.setState({ freelanceJobs: data.jobs });
                 console.log(this.state.freelanceJobs);
             })
-            .catch((err) => console.log(err.response));
+            .catch((err) => {
+                console.log(err.response);
+                this.setState({
+                    modalError: true,
+                    messError: "Something went wrong, Please try again.",
+                });
+            });
     }
     getOpenJobs() {
         axios
@@ -723,14 +769,26 @@ export default class JobApplications extends Component {
                 console.log(data.jobs);
                 this.setState({ jobs: data.jobs });
             })
-            .catch((err) => console.log(err.response));
+            .catch((err) => {
+                console.log(err.response);
+                this.setState({
+                    modalError: true,
+                    messError: "Something went wrong, Please try again.",
+                });
+            });
         axios
             .get("/api/employer/all/freelance")
             .then(({ data }) => {
                 console.log(data.jobs);
                 this.setState({ freelanceJobs: data.jobs });
             })
-            .catch((err) => console.log(err.response));
+            .catch((err) => {
+                console.log(err.response);
+                this.setState({
+                    modalError: true,
+                    messError: "Something went wrong, Please try again.",
+                });
+            });
     }
     getSavedJobs() {
         axios
@@ -739,14 +797,26 @@ export default class JobApplications extends Component {
                 console.log(data.jobs);
                 this.setState({ jobs: data.jobs });
             })
-            .catch((err) => console.log(err.response));
+            .catch((err) => {
+                console.log(err.response);
+                this.setState({
+                    modalError: true,
+                    messError: "Something went wrong, Please try again.",
+                });
+            });
         axios
             .get("/api/employer/all/savedFreelance")
             .then(({ data }) => {
                 console.log(data.jobs);
                 this.setState({ freelanceJobs: data.jobs });
             })
-            .catch((err) => console.log(err.response));
+            .catch((err) => {
+                console.log(err.response);
+                this.setState({
+                    modalError: true,
+                    messError: "Something went wrong, Please try again.",
+                });
+            });
     }
     componentDidMount() {
         console.log(this.props);
@@ -992,6 +1062,12 @@ export default class JobApplications extends Component {
                         {/* <h3 className='text-align-center w-100'>Locum Jobs</h3> */}
                     </div>
                 </div>
+                <Modal
+                    isOpen={this.state.modalError}
+                    toggle={this.toggleModal}
+                    style={{ marginTop: "20vh" }}>
+                    <ModalBody>{this.state.messError}</ModalBody>
+                </Modal>
             </div>
         );
     }

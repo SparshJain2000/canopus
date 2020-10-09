@@ -248,13 +248,14 @@ export default class UpdateEmployer extends Component {
                             modalError: true,
                             modalMess:
                                 response.err === ""
-                                    ? "Unable to update"
+                                    ? "Something went wrong, Please try again."
                                     : response.err,
                         });
                     } else
                         this.setState({
                             modalError: true,
-                            modalMess: "Unable to update",
+                            modalMess:
+                                "Something went wrong, Please try again.",
                         });
                 });
         }
@@ -338,7 +339,13 @@ export default class UpdateEmployer extends Component {
                     });
                 }
             })
-            .catch((err) => console.log(err));
+            .catch((err) => {
+                console.log(err);
+                this.setState({
+                    modalError: true,
+                    modalMess: "Something went wrong, Please try again.",
+                });
+            });
     }
     reload() {
         Axios.get("/api/employer/profile")
@@ -394,7 +401,13 @@ export default class UpdateEmployer extends Component {
                     });
                 }
             })
-            .catch((err) => console.log(err));
+            .catch((err) => {
+                console.log(err);
+                this.setState({
+                    modalError: true,
+                    modalMess: "Something went wrong, Please try again.",
+                });
+            });
     }
     async uploadToStorage(storageAccountName, sas, file) {
         // console.log(file);
@@ -515,7 +528,14 @@ export default class UpdateEmployer extends Component {
                                 },
                             );
                         })
-                        .catch((e) => console.log(e));
+                        .catch((e) => {
+                            console.log(e);
+                            this.setState({
+                                modalError: true,
+                                modalMess:
+                                    "Something went wrong, Please try again.",
+                            });
+                        });
                 };
             });
         }
@@ -594,7 +614,14 @@ export default class UpdateEmployer extends Component {
                                 },
                             );
                         })
-                        .catch((e) => console.log(e));
+                        .catch((e) => {
+                            console.log(e);
+                            this.setState({
+                                modalError: true,
+                                modalMess:
+                                    "Something went wrong, Please try again.",
+                            });
+                        });
                 };
             });
         }

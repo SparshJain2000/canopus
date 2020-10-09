@@ -320,7 +320,9 @@ const PostJob = (props) => {
                     // alert("Unable to post job");
                     err.response.data
                         ? setMessError(err.response.data.err)
-                        : setMessError("Error saving job");
+                        : setMessError(
+                              "Something went wrong, Please try again.",
+                          );
 
                     toggleError();
                 });
@@ -413,7 +415,7 @@ const PostJob = (props) => {
                 // alert("Unable to post job : " + error);
                 err.response && err.response.data
                     ? setMessError(err.response.data.err)
-                    : setMessError("Error posting job");
+                    : setMessError("Something went wrong, Please try again.");
 
                 toggleError();
             });
@@ -430,7 +432,11 @@ const PostJob = (props) => {
                     setTempArr(data.user.acceptedApplicants);
                 if (data.user) setContact(data.user.phone);
             })
-            .catch((err) => console.log(err));
+            .catch((err) => {
+                console.log(err);
+                setMessError("Something went wrong, Please try again.");
+                toggleError();
+            });
         console.log("====================================");
         //TODO:
         console.log(props.location.state);
@@ -557,7 +563,9 @@ const PostJob = (props) => {
                         // alert(err.response);
                         err.response.data
                             ? setMessError(err.response.data.err)
-                            : setMessError("Error getting job");
+                            : setMessError(
+                                  "Something went wrong, Please try again.",
+                              );
 
                         toggleError();
                     });
@@ -657,7 +665,9 @@ const PostJob = (props) => {
                         console.log(err);
                         err.response && err.response.data
                             ? setMessError(err.response.data.err)
-                            : setMessError("Error getting job");
+                            : setMessError(
+                                  "Something went wrong, Please try again.",
+                              );
 
                         toggleError();
                     });

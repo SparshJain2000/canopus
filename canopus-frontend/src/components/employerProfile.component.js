@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import Axios from "axios";
 import hospital from "../images/hospital.svg";
-import { Table, Badge } from "reactstrap";
+import { Table, Badge, Modal, ModalBody } from "reactstrap";
 import ReactPlayer from "react-player";
 import ShowMap from "./showMap.component";
 import ImageCarousel from "./imageCarousel.component";
@@ -21,6 +21,8 @@ export default class EmployerProfile extends Component {
         super(props);
         this.state = {
             employer: null,
+            modalError: false,
+            messError: "",
         };
     }
     componentDidMount() {
@@ -33,7 +35,11 @@ export default class EmployerProfile extends Component {
             .catch(({ response }) => {
                 console.log(response);
                 if (response.data) {
-                    alert(response.data.err);
+                    // alert(response.data.err);
+                    this.setState({
+                        modalError: true,
+                        messError: "Something went wrong, Please try again.",
+                    });
                     // window.location = "/";
                 }
             });
@@ -183,15 +189,19 @@ export default class EmployerProfile extends Component {
                                             className='w-100'
                                             items={this.state.employer.youtube}
                                         />
-                                        {/* <ReactPlayer
-                                        className='w-100'
-                                        url='https://www.youtube.com/watch?v=b_lHyhTRb-8&list=RDv2-9rIL_f4w&index=34'
-                                    /> */}
                                     </div>
                                 )}
                         </div>
                     </div>
                 )}
+                <Modal
+                    isOpen={this.state.modalError}
+                    toggle={this.setState({
+                        modalError: !this.state.modalError,
+                    })}
+                    style={{ marginTop: "20vh" }}>
+                    <ModalBody>{this.state.messError}</ModalBody>
+                </Modal>
             </div>
         );
     }

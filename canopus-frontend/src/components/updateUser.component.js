@@ -422,7 +422,12 @@ export default class UpdateUser extends Component {
                         username: user.username,
                         firstName: user.firstName,
                         lastName: user.lastName,
-                        logo: user.image,
+                        logo:
+                            !user.image ||
+                            user.image === undefined ||
+                            user.image === ""
+                                ? "https://i.pinimg.com/736x/74/73/ba/7473ba244a0ace6d9d301d5fe4478983--sarcasm-meme.jpg"
+                                : user.image,
                     });
                     this.setState({
                         id: user._id,
@@ -431,7 +436,12 @@ export default class UpdateUser extends Component {
                         lastName: user.lastName,
                         title: user.title,
                         gender: user.gender,
-                        logo: user.image,
+                        logo:
+                            !user.image ||
+                            user.image === undefined ||
+                            user.image === ""
+                                ? "https://i.pinimg.com/736x/74/73/ba/7473ba244a0ace6d9d301d5fe4478983--sarcasm-meme.jpg"
+                                : user.image,
 
                         dob: user.dob,
                         profession:
@@ -671,11 +681,7 @@ export default class UpdateUser extends Component {
                                     className='my-auto position-relative mx-auto'
                                     style={{ width: "fit-content" }}>
                                     <img
-                                        src={
-                                            this.state.logo === ""
-                                                ? "https://i.pinimg.com/736x/74/73/ba/7473ba244a0ace6d9d301d5fe4478983--sarcasm-meme.jpg"
-                                                : this.state.logo
-                                        }
+                                        src={this.state.logo}
                                         className='img-fluid img-thumbnail my-auto'
                                         alt='logo'
                                         style={{ maxHeight: "50vw" }}

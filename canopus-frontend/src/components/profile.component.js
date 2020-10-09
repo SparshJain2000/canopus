@@ -41,6 +41,8 @@ export default class Profile extends Component {
             imageLoading: true,
             progress: 0,
             uploaded: true,
+            modalError: false,
+            messError: "",
         };
         this.image = React.createRef();
         this.firstName = React.createRef();
@@ -60,6 +62,12 @@ export default class Profile extends Component {
         // this.setProgress = this.setProgress.bind(this);
 
         this.uploadToStorage = this.uploadToStorage.bind(this);
+        this.toggleModal = this.toggleModal.bind(this);
+    }
+    toggleModal() {
+        this.setState({
+            modalError: !this.state.modalError,
+        });
     }
     update() {
         console.log(this.state.profile);
@@ -74,7 +82,13 @@ export default class Profile extends Component {
                     modalEducation: false,
                 });
             })
-            .catch((err) => console.log(err));
+            .catch((err) => {
+                console.log(err);
+                this.setState({
+                    modalError: true,
+                    messError: "Something went wrong, Please try again.",
+                });
+            });
     }
 
     toggleAbout() {
@@ -191,7 +205,14 @@ export default class Profile extends Component {
                                 },
                             );
                         })
-                        .catch((e) => console.log(e));
+                        .catch((e) => {
+                            console.log(e);
+                            this.setState({
+                                modalError: true,
+                                messError:
+                                    "Something went wrong, Please try again.",
+                            });
+                        });
                 };
             });
         }
@@ -262,7 +283,13 @@ export default class Profile extends Component {
                     });
                     console.log(this.state.profile);
                 })
-                .catch((err) => console.log(err.response));
+                .catch((err) => {
+                    console.log(err.response);
+                    this.setState({
+                        modalError: true,
+                        messError: "Something went wrong, Please try again.",
+                    });
+                });
         } else
             axios
                 .get("/api/user/profile")
@@ -275,7 +302,14 @@ export default class Profile extends Component {
                     });
                     console.log(this.state.profile);
                 })
-                .catch((err) => console.log(err.response));
+                .catch((err) => {
+                    console.log(err.response);
+
+                    this.setState({
+                        modalError: true,
+                        messError: "Something went wrong, Please try again.",
+                    });
+                });
     }
     render() {
         const option = { hour: "numeric", minute: "numeric" };
@@ -1356,6 +1390,12 @@ export default class Profile extends Component {
                                     Cancel
                                 </Button>
                             </ModalFooter>
+                        </Modal>
+                        <Modal
+                            isOpen={this.state.modalError}
+                            toggle={this.toggleModal}
+                            style={{ marginTop: "20vh" }}>
+                            <ModalBody>{this.state.messError}</ModalBody>
                         </Modal>
                     </div>
                 ) : (
