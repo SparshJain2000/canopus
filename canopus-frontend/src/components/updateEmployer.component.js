@@ -186,8 +186,8 @@ export default class UpdateEmployer extends Component {
         const isValid = Object.values(this.state.valid).every(
             (item) => item === true,
         );
-        const validYoutube =
-            this.state.youtube.length > 0 ? this.checkYoutube() : true;
+        const ytLinks = this.state.youtube.filter((link) => link !== "");
+        const validYoutube = ytLinks.length > 0 ? this.checkYoutube() : true;
         console.log(isValid);
         if (!isValid) {
             this.setState({
@@ -206,7 +206,7 @@ export default class UpdateEmployer extends Component {
                 lastName: this.state.lastName,
                 image: this.state.image,
                 links: this.state.links,
-                youtube: this.state.youtube,
+                youtube: ytLinks,
                 specialty: this.state.speciality,
                 phone: this.state.phone,
                 instituteName: this.state.organization,
@@ -341,10 +341,11 @@ export default class UpdateEmployer extends Component {
             })
             .catch((err) => {
                 console.log(err);
-                this.setState({
-                    modalError: true,
-                    modalMess: "Something went wrong, Please try again.",
-                });
+                if (err.response)
+                    this.setState({
+                        modalError: true,
+                        modalMess: "Something went wrong, Please try again.",
+                    });
             });
     }
     reload() {
