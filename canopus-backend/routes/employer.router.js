@@ -23,12 +23,12 @@ const User = require("../models/user.model"),
 //Sign up route
 router.post("/", async (req, res) => {
     //captcha validation
-    let captcha = true;
-  try{
-       captcha = await validationController.verifyInvisibleCaptcha(req);
-    } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
-  if(!captcha)
-  return res.status(400).json({err:"Invalid Captcha"});
+//     let captcha = true;
+//   try{
+//        captcha = await validationController.verifyInvisibleCaptcha(req);
+//     } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
+//   if(!captcha)
+//   return res.status(400).json({err:"Invalid Captcha"});
     const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
     const employer = new Employer({
         username: req.body.username,
@@ -62,6 +62,8 @@ router.post("/", async (req, res) => {
         createdAt: Date.now(),
         lastUpdated:new Date(0),
     });
+    if(req.body.password.length > 20) 
+        return res.status(400).json({err :"Password should be maximum 20 characters"});
     Employer.register(employer, req.body.password)
         .then((employer) => {
            // mailController.validateMailEmployer(req, employer, token);
@@ -69,37 +71,37 @@ router.post("/", async (req, res) => {
                 res.json({ employer: employer });
             });
         })
-        .catch((err) => res.status(400).json({ err: err }));
+        .catch((err) => res.status(400).json({ err: "User already exists" }));
 });
 //===========================================================================
 //Login route
 router.post("/login", async function (req, res,next) {
   //captcha validation
-  let captcha = true;
-  try{
-       captcha = await validationController.verifyInvisibleCaptcha(req);
-    } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
-  if(!captcha)
-  return res.status(400).json({err:"Invalid Captcha"});
+//   let captcha = true;
+//   try{
+//        captcha = await validationController.verifyInvisibleCaptcha(req);
+//     } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
+//   if(!captcha)
+//   return res.status(400).json({err:"Invalid Captcha"});
   passport.authenticate("employer", function (err, employer, info) {
     if (err) {
-      return res.status(400).json({ err: err });
+        console.log(err);
+      return res.status(400).json({ err: "Incorrect Email/Password" });
     }
     if (!employer) {
-      return res.status(400).json({ err: info });
+        if(info.name==="NoSaltValueStoredError"){
+            info.message==="Please login with your social media account";
+            return res.status(400).json({err:info})
+          }
+          else{
+            info.message==="Login Failed - Incorrect Email/Password Combination";
+            return res.status(400).json({ err:info });
+          }
     }
     req.logIn(employer, function (err) {
       if (err) {
         return res.status(400).json({ err: err });
       }
-      
-      // let params = {
-      //   ec:"Employer",
-      //   ea:"true",
-      //   cd1:"employer",
-      //   userId:req.user._id
-      // };
-      // visitor.event(params).send();
       return res.json({
         employer: req.user,
         message: `${req.user.username} Logged in`,
@@ -716,11 +718,11 @@ router.delete("/save/job/:id", middleware.isEmployer, (req, res) => {
                         );
                 })
                 .catch((err) => {
-                    res.json({ err: "Error Saving Employer" });
+                    res.status(500).json({ err: "Error Saving Employer" });
                 });
         })
         .catch((err) => {
-            res.json({ err: "Job doesn't belong to you" });
+            res.status(500).json({ err: "Job doesn't belong to you" });
         });
 });
 //delete a job

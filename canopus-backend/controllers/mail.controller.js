@@ -97,7 +97,7 @@ async function attachLocum(applicant,employer,job) {
         location: job.description.location,
       start_date: `${start_date}`,
       end_date: `${end_date}`,
-      link: `https://www.curoid.co/job/${job._id}?freelance&employer`,
+      link: `www.curoid.co/job/${job._id}?freelance&employer`,
     }),
   };
   mg.messages().send(data, function (error, body) {

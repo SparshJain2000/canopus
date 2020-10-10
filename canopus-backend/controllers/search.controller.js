@@ -78,13 +78,13 @@ async function queryBuilder(req) {
         location =await geolocationAPI(req.body.coordinates);
        // console.log(location);
         query.mustquery.push(addQuery(location, "description.location"));
-        //query.shouldquery.push(addQueryboost(req.body.location, "description.location",1));
+        query.shouldquery.push(addQueryboost(req.body.location, "description.location",1.1));
     }
     if (req.body.location && req.body.location.length > 0) {
     location = await nearbyAPI(req.body.location);
     // building query
     query.mustquery.push(addQuery(location, "description.location"));
-    query.shouldquery.push(addQueryboost(req.body.location, "description.location",1));
+    query.shouldquery.push(addQueryboost(req.body.location, "description.location",1.1));
     }
     // if (req.body.pin)
     

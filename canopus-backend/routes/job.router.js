@@ -104,7 +104,7 @@ router.post("/post", middleware.isLoggedIn, async (req, res) => {
     await session.abortTransaction();
     session.endSession();
     console.log(err);
-    res.status(500).json({status:"500"});
+    res.status(400).json({err:err});
   } 
 });
 
@@ -161,7 +161,7 @@ router.post("/save", middleware.isLoggedIn, async (req, res) => {
     await session.abortTransaction();
     session.endSession();
     console.log(err);
-    res.status(500).json({status:"500"});
+    res.status(400).json({err:err});
   } 
 });
 
@@ -485,10 +485,6 @@ router.put("/extend/:id",middleware.checkJobOwnership, async(req, res) => {
   // commit transaction
   await session.commitTransaction();
   session.endSession();
-  req.logIn(employer,function(err){
-    if(err)return res.status(500).json({err:"Error logging in"});
-    res.json({status:"200"});
-  });
   //res.json({status:"200"});
 
   } catch(err) {
@@ -506,8 +502,6 @@ router.put("/extend/expired/:id", middleware.isEmployer, async (req, res) => {
     //start transaction
     const session = await mongoose.startSession();
     session.startTransaction();
-    const server_error = new Error("500");
-    const client_error = new Error("400");
     try{
       //check user role
     if ( req.user.role === "Employer" )

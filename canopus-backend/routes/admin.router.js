@@ -140,11 +140,7 @@ router.post("/subscription/user", middleware.isAdmin,(req,res) => {
     }).catch((err)=>{res.status(500).json({err:err})});
 });
 
-async function tokenGen(){
 
-    const token = (await promisify(crypto.randomBytes)(20)).toString('hex');
-    return token;
-}
 
 
 router.post("/post/jobs", async (req,res) =>{

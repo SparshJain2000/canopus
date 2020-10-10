@@ -59,6 +59,8 @@ router.post("/", async (req, res) => {
     role: "User",
     lastUpdated:new Date(0),
   });
+  if(req.body.password.length > 20) 
+    return res.status(400).json({err :"Password should be maximum 20 characters"});
   User.register(user, req.body.password)
     .then((user) => {
      // mailController.validateMailUser(req,user,token);
@@ -72,19 +74,25 @@ router.post("/", async (req, res) => {
 
 router.post("/login", async function (req, res, next) {
   //captcha validation
-  let captcha = true;
-  try{
-       captcha = await validationController.verifyInvisibleCaptcha(req);
-    } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
-  if(!captcha)
-  return res.status(400).json({err:"Invalid Captcha"});
+  // let captcha = true;
+  // try{
+  //      captcha = await validationController.verifyInvisibleCaptcha(req);
+  //   } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
+  // if(!captcha)
+  // return res.status(400).json({err:"Invalid Captcha"});
   passport.authenticate("user", (err, user, info) => {
-    console.log(info);
     if (err) {
       return res.status(400).json({ err: err });
     }
     if (!user) {
-      return res.status(400).json({ err: info });
+      if(info.name==="NoSaltValueStoredError"){
+        info.message==="Please login with your social media account";
+        return res.status(400).json({err:info})
+      }
+      else{
+        info.message==="Login Failed - Incorrect Email/Password Combination";
+        return res.status(400).json({ err:info });
+      }
     }
     req.logIn(user, function (err) {
       if (err) {

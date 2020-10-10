@@ -32,7 +32,8 @@
         "MBA",
         "B.Pharm. (Hons.)",
         "B.Pharm + M.B.A.",
-        "MCh"
+        "MCh",
+        "Fellowship"
     ],
     "instituteType": [
         "Government Hospital",
@@ -198,7 +199,7 @@
             ]
         },
         {
-            "profession": "Medican Translator",
+            "profession": "Medical Translator",
             "specialization": [
                 "Medical Translator"
             ]
