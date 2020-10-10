@@ -261,15 +261,17 @@ export default class UpdateUser extends Component {
             }
             console.log("chal rha h");
             let reader = new FileReader();
-            reader.readAsDataURL(file);
+            reader.readAsArrayBuffer(file);
             reader.onload = () => {
-                var matches = reader.result.match(
-                    /^data:([A-Za-z-+\/]+);base64,(.+)$/,
-                );
-                var buffer = new Buffer(matches[2], "base64");
+                console.log(reader);
+                // var matches = reader.result.match(
+                //     /^data:([A-Za-z-+\/]+);base64,(.+)$/,
+                // );
+                // console.log(matches);
+                // var buffer = new Buffer(matches[2], "base64");
                 const resume = {
                     name: `${this.state.id}_${file.name}`,
-                    data: buffer,
+                    data: reader.result,
                     mimeType: file.type,
                     size: file.size,
                 };
@@ -291,6 +293,7 @@ export default class UpdateUser extends Component {
                                         loading: false,
                                         uploadingLogo: false,
                                         showError: false,
+                                        progress: 0,
                                     });
                                     // this.update();
                                     this.setState({ uploaded: true });
@@ -305,6 +308,7 @@ export default class UpdateUser extends Component {
                             "Invalid File - Please ensure the file size is less than 5MB and file type is doc, docx, rtf or pdf.",
                         uploading: false,
                         loading: false,
+                        progress: 0,
                     });
                     this.resume.current.value = "";
                 }
@@ -522,7 +526,7 @@ export default class UpdateUser extends Component {
 
     uploadLogo(e) {
         // console.log(this.image.current.value);
-        this.setState({ loading: true, uploadingLogo: false });
+        this.setState({ uploadingLogo: false });
         console.log(this.state);
         const files = Array.from(e.target.files);
         if (files.length !== 0) {
@@ -586,6 +590,7 @@ export default class UpdateUser extends Component {
                                         loading: false,
                                         uploadingLogo: false,
                                         showError2: false,
+                                        progress: 0,
                                     });
 
                                     console.log(res);
@@ -597,9 +602,9 @@ export default class UpdateUser extends Component {
                             this.setState({
                                 loading: false,
                                 showError2: true,
+                                progress: 0,
                                 logoError:
                                     "Something went wrong, Please try again.",
-                                loading: false,
                                 uploadingLogo: false,
                             });
                         });
@@ -728,24 +733,19 @@ export default class UpdateUser extends Component {
                                     Upto 5 MB
                                 </div>
                                 <div className='col-12'>
-                                    {this.state.uploadingLogo &&
-                                        this.state.progress !== 1 &&
-                                        this.state.progress !== 0 && (
-                                            <Progress
-                                                animated
-                                                color='info'
-                                                value={
-                                                    this.state.progress * 100
-                                                }>
-                                                <h6 className='m-0'>
-                                                    {Math.round(
-                                                        this.state.progress *
-                                                            100,
-                                                    )}
-                                                    {"%"}
-                                                </h6>
-                                            </Progress>
-                                        )}
+                                    {this.state.uploadingLogo && (
+                                        <Progress
+                                            animated
+                                            color='info'
+                                            value={this.state.progress * 100}>
+                                            <h6 className='m-0'>
+                                                {Math.round(
+                                                    this.state.progress * 100,
+                                                )}
+                                                {"%"}
+                                            </h6>
+                                        </Progress>
+                                    )}
                                 </div>
                                 <div className='mx-3 mx-sm-2'>
                                     <div className='my-1 mt-3'></div>
@@ -1497,22 +1497,21 @@ export default class UpdateUser extends Component {
                                 }}>
                                 {this.state.resumeError}
                             </Alert> */}
-                            {this.state.progress !== 1 &&
-                                this.state.progress !== 0 && (
-                                    <div className='my-1 mt-3 col-12'>
-                                        <Progress
-                                            animated
-                                            color='info'
-                                            value={this.state.progress * 100}>
-                                            <h6 className='m-0'>
-                                                {Math.round(
-                                                    this.state.progress * 100,
-                                                )}
-                                                {"%"}
-                                            </h6>
-                                        </Progress>
-                                    </div>
-                                )}
+                            {this.state.loading && (
+                                <div className='my-1 mt-3 col-12'>
+                                    <Progress
+                                        animated
+                                        color='info'
+                                        value={this.state.progress * 100}>
+                                        <h6 className='m-0'>
+                                            {Math.round(
+                                                this.state.progress * 100,
+                                            )}
+                                            {"%"}
+                                        </h6>
+                                    </Progress>
+                                </div>
+                            )}
                         </div>
                         {/* )} */}
                     </div>
