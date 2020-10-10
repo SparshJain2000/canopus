@@ -58,9 +58,9 @@ const customControlStyles = {
     }),
     input: (provided, state) => ({
         ...provided,
-        width: 50,
-        color: "red",
-        fontSize: "10px",
+        // width: 50,
+        // color: "red",
+        // fontSize: "10px",
     }),
     singleValue: (provided, state) => ({
         ...provided,
@@ -1299,11 +1299,7 @@ export default class JobSearch extends Component {
                                 id='exampleCustomSwitch'
                                 name='customSwitch'
                                 className='custom-control-right'
-                                label={`${
-                                    this.state.locumCount
-                                        ? this.state.locumCount
-                                        : ""
-                                } Day Job/Locum`}
+                                label={`${this.state.locumCount} Day Job/Locum`}
                                 // ref={this.freelance}
                                 checked={!this.state.freelance}
                                 disabled={this.state.locumCount === 0}
@@ -1809,11 +1805,7 @@ export default class JobSearch extends Component {
                                     id='exampleCustomSwitch'
                                     name='customSwitch'
                                     className='custom-control-right'
-                                    label={`${
-                                        this.state.locumCount
-                                            ? this.state.locumCount
-                                            : ""
-                                    } Day Job/Locum`}
+                                    label={`${this.state.locumCount} Day Job/Locum`}
                                     ref={this.freelance}
                                     checked={!this.state.freelance}
                                     onChange={(e) => {

@@ -25,6 +25,11 @@ export default class EmployerProfile extends Component {
             messError: "",
         };
     }
+    toggleErrorModal() {
+        this.setState({
+            modalError: !this.state.modalError,
+        });
+    }
     componentDidMount() {
         console.log(this.props);
         Axios.get(`/api/employer/profile/${this.props.match.params.id}`)
@@ -34,14 +39,13 @@ export default class EmployerProfile extends Component {
             })
             .catch(({ response }) => {
                 console.log(response);
-                if (response.data) {
-                    // alert(response.data.err);
-                    this.setState({
-                        modalError: true,
-                        messError: "Something went wrong, Please try again.",
-                    });
-                    // window.location = "/";
-                }
+
+                // alert(response.data.err);
+                this.setState({
+                    modalError: true,
+                    messError: "Something went wrong, Please try again.",
+                });
+                // window.location = "/";
             });
     }
     render() {
@@ -178,6 +182,7 @@ export default class EmployerProfile extends Component {
                                     </div>
                                 )}
                             {this.state.employer.youtube &&
+                                this.state.employer.youtube.length > 0 &&
                                 !(
                                     this.state.employer.youtube.length === 1 &&
                                     this.state.employer.youtube[0] === ""
@@ -196,9 +201,7 @@ export default class EmployerProfile extends Component {
                 )}
                 <Modal
                     isOpen={this.state.modalError}
-                    toggle={this.setState({
-                        modalError: !this.state.modalError,
-                    })}
+                    toggle={this.toggleErrorModal}
                     style={{ marginTop: "20vh" }}>
                     <ModalBody>{this.state.messError}</ModalBody>
                 </Modal>

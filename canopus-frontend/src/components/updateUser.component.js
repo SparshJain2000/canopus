@@ -62,6 +62,7 @@ export default class UpdateUser extends Component {
     constructor(props) {
         super(props);
         this.state = {
+            title: "",
             logo: "",
             salutation: "",
             firstName: "",
@@ -320,7 +321,6 @@ export default class UpdateUser extends Component {
             (item) => item === true,
         );
         const emp =
-            this.state.title === "" ||
             this.state.firstName === "" ||
             this.state.lastName === "" ||
             this.state.gender === "" ||
@@ -328,7 +328,8 @@ export default class UpdateUser extends Component {
             this.state.state === "" ||
             this.state.phone === "" ||
             this.state.profession === "" ||
-            this.state.specialization === "";
+            this.state.specialization === "" ||
+            this.state.title === "";
 
         console.log(isValid);
         console.log(emp);
@@ -438,8 +439,12 @@ export default class UpdateUser extends Component {
                         username: user.username,
                         firstName: user.firstName,
                         lastName: user.lastName,
-                        title: user.title,
+                        title:
+                            user.title && user.title !== undefined
+                                ? user.title
+                                : "",
                         gender: user.gender,
+                        salutation: user.salutation,
                         logo:
                             !user.image ||
                             user.image === undefined ||
@@ -770,14 +775,15 @@ export default class UpdateUser extends Component {
                                         key={"title"}
                                     />
                                 </div>
-                                <div className='col-3 col-sm-2 pl-0 pr-0 pr-sm-1 row my-1 my-sm-2'>
+                                <div className='col-3 col-sm-2 pr-0 pr-sm-1 my-1 my-sm-2 pl-0'>
                                     <Label
                                         className='mb-1'
-                                        style={{
-                                            display: "flex",
-                                            flexDirection: "column",
-                                            justifyContent: "center",
-                                        }}>
+                                        // style={{
+                                        //     display: "flex",
+                                        //     flexDirection: "column",
+                                        //     justifyContent: "center",
+                                        // }}
+                                    >
                                         <h6 className='mb-0 small-heading'>
                                             Prefix{" "}
                                             <span className='text-danger'>
@@ -785,21 +791,21 @@ export default class UpdateUser extends Component {
                                             </span>
                                         </h6>
                                     </Label>
-                                    <CustomInput
+                                    <Input
                                         placeholder='Salutation'
                                         type='select'
-                                        className='pl-1 m-0'
-                                        style={{ height: "auto" }}
+                                        // className='pl-1 m-0'
+                                        // style={{ height: "auto" }}
                                         onChange={this.handleChange}
                                         name='salutation'
                                         value={this.state.salutation}
                                         invalid={!this.state.valid.salutation}>
-                                        <option>Dr</option>
-                                        <option>Mr</option>
-                                        <option>Mrs</option>
-                                        <option>Ms</option>
-                                        <option>Prof</option>
-                                    </CustomInput>
+                                        <option value='Dr'>Dr</option>
+                                        <option value='Mr'>Mr</option>
+                                        <option value='Mrs'>Mrs</option>
+                                        <option value='Ms'>Ms</option>
+                                        <option value='Prof'>Prof</option>
+                                    </Input>
                                 </div>
                                 <div className='col-9 col-sm-5 pl-1 pl-sm-1 pr-0 my-1 my-sm-2'>
                                     <Label className='mb-1'>
@@ -852,7 +858,7 @@ export default class UpdateUser extends Component {
                                             console.log(e.target.value);
                                             this.handleChange(e);
                                         }}
-                                        defaultValue={this.state.gender}
+                                        value={this.state.gender}
                                         invalid={!this.state.valid.gender}>
                                         <option value='male'>Male</option>
                                         <option value='female'>Female</option>

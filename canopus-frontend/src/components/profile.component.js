@@ -482,7 +482,13 @@ export default class Profile extends Component {
                                                     className='ml-2 mr-3'
                                                 />
                                             </div>
-                                            <div className='col-11 pl-3'>
+                                            <div
+                                                className='col-11 pl-3'
+                                                style={{
+                                                    whiteSpace: "nowrap",
+                                                    overflow: "hidden",
+                                                    textOverflow: "ellipsis",
+                                                }}>
                                                 {this.state.profile.username}
                                             </div>
                                         </h6>
@@ -603,7 +609,12 @@ export default class Profile extends Component {
                                                                 new Date(
                                                                     `2011-10-10T${data.endTime}:00`,
                                                                 ),
-                                                            )} on `}
+                                                            )} ${
+                                                                data.days
+                                                                    .length > 0
+                                                                    ? "on"
+                                                                    : ""
+                                                            } `}
                                                             {data.days.map(
                                                                 (day) => (
                                                                     <Badge className='mx-1'>

@@ -363,6 +363,7 @@ export default class Overview extends Component {
                                     </div>
                                 )}
                             {this.state.employer.youtube &&
+                                this.state.employer.youtube.length > 0 &&
                                 !(
                                     this.state.employer.youtube.length === 1 &&
                                     this.state.employer.youtube[0] === ""
