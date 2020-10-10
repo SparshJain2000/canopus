@@ -6,7 +6,7 @@ module.exports = mongoose.model(
         username: String,
         resetPasswordToken: String,
         resetPasswordExpires: Date,
-        emailVerifyToken: String,
+        emailVerifiedToken: String,
         emailVerified: Boolean,
         createdAt: Date,
         lastUpdated: Date,
@@ -52,7 +52,7 @@ module.exports = mongoose.model(
         resume: String,
         availability: Object, // for locum calendar
         google: Object,
-        facebook: Object,
+        linkedin: Object,
         sponsors: {
             allowed: Number,
             posted: Number,

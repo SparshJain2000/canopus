@@ -23,12 +23,12 @@ const User = require("../models/user.model"),
 //Sign up route
 router.post("/", async (req, res) => {
     //captcha validation
-    let captcha = true;
-  try{
-       captcha = await validationController.verifyInvisibleCaptcha(req);
-    } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
-  if(!captcha)
-  return res.status(400).json({err:"Invalid Captcha"});
+//     let captcha = true;
+//   try{
+//        captcha = await validationController.verifyInvisibleCaptcha(req);
+//     } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
+//   if(!captcha)
+//   return res.status(400).json({err:"Invalid Captcha"});
     const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
     const employer = new Employer({
         username: req.body.username,
@@ -62,44 +62,46 @@ router.post("/", async (req, res) => {
         createdAt: Date.now(),
         lastUpdated:new Date(0),
     });
+    if(req.body.password.length > 20) 
+        return res.status(400).json({err :"Password should be maximum 20 characters"});
     Employer.register(employer, req.body.password)
         .then((employer) => {
-            mailController.validateMailEmployer(req, employer, token);
+           // mailController.validateMailEmployer(req, employer, token);
             passport.authenticate("employer")(req, res, () => {
                 res.json({ employer: employer });
             });
         })
-        .catch((err) => res.status(400).json({ err: err }));
+        .catch((err) => res.status(400).json({ err: "User already exists" }));
 });
 //===========================================================================
 //Login route
 router.post("/login", async function (req, res,next) {
   //captcha validation
-  let captcha = true;
-  try{
-       captcha = await validationController.verifyInvisibleCaptcha(req);
-    } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
-  if(!captcha)
-  return res.status(400).json({err:"Invalid Captcha"});
+//   let captcha = true;
+//   try{
+//        captcha = await validationController.verifyInvisibleCaptcha(req);
+//     } catch(err){return res.status(400).json({err:"Invalid Captcha"});}
+//   if(!captcha)
+//   return res.status(400).json({err:"Invalid Captcha"});
   passport.authenticate("employer", function (err, employer, info) {
     if (err) {
-      return res.status(400).json({ err: err });
+        console.log(err);
+      return res.status(400).json({ err: "Incorrect Email/Password" });
     }
     if (!employer) {
-      return res.status(400).json({ err: info });
+        if(info.name==="NoSaltValueStoredError"){
+            info.message==="Please login with your social media account";
+            return res.status(400).json({err:info})
+          }
+          else{
+            info.message==="Login Failed - Incorrect Email/Password Combination";
+            return res.status(400).json({ err:info });
+          }
     }
     req.logIn(employer, function (err) {
       if (err) {
         return res.status(400).json({ err: err });
       }
-      
-      // let params = {
-      //   ec:"Employer",
-      //   ea:"true",
-      //   cd1:"employer",
-      //   userId:req.user._id
-      // };
-      // visitor.event(params).send();
       return res.json({
         employer: req.user,
         message: `${req.user.username} Logged in`,
@@ -130,7 +132,7 @@ router.post("/forgot", async (req, res) => {
     )
         .then((user) => {
             console.log(token);
-            mailController.forgotMailEmployer(req, user, token);
+            mailController.forgotMail(req, user, token,"employer");
             res.json({ status: "Email has been sent" });
         })
         .catch((err) => {
@@ -186,7 +188,7 @@ router.put("/forgot/:token", async (req, res) => {
 
 router.post("/validate", middleware.isEmployer, async (req, res) => {
     const token = (await promisify(crypto.randomBytes)(20)).toString("hex");
-    if (req.body.username == "" || !req.body.username || req.user.emailVerified)
+    if (req.body.username == "" || !req.body.username || req.user.emailVerified===true)
         return res.status(400).json({ err: "Bad request" });
     Employer.findOneAndUpdate(
         { username: req.body.username },
@@ -198,11 +200,11 @@ router.post("/validate", middleware.isEmployer, async (req, res) => {
     )
         .then((user) => {
             console.log(token);
-            mailController.validateMailEmployer(req, user, token);
+            mailController.validateMail(req, user, token,"employer");
             res.json({ status: "Email has been sent" });
         })
         .catch((err) => {
-            res.json({ err: "User not found" });
+            res.status(400).json({ err: "User not found" });
         });
 });
 
@@ -299,7 +301,7 @@ router.get("/profile/:id/jobs", (req, res) => {
             const id = employer.jobs.map((job) => {
                 return job.id;
             });
-            console.log(id);
+             
             Job.find(
                 { _id: { $in: id } },
                 { applicants: 0, acceptedApplicants: 0 },
@@ -315,9 +317,7 @@ router.get("/profile/:id/jobs", (req, res) => {
             res.json({ err: "Employer not found" });
         });
 });
-router.post("/experiment",(req,res)=>{
-    console.log(req.user);
-  });
+
 //get multiple freelance jobs
 router.get("/profile/:id/freelance", (req, res) => {
     Employer.findById(req.params.id)
@@ -325,7 +325,7 @@ router.get("/profile/:id/freelance", (req, res) => {
             const id = employer.freelanceJobs.map((job) => {
                 return job.id;
             });
-            console.log(id);
+
             Freelance.find(
                 { _id: { $in: id } },
                 { applicants: 0, acceptedApplicants: 0 },
@@ -346,7 +346,7 @@ router.get("/profile/:id/freelance", (req, res) => {
 router.put("/profile/update/", middleware.isEmployer, async (req, res) => {
     query = await validationController.EmployerProfileUpdateBuilder(req);
     let employer = await Employer.findOneAndUpdate({ _id: req.user._id },{ $set: query.update },{ new: true });
-    if (employer.jobs.length > 0 &&(req.body.logo || req.body.instituteName)) {
+    if (employer.jobs.length > 0 &&(req.body.logo || req.body.description.organization)) {
                 const id = employer.jobs.map((item) => {
                     return item.id;
                 });
@@ -359,7 +359,7 @@ router.put("/profile/update/", middleware.isEmployer, async (req, res) => {
                         console.log(err);
                     });
             }
-    if (employer.freelanceJobs.length > 0 && (req.body.logo || req.body.instituteName)) {
+    if (employer.freelanceJobs.length > 0 && (req.body.logo || req.body.description.organization)) {
                 const id = employer.freelanceJobs.map((item) => {
                     return item.id;
                 });
@@ -379,6 +379,10 @@ router.put("/profile/update/", middleware.isEmployer, async (req, res) => {
             //if(employer.jobs.length)
             // Handle any possible database errors
            // if (err) return res.status(500).send(err);
+           let d = new Date(req.user.lastUpdated).toString();
+            let o = new Date(0).toString();
+           if(d===o)
+            mailController.welcomeMail(req,employer);
             req.logIn(employer, (err) => {
                 if (err) return res.status(500).send(err);
                 return res.send(employer);
@@ -395,7 +399,6 @@ router.get("/all/jobs", middleware.isEmployer, (req, res) => {
             const id = employer.jobs.map((job) => {
                 return job.id;
             });
-            console.log(id);
             Job.find({ _id: { $in: id } })
                 .then((jobs) => {
                     res.json({ jobs: jobs });
@@ -416,7 +419,6 @@ router.get("/all/freelance", middleware.isEmployer, (req, res) => {
             const id = employer.freelanceJobs.map((job) => {
                 return job.id;
             });
-            console.log(id);
             Freelance.find({ _id: { $in: id } })
                 .then((jobs) => {
                     res.json({ jobs: jobs });
@@ -458,7 +460,7 @@ router.get("/all/savedFreelance", middleware.isEmployer, (req, res) => {
             const ID = employer.savedFreelance.map((item) => {
                 return mongoose.Types.ObjectId(item.id);
             });
-            console.log(ID);
+
             savedFreelance
                 .find({ _id: { $in: ID } })
                 .then((jobs) => {
@@ -479,7 +481,6 @@ router.get("/all/expiredJobs", middleware.isEmployer, (req, res) => {
             const ID = employer.jobs.map((item) => {
                 return mongoose.Types.ObjectId(item.id);
             });
-            console.log(ID);
             var active = [];
             var inactive = [];
             let promises = [];
@@ -502,7 +503,6 @@ router.get("/all/expiredJobs", middleware.isEmployer, (req, res) => {
             }
             Promise.all(promises)
                 .then((msg) => {
-                    console.log(inactive);
                     savedJob
                         .find({ jobRef: { $in: inactive } })
                         .then((jobs) => {
@@ -520,7 +520,6 @@ router.get("/all/expiredJobs", middleware.isEmployer, (req, res) => {
 });
 // get expired freelance jobs
 router.get("/all/expiredFreelance", middleware.isEmployer, (req, res) => {
-    console.log(req.user._id);
     Employer.findById(req.user._id)
         .then((employer) => {
             const ID = employer.freelanceJobs.map((item) => {
@@ -548,7 +547,6 @@ router.get("/all/expiredFreelance", middleware.isEmployer, (req, res) => {
             }
             Promise.all(promises)
                 .then((msg) => {
-                    console.log(inactive);
                     savedFreelance
                         .find({ jobRef: { $in: inactive } })
                         .then((jobs) => {
@@ -720,11 +718,11 @@ router.delete("/save/job/:id", middleware.isEmployer, (req, res) => {
                         );
                 })
                 .catch((err) => {
-                    res.json({ err: "Error Saving Employer" });
+                    res.status(500).json({ err: "Error Saving Employer" });
                 });
         })
         .catch((err) => {
-            res.json({ err: "Job doesn't belong to you" });
+            res.status(500).json({ err: "Job doesn't belong to you" });
         });
 });
 //delete a job

@@ -11,6 +11,7 @@ const User           = require("../models/user.model"),
       Freelance      = require("../models/freelance.model"), 
       savedJob       = require("../models/savedJobs.model"),
       savedFreelance = require("../models/savedFreelance.model");
+const { mailController } = require("../controllers/mail.controller");
 //===========================================================================
 //get all jobs
 router.post("/all-jobs", (req, res) => {
@@ -713,6 +714,8 @@ router.put("/apply/job/:id", middleware.isUser, async (req, res) => {
       title: job.title,
     });
     await user.save({session});
+    //send mail
+    mailController.newApplicantMail(req,user,job);
     //commit transaction
     await session.commitTransaction();
     session.endSession();
@@ -772,6 +775,8 @@ try {
     title: job.title,
   });
   await user.save({session});
+  //send mail
+  mailController.newApplicantMail(req,user,job);
   //commit transaction
   await session.commitTransaction();
   session.endSession();

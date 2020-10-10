@@ -48,16 +48,21 @@ async function EmployerProfileUpdateBuilder(req) {
         query.update["logo"] = req.body.logo;
         query.jobUpdate["author.photo"] = req.body.logo;
     }
-    if (req.body.instituteName) {
-        query.update["instituteName"] = req.body.institutename;
-        query.jobUpdate["author.instituteName"] = req.body.instituteName;
-    }
+    
     if (req.body.specialty) query.update["specialty"] = req.body.specialty;
+    if(req.body.specialty==="")query.update["specialty"]="";
     if (req.body.links) query.update["links"] = req.body.links;
     if (req.body.image) query.update["image"] = req.body.image;
     if (req.body.address) query.update["address"] = req.body.address;
-    if (req.body.description)
-        query.update["description"] = req.body.description;
+    if (req.body.description){
+        if (req.body.description.organization) {
+            // query.update["instituteName"] = req.body.institutename;
+             query.jobUpdate["author.instituteName"] = req.body.description.organization;
+             //console.log(req.body.description.organization);
+         }
+         query.update["description"] = req.body.description;
+    }
+        
     if (req.body.youtube) query.update["youtube"] = req.body.youtube;
     query.update["lastUpdated"] = Date.now();
     //console.log(query.update);
@@ -139,6 +144,8 @@ function initTier(user){
     };
     user.validated=false;
     user.createdAt= Date.now();
+    user.lastUpdated = new Date(0);
+    user.emailVerified = true;
     return user;
 }
 function initUserTier(user){
@@ -167,6 +174,8 @@ function initUserTier(user){
     };
     user.validated=false;
     user.createdAt= Date.now();
+    user.lastUpdated = new Date(0);
+    user.emailVerified = true;
     return user;
 }
 const validationController = {};

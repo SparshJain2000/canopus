@@ -19,22 +19,36 @@ const fs = require("fs"),
     if(req.body.category === "Full-time" || req.body.category === "Part-time") subscription="jobtier";
     else if(req.body.category === "Day Job") subscription="freelancetier";
     else if(req.body.category === "Locum") subscription = "locumtier";
-    else return false;
+    else throw "Incorrect Job Category";
     //check email validity
     // if(!employer.emailVerified)
-    //   return false;
+    //   throw "Please verify your Email before posting any jobs";
     // checking if employer is validated and limiting jobs
     // if (type=== "posted" && employer.validated == false && (employer[subscription][type] > 0) )
-    //   return false;
+    //   throw "Please wait for us to validate your organization before posting any jobs"
 
     //updating job tier
-    if (employer[subscription].allowed - employer[subscription][type] <= 0)
-      return false;
+    if(type==="posted"){
+    if (employer[subscription].allowed - employer[subscription].posted <= 0)
+    {   
+      if(req.body.category === "Full-time")
+        throw "You are not eligible to post more jobs, Please contact us to allot more jobs";
+      if(req.body.category === "Day Job")
+        throw "You are not eligible to post more day jobs, Please contact us to allot more jobs";
+      if(req.body.category === "Locum")
+        throw "You are not eligible to post more locum jobs, Please contact us to allot more jobs";
+    }
     else employer[subscription][type] += 1;
+    }
+    else if(type==="saved"){
+      if(employer[subscription].saved > 20)
+      throw "Maximum Jobs Saved";
+      else employer[subscription].saved+=1;
+    }
 
      //checking sponsorship status
     if(req.body.sponsored === "true" && employer.sponsors.posted >= employer.sponsors.allowed)
-     return false;
+    throw "No more sponsors remaining";
     else if(req.body.sponsored === "true") 
      employer.sponsors.posted += 1;
      
@@ -53,7 +67,7 @@ async function createJob(req,data,employer,extension){
     if(req.user.role === "Employer"){
     author.photo = req.user.logo;
     }
-    if(req.body.category === "Full-time" || req.body.category === "Part-time"){
+    if(req.body.category === "Full-time" || req.body.category === "Part-time" || data.category==="Full-time"){
     //set expiry date
     var expiry = new Date();
     expiry.setDate(expiry.getDate() + 45);

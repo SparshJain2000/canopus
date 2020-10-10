@@ -1,4 +1,7 @@
 {
+    "subscription_banner":"Please contact +91-xxxxxxxxx for pricing information or purchasing more job slots",
+    "sponsor_banner":"Please contact +91-xxxxxxxxx to sponsor this job",
+    "search_count":5,
     "degrees": [
         "MBBS",
         "BAMS",
@@ -29,7 +32,8 @@
         "MBA",
         "B.Pharm. (Hons.)",
         "B.Pharm + M.B.A.",
-        "MCh"
+        "MCh",
+        "Fellowship"
     ],
     "instituteType": [
         "Government Hospital",
@@ -195,9 +199,15 @@
             ]
         },
         {
-            "profession": "Medican Translator",
+            "profession": "Medical Translator",
             "specialization": [
                 "Medical Translator"
+            ]
+        },
+        {
+            "profession":"Dietician",
+            "specialization":[
+                "Nutrition"
             ]
         }
     ],

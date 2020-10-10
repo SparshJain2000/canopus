@@ -25,6 +25,7 @@ require("dotenv").config();
 const GOOGLE_ANALYTICS=process.env.GOOGLE_ANALYTICS;
 var ua = require("universal-analytics");
 var visitor = ua(GOOGLE_ANALYTICS);
+//test
 //==========================================================================
 app.use(bodyParser.json({ limit: "5mb" }));
 app.use(cors());
@@ -58,7 +59,19 @@ app.use((req, res, next) => {
 app.use(passport.initialize());
 app.use(passport.session());
 //app.set('views', __dirname + '/views');
-
+// const rateLimit = require("express-rate-limit");
+ 
+// // Enable if you're behind a reverse proxy (Heroku, Bluemix, AWS ELB, Nginx, etc)
+// // see https://expressjs.com/en/guide/behind-proxies.html
+//  app.set('trust proxy', 1);
+ 
+// const limiter = rateLimit({
+//   windowMs: 15 * 60 * 1000, // 15 minutes
+//   max: 100 // limit each IP to 100 requests per windowMs
+// });
+ 
+//  apply to all requests
+//app.use(limiter);
 passport.use(
     "employer",
     new LocalStratergy({ usernameField: "username" }, Employer.authenticate()),
@@ -188,7 +201,7 @@ passport.use("linkedin_user",new LinkedInStrategy({
             var user = new User();
             user.username = profile.emails[0].value;
             user.role = "User";
-            user.image = profile.photos[0].value;
+            user.image = profile.photos[3].value;
             user = validationController.initUserTier(user);
             user.linkedin = {
                 id: profile.id,
@@ -197,8 +210,6 @@ passport.use("linkedin_user",new LinkedInStrategy({
             user.salutation="Dr";
             user.firstName = profile.name.givenName;
             user.lastName = profile.name.familyName;
-            user.lastUpdated = new Date(0);
-            user.emailVerified = true;
             user.save((err, user) => {
                 if (!err) return done(err, user);
             });
@@ -229,7 +240,8 @@ passport.use("linkedin_employer",new LinkedInStrategy({
               var user = new Employer();
               user.username = profile.emails[0].value;
               user.role = "Employer";
-              //user.image = profile.photos[0].value;
+              //user.image = profile.photos;
+              //user.image = profile._json.pictureUrl;
               user = validationController.initTier(user);
               user.linkedin = {
                   id: profile.id,
