@@ -1730,7 +1730,7 @@ const UpdateJob = (props) => {
                     {jobType === "close" &&
                         type !== "Day Job" &&
                         type !== "Locum Position" &&
-                        job.status === "active" &&
+                        job.status === "Active" &&
                         job.extension === 1 && (
                             <div className='col-3 col-md-2 px-1'>
                                 <Button
@@ -1904,6 +1904,7 @@ const UpdateJob = (props) => {
                         {(mess === "discard" || mess === "close") && "Keep"}
                         {mess === "post" && "Wait"}
                         {mess === "promote" && "No"}
+                        {mess === "extend" && "No"}
                     </Button>
                 </ModalFooter>
             </Modal>
