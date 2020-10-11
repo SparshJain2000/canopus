@@ -34,6 +34,8 @@ router.post("/post", middleware.isLoggedIn, async (req, res) => {
       var employer = await Employer.findById(req.user._id).session(session);
     else if ( req.user.role === "User" )
       var employer = await User.findById(req.user._id).session(session);
+    if(employer.emailVerified===false)
+      return res.status(400).json({mail:false});
     //check tier and sponsorship status
     employer = await jobController.assignTier(req,employer,"posted");
     //error if invalid tier 

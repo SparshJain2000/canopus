@@ -385,7 +385,48 @@ router.post("/similar-jobs", (req, res) => {
       addQuery(req.body.superSpecialization, "superSpecialization")
     );
   //mustquery.push(addQuery(true,'validated'));
+  if(req.body.category==="Full-time")
   Job.aggregate(
+    [
+      
+      {
+        $search: {
+          compound: {
+            must: mustquery,
+          },
+        },
+      },
+      {
+        $match: {_id:{$ne:mongoose.Types.ObjectId(req.body._id)}}
+      },
+      {
+        $limit: limiter,
+      },
+      {
+        $sort: {
+          score: {
+            $meta: "textScore",
+          },
+        },
+      },
+      {
+        $project: {
+          applicants:0,
+          acceptedApplicants:0,
+          'author.username':0
+        },
+      },
+    ],
+    (err, jobs) => {
+      if (err)
+        res.status(400).json({
+          err: err,
+        });
+      else res.json({ jobs: jobs });
+    }
+  );
+  else
+  Freelance.aggregate(
     [
       
       {
