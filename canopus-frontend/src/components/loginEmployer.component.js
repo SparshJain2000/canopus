@@ -234,20 +234,19 @@ export default class LoginEmployer extends Component {
                                 badge='bottomleft'
                                 ref={this.recaptcha}
                             />
-                            <div className='form-group'>
-                                <button
-                                    type='submit'
-                                    className='btn btn-primary login-btn btn-block'>
-                                    Log in
-                                </button>
-                            </div>
-                            <div className='clearfix'>
+                            <div className='form-group row justify-content-between'>
                                 <Link
-                                    className='text-info float-right'
+                                    className='text-emp-primary float-right'
                                     to='/employer/forgot'>
                                     Forgot Password?
                                 </Link>
+                                <button
+                                    type='submit'
+                                    className='btn btn-emp-primary '>
+                                    Log in
+                                </button>
                             </div>
+                            <div className='clearfix'></div>
                             <div className='or-seperator'>
                                 <i>or</i>
                             </div>

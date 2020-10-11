@@ -162,7 +162,12 @@ const Job = ({
                 .catch((err) => {
                     console.log(err.response);
                     if (err.response.data && err.response.data.err) {
-                        setMessError(err.response.data.err);
+                        setMessError(
+                            err.response.data.err !== undefined &&
+                                err.response.data.err !== ""
+                                ? err.response.data.err
+                                : "Something went wrong, Please try again.",
+                        );
                         toggleError();
                     }
                 });
@@ -186,7 +191,12 @@ const Job = ({
             .catch((err) => {
                 console.log(err.response);
                 if (err.response.data && err.response.data.err) {
-                    setMessError(err.response.data.err);
+                    setMessError(
+                        err.response.data.err !== undefined &&
+                            err.response.data.err !== ""
+                            ? err.response.data.err
+                            : "Something went wrong, Please try again.",
+                    );
                     toggleError();
                 }
             });
@@ -204,7 +214,18 @@ const Job = ({
                     getSavedJobs();
                 }
             })
-            .catch((err) => console.log(err.response));
+            .catch((err) => {
+                console.log(err.response);
+                if (err.response.data && err.response.data.err) {
+                    setMessError(
+                        err.response.data.err !== undefined &&
+                            err.response.data.err !== ""
+                            ? err.response.data.err
+                            : "Something went wrong, Please try again.",
+                    );
+                    toggleError();
+                }
+            });
     };
     const discard = () => {
         axios
@@ -222,7 +243,12 @@ const Job = ({
             .catch((err) => {
                 console.log(err.response);
                 if (err.response.data && err.response.data.err)
-                    setMessError(err.response.data.err);
+                    setMessError(
+                        err.response.data.err !== undefined &&
+                            err.response.data.err !== ""
+                            ? err.response.data.err
+                            : "Something went wrong, Please try again.",
+                    );
                 toggleError();
             });
     };
@@ -256,7 +282,7 @@ const Job = ({
                                     <div className='col-8 px-0 pr-1'>
                                         <Button
                                             size={"sm"}
-                                            color='danger'
+                                            color='js-primary'
                                             onClick={(e) => {
                                                 setMess("discard");
                                                 toggle();
@@ -276,7 +302,7 @@ const Job = ({
                                             params={{ freelance: freelance }}>
                                             <Button
                                                 size={"sm"}
-                                                className='btn btn-primary w-100'>
+                                                className='btn btn-js-secondary w-100'>
                                                 Edit
                                             </Button>
                                         </Link>
@@ -287,7 +313,7 @@ const Job = ({
                                 <div className='row mx-0 px-0 justify-content-end'>
                                     <div className='col-5 px-0 pr-1'>
                                         <Button
-                                            color='primary'
+                                            color='emp-primary'
                                             size={"sm"}
                                             className='w-100'
                                             onClick={(e) => {
@@ -314,7 +340,7 @@ const Job = ({
                                             params={{ freelance: freelance }}>
                                             <Button
                                                 size={"sm"}
-                                                color='secondary'
+                                                color='emp-secondary'
                                                 className='btn btn-primary w-100'>
                                                 View
                                             </Button>
@@ -332,7 +358,7 @@ const Job = ({
                                             <Button
                                                 className='w-100'
                                                 size='sm'
-                                                color={"info"}
+                                                color={"js-primary"}
                                                 onClick={(e) => {
                                                     if (canSponsor) {
                                                         setMess("promote");
@@ -356,7 +382,7 @@ const Job = ({
                                             <Button
                                                 className='w-100 px-0'
                                                 size='sm'
-                                                color={"info"}
+                                                color={"js-primary"}
                                                 disabled>
                                                 Promoted
                                                 <FontAwesomeIcon
@@ -378,7 +404,7 @@ const Job = ({
                                             }}
                                             params={{ freelance: freelance }}>
                                             <Button
-                                                className='btn btn-primary w-100'
+                                                className='btn btn-js-secondary w-100'
                                                 size='sm'>
                                                 Edit
                                             </Button>
@@ -659,6 +685,7 @@ const Job = ({
                         {mess === "discard" && "Keep"}
                         {mess === "post" && "Wait"}
                         {mess === "promote" && "No"}
+                        {mess.split("_")[0] === "accept" && "No"}
                     </Button>
                 </ModalFooter>
             </Modal>
@@ -689,11 +716,19 @@ export default class JobApplications extends Component {
             closedJobs: null,
             savedJobs: null,
             canSponsor: false,
+            modalError: false,
+            messError: "",
         };
         this.toggleTab = this.toggleTab.bind(this);
         this.getSavedJobs = this.getSavedJobs.bind(this);
         this.getOpenJobs = this.getOpenJobs.bind(this);
         this.getClosedJobs = this.getClosedJobs.bind(this);
+        this.toggleModal = this.toggleModal.bind(this);
+    }
+    toggleModal() {
+        this.setState({
+            modalError: !this.state.modalError,
+        });
     }
     toggleTab(tab) {
         if (this.state.activeTab !== tab) this.setState({ activeTab: tab });
@@ -705,7 +740,13 @@ export default class JobApplications extends Component {
                 console.log(data);
                 this.setState({ jobs: data.jobs });
             })
-            .catch((err) => console.log(err.response));
+            .catch((err) => {
+                console.log(err.response);
+                this.setState({
+                    modalError: true,
+                    messError: "Something went wrong, Please try again.",
+                });
+            });
         axios
             .get("/api/employer/all/expiredFreelance")
             .then(({ data }) => {
@@ -713,7 +754,13 @@ export default class JobApplications extends Component {
                 this.setState({ freelanceJobs: data.jobs });
                 console.log(this.state.freelanceJobs);
             })
-            .catch((err) => console.log(err.response));
+            .catch((err) => {
+                console.log(err.response);
+                this.setState({
+                    modalError: true,
+                    messError: "Something went wrong, Please try again.",
+                });
+            });
     }
     getOpenJobs() {
         axios
@@ -722,14 +769,26 @@ export default class JobApplications extends Component {
                 console.log(data.jobs);
                 this.setState({ jobs: data.jobs });
             })
-            .catch((err) => console.log(err.response));
+            .catch((err) => {
+                console.log(err.response);
+                this.setState({
+                    modalError: true,
+                    messError: "Something went wrong, Please try again.",
+                });
+            });
         axios
             .get("/api/employer/all/freelance")
             .then(({ data }) => {
                 console.log(data.jobs);
                 this.setState({ freelanceJobs: data.jobs });
             })
-            .catch((err) => console.log(err.response));
+            .catch((err) => {
+                console.log(err.response);
+                this.setState({
+                    modalError: true,
+                    messError: "Something went wrong, Please try again.",
+                });
+            });
     }
     getSavedJobs() {
         axios
@@ -738,14 +797,26 @@ export default class JobApplications extends Component {
                 console.log(data.jobs);
                 this.setState({ jobs: data.jobs });
             })
-            .catch((err) => console.log(err.response));
+            .catch((err) => {
+                console.log(err.response);
+                this.setState({
+                    modalError: true,
+                    messError: "Something went wrong, Please try again.",
+                });
+            });
         axios
             .get("/api/employer/all/savedFreelance")
             .then(({ data }) => {
                 console.log(data.jobs);
                 this.setState({ freelanceJobs: data.jobs });
             })
-            .catch((err) => console.log(err.response));
+            .catch((err) => {
+                console.log(err.response);
+                this.setState({
+                    modalError: true,
+                    messError: "Something went wrong, Please try again.",
+                });
+            });
     }
     componentDidMount() {
         console.log(this.props);
@@ -792,7 +863,7 @@ export default class JobApplications extends Component {
                                         size='sm'
                                         id='update'
                                         style={{ textAlign: "center" }}
-                                        color='info'>
+                                        color='emp-secondary'>
                                         Update Profile
                                         <FontAwesomeIcon
                                             icon={faPen}
@@ -813,7 +884,7 @@ export default class JobApplications extends Component {
                                         size='sm'
                                         id='post'
                                         style={{ textAlign: "center" }}
-                                        color='primary'>
+                                        color='emp-primary'>
                                         Post a Job{" "}
                                         <FontAwesomeIcon
                                             icon={faPen}
@@ -991,6 +1062,12 @@ export default class JobApplications extends Component {
                         {/* <h3 className='text-align-center w-100'>Locum Jobs</h3> */}
                     </div>
                 </div>
+                <Modal
+                    isOpen={this.state.modalError}
+                    toggle={this.toggleModal}
+                    style={{ marginTop: "20vh" }}>
+                    <ModalBody>{this.state.messError}</ModalBody>
+                </Modal>
             </div>
         );
     }

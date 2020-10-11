@@ -171,7 +171,7 @@ const NavbarComponent = (props) => {
                             <Toast
                                 className='my-auto mx-1'
                                 style={{
-                                    border: "1px solid #4180cb",
+                                    border: "1px solid #F04C63",
                                 }}>
                                 <div className='toast-header '>
                                     <strong className='mx-auto'>
@@ -182,7 +182,7 @@ const NavbarComponent = (props) => {
                                     <div>
                                         <Link
                                             to='/user/login'
-                                            className='text-primary'
+                                            className='text-js-primary'
                                             // onClick={toggleModal}
                                         >
                                             Login
@@ -191,7 +191,7 @@ const NavbarComponent = (props) => {
                                     <div className=''>
                                         <Link
                                             to='/user/signup'
-                                            className='badge badge-lg badge-primary p-2 ml-1'>
+                                            className='badge badge-lg badge-js-primary p-2 ml-1'>
                                             Signup
                                         </Link>
                                     </div>
@@ -200,7 +200,7 @@ const NavbarComponent = (props) => {
                             <Toast
                                 className=' my-auto mx-1'
                                 style={{
-                                    border: "1px solid rgb(255, 136, 0)",
+                                    border: "1px solid #0A4F70",
                                 }}>
                                 <div className='toast-header px-auto'>
                                     <strong className='mx-auto'>
@@ -211,7 +211,7 @@ const NavbarComponent = (props) => {
                                     <div>
                                         <Link
                                             to='/employer/login'
-                                            className='text-danger'
+                                            className='text-emp-primary'
                                             // onClick={toggleModalEmployer}
                                         >
                                             Login
@@ -220,7 +220,7 @@ const NavbarComponent = (props) => {
                                     <div className=''>
                                         <a
                                             href='/employer/signup'
-                                            className='badge badge-lg badge-danger p-2 ml-1'>
+                                            className='badge badge-lg badge-emp-primary p-2 ml-1'>
                                             Signup
                                         </a>
                                     </div>
@@ -232,13 +232,14 @@ const NavbarComponent = (props) => {
                             <ButtonDropdown
                                 isOpen={buttonDropdown}
                                 toggle={toggleButtonDropdown}>
-                                <Button
+                                <Link
                                     id='caret'
-                                    color={
+                                    to={`${
                                         props.user.role === "Employer"
-                                            ? "info"
-                                            : "primary"
-                                    }
+                                            ? "/employer"
+                                            : "/profile"
+                                    }`}
+                                    className={`btn btn-emp-primary`}
                                     style={{ width: "max-content" }}>
                                     <FontAwesomeIcon
                                         icon={
@@ -249,21 +250,19 @@ const NavbarComponent = (props) => {
                                         className='mr-2'
                                     />
                                     {props.user.firstName}
-                                </Button>
-                                <DropdownToggle
-                                    caret
-                                    color={
-                                        props.user.role === "Employer"
-                                            ? "info"
-                                            : "primary"
-                                    }
-                                />
-                                <DropdownMenu right style={{ zIndex: "2000" }}>
+                                </Link>
+                                <DropdownToggle caret color={"emp-primary"} />
+                                <DropdownMenu
+                                    right
+                                    // direction='right'
+                                    // nav={true}
+                                    // style={{ zIndex: 1001 }}
+                                >
                                     {props.user.role === "Employer" ? (
                                         <Link
                                             to='/employer'
                                             className='dropdown-item'>
-                                            Post/View Jobs
+                                            Dashboard
                                         </Link>
                                     ) : (
                                         <Link

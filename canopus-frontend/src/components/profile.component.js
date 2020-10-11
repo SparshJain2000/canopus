@@ -41,6 +41,8 @@ export default class Profile extends Component {
             imageLoading: true,
             progress: 0,
             uploaded: true,
+            modalError: false,
+            messError: "",
         };
         this.image = React.createRef();
         this.firstName = React.createRef();
@@ -60,6 +62,12 @@ export default class Profile extends Component {
         // this.setProgress = this.setProgress.bind(this);
 
         this.uploadToStorage = this.uploadToStorage.bind(this);
+        this.toggleModal = this.toggleModal.bind(this);
+    }
+    toggleModal() {
+        this.setState({
+            modalError: !this.state.modalError,
+        });
     }
     update() {
         console.log(this.state.profile);
@@ -74,7 +82,13 @@ export default class Profile extends Component {
                     modalEducation: false,
                 });
             })
-            .catch((err) => console.log(err));
+            .catch((err) => {
+                console.log(err);
+                this.setState({
+                    modalError: true,
+                    messError: "Something went wrong, Please try again.",
+                });
+            });
     }
 
     toggleAbout() {
@@ -191,7 +205,14 @@ export default class Profile extends Component {
                                 },
                             );
                         })
-                        .catch((e) => console.log(e));
+                        .catch((e) => {
+                            console.log(e);
+                            this.setState({
+                                modalError: true,
+                                messError:
+                                    "Something went wrong, Please try again.",
+                            });
+                        });
                 };
             });
         }
@@ -262,7 +283,13 @@ export default class Profile extends Component {
                     });
                     console.log(this.state.profile);
                 })
-                .catch((err) => console.log(err.response));
+                .catch((err) => {
+                    console.log(err.response);
+                    this.setState({
+                        modalError: true,
+                        messError: "Something went wrong, Please try again.",
+                    });
+                });
         } else
             axios
                 .get("/api/user/profile")
@@ -275,7 +302,14 @@ export default class Profile extends Component {
                     });
                     console.log(this.state.profile);
                 })
-                .catch((err) => console.log(err.response));
+                .catch((err) => {
+                    console.log(err.response);
+
+                    this.setState({
+                        modalError: true,
+                        messError: "Something went wrong, Please try again.",
+                    });
+                });
     }
     render() {
         const option = { hour: "numeric", minute: "numeric" };
@@ -323,7 +357,7 @@ export default class Profile extends Component {
                                     className=' mt-2 my-1 px-2 w-100'
                                     size='sm'
                                     style={{ textAlign: "center" }}
-                                    color='primary'>
+                                    color='emp-primary'>
                                     Update Profile{" "}
                                     <FontAwesomeIcon
                                         icon={faPen}
@@ -448,29 +482,37 @@ export default class Profile extends Component {
                                                     className='ml-2 mr-3'
                                                 />
                                             </div>
-                                            <div className='col-11 pl-3'>
+                                            <div
+                                                className='col-11 pl-3'
+                                                style={{
+                                                    whiteSpace: "nowrap",
+                                                    overflow: "hidden",
+                                                    textOverflow: "ellipsis",
+                                                }}>
                                                 {this.state.profile.username}
                                             </div>
                                         </h6>
                                     </div>
-                                    <div className='m-2 mx-auto'>
-                                        <h6 className='row'>
-                                            <div className='col-1 px-0'>
-                                                <FontAwesomeIcon
-                                                    icon={faPhone}
-                                                    className='ml-2 mr-3'
-                                                    style={{
-                                                        transform:
-                                                            "rotateY(180deg)",
-                                                    }}
-                                                />
-                                            </div>
-                                            <div className='col-11 pl-3'>
-                                                {"+91-"}
-                                                {this.state.profile.phone}
-                                            </div>
-                                        </h6>
-                                    </div>
+                                    {this.state.profile.phone !== "" && (
+                                        <div className='m-2 mx-auto'>
+                                            <h6 className='row'>
+                                                <div className='col-1 px-0'>
+                                                    <FontAwesomeIcon
+                                                        icon={faPhone}
+                                                        className='ml-2 mr-3'
+                                                        style={{
+                                                            transform:
+                                                                "rotateY(180deg)",
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div className='col-11 pl-3'>
+                                                    {"+91-"}
+                                                    {this.state.profile.phone}
+                                                </div>
+                                            </h6>
+                                        </div>
+                                    )}
                                     {/* {this.state.editable && (
                                         <button
                                             className='btn btn-info btn-sm m-2 btn-float'
@@ -485,12 +527,12 @@ export default class Profile extends Component {
 
                         <div className='col-12 col-lg-7 mt-lg-0 ml-sm-0 ml-lg-3 '>
                             <div className='p-3 block-noHover'>
-                                <h4 className='position-relative'>
+                                <h4 className='position-relative text-emp-primary'>
                                     {this.state.profile.title}
                                 </h4>
                             </div>
                             <div className='p-3 block-noHover mt-4'>
-                                <h4 className='position-relative'>
+                                <h4 className='position-relative text-emp-primary'>
                                     Area of Work
                                 </h4>
                                 <h6>
@@ -509,7 +551,7 @@ export default class Profile extends Component {
                             </div>
 
                             <div className='p-3 block-noHover mt-4'>
-                                <h4 className='position-relative mb-3'>
+                                <h4 className='position-relative mb-3 text-emp-primary'>
                                     Education
                                 </h4>
 
@@ -541,7 +583,7 @@ export default class Profile extends Component {
                                     ))}
                             </div>
                             <div className='p-3 block-noHover mt-4'>
-                                <h4 className='position-relative'>
+                                <h4 className='position-relative text-emp-primary'>
                                     Availability
                                 </h4>
 
@@ -567,7 +609,12 @@ export default class Profile extends Component {
                                                                 new Date(
                                                                     `2011-10-10T${data.endTime}:00`,
                                                                 ),
-                                                            )} on `}
+                                                            )} ${
+                                                                data.days
+                                                                    .length > 0
+                                                                    ? "on"
+                                                                    : ""
+                                                            } `}
                                                             {data.days.map(
                                                                 (day) => (
                                                                     <Badge className='mx-1'>
@@ -589,7 +636,7 @@ export default class Profile extends Component {
                                 this.state.profile.resume === ""
                             ) && (
                                 <div className='block-noHover mt-4 p-2 p-sm-3'>
-                                    <h4>Resume</h4>
+                                    <h4 className='text-emp-primary'>Resume</h4>
 
                                     {(typeof this.state.profile.resume ===
                                         "undefined" ||
@@ -707,7 +754,9 @@ export default class Profile extends Component {
                                 </div>
                             </ModalBody>
                             <ModalFooter>
-                                <Button color='primary' onClick={this.update}>
+                                <Button
+                                    color='emp-primary'
+                                    onClick={this.update}>
                                     Update
                                 </Button>{" "}
                                 <Button
@@ -1345,7 +1394,9 @@ export default class Profile extends Component {
                                 </div>
                             </ModalBody>
                             <ModalFooter>
-                                <Button color='primary' onClick={this.update}>
+                                <Button
+                                    color='emp-primary'
+                                    onClick={this.update}>
                                     Update
                                 </Button>{" "}
                                 <Button
@@ -1354,6 +1405,12 @@ export default class Profile extends Component {
                                     Cancel
                                 </Button>
                             </ModalFooter>
+                        </Modal>
+                        <Modal
+                            isOpen={this.state.modalError}
+                            toggle={this.toggleModal}
+                            style={{ marginTop: "20vh" }}>
+                            <ModalBody>{this.state.messError}</ModalBody>
                         </Modal>
                     </div>
                 ) : (

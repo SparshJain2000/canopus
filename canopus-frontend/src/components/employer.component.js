@@ -79,7 +79,7 @@ export default class Employer extends Component {
                                     className=' mt-2 my-1 px-2 w-100'
                                     size='sm'
                                     style={{ textAlign: "center" }}
-                                    color='info'>
+                                    color='emp-secondary'>
                                     Update Profile
                                     <FontAwesomeIcon
                                         icon={faPen}
@@ -94,7 +94,7 @@ export default class Employer extends Component {
                                     className=' mt-2 my-1 px-2 w-100'
                                     size='sm'
                                     style={{ textAlign: "center" }}
-                                    color='primary'>
+                                    color='emp-primary'>
                                     Post a Job{" "}
                                     <FontAwesomeIcon
                                         icon={faPen}

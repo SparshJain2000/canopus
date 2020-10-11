@@ -120,7 +120,7 @@ const PostJob = (props) => {
             label: opt,
             value: opt,
         }));
-        experienceArray = data.experience.map((opt) => ({
+        experienceArray = props.data.experience.map((opt) => ({
             label: opt,
             value: opt,
         }));
@@ -320,7 +320,9 @@ const PostJob = (props) => {
                     // alert("Unable to post job");
                     err.response.data
                         ? setMessError(err.response.data.err)
-                        : setMessError("Error saving job");
+                        : setMessError(
+                              "Something went wrong, Please try again.",
+                          );
 
                     toggleError();
                 });
@@ -413,7 +415,7 @@ const PostJob = (props) => {
                 // alert("Unable to post job : " + error);
                 err.response && err.response.data
                     ? setMessError(err.response.data.err)
-                    : setMessError("Error posting job");
+                    : setMessError("Something went wrong, Please try again.");
 
                 toggleError();
             });
@@ -430,7 +432,11 @@ const PostJob = (props) => {
                     setTempArr(data.user.acceptedApplicants);
                 if (data.user) setContact(data.user.phone);
             })
-            .catch((err) => console.log(err));
+            .catch((err) => {
+                console.log(err);
+                setMessError("Something went wrong, Please try again.");
+                toggleError();
+            });
         console.log("====================================");
         //TODO:
         console.log(props.location.state);
@@ -557,7 +563,9 @@ const PostJob = (props) => {
                         // alert(err.response);
                         err.response.data
                             ? setMessError(err.response.data.err)
-                            : setMessError("Error getting job");
+                            : setMessError(
+                                  "Something went wrong, Please try again.",
+                              );
 
                         toggleError();
                     });
@@ -657,7 +665,9 @@ const PostJob = (props) => {
                         console.log(err);
                         err.response && err.response.data
                             ? setMessError(err.response.data.err)
-                            : setMessError("Error getting job");
+                            : setMessError(
+                                  "Something went wrong, Please try again.",
+                              );
 
                         toggleError();
                     });
@@ -692,7 +702,7 @@ const PostJob = (props) => {
                                 className=' mt-2 my-1 px-2 w-100'
                                 size='sm'
                                 style={{ textAlign: "center" }}
-                                color='info'>
+                                color='emp-primary'>
                                 Update Profile
                                 <FontAwesomeIcon
                                     icon={faPen}
@@ -756,6 +766,7 @@ const PostJob = (props) => {
                                     ref={titleRef}
                                     name='Title'
                                     defaultValue={title}
+                                    maxLength={100}
                                     onChange={handleChange}
                                     required
                                     invalid={
@@ -1583,22 +1594,22 @@ const PostJob = (props) => {
                     <div className='col-3 col-md-2 px-1'>
                         <Button
                             onClick={(e) => {
+                                save();
+                            }}
+                            className='w-100'
+                            color='emp-secondary'>
+                            Save
+                        </Button>
+                    </div>
+                    <div className='col-3 col-md-2 px-0'>
+                        <Button
+                            onClick={(e) => {
                                 setMess("post");
                                 toggle();
                             }}
                             className='w-100'
-                            color='primary'>
+                            color='emp-primary'>
                             Post
-                        </Button>
-                    </div>
-                    <div className='col-3 col-md-2 px-1'>
-                        <Button
-                            onClick={(e) => {
-                                save();
-                            }}
-                            className='w-100'
-                            color='info'>
-                            Save
                         </Button>
                     </div>
                 </FormGroup>
@@ -1619,7 +1630,7 @@ const PostJob = (props) => {
                     {mess === "post" && (
                         <Button
                             size='sm'
-                            color='primary'
+                            color='emp-primary'
                             onClick={(e) => {
                                 toggle();
                                 submit();
@@ -1630,7 +1641,7 @@ const PostJob = (props) => {
                     {mess === "save" && (
                         <Button
                             size='sm'
-                            color='primary'
+                            color='emp-primary'
                             onClick={(e) => {
                                 toggle();
                                 save();
@@ -1638,7 +1649,7 @@ const PostJob = (props) => {
                             Save
                         </Button>
                     )}
-                    <Button color='secondary' size='sm' onClick={toggle}>
+                    <Button color='emp-secondary' size='sm' onClick={toggle}>
                         Cancel
                     </Button>
                 </ModalFooter>

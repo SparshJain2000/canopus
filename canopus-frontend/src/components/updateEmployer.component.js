@@ -96,6 +96,9 @@ export default class UpdateEmployer extends Component {
                 employeeCount: true,
             },
         };
+        this.logo = React.createRef();
+        this.image = React.createRef();
+
         this.handleChange = this.handleChange.bind(this);
         this.update = this.update.bind(this);
         this.setCoordinates = this.setCoordinates.bind(this);
@@ -183,10 +186,19 @@ export default class UpdateEmployer extends Component {
         const isValid = Object.values(this.state.valid).every(
             (item) => item === true,
         );
-        const validYoutube =
-            this.state.youtube.length > 0 ? this.checkYoutube() : true;
+        const emp =
+            this.state.firstName === "" ||
+            this.state.lastName === "" ||
+            this.state.organization === "" ||
+            this.state.city === "" ||
+            this.state.state === "" ||
+            this.state.phone === "" ||
+            this.state.type === "";
+
+        const ytLinks = this.state.youtube.filter((link) => link !== "");
+        const validYoutube = ytLinks.length > 0 ? this.checkYoutube() : true;
         console.log(isValid);
-        if (!isValid) {
+        if (!isValid || emp) {
             this.setState({
                 modalError: true,
                 modalMess: "Please fill the required fields !",
@@ -203,7 +215,7 @@ export default class UpdateEmployer extends Component {
                 lastName: this.state.lastName,
                 image: this.state.image,
                 links: this.state.links,
-                youtube: this.state.youtube,
+                youtube: ytLinks,
                 specialty: this.state.speciality,
                 phone: this.state.phone,
                 instituteName: this.state.organization,
@@ -245,13 +257,14 @@ export default class UpdateEmployer extends Component {
                             modalError: true,
                             modalMess:
                                 response.err === ""
-                                    ? "Unable to update"
+                                    ? "Something went wrong, Please try again."
                                     : response.err,
                         });
                     } else
                         this.setState({
                             modalError: true,
-                            modalMess: "Unable to update",
+                            modalMess:
+                                "Something went wrong, Please try again.",
                         });
                 });
         }
@@ -335,7 +348,14 @@ export default class UpdateEmployer extends Component {
                     });
                 }
             })
-            .catch((err) => console.log(err));
+            .catch((err) => {
+                console.log(err);
+                if (err.response)
+                    this.setState({
+                        modalError: true,
+                        modalMess: "Something went wrong, Please try again.",
+                    });
+            });
     }
     reload() {
         Axios.get("/api/employer/profile")
@@ -353,15 +373,18 @@ export default class UpdateEmployer extends Component {
                         // });
                         // this.setState({
                         //     id: user._id,
-                        firstName: user.firstName,
+                        firstName:
+                            user.firstName !== undefined ? user.firstName : "",
                         logo: user.logo,
-                        lastName: user.lastName,
+                        lastName:
+                            user.lastName !== undefined ? user.lastName : "",
                         links: user.links,
                         username: user.username,
                         youtube: user.youtube,
                         image: user.image,
                         speciality: user.specialty,
-                        phone: user.phone,
+                        phone: user.phone !== undefined ? user.phone : "",
+
                         line: user.address.line,
                         pin: user.address.pin,
                         city: user.address.city,
@@ -391,7 +414,13 @@ export default class UpdateEmployer extends Component {
                     });
                 }
             })
-            .catch((err) => console.log(err));
+            .catch((err) => {
+                console.log(err);
+                this.setState({
+                    modalError: true,
+                    modalMess: "Something went wrong, Please try again.",
+                });
+            });
     }
     async uploadToStorage(storageAccountName, sas, file) {
         // console.log(file);
@@ -459,6 +488,7 @@ export default class UpdateEmployer extends Component {
                     uploadingImage: false,
                     progress: 0,
                 });
+                this.image.current.value = "";
                 return;
             } else {
                 this.setState({
@@ -511,7 +541,14 @@ export default class UpdateEmployer extends Component {
                                 },
                             );
                         })
-                        .catch((e) => console.log(e));
+                        .catch((e) => {
+                            console.log(e);
+                            this.setState({
+                                modalError: true,
+                                modalMess:
+                                    "Something went wrong, Please try again.",
+                            });
+                        });
                 };
             });
         }
@@ -535,6 +572,8 @@ export default class UpdateEmployer extends Component {
                     loading: false,
                     uploadingLogo: false,
                 });
+                this.logo.current.value = "";
+
                 return;
             } else {
                 this.setState({
@@ -588,7 +627,14 @@ export default class UpdateEmployer extends Component {
                                 },
                             );
                         })
-                        .catch((e) => console.log(e));
+                        .catch((e) => {
+                            console.log(e);
+                            this.setState({
+                                modalError: true,
+                                modalMess:
+                                    "Something went wrong, Please try again.",
+                            });
+                        });
                 };
             });
         }
@@ -681,7 +727,7 @@ export default class UpdateEmployer extends Component {
                                     className=' mt-2 my-1 px-2 w-100'
                                     size='sm'
                                     style={{ textAlign: "center" }}
-                                    color='primary'>
+                                    color='emp-primary'>
                                     Post a Job{" "}
                                     <FontAwesomeIcon
                                         icon={faPen}
@@ -695,7 +741,7 @@ export default class UpdateEmployer extends Component {
                 <div className='my-2 mx-1 mx-lg-5 py-2 px-1 px-lg-5'>
                     <div className=' p-4 my-3 mx-2 mx-lg-5' style={block}>
                         <FormGroup>
-                            <h4>Details</h4>
+                            <h4 className='text-emp-primary'>Details</h4>
                         </FormGroup>
                         <FormGroup className='row'>
                             <div className='col-12 col-md-3 text-align-center'>
@@ -739,7 +785,7 @@ export default class UpdateEmployer extends Component {
                                     <div className='my-1 mt-3'>
                                         <div className=''>
                                             <button
-                                                className='btn btn-info btn-sm m-2 btn-float'
+                                                className='btn btn-emp-secondary btn-sm m-2 btn-float'
                                                 // style={{
                                                 //     borderRadius: "50%",
                                                 // }}
@@ -770,7 +816,7 @@ export default class UpdateEmployer extends Component {
                                                 }}
                                                 id='image'
                                                 accept='image/*'
-                                                // ref={this.image}
+                                                ref={this.logo}
                                                 disabled={
                                                     this.state.uploadingLogo
                                                 }
@@ -782,7 +828,7 @@ export default class UpdateEmployer extends Component {
                             </div>
                             <div className='col-md-9 row'>
                                 <div className='col-12 col-sm-6 pr-0 pr-sm-1 my-1 my-sm-2'>
-                                    <Label>
+                                    <Label className='mb-1'>
                                         Oranization Name{" "}
                                         <span className='text-danger'>*</span>
                                     </Label>
@@ -795,7 +841,7 @@ export default class UpdateEmployer extends Component {
                                     />
                                 </div>
                                 <div className='col-12 col-sm-6 pr-0 pl-sm-1 my-1 my-sm-2'>
-                                    <Label>
+                                    <Label className='mb-1'>
                                         Organization Type{" "}
                                         <span className='text-danger'>*</span>
                                     </Label>
@@ -831,7 +877,7 @@ export default class UpdateEmployer extends Component {
                                     />
                                 </div>
                                 <div className='col-12  my-1 my-sm-2'>
-                                    <Label>Speciality</Label>
+                                    <Label className='mb-1'>Speciality</Label>
                                     {/* <Input
                                 placeholder='Organization Type'
                                 name='type'
@@ -864,7 +910,9 @@ export default class UpdateEmployer extends Component {
                                 </div>
 
                                 <div className='col-12  my-1'>
-                                    <Label>About Organization</Label>
+                                    <Label className='mb-1'>
+                                        About Organization
+                                    </Label>
 
                                     <textarea
                                         name=''
@@ -883,12 +931,12 @@ export default class UpdateEmployer extends Component {
                     <div className='p-4 my-3 mx-2 mx-lg-5' style={block}>
                         {/* AIzaSyANIOnj2SfsuhCNZ9iqb4FMagPb7K_vdH0 */}
                         <FormGroup>
-                            <h4>Address</h4>
+                            <h4 className='text-emp-primary'>Address</h4>
                         </FormGroup>
                         <div className='row '>
                             <div className='col-12 col-lg-6 pr-2 d-flex flex-column '>
                                 <FormGroup>
-                                    <Label>Line</Label>
+                                    <Label className='mb-1'>Line</Label>
                                     <textarea
                                         placeholder='Address Line'
                                         name='line'
@@ -900,16 +948,17 @@ export default class UpdateEmployer extends Component {
                                 </FormGroup>
                                 <FormGroup className='row '>
                                     <div className='col-12 col-sm-6 pr-0 pr-sm-1 mb-2 mb-sm-0'>
-                                        <Label>PIN</Label>
+                                        <Label className='mb-1'>PIN</Label>
                                         <Input
                                             placeholder='PIN'
                                             name='pin'
                                             onChange={this.handleChange}
                                             value={this.state.pin}
+                                            max={999999}
                                         />
                                     </div>
                                     <div className='col-12 col-sm-6 pl-0 pl-sm-1 mb-2 mb-sm-0'>
-                                        <Label>
+                                        <Label className='mb-1'>
                                             State{" "}
                                             <span className='text-danger'>
                                                 *
@@ -940,7 +989,7 @@ export default class UpdateEmployer extends Component {
                                     </div>
                                 </FormGroup>
                                 <FormGroup>
-                                    <Label>
+                                    <Label className='mb-1'>
                                         City{" "}
                                         <span className='text-danger'>*</span>
                                     </Label>
@@ -973,7 +1022,7 @@ export default class UpdateEmployer extends Component {
                                 </FormGroup>
                                 {/* <FormGroup className='row '>
                                     <div className='col-12 col-sm-6 pr-1'>
-                                        <Label>Latitude</Label>
+                                        <Label className='mb-1'>Latitude</Label>
                                         <Input
                                             placeholder='Latitude'
                                             name='lat'
@@ -983,7 +1032,7 @@ export default class UpdateEmployer extends Component {
                                         />
                                     </div>
                                     <div className='col-12 col-sm-6 pl-1'>
-                                        <Label>Longitude</Label>
+                                        <Label className='mb-1'>Longitude</Label>
                                         <Input
                                             placeholder='longitude'
                                             name='lng'
@@ -1018,12 +1067,12 @@ export default class UpdateEmployer extends Component {
                     </div>
                     <div className='p-4 my-3 mx-2 mx-lg-5' style={block}>
                         <FormGroup>
-                            <h4>Infrastructure</h4>
+                            <h4 className='text-emp-primary'>Infrastructure</h4>
                         </FormGroup>
 
                         <FormGroup className='row'>
                             <div className='col-12 col-sm-3 pr-0 pr-sm-1'>
-                                <Label>Beds</Label>
+                                <Label className='mb-1'>Beds</Label>
                                 <Input
                                     type='number'
                                     placeholder='Number of beds'
@@ -1036,7 +1085,7 @@ export default class UpdateEmployer extends Component {
                                 />
                             </div>
                             <div className='col-12 col-sm-3 pr-0 pr-sm-1'>
-                                <Label>ICUs</Label>
+                                <Label className='mb-1'>ICUs</Label>
                                 <Input
                                     type='number'
                                     placeholder='Number of ICUs'
@@ -1047,7 +1096,7 @@ export default class UpdateEmployer extends Component {
                                 />
                             </div>
                             <div className='col-12 col-sm-3 pr-0 pr-sm-1'>
-                                <Label>OTs</Label>
+                                <Label className='mb-1'>OTs</Label>
                                 <Input
                                     type='number'
                                     placeholder='Number of OTs'
@@ -1058,7 +1107,7 @@ export default class UpdateEmployer extends Component {
                                 />
                             </div>
                             <div className='col-12 col-sm-3 pr-0 pr-sm-1'>
-                                <Label>Employee count</Label>
+                                <Label className='mb-1'>Employee count</Label>
                                 <Input
                                     type='number'
                                     placeholder='Number of OTs'
@@ -1072,14 +1121,16 @@ export default class UpdateEmployer extends Component {
                     </div>
                     <div className='p-4 my-3 mx-2 mx-lg-5' style={block}>
                         <FormGroup>
-                            <h4>Media</h4>
+                            <h4 className='text-emp-primary'>Media</h4>
                         </FormGroup>
                         <Label className='row'>
-                            <h5 className='col-9  col-sm-11 pl-0'>Links</h5>
+                            <h5 className='col-9  col-sm-10 my-auto pl-0'>
+                                Links
+                            </h5>
 
-                            <FontAwesomeIcon
-                                icon={faPlusCircle}
-                                size='lg'
+                            <Button
+                                color={"emp-secondary-2"}
+                                disabled={this.state.links.length >= 5}
                                 onClick={() => {
                                     if (this.state.links.length < 5) {
                                         let links = this.state.links;
@@ -1089,13 +1140,10 @@ export default class UpdateEmployer extends Component {
                                         });
                                     }
                                 }}
-                                className={`col-3 col-sm-1 ${
-                                    this.state.links.length < 5
-                                        ? "text-info"
-                                        : "text-secondary"
-                                }`}
-                                style={{ cursor: "pointer" }}
-                            />
+                                className={`col-3 col-sm-2 btn-sm`}
+                                style={{ cursor: "pointer" }}>
+                                Add Link
+                            </Button>
                         </Label>
                         {this.state.links.map((x, i) => (
                             <div className='my-1 row'>
@@ -1132,11 +1180,13 @@ export default class UpdateEmployer extends Component {
                             {this.state.imageError}
                         </Alert>
                         <Label className='row mt-2'>
-                            <h5 className='col-9 col-sm-11 pl-0'>Image</h5>
-                            <div className='col-3 col-sm-1'>
-                                <div className='my-1 mt-3'>
+                            <h5 className='col-9 col-sm-10 pl-0 my-auto'>
+                                Image
+                            </h5>
+                            <div className='col-3 col-sm-2'>
+                                <div className='my-1  ml-0 pl-0'>
                                     <button
-                                        className='btn btn-info btn-sm m-2 btn-float'
+                                        className='btn btn-emp-secondary-2 btn-sm btn-float w-100'
                                         // style={{
                                         //     borderRadius: "50%",
                                         // }}
@@ -1153,7 +1203,7 @@ export default class UpdateEmployer extends Component {
                                                 width: "100%",
                                             }}>
                                             {/* <FontAwesomeIcon icon={faPen} /> */}
-                                            Add
+                                            Add Image
                                         </label>
                                     </button>
 
@@ -1165,10 +1215,12 @@ export default class UpdateEmployer extends Component {
                                             overflow: "hidden",
                                             opacity: 0,
                                             cursor: "pointer",
+                                            width: ".1px",
+                                            height: ".1px",
                                         }}
                                         id='image'
                                         accept='image/*'
-                                        // ref={this.image}
+                                        ref={this.image}
                                         disabled={
                                             this.state.loading ||
                                             this.state.image.length >= 5
@@ -1231,12 +1283,13 @@ export default class UpdateEmployer extends Component {
                         ))}
                         <hr />
                         <Label className='row mt-2'>
-                            <h5 className='col-9 col-sm-11 pl-0'>
-                                Youtube Links
+                            <h5 className='col-9 col-sm-10 pl-0 my-auto'>
+                                Videos
                             </h5>
-                            <FontAwesomeIcon
-                                icon={faPlusCircle}
-                                size='lg'
+                            <Button
+                                // icon={faPlusCircle}
+                                // size='lg'
+                                color={"emp-secondary-2"}
                                 disabled={this.state.youtube.length >= 5}
                                 onClick={() => {
                                     if (this.state.youtube.length < 5) {
@@ -1247,19 +1300,17 @@ export default class UpdateEmployer extends Component {
                                         });
                                     }
                                 }}
-                                className={`col-3 col-sm-1 ${
-                                    this.state.youtube.length < 5
-                                        ? "text-info"
-                                        : "text-secondary"
-                                }`}
-                                style={{ cursor: "pointer" }}
-                            />
+                                disabled={this.state.youtube.length >= 5}
+                                className={`col-3 col-sm-2 btn-sm`}
+                                style={{ cursor: "pointer" }}>
+                                Add Links
+                            </Button>
                         </Label>
                         {this.state.youtube.map((x, i) => (
                             <div className='my-1 row'>
                                 <Input
                                     id={i}
-                                    placeholder='Youtube Links'
+                                    placeholder='Youtube Link'
                                     name='youtube'
                                     onChange={(e) => this.handleChange(e, i)}
                                     value={this.state.youtube[i]}
@@ -1283,11 +1334,13 @@ export default class UpdateEmployer extends Component {
                     </div>
                     <div className='p-4 my-3 mx-2 mx-lg-5' style={block}>
                         <FormGroup>
-                            <h4>Contact Details</h4>
+                            <h4 className='text-emp-primary'>
+                                Contact Details
+                            </h4>
                         </FormGroup>
                         <FormGroup className='row'>
                             <div className='col-12 col-md-6  p-0 pr-1  my-1'>
-                                <Label>
+                                <Label className='mb-1'>
                                     First Name{" "}
                                     <span className='text-danger'> *</span>
                                 </Label>
@@ -1300,7 +1353,7 @@ export default class UpdateEmployer extends Component {
                                 />
                             </div>
                             <div className='col-12 col-md-6  p-0 pl-1  my-1'>
-                                <Label>
+                                <Label className='mb-1'>
                                     Last Name{" "}
                                     <span className='text-danger'>*</span>
                                 </Label>
@@ -1312,7 +1365,7 @@ export default class UpdateEmployer extends Component {
                                 />
                             </div>
                             <div className='col-12 col-md-6  p-0 pr-1  my-1'>
-                                <Label>E-mail</Label>
+                                <Label className='mb-1'>E-mail</Label>
                                 <Input
                                     placeholder='Email'
                                     // name='firstName'
@@ -1322,7 +1375,7 @@ export default class UpdateEmployer extends Component {
                                 />
                             </div>
                             <div className='col-12 col-md-6  p-0 pl-1  my-1'>
-                                <Label>
+                                <Label className='mb-1'>
                                     Phone no.{" "}
                                     <span className='text-danger'>*</span>
                                 </Label>
@@ -1353,22 +1406,23 @@ export default class UpdateEmployer extends Component {
                                 </div>
                             </Button>
                         ) : ( */}
-                        <Button
-                            onClick={this.update}
-                            // className='w-25'
-                            size='lg'
-                            className='mr-1'
-                            disabled={this.state.loading}
-                            color='primary'>
-                            Update
-                        </Button>
+
                         <Button
                             onClick={this.reload}
                             // className='w-25'
                             size='lg'
                             disabled={this.state.loading}
-                            color='danger'>
+                            color='emp-secondary'>
                             Discard Updates
+                        </Button>
+                        <Button
+                            onClick={this.update}
+                            // className='w-25'
+                            size='lg'
+                            className='ml-1'
+                            disabled={this.state.loading}
+                            color='emp-primary'>
+                            Update Profile
                         </Button>
                         {/* )} */}
                     </div>

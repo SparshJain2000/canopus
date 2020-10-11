@@ -107,7 +107,15 @@ export default class EnterUsername extends Component {
                     const { response } = err;
                     console.log(response);
                     if (response && response.data && response.data.err)
-                        alert(response.data.err.message);
+                        this.setState({
+                            disabled: true,
+                            modal: true,
+                            message:
+                                response.data.err.message !== undefined &&
+                                response.data.err.message !== ""
+                                    ? response.data.err.message
+                                    : "Something went wrong, Please try again.",
+                        });
                 });
         }
     }

@@ -630,11 +630,9 @@ const UpdateJob = (props) => {
                     err.response && err.response.data
                         ? err.response.data.err
                         : "";
-                // alert("Unable to save job : " + error);
                 err.response && err.response.data
                     ? setMessError(err.response.data.err)
                     : setMessError("Error saving job");
-
                 toggleError();
             });
         console.log(job);
@@ -851,7 +849,7 @@ const UpdateJob = (props) => {
                                 className=' mt-2 my-1 px-2 w-100'
                                 size='sm'
                                 style={{ textAlign: "center" }}
-                                color='info'>
+                                color='emp-secondary'>
                                 Update Profile
                                 <FontAwesomeIcon
                                     icon={faPen}
@@ -866,7 +864,7 @@ const UpdateJob = (props) => {
                                 className=' mt-2 my-1 px-2 w-100'
                                 size='sm'
                                 style={{ textAlign: "center" }}
-                                color='primary'>
+                                color='emp-primary'>
                                 Post a Job{" "}
                                 <FontAwesomeIcon
                                     icon={faPen}
@@ -982,6 +980,7 @@ const UpdateJob = (props) => {
                                                 e ? e.value : "",
                                             );
                                         }}
+                                        isDisabled={jobType !== "save"}
                                     />
                                 </div>
                             </InputGroup>
@@ -1723,7 +1722,7 @@ const UpdateJob = (props) => {
                                         toggle();
                                     }}
                                     className='w-100'
-                                    color='success'>
+                                    color='emp-secondary'>
                                     Extend
                                 </Button>
                             </div>
@@ -1731,7 +1730,7 @@ const UpdateJob = (props) => {
                     {jobType === "close" &&
                         type !== "Day Job" &&
                         type !== "Locum Position" &&
-                        job.status === "active" &&
+                        job.status === "Active" &&
                         job.extension === 1 && (
                             <div className='col-3 col-md-2 px-1'>
                                 <Button
@@ -1744,7 +1743,7 @@ const UpdateJob = (props) => {
                                         toggle();
                                     }}
                                     className='w-100'
-                                    color='success'>
+                                    color='emp-secondary'>
                                     Extend
                                 </Button>
                             </div>
@@ -1761,7 +1760,7 @@ const UpdateJob = (props) => {
                                     toggle("close");
                                 }}
                                 className='w-100'
-                                color='danger'>
+                                color='emp-secondary'>
                                 Close
                             </Button>
                         </div>
@@ -1774,7 +1773,7 @@ const UpdateJob = (props) => {
                                     toggle("save");
                                 }}
                                 className='w-100'
-                                color='info'>
+                                color='emp-secondary'>
                                 Save
                             </Button>
                         </div>
@@ -1787,7 +1786,7 @@ const UpdateJob = (props) => {
                                     toggle("discard");
                                 }}
                                 className='w-100'
-                                color='danger'>
+                                color='emp-secondary'>
                                 Discard
                             </Button>
                         </div>
@@ -1799,7 +1798,7 @@ const UpdateJob = (props) => {
                                     pathname: "/post",
                                     state: { id, type2, jobType },
                                 }}>
-                                <Button className='w-100' color='info'>
+                                <Button className='w-100' color='emp-secondary'>
                                     Copy
                                 </Button>
                             </Link>
@@ -1813,7 +1812,7 @@ const UpdateJob = (props) => {
                                     toggle();
                                 }}
                                 className='w-100'
-                                color='primary'>
+                                color='emp-primary'>
                                 {jobType === "post" ? "Update" : "Post"}
                             </Button>
                         </div>
@@ -1905,6 +1904,7 @@ const UpdateJob = (props) => {
                         {(mess === "discard" || mess === "close") && "Keep"}
                         {mess === "post" && "Wait"}
                         {mess === "promote" && "No"}
+                        {mess === "extend" && "No"}
                     </Button>
                 </ModalFooter>
             </Modal>
