@@ -1515,7 +1515,13 @@ const PostJob = (props) => {
                                 )}
                                 {tempArr
                                     .filter(
-                                        (obj) => obj.profession === profession,
+                                        (obj) =>
+                                            obj.profession === profession &&
+                                            (obj.profession ===
+                                            "Physician/Surgeon"
+                                                ? obj.specialization ===
+                                                  specialization
+                                                : true),
                                     )
                                     .reverse()
                                     .slice(0, 10)
