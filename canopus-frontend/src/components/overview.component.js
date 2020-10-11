@@ -60,7 +60,7 @@ export default class Overview extends Component {
                                 <div
                                     className='col-12 col-md-9 col-lg-10 px-3 px-md-5 my-3 my-md-0'
                                     style={{ maxHeight: "max-content" }}>
-                                    <h3 className='text-info'>
+                                    <h3 className='text-emp-primary'>
                                         {this.state.employer.description &&
                                         this.state.employer.description
                                             .organization
@@ -100,7 +100,7 @@ export default class Overview extends Component {
                                 <div
                                     className='col-12 d-block d-sm-none'
                                     style={{ height: "max-content" }}>
-                                    <h4 className='text-blue text-align-center'>
+                                    <h4 className='text-emp-primary text-align-center'>
                                         Subscription Details
                                     </h4>
                                     <div className='container-fluid'>
@@ -284,14 +284,16 @@ export default class Overview extends Component {
                                 </div>
                             </div>
                             <div className='row p-3 m-2' style={block}>
-                                <h4 className='text-blue col-12'>About</h4>
+                                <h4 className='text-emp-primary col-12'>
+                                    About
+                                </h4>
                                 <p>
                                     {this.state.employer.description &&
                                         this.state.employer.description.about}
                                 </p>
                             </div>
                             <div className='row p-3 m-2' style={block}>
-                                <h4 className='col-12 mb-4 text-blue'>
+                                <h4 className='col-12 mb-4 text-emp-primary'>
                                     Infrastructure
                                 </h4>
                                 <div className='col-4 text-align-left'>
@@ -317,7 +319,9 @@ export default class Overview extends Component {
                                 </div>
                             </div>
                             <div className='row p-3 m-2' style={block}>
-                                <h4 className='text-blue col-12'>Location</h4>
+                                <h4 className='text-emp-primary col-12'>
+                                    Location
+                                </h4>
                                 <div className='col-12 col-md-5'>
                                     <p className='col-12'>
                                         {this.state.employer.address &&
@@ -349,7 +353,7 @@ export default class Overview extends Component {
                                     this.state.employer.image[0] === ""
                                 ) && (
                                     <div className='row p-3 m-2' style={block}>
-                                        <h4 className='text-blue col-12'>
+                                        <h4 className='text-emp-primary col-12'>
                                             Images
                                         </h4>
                                         <div className='col-12 col-md-8 mx-auto'>
@@ -369,7 +373,7 @@ export default class Overview extends Component {
                                     this.state.employer.youtube[0] === ""
                                 ) && (
                                     <div className='row p-3 m-2' style={block}>
-                                        <h4 className='col-12 text-blue'>
+                                        <h4 className='col-12 text-emp-primary'>
                                             Videos
                                         </h4>
                                         <div className='col-12 col-md-8 mx-auto'>
@@ -394,7 +398,7 @@ export default class Overview extends Component {
                             <div
                                 className='col-12 '
                                 style={{ height: "max-content" }}>
-                                <h4 className='text-blue text-align-left'>
+                                <h4 className='text-emp-primary text-align-left'>
                                     Subscription Details
                                 </h4>
                                 <Table

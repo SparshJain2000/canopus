@@ -741,7 +741,7 @@ export default class UpdateUser extends Component {
                                     {this.state.uploadingLogo && (
                                         <Progress
                                             animated
-                                            color='info'
+                                            color='emp-primary'
                                             value={this.state.progress * 100}>
                                             <h6 className='m-0'>
                                                 {Math.round(
@@ -807,7 +807,7 @@ export default class UpdateUser extends Component {
                                         <option value='Prof'>Prof</option>
                                     </Input>
                                 </div>
-                                <div className='col-9 col-sm-5 pl-1 pl-sm-1 pr-0 my-1 my-sm-2'>
+                                <div className='col-9 col-sm-6 pl-1 pl-sm-1 pr-0 my-1 my-sm-2'>
                                     <Label className='mb-1'>
                                         <h6 className='mb-0 small-heading'>
                                             First Name{" "}
@@ -824,7 +824,7 @@ export default class UpdateUser extends Component {
                                         invalid={!this.state.valid.firstName}
                                     />
                                 </div>
-                                <div className='col-12 col-sm-5 pl-0 pl-sm-1 my-1 my-sm-2'>
+                                <div className='col-12 col-sm-4 pl-0 pl-sm-1 my-1 my-sm-2'>
                                     <Label className='mb-1'>
                                         <h6 className='mb-0 small-heading'>
                                             Last Name{" "}
@@ -841,7 +841,22 @@ export default class UpdateUser extends Component {
                                         invalid={!this.state.valid.lastName}
                                     />
                                 </div>
-                                <div className='col-12 col-sm-6 pr-0 pr-sm-1 my-1 my-sm-2'>
+
+                                <div className='col-12 col-sm-8 pr-0 pr-sm-1 my-1 my-sm-2'>
+                                    <Label className='mb-1'>
+                                        <h6 className='mb-0 small-heading'>
+                                            Date of Birth
+                                        </h6>
+                                    </Label>
+                                    <Input
+                                        type='date'
+                                        name='dob'
+                                        placeholder='date placeholder'
+                                        defaultValue={this.state.dob}
+                                        onChange={this.handleChange}
+                                    />
+                                </div>
+                                <div className='col-12 col-sm-4 pl-0 pl-sm-1 my-1 my-sm-2'>
                                     <Label className='mb-1'>
                                         <h6 className='mb-0 small-heading'>
                                             Gender{" "}
@@ -865,20 +880,7 @@ export default class UpdateUser extends Component {
                                         <option value='other'>Other</option>
                                     </Input>
                                 </div>
-                                <div className='col-12 col-sm-6 pl-0 pl-sm-1 my-1 my-sm-2'>
-                                    <Label className='mb-1'>
-                                        <h6 className='mb-0 small-heading'>
-                                            Date of Birth
-                                        </h6>
-                                    </Label>
-                                    <Input
-                                        type='date'
-                                        name='dob'
-                                        placeholder='date placeholder'
-                                        defaultValue={this.state.dob}
-                                        onChange={this.handleChange}
-                                    />
-                                </div>
+
                                 <div className='row my-1 my-sm-2'>
                                     <Label className='col-12 mb-1'>
                                         <h6 className='mb-0 small-heading'>
@@ -926,7 +928,7 @@ export default class UpdateUser extends Component {
                                             </span>
                                         </h6>
                                     </Label>
-                                    <div className='col-12 col-sm-6 pr-0 pr-sm-1 my-1 my-sm-0'>
+                                    <div className='col-12 col-sm-8 pr-0 pr-sm-1 my-1 my-sm-0'>
                                         <Input
                                             placeholder='email'
                                             name='email'
@@ -935,7 +937,7 @@ export default class UpdateUser extends Component {
                                             disabled={true}
                                         />
                                     </div>
-                                    <div className='col-12 col-sm-6 pl-0 pl-sm-1 my-1 my-sm-0'>
+                                    <div className='col-12 col-sm-4 pl-0 pl-sm-1 my-1 my-sm-0'>
                                         <Input
                                             placeholder='phone'
                                             name='phone'
@@ -1073,7 +1075,7 @@ export default class UpdateUser extends Component {
                             <h5 className='col-8 col-sm-10 px-0'>Education</h5>
                             <div className='col-4 col-sm-2 row justify-content-end px-0 d-none d-sm-flex'>
                                 <Button
-                                    color='info'
+                                    color='emp-secondary-2'
                                     size='sm'
                                     disabled={this.state.education.length > 4}
                                     onClick={() => {
@@ -1380,7 +1382,7 @@ export default class UpdateUser extends Component {
                         ))}
                         <div className='col-12 d-block d-sm-none'>
                             <Button
-                                color='info'
+                                color='emp-secondary-2'
                                 className='w-100'
                                 size='sm'
                                 disabled={this.state.education.length > 4}
@@ -1430,7 +1432,7 @@ export default class UpdateUser extends Component {
                                             this.state.resume !== "" && (
                                                 <a
                                                     href={`${this.state.resume}`}
-                                                    className='btn btn-info '>
+                                                    className='btn btn-emp-secondary-2'>
                                                     View Resume
                                                     <FontAwesomeIcon
                                                         className='ml-2'
@@ -1439,13 +1441,13 @@ export default class UpdateUser extends Component {
                                                 </a>
                                             )}
                                     </div>
-                                    <div className=' pr-0 pl-1'>
+                                    <div className=' pr-0 pl-sm-1'>
                                         <div
                                             className='position-relative'
                                             style={{
                                                 height: "100%",
                                             }}>
-                                            <button className='btn btn-primary'>
+                                            <button className='btn btn-emp-primary'>
                                                 <label
                                                     htmlFor='file'
                                                     style={{
@@ -1507,7 +1509,7 @@ export default class UpdateUser extends Component {
                                 <div className='my-1 mt-3 col-12'>
                                     <Progress
                                         animated
-                                        color='info'
+                                        color='emp-primary'
                                         value={this.state.progress * 100}>
                                         <h6 className='m-0'>
                                             {Math.round(
@@ -1554,7 +1556,7 @@ export default class UpdateUser extends Component {
                             {this.state.locum && (
                                 <div className='col-0 col-sm-2 px-0 d-none d-sm-flex row justify-content-end'>
                                     <Button
-                                        color='info'
+                                        color='emp-secondary-2'
                                         size='sm'
                                         disabled={
                                             this.state.availability.length > 4
@@ -1813,7 +1815,7 @@ export default class UpdateUser extends Component {
                         )}
                         {this.state.locum && (
                             <Button
-                                color='info'
+                                color='emp-secondary-2'
                                 className='w-100 d-block d-sm-none'
                                 disabled={this.state.availability.length > 4}
                                 onClick={() => {
@@ -1835,7 +1837,7 @@ export default class UpdateUser extends Component {
                             </Button>
                         )}
                     </div>
-                    <div className='p-1 p-sm-4 m-1 m-sm-3 mx-lg-4 d-flex justify-content-start'>
+                    <div className='p-1 p-sm-4 m-1 m-sm-3 mx-lg-4 d-flex justify-content-end'>
                         {/* {this.state.loading ? (
                             <Button disabled={true} color='primary'>
                                 <span className='my-auto'>Uploading File</span>
@@ -1852,7 +1854,7 @@ export default class UpdateUser extends Component {
                             onClick={this.update}
                             // className='w-25'
                             disabled={this.state.loading}
-                            color='primary'>
+                            color='emp-primary'>
                             Update Profile
                         </Button>
                         {/* )} */}

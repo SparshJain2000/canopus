@@ -46,13 +46,13 @@ const BounceIn = styled.div`
 `;
 
 const Badges = ({ desc, superSpecialization }) => {
-    const superSp = superSpecialization ? superSpecialization : [];
+    const superSp = superSpecialization ? superSpecialization : "";
     let badges = [...superSp];
     if (desc) {
         const type = desc.type ? desc.type : [];
         const incentives = desc.incentives ? desc.incentives : [];
 
-        badges = [desc.experience, ...incentives, ...superSp];
+        badges = [desc.experience, ...incentives, superSp];
     }
     const number = badges.length - 5;
     badges = badges.slice(0, 3);
@@ -89,6 +89,7 @@ class SimilarJobs extends Component {
             specialization: job.specialization,
             profession: job.profession,
             superSpecialization: job.superSpecialization,
+            category: job.category,
         };
         console.log(query);
         if (job)
@@ -222,14 +223,17 @@ const BannerVerify = () => {
         </div>
     );
 };
-const BannerUpdate = ({ mess, checkProf, checkSpec }) => {
+const BannerUpdate = ({ mess, checkProf, checkSpec, checkResume }) => {
+    const message = !checkResume
+        ? "Upload a resume."
+        : !checkProf
+        ? "Your Profession must match Job Profession."
+        : !checkSpec
+        ? "Your Profession/Speciality must match Job Profession/Speciality."
+        : "";
     return (
         <div>
-            {`${
-                !checkProf
-                    ? "Your Profession must match Job Profession."
-                    : "Your Profession/Speciality must match Job Profession/Speciality"
-            } Click here to `}
+            {`${message} Click here to `}
             <a href='/profile/update' className='text-info'>
                 update profile
             </a>
@@ -372,7 +376,6 @@ export default class Job extends Component {
     }
     componentDidMount() {
         // this.setState({ user: this.props.user });
-
         const id = this.props.match.params.id;
         const [jobType, author] = this.props.location.search
             .substring(1)
@@ -411,6 +414,11 @@ export default class Job extends Component {
     }
 
     render() {
+        const optionsDate = {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+        };
         const job = this.state.job;
         return (
             <div>
@@ -506,12 +514,13 @@ export default class Job extends Component {
                                 </div>
                                 <div className='col-6 col-sm-3 my-1'>
                                     <h6>
-                                        <b>Apply By </b>
+                                        <b>Posted On</b>
                                     </h6>
-                                    {job.expireAt &&
-                                        new Date(
-                                            job.expireAt,
-                                        ).toLocaleDateString()}
+                                    {job.createdAt &&
+                                        new Intl.DateTimeFormat(
+                                            "en-US",
+                                            optionsDate,
+                                        ).format(new Date(job.createdAt))}
                                 </div>
                             </div>
                             <hr />
@@ -578,30 +587,44 @@ export default class Job extends Component {
                             <div className='row p-1'>
                                 <div className='col-12'>
                                     <h4>
-                                        <b>Job responsibilities</b>
+                                        <b>Job Description</b>
                                     </h4>
                                     <p>{job.description.line}</p>
-                                </div>
+                                    {/* </div>
                             </div>
                             <div className='row p-1'>
                                 <div className='col-12'>
                                     <h4>
-                                        <b>Who can apply</b>
-                                    </h4>
-                                    <p>{job.description.skills}</p>
+                                        <b>Description</b>
+                                    </h4> */}
+                                    <p>{job.description.about}</p>
                                 </div>
                             </div>
                             <hr />
                             <div className='row'>
                                 <div className='col-6'>
-                                    <Button
-                                        // size='lg'
-                                        color='info'
-                                        id='apply'
-                                        className='w-100'
-                                        onClick={this.showDetail}>
-                                        Apply
-                                    </Button>
+                                    {this.props.user &&
+                                    job.applicants &&
+                                    job.applicants
+                                        .map((obj) => obj.id)
+                                        .includes(this.props.user._id) ? (
+                                        <Button
+                                            color='secondary'
+                                            className='w-100'
+                                            id='apply'
+                                            disabled>
+                                            Applied
+                                        </Button>
+                                    ) : (
+                                        <Button
+                                            color='js-primary'
+                                            id='apply'
+                                            className='w-100'
+                                            onClick={this.showDetail}>
+                                            Apply
+                                        </Button>
+                                    )}
+
                                     {!this.props.user ? (
                                         <UncontrolledTooltip
                                             placement='down'
@@ -700,6 +723,14 @@ export default class Job extends Component {
                                                                           .specialization
                                                                     : true
                                                             }
+                                                            checkResume={
+                                                                this.props.user
+                                                                    .resume !==
+                                                                    undefined &&
+                                                                this.props.user
+                                                                    .resume !==
+                                                                    ""
+                                                            }
                                                         />
                                                     </h6>
                                                 </div>
@@ -713,7 +744,7 @@ export default class Job extends Component {
                                             text={window.location.href}>
                                             <Button
                                                 // size='lg'
-                                                color='primary'
+                                                color='js-secondary'
                                                 className='w-100'
                                                 id='copy'>
                                                 Share

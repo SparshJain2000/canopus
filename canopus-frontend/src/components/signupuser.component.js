@@ -222,7 +222,7 @@ export default class SignupUser extends Component {
                                         : !this.state.validate.email
                                 }
                             />
-                            <FormFeedback invalid>
+                            <FormFeedback>
                                 Please input a correct email.
                             </FormFeedback>
                         </FormGroup>
@@ -260,7 +260,7 @@ export default class SignupUser extends Component {
                                     this.state.validate.email === false ||
                                     this.state.validate.password === false
                                 }
-                                color='primary'>
+                                color='emp-primary'>
                                 Sign Up
                             </Button>
                         </div>

@@ -60,7 +60,7 @@ const Home = (props) => {
                             New Provider Jobs Added Every Day
                         </h1>
                     </div>
-                    <div className='form-inline home-search  justify-content-center mt-5 '>
+                    <div className='form-inline home-search  justify-content-center mt-3 '>
                         <div
                             className='col-8 '
                             style={{
@@ -86,7 +86,7 @@ const Home = (props) => {
                                         query: param,
                                     },
                                 }}
-                                className='col-3 btn btn-info my-2 my-sm-0'>
+                                className='col-3 btn btn-emp-primary my-2 my-sm-0'>
                                 <span
                                 // style={{
                                 //     fontSize:
@@ -98,7 +98,7 @@ const Home = (props) => {
                             </Link>
                         ) : (
                             <Button
-                                color='info'
+                                color='emp-primary'
                                 className='my-2 my-sm-0 col-3'
                                 disabled>
                                 Search

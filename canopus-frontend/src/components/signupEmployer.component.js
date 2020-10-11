@@ -148,7 +148,8 @@ export default class SignupEmployer extends Component {
         } catch (e) {
             this.setState({
                 showError: true,
-                error: "Captcha problem",
+                error:
+                    "Something went wrong. Please reload the page to continue.",
             });
         }
     }
@@ -251,7 +252,7 @@ export default class SignupEmployer extends Component {
                                     this.state.validate.email === false ||
                                     this.state.validate.password === false
                                 }
-                                color='primary'>
+                                color='emp-primary'>
                                 Sign Up
                             </Button>
                         </div>

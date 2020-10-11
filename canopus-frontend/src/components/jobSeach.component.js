@@ -169,7 +169,7 @@ const Job = ({ job, userId, user }) => {
                             </Media>
 
                             <Media heading>
-                                <h6 className='text-info'>
+                                <h6 className='text-emp-primary'>
                                     {/* <FontAwesomeIcon icon={faMapMarkerAlt} />{" "} */}
                                     {job.author && job.author.instituteName
                                         ? job.author.instituteName
@@ -337,10 +337,10 @@ const Job = ({ job, userId, user }) => {
                         </div>
                     </ModalBody>
                     <ModalFooter>
-                        <Button color='primary' onClick={applyJob}>
+                        <Button color='emp-primary' onClick={applyJob}>
                             Apply
                         </Button>
-                        <Button color='secondary' onClick={toggle}>
+                        <Button color='emp-secondary' onClick={toggle}>
                             Cancel
                         </Button>
                     </ModalFooter>
@@ -891,9 +891,9 @@ export default class JobSearch extends Component {
                                     <button
                                         className={`btn ${
                                             this.state.geoLocation
-                                                ? "btn-info"
-                                                : "btn-secondary"
-                                        } btn-hover col-2 px-2`}
+                                                ? "btn-emp-primary"
+                                                : "btn-emp-secondary"
+                                        }  col-2 px-2`}
                                         onClick={this.getLocation}>
                                         <FontAwesomeIcon
                                             icon={faMapMarkerAlt}
@@ -1255,7 +1255,7 @@ export default class JobSearch extends Component {
                         <div className='form-group row justify-content-center'>
                             <Button
                                 className='w-100'
-                                color='info'
+                                color='emp-primary'
                                 onClick={(e) => {
                                     this.search(0);
                                     this.setState({ currentPage: 0 });
@@ -1283,7 +1283,7 @@ export default class JobSearch extends Component {
                             }}>
                             Edit{" "}
                             <span
-                                className='text-info'
+                                className='text-emp-primary'
                                 onClick={this.toggleModalFilter}
                                 style={{ cursor: "pointer" }}>
                                 Filters
@@ -1371,7 +1371,11 @@ export default class JobSearch extends Component {
                                             />
                                         </div>
                                         <button
-                                            className='btn btn-secondary btn-hover col-2 px-2 '
+                                            className={`btn ${
+                                                this.state.geoLocation
+                                                    ? "btn-emp-primary"
+                                                    : "btn-emp-secondary"
+                                            }  col-2 px-2`}
                                             onClick={this.getLocation}>
                                             <FontAwesomeIcon
                                                 icon={faMapMarkerAlt}
@@ -1718,7 +1722,7 @@ export default class JobSearch extends Component {
                             <div className='form-group row justify-content-center'>
                                 <Button
                                     className='w-100'
-                                    color='info'
+                                    color='emp-primary'
                                     onClick={(e) => {
                                         this.search(0);
                                         this.setState({ currentPage: 0 });

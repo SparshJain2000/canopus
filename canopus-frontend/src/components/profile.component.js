@@ -357,7 +357,7 @@ export default class Profile extends Component {
                                     className=' mt-2 my-1 px-2 w-100'
                                     size='sm'
                                     style={{ textAlign: "center" }}
-                                    color='primary'>
+                                    color='emp-primary'>
                                     Update Profile{" "}
                                     <FontAwesomeIcon
                                         icon={faPen}
@@ -527,12 +527,12 @@ export default class Profile extends Component {
 
                         <div className='col-12 col-lg-7 mt-lg-0 ml-sm-0 ml-lg-3 '>
                             <div className='p-3 block-noHover'>
-                                <h4 className='position-relative'>
+                                <h4 className='position-relative text-emp-primary'>
                                     {this.state.profile.title}
                                 </h4>
                             </div>
                             <div className='p-3 block-noHover mt-4'>
-                                <h4 className='position-relative'>
+                                <h4 className='position-relative text-emp-primary'>
                                     Area of Work
                                 </h4>
                                 <h6>
@@ -551,7 +551,7 @@ export default class Profile extends Component {
                             </div>
 
                             <div className='p-3 block-noHover mt-4'>
-                                <h4 className='position-relative mb-3'>
+                                <h4 className='position-relative mb-3 text-emp-primary'>
                                     Education
                                 </h4>
 
@@ -583,7 +583,7 @@ export default class Profile extends Component {
                                     ))}
                             </div>
                             <div className='p-3 block-noHover mt-4'>
-                                <h4 className='position-relative'>
+                                <h4 className='position-relative text-emp-primary'>
                                     Availability
                                 </h4>
 
@@ -636,7 +636,7 @@ export default class Profile extends Component {
                                 this.state.profile.resume === ""
                             ) && (
                                 <div className='block-noHover mt-4 p-2 p-sm-3'>
-                                    <h4>Resume</h4>
+                                    <h4 className='text-emp-primary'>Resume</h4>
 
                                     {(typeof this.state.profile.resume ===
                                         "undefined" ||
@@ -754,7 +754,9 @@ export default class Profile extends Component {
                                 </div>
                             </ModalBody>
                             <ModalFooter>
-                                <Button color='primary' onClick={this.update}>
+                                <Button
+                                    color='emp-primary'
+                                    onClick={this.update}>
                                     Update
                                 </Button>{" "}
                                 <Button
@@ -1392,7 +1394,9 @@ export default class Profile extends Component {
                                 </div>
                             </ModalBody>
                             <ModalFooter>
-                                <Button color='primary' onClick={this.update}>
+                                <Button
+                                    color='emp-primary'
+                                    onClick={this.update}>
                                     Update
                                 </Button>{" "}
                                 <Button
