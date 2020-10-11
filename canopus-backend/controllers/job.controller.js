@@ -21,22 +21,22 @@ const fs = require("fs"),
     else if(req.body.category === "Locum") subscription = "locumtier";
     else throw "Incorrect Job Category";
     //check email validity
-    // if(!employer.emailVerified)
-    //   throw "Please verify your Email before posting any jobs";
-    // checking if employer is validated and limiting jobs
-    // if (type=== "posted" && employer.validated == false && (employer[subscription][type] > 0) )
-    //   throw "Please wait for us to validate your organization before posting any jobs"
+    if(!employer.emailVerified)
+      throw "Email verification pending. Please verify your email.";
+    //checking if employer is validated and limiting jobs
+    if (type=== "posted" && employer.validated == false && (employer[subscription][type] > 0) )
+      throw "Jobs can be posted once your account is verified. Please save the job details to post later.";
 
     //updating job tier
     if(type==="posted"){
     if (employer[subscription].allowed - employer[subscription].posted <= 0)
     {   
       if(req.body.category === "Full-time")
-        throw "You are not eligible to post more jobs, Please contact us to allot more jobs";
+        throw "You have reached the limit for the number of jobs you can post. Please contact us to post more jobs.";
       if(req.body.category === "Day Job")
-        throw "You are not eligible to post more day jobs, Please contact us to allot more jobs";
+        throw "You have reached the limit for the number of Day Jobs you can post. Please contact us to post more jobs.";
       if(req.body.category === "Locum")
-        throw "You are not eligible to post more locum jobs, Please contact us to allot more jobs";
+        throw "You have reached the limit for the number of Locum Jobs you can post. Please contact us to post more jobs.";
     }
     else employer[subscription][type] += 1;
     }
@@ -48,10 +48,11 @@ const fs = require("fs"),
 
      //checking sponsorship status
     if(req.body.sponsored === "true" && employer.sponsors.posted >= employer.sponsors.allowed)
-    throw "No more sponsors remaining";
-    else if(req.body.sponsored === "true") 
+    throw "You have reached the limit for the number of jobs you can promote. Please contact us to allocate more slots.";
+    else if(req.body.sponsored === "true" || req.body.sponsored === true) {
+      console.log("ok sponsor logged");
      employer.sponsors.posted += 1;
-     
+    }
     return employer;
     
   }

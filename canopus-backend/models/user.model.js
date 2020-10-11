@@ -15,6 +15,7 @@ module.exports = mongoose.model(
         salutation: String,
         firstName: String,
         lastName: String,
+        gender: String,
         password: String,
         phone: String,
         profession: String,

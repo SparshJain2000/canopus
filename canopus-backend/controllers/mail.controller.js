@@ -41,13 +41,15 @@ async function validateMail(req, user, token, context) {
   });
 }
 async function welcomeMail(req, employer) {
+  if(employer.firstName) name = employer.firstName;
+  if(req.body.firstName) name = req.body.firstName;
     const data = {
       from: "Curoid.co <no-reply@curoid.co>",
       to: employer.username,
       subject: "Welcome to Curoid!",
       template: "welcome_employer",
       "h:X-Mailgun-Variables": JSON.stringify({
-        first_name: employer.firstName,
+        first_name: name,
       }),
     };
     mg.messages().send(data, function (error, body) {

@@ -47,10 +47,9 @@ async function EmployerProfileUpdateBuilder(req) {
     if (req.body.logo) {
         query.update["logo"] = req.body.logo;
         query.jobUpdate["author.photo"] = req.body.logo;
-    }
-    
+    } 
     if (req.body.specialty) query.update["specialty"] = req.body.specialty;
-    if(req.body.specialty==="")query.update["specialty"]="";
+    if (req.body.specialty==="")query.update["specialty"]="";
     if (req.body.links) query.update["links"] = req.body.links;
     if (req.body.image) query.update["image"] = req.body.image;
     if (req.body.address) query.update["address"] = req.body.address;
@@ -81,18 +80,15 @@ async function UserProfileUpdateBuilder(req) {
     if (req.body.phone) query.update["phone"] = req.body.phone;
     if (req.body.profession) query.update["profession"] = req.body.profession;
     if (req.body.availability) query.update["availability"] = req.body.availability;
-    if (req.body.specialization)
-        query.update["specialization"] = req.body.specialization;
-    if (req.body.superSpecialization)
-        query.update["superSpecialization"] = req.body.superSpecialization;
+    if (req.body.specialization) query.update["specialization"] = req.body.specialization;
+    if (req.body.superSpecialization) query.update["superSpecialization"] = req.body.superSpecialization;
     if (req.body.experience) query.update["experience"] = req.body.experience;
     if (req.body.resume) query.update["resume"] = req.body.resume;
     if (req.body.image) query.update["image"] = req.body.image;
     if (req.body.address) query.update["address"] = req.body.address;
-    if (req.body.description)
-        query.update["description"] = req.body.description;
-    if (req.body.availability)
-        query.update["availability"] = req.body.availability;
+    if (req.body.description) query.update["description"] = req.body.description;
+    if (req.body.gender) query.update["gender"] = req.body.gender;
+    if (req.body.availability) query.update["availability"] = req.body.availability;
     if (req.body.education) query.update["education"] = req.body.education;
     query.update["lastUpdated"] = Date.now();
     //console.log(query.update);
