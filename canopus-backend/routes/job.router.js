@@ -34,6 +34,7 @@ router.post("/post", middleware.isLoggedIn, async (req, res) => {
       var employer = await Employer.findById(req.user._id).session(session);
     else if ( req.user.role === "User" )
       var employer = await User.findById(req.user._id).session(session);
+      //mail check
     if(employer.emailVerified===false)
       return res.status(400).json({mail:false});
     //check tier and sponsorship status
@@ -377,6 +378,9 @@ router.put("/activate/:id", middleware.checkSavedOwnership, async (req,res) => {
       var employer = await Employer.findById(req.user._id).session(session);
     else if ( req.user.role === "User" )
       var employer = await User.findById(req.user._id).session(session);
+      //mail check
+    if(employer.emailVerified===false)
+      return res.status(400).json({mail:false});
     if(req.body.category === "Full-time" || req.body.category === "Part-time")
       var sjob = await savedJob.findById(req.params.id).session(session);
     else 
@@ -454,7 +458,7 @@ router.put("/activate/:id", middleware.checkSavedOwnership, async (req,res) => {
     await session.abortTransaction();
     session.endSession();
     console.log(err);
-    res.status(500).json({status:"500"});
+    res.status(400).json({err:err});
   } 
 });
 

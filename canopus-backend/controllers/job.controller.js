@@ -20,9 +20,9 @@ const fs = require("fs"),
     else if(req.body.category === "Day Job") subscription="freelancetier";
     else if(req.body.category === "Locum") subscription = "locumtier";
     else throw "Incorrect Job Category";
-    //check email validity
-    if(!employer.emailVerified)
-      throw "Email verification pending. Please verify your email.";
+    // //check email validity
+    // if(!employer.emailVerified)
+    //   throw "Email verification pending. Please verify your email.";
     //checking if employer is validated and limiting jobs
     if (type=== "posted" && employer.validated == false && (employer[subscription][type] > 0) )
       throw "Jobs can be posted once your account is verified. Please save the job details to post later.";

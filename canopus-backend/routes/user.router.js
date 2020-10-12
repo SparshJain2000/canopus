@@ -225,10 +225,18 @@ router.get("/validate/:token", async (req, res) => {
         { $unset: { emailVerifiedToken: 1 } },
         { session:session}
       );
-     //commit transaction
+    //commit transaction
+        try{
+            req.logIn(user, function (err) {
+                if (err) res.json({status:"200"});
+                res.json({status:"200"});
+        });
+        } catch(err){
+            res.json({status:"200"})
+        }
     await session.commitTransaction();
     session.endSession();
-    res.json({status:"200"});
+   // res.json({status:"200"});
       } catch (err) {
         // any 500 error in try block aborts transaction
         await session.abortTransaction();
