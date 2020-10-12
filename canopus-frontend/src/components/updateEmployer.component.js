@@ -684,35 +684,32 @@ export default class UpdateEmployer extends Component {
             // console.log(cityArray);
         }
         return (
-            <div>
+            <div className='mx-auto col-12 col-sm-10 col-xl-8 px-0'>
                 <Nav tabs className='justify-content-between '>
-                    <div className='row justify-content-start col-6 col-sm-7'>
+                    <div className='row justify-content-start col-12 col-sm-5 col-md-6 col-lg-7'>
                         <NavItem className='mx-1 mx-sm-2'>
                             <NavLink
-                                to='/employer'
-                                // onClick={() => {
-                                //     this.toggleTab("1");
-                                // }}
-                                className={`p-1 p-sm-2 nav-link active-tab`}>
+                                className='p-1 p-sm-2 active-tab nav-link'
+                                to='/employer'>
                                 <h6>Overview</h6>
                             </NavLink>
                         </NavItem>
                         <NavItem className='mx-1 mx-sm-2'>
                             <NavLink
-                                to='/applications'
-                                className={`p-1 p-sm-2 nav-link`}>
+                                className='nav-link p-1 p-sm-2 '
+                                to='/applications'>
                                 <h6>Jobs</h6>
                             </NavLink>
                         </NavItem>
                     </div>
-                    <div className='col-6 col-sm-5 row pr-2 pr-sm-3 justify-content-end'>
-                        {/* <div className='col-12 col-sm-5 px-0 pr-0 pr-sm-1'>
+                    <div className='col-12 col-sm-7 col-md-6 col-lg-5 row px-2 justify-content-around justify-content-sm-end'>
+                        {/* <div className='px-0 pr-0 pr-sm-1'>
                             <Link to='/employer/update'>
                                 <Button
-                                    className=' mt-2 my-1 px-2 w-100'
+                                    className=' mt-2 my-1 px-4 w-100'
                                     size='sm'
                                     style={{ textAlign: "center" }}
-                                    color='info'>
+                                    color='emp-secondary'>
                                     Update Profile
                                     <FontAwesomeIcon
                                         icon={faPen}
@@ -721,10 +718,10 @@ export default class UpdateEmployer extends Component {
                                 </Button>
                             </Link>
                         </div> */}
-                        <div className='col-12 col-sm-5 px-0 pl-0 pl-sm-1'>
+                        <div className='px-0 pl-0 pl-sm-1'>
                             <Link to='/post'>
                                 <Button
-                                    className=' mt-2 my-1 px-2 w-100'
+                                    className=' mt-2 my-1 px-4 w-100'
                                     size='sm'
                                     style={{ textAlign: "center" }}
                                     color='emp-primary'>
@@ -738,8 +735,8 @@ export default class UpdateEmployer extends Component {
                         </div>
                     </div>
                 </Nav>
-                <div className='my-2 mx-1 mx-lg-5 py-2 px-1 px-lg-5'>
-                    <div className=' p-4 my-3 mx-2 mx-lg-5' style={block}>
+                <div className='my-2'>
+                    <div className='p-4 my-3 mx-2 mx-sm-auto' style={block}>
                         <FormGroup>
                             <h4 className='text-emp-primary'>Details</h4>
                         </FormGroup>
@@ -928,7 +925,7 @@ export default class UpdateEmployer extends Component {
                             {/* <div className='col-12 col-md-9 px-2'></div> */}
                         </FormGroup>
                     </div>
-                    <div className='p-4 my-3 mx-2 mx-lg-5' style={block}>
+                    <div className='p-4 my-3 mx-2 mx-sm-auto' style={block}>
                         {/* AIzaSyANIOnj2SfsuhCNZ9iqb4FMagPb7K_vdH0 */}
                         <FormGroup>
                             <h4 className='text-emp-primary'>Address</h4>
@@ -1065,7 +1062,7 @@ export default class UpdateEmployer extends Component {
                             </div>
                         </div>
                     </div>
-                    <div className='p-4 my-3 mx-2 mx-lg-5' style={block}>
+                    <div className='p-4 my-3 mx-2 mx-sm-auto' style={block}>
                         <FormGroup>
                             <h4 className='text-emp-primary'>Infrastructure</h4>
                         </FormGroup>
@@ -1119,7 +1116,7 @@ export default class UpdateEmployer extends Component {
                             </div>
                         </FormGroup>
                     </div>
-                    <div className='p-4 my-3 mx-2 mx-lg-5' style={block}>
+                    <div className='p-4 my-3 mx-2 mx-sm-auto' style={block}>
                         <FormGroup>
                             <h4 className='text-emp-primary'>Media</h4>
                         </FormGroup>
@@ -1332,7 +1329,7 @@ export default class UpdateEmployer extends Component {
                             </div>
                         ))}
                     </div>
-                    <div className='p-4 my-3 mx-2 mx-lg-5' style={block}>
+                    <div className='p-4 my-3 mx-2 mx-sm-auto' style={block}>
                         <FormGroup>
                             <h4 className='text-emp-primary'>
                                 Contact Details

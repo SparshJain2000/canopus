@@ -97,7 +97,7 @@ const ApplicantDetails = ({ applicant }) => {
     }, []);
     return <div>{!error && data && data.username}</div>;
 };
-const Badges = ({ desc, superSpecialization }) => {
+const Badges = ({ desc, superSpecialization, sponsored }) => {
     const superSp = superSpecialization ? superSpecialization : "";
     let badges = [];
     if (desc && desc.type && desc.incentives)
@@ -113,6 +113,11 @@ const Badges = ({ desc, superSpecialization }) => {
 
     return (
         <div>
+            {sponsored === "true" && (
+                <Badge className='mr-1' color='js-secondary'>
+                    Promoted
+                </Badge>
+            )}
             {badges.map((badge, i) => {
                 return (
                     <Badge className='mx-1' color='info' key={i}>
@@ -265,7 +270,7 @@ const Job = ({
         <div className='col-12 col-md-6'>
             <Media
                 className={`row  justify-content-center m-2 m-md-3 p-2 px-md-2  ${
-                    job.sponsored === "true" ? "block-info" : "block"
+                    job.sponsored === "true" ? "block" : "block"
                 }`}>
                 <Media body className='col-12 p-1'>
                     <Media heading className='row'>
@@ -404,7 +409,7 @@ const Job = ({
                                             }}
                                             params={{ freelance: freelance }}>
                                             <Button
-                                                className='btn btn-js-secondary w-100'
+                                                className='btn btn-emp-secondary w-100'
                                                 size='sm'>
                                                 Edit
                                             </Button>
@@ -474,6 +479,7 @@ const Job = ({
                             <div className='col-12  px-0 '>
                                 <Badges
                                     desc={job.description}
+                                    sponsored={job.sponsored}
                                     superSpecialization={
                                         job.superSpecialization
                                     }
@@ -833,10 +839,10 @@ export default class JobApplications extends Component {
         let banner;
         if (this.props.data) banner = this.props.data.sponsor_banner;
         return (
-            <div className='w-100'>
+            <div className='col-12 col-xl-10 px-0 mx-auto'>
                 {window.location.pathname === "/applications" && (
                     <Nav tabs className='justify-content-between '>
-                        <div className='row justify-content-start col-6 col-sm-7'>
+                        <div className='row justify-content-start col-12 col-sm-5 col-md-6 col-lg-7'>
                             <NavItem className='mx-1 mx-sm-2'>
                                 <NavLink
                                     to='/employer'
@@ -850,16 +856,16 @@ export default class JobApplications extends Component {
                             <NavItem className='mx-1 mx-sm-2'>
                                 <NavLink
                                     to='/applications'
-                                    className={`p-1 p-sm-2  active-tab nav-link`}>
+                                    className={`p-1 p-sm-2 active-tab nav-link`}>
                                     <h6>Jobs</h6>
                                 </NavLink>
                             </NavItem>
                         </div>
-                        <div className='col-6 col-sm-5 row pr-2 pr-sm-3 justify-content-end'>
-                            <div className='col-12 col-sm-5 px-0 pr-0 pr-sm-1'>
+                        <div className='col-12 col-sm-7 col-md-6 col-lg-5 row px-2 justify-content-around justify-content-sm-end'>
+                            <div className='px-0 pr-0 pr-sm-1'>
                                 <Link to='/employer/update'>
                                     <Button
-                                        className=' mt-2 my-1 px-2 w-100'
+                                        className=' mt-2 my-1 px-4 w-100'
                                         size='sm'
                                         id='update'
                                         style={{ textAlign: "center" }}
@@ -877,10 +883,10 @@ export default class JobApplications extends Component {
                                     </Button>
                                 </Link>
                             </div>
-                            <div className='col-12 col-sm-5 px-0 pl-0 pl-sm-1'>
+                            <div className='px-0 pl-0 pl-sm-1'>
                                 <Link to='/post'>
                                     <Button
-                                        className=' mt-2 my-1 px-2 w-100'
+                                        className=' mt-2 my-1 px-4 w-100'
                                         size='sm'
                                         id='post'
                                         style={{ textAlign: "center" }}
@@ -901,7 +907,7 @@ export default class JobApplications extends Component {
                         </div>
                     </Nav>
                 )}
-                <div className='row pt-3 w-100 justify-content-end'>
+                <div className='row pt-3 w-100 justify-content-end mx-1 mx-xl-0'>
                     {/* <div className='col-7 px-0 pl-3'>
                         <h3 className='text-align-left   '>
                         {this.state.jobType} Jobs
@@ -963,7 +969,7 @@ export default class JobApplications extends Component {
                             </DropdownMenu>
                         </Dropdown>
                     </div>
-                    <div className='row w-100'>
+                    <div className='row w-100 '>
                         {this.state.freelanceJobs ? (
                             this.state.freelanceJobs.length !== 0 && (
                                 <div className='row w-100 px-2'>

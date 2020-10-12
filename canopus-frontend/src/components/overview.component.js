@@ -43,7 +43,7 @@ export default class Overview extends Component {
         return (
             <div>
                 {this.state.employer && (
-                    <div className='d-flex flex-column-reverse flex-sm-row mx-1 mx-sm-3'>
+                    <div className='d-flex flex-column-reverse flex-sm-row mx-1 mx-xl-0'>
                         <div className='col-12  col-sm-7 col-md-8  py-3'>
                             <div className='row m-1 m-sm-2'>
                                 <div className='col-8 mx-auto col-md-3 col-lg-2 px-5 px-sm-0 text-align-center'>
