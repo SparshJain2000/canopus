@@ -335,7 +335,7 @@ export default class Profile extends Component {
                             </NavLink>
                         </NavItem> */}
                     </div>
-                    <div className='col-6 col-sm-5 row pr-2 pr-sm-3 justify-content-end'>
+                    <div className='col-12  col-sm-5 row pr-2 pr-sm-3 justify-content-end'>
                         <div className='col-12 col-sm-5 px-0 pr-0 pr-sm-1'>
                             {/* <Link to='/profile/update'>
                                 <Button
@@ -351,10 +351,10 @@ export default class Profile extends Component {
                                 </Button>
                             </Link> */}
                         </div>
-                        <div className='col-12 col-sm-5 px-0 pl-0 pl-sm-1'>
+                        <div className='px-0 pl-0 pl-sm-1'>
                             <Link to='/profile/update'>
                                 <Button
-                                    className=' mt-2 my-1 px-2 w-100'
+                                    className=' mt-2 my-1 px-4 w-100'
                                     size='sm'
                                     style={{ textAlign: "center" }}
                                     color='emp-primary'>
@@ -369,7 +369,7 @@ export default class Profile extends Component {
                     </div>
                 </Nav>
                 {this.state.profile ? (
-                    <div className='row my-3 mx-1 mx-lg-5 p-2 px-lg-5 justify-content-center '>
+                    <div className='row my-3 mx-auto p-2 p-sm-0 col-12 col-sm-11 col-xl-8 justify-content-center '>
                         <div className='col-12 col-lg-3'>
                             <div
                                 className='block-noHover row text-dark p-2 mt-3 mb-5 my-lg-0'
@@ -525,7 +525,7 @@ export default class Profile extends Component {
                             </div>
                         </div>
 
-                        <div className='col-12 col-lg-7 mt-lg-0 ml-sm-0 ml-lg-3 '>
+                        <div className='col-12 col-lg-8 mt-lg-0 ml-sm-0 ml-lg-3 '>
                             <div className='p-3 block-noHover'>
                                 <h4 className='position-relative text-emp-primary'>
                                     {this.state.profile.title}

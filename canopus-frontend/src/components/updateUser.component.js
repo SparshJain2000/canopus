@@ -672,8 +672,8 @@ export default class UpdateUser extends Component {
         }
         return (
             <div>
-                <div className='my-2 mx-1 mx-lg-5 py-2 px-1 px-lg-5'>
-                    <div className=' p-sm-4 my-3 mx-2 mx-lg-5 block-sm'>
+                <div className='mx-auto col-12 col-sm-10 col-xl-8 px-0'>
+                    <div className='p-3 p-sm-4 my-3  mx-lg-auto block-sm'>
                         <FormGroup>
                             <h5>Details</h5>
                         </FormGroup>
@@ -775,7 +775,7 @@ export default class UpdateUser extends Component {
                                         key={"title"}
                                     />
                                 </div>
-                                <div className='col-3 col-sm-2 pr-0 pr-sm-1 my-1 my-sm-2 pl-0'>
+                                <div className='col-3 col-sm-2 pr-1 pr-sm-0 my-1 my-sm-2 pl-0'>
                                     <Label
                                         className='mb-1'
                                         // style={{
@@ -791,7 +791,7 @@ export default class UpdateUser extends Component {
                                             </span>
                                         </h6>
                                     </Label>
-                                    <Input
+                                    <CustomInput
                                         placeholder='Salutation'
                                         type='select'
                                         // className='pl-1 m-0'
@@ -805,9 +805,9 @@ export default class UpdateUser extends Component {
                                         <option value='Mrs'>Mrs</option>
                                         <option value='Ms'>Ms</option>
                                         <option value='Prof'>Prof</option>
-                                    </Input>
+                                    </CustomInput>
                                 </div>
-                                <div className='col-9 col-sm-6 pl-1 pl-sm-1 pr-0 my-1 my-sm-2'>
+                                <div className='col-9 col-sm-5 px-0 px-sm-1 my-1 my-sm-2'>
                                     <Label className='mb-1'>
                                         <h6 className='mb-0 small-heading'>
                                             First Name{" "}
@@ -824,7 +824,7 @@ export default class UpdateUser extends Component {
                                         invalid={!this.state.valid.firstName}
                                     />
                                 </div>
-                                <div className='col-12 col-sm-4 pl-0 pl-sm-1 my-1 my-sm-2'>
+                                <div className='col-12 col-sm-5 pl-0 my-1 my-sm-2'>
                                     <Label className='mb-1'>
                                         <h6 className='mb-0 small-heading'>
                                             Last Name{" "}
@@ -842,7 +842,7 @@ export default class UpdateUser extends Component {
                                     />
                                 </div>
 
-                                <div className='col-12 col-sm-8 pr-0 pr-sm-1 my-1 my-sm-2'>
+                                <div className='col-12 col-sm-7 pr-0 pr-sm-1 my-1 my-sm-2'>
                                     <Label className='mb-1'>
                                         <h6 className='mb-0 small-heading'>
                                             Date of Birth
@@ -856,7 +856,7 @@ export default class UpdateUser extends Component {
                                         onChange={this.handleChange}
                                     />
                                 </div>
-                                <div className='col-12 col-sm-4 pl-0 pl-sm-1 my-1 my-sm-2'>
+                                <div className='col-12 col-sm-5 pl-0  my-1 my-sm-2'>
                                     <Label className='mb-1'>
                                         <h6 className='mb-0 small-heading'>
                                             Gender{" "}
@@ -881,7 +881,7 @@ export default class UpdateUser extends Component {
                                     </Input>
                                 </div>
 
-                                <div className='row my-1 my-sm-2'>
+                                <div className='row my-1 my-sm-2 col-12 px-0'>
                                     <Label className='col-12 mb-1'>
                                         <h6 className='mb-0 small-heading'>
                                             Location{" "}
@@ -890,7 +890,7 @@ export default class UpdateUser extends Component {
                                             </span>
                                         </h6>
                                     </Label>
-                                    <div className='col-12 col-sm-4 pl-0 my-1 my-sm-0'>
+                                    <div className='col-12 col-sm-3 pl-0 my-1 my-sm-0'>
                                         <Input
                                             placeholder='city'
                                             name='city'
@@ -899,7 +899,7 @@ export default class UpdateUser extends Component {
                                             invalid={!this.state.valid.city}
                                         />
                                     </div>
-                                    <div className='col-12 col-sm-4 pl-0 pl-sm-1 my-1 my-sm-0'>
+                                    <div className='col-12 col-sm-4 px-0 px-sm-1 my-1 my-sm-0'>
                                         <Input
                                             placeholder='state'
                                             name='state'
@@ -908,7 +908,7 @@ export default class UpdateUser extends Component {
                                             invalid={!this.state.valid.state}
                                         />
                                     </div>
-                                    <div className='col-12 col-sm-4 pl-0 pl-sm-1 my-1 my-sm-0'>
+                                    <div className='col-12 col-sm-5 my-1 my-sm-0'>
                                         <Input
                                             placeholder='country'
                                             name='country'
@@ -928,7 +928,7 @@ export default class UpdateUser extends Component {
                                             </span>
                                         </h6>
                                     </Label>
-                                    <div className='col-12 col-sm-8 pr-0 pr-sm-1 my-1 my-sm-0'>
+                                    <div className='col-12 col-sm-7 pr-0 pr-sm-1 my-1 my-sm-0'>
                                         <Input
                                             placeholder='email'
                                             name='email'
@@ -937,7 +937,7 @@ export default class UpdateUser extends Component {
                                             disabled={true}
                                         />
                                     </div>
-                                    <div className='col-12 col-sm-4 pl-0 pl-sm-1 my-1 my-sm-0'>
+                                    <div className='col-12 col-sm-5 pl-0 my-1 my-sm-0'>
                                         <Input
                                             placeholder='phone'
                                             name='phone'
@@ -951,7 +951,7 @@ export default class UpdateUser extends Component {
                         </FormGroup>
                     </div>
                     <hr className='d-block d-sm-none' />
-                    <div className='p-sm-4 my-3 mx-2 mx-lg-5 block-sm'>
+                    <div className='p-3 p-sm-4 my-3  mx-lg-auto block-sm'>
                         <FormGroup>
                             <h5>Area of Work</h5>
                         </FormGroup>
@@ -1070,7 +1070,7 @@ export default class UpdateUser extends Component {
                     </div>
                     <hr className='d-block d-sm-none' />
 
-                    <div className='p-sm-4 my-3 mx-2 mx-lg-5 block-sm'>
+                    <div className='p-3 p-sm-4 my-3  mx-lg-auto block-sm'>
                         <FormGroup className='row'>
                             <h5 className='col-8 col-sm-10 px-0'>Education</h5>
                             <div className='col-4 col-sm-2 row justify-content-end px-0 d-none d-sm-flex'>
@@ -1406,7 +1406,7 @@ export default class UpdateUser extends Component {
                     </div>
                     <hr className='d-block d-sm-none' />
 
-                    <div className='p-sm-4 my-3 mx-2 mx-lg-5 block-sm'>
+                    <div className='p-3 p-sm-4 my-3  mx-lg-auto block-sm'>
                         <FormGroup>
                             <h5>Resume</h5>
                         </FormGroup>
@@ -1525,7 +1525,7 @@ export default class UpdateUser extends Component {
                     </div>
                     <hr className='d-block d-sm-none' />
 
-                    <div className='p-sm-4 my-3 mx-2 mx-lg-5 block-sm'>
+                    <div className='p-3 p-sm-4 my-3  mx-lg-auto block-sm'>
                         <FormGroup>
                             <h5>Availability</h5>
                         </FormGroup>
@@ -1837,7 +1837,7 @@ export default class UpdateUser extends Component {
                             </Button>
                         )}
                     </div>
-                    <div className='p-1 p-sm-4 m-1 m-sm-3 mx-lg-4 d-flex justify-content-end'>
+                    <div className='p-3 p-sm-0 my-3  mx-lg-auto row justify-content-end'>
                         {/* {this.state.loading ? (
                             <Button disabled={true} color='primary'>
                                 <span className='my-auto'>Uploading File</span>
