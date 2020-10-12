@@ -83,8 +83,8 @@
         "Consultant"
     ],
     "experience": [
-        "New Graduate",
-        "1-2 Years",
+        "Any",
+        "0-2 Years",
         "2-5 Years",
         "5-10 Years",
         "10-15 Years",
@@ -117,6 +117,10 @@
             "specialization": [
                 "General Medicine",
                 "General Surgery",
+                "General Allopathic Physician (MBBS)",
+                "General Ayurvedic Physician (BAMS)",
+                "General Homeopathic Physician (BHMS)",
+                "General Unani Physician (BUMS)",
                 "Pediatrics",
                 "Anaesthesia",
                 "Radiology",
@@ -127,7 +131,7 @@
                 "Orthopedic Surgery",
                 "Opthalmology",
                 "Biophysics",
-                "Community Health Admin",
+                "Community Health Administration",
                 "Dermatology",
                 "Emergency Critical Care",
                 "Family Medicine",
@@ -135,7 +139,7 @@
                 "Geriatric Medicine",
                 "Microbiology",
                 "Nuclear Medicine",
-                "Otorhinolaryngology",
+                "ENT",
                 "Palliative Medicine",
                 "Physical Medicine Rehabilitation",
                 "Preventive Social Medicine",
@@ -143,12 +147,14 @@
                 "TB\/Respiratory Diseases",
                 "Transfusion Medicine",
                 "Tropical Medicine",
-                "Sports Medicine"
+                "Sports Medicine",
+                "Epidemiology"
             ]
         },
         {
             "profession": "Dentist",
             "specialization": [
+                "General Dentist (BDS)",
                 "Operative Conservative Dentistry",
                 "Oral and Maxillofacial Surgery",
                 "Oral Medicine and Radiology",
@@ -174,7 +180,7 @@
             ]
         },
         {
-            "profession": "Technicians",
+            "profession": "Technician",
             "specialization": [
                 "CT Scan",
                 "Anesthesia",
@@ -242,7 +248,7 @@
                 "Endocrine Surgery",
                 "Head & Neck Surgery",
                 "Surgical Gastroenterology",
-                "HepatoPancreatto Billary Surgery",
+                "HepatoPancreato Billary Surgery",
                 "Neuro Surgery",
                 "Paediatrics Surgery",
                 "Plastic & Reconstructructive Surgery",
@@ -251,7 +257,8 @@
                 "Peripheral Vascular Surgery",
                 "Cardio Vascular & Thoracic Surgery",
                 "Thoracic Surgery",
-                "Minimal Access Surgery"
+                "Minimal Access Surgery",
+                "Laparoscopic Surgery"
             ]
         },
         {

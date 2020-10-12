@@ -90,11 +90,11 @@ router.post("/login", async function (req, res,next) {
     }
     if (!employer) {
         if(info.name==="NoSaltValueStoredError"){
-            info.message==="Please login with your social media account";
+            info.message==="You have signed up using your social media account. Please use the same account to login.";
             return res.status(400).json({err:info})
           }
           else{
-            info.message==="Login Failed - Incorrect Email/Password Combination";
+            info.message==="Login Failed - Incorrect Email/Password combination";
             return res.status(400).json({ err:info });
           }
     }
@@ -233,9 +233,16 @@ router.get("/validate/:token", async (req, res) => {
             { session: session },
         );
         //commit transaction
+        try{
+            req.logIn(user, function (err) {
+                if (err) res.json({status:"200"});
+                res.json({status:"200"});
+        });
+        } catch(err){
+            res.json({status:"200"})
+        }
         await session.commitTransaction();
         session.endSession();
-        res.json({ status: "200" });
     } catch (err) {
         // any 500 error in try block aborts transaction
         await session.abortTransaction();
