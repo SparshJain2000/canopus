@@ -258,7 +258,7 @@ export default class LoginUser extends Component {
                             <div className='text-center social-btn'>
                                 <a
                                     href='/auth/linkedin/user'
-                                    className='btn btn-linkedin mx-2'>
+                                    className='btn btn-emp-primary mx-2'>
                                     <FontAwesomeIcon icon={faLinkedin} />
                                     &nbsp; Linkedin
                                 </a>

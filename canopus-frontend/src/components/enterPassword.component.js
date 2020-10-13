@@ -86,7 +86,7 @@ export default class EnterPassword extends Component {
                     </FormGroup>
 
                     <div className=' d-flex justify-content-end'>
-                        <Button type='submit' color='primary'>
+                        <Button type='submit' color='emp-primary'>
                             Reset Password
                         </Button>
                     </div>

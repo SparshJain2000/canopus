@@ -186,7 +186,7 @@ export default class EnterUsername extends Component {
                         <div className=' d-flex justify-content-end'>
                             <Button
                                 type='submit'
-                                color='primary'
+                                color='emp-primary'
                                 disabled={this.state.disabled}>
                                 Send Mail
                             </Button>

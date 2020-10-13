@@ -78,7 +78,7 @@ const BounceIn = styled.div`
     animation: 0.3s ${keyframes`${slideInRight}`} 0s;
 `;
 
-const Badges = ({ desc, superSpecialization }) => {
+const Badges = ({ desc, superSpecialization, sponsored }) => {
     const superSp = superSpecialization ? superSpecialization : "";
     let badges = [];
     if (desc && desc.type && desc.incentives)
@@ -90,9 +90,14 @@ const Badges = ({ desc, superSpecialization }) => {
 
     return (
         <div>
+            {sponsored === "true" && (
+                <Badge className='mr-1' color='js-secondary'>
+                    Promoted
+                </Badge>
+            )}
             {badges.map((badge, i) => {
                 return (
-                    <Badge className='mx-1' color='info' key={i}>
+                    <Badge className='mr-1' color='info' key={i}>
                         {badge}
                     </Badge>
                 );
@@ -160,47 +165,36 @@ const Job = ({ job, userId, user }) => {
                 >
                     <Media
                         className={`row  justify-content-center my-3 mx-auto p-2 px-md-3 ${
-                            job.sponsored === "true" ? "block-info" : "block"
+                            job.sponsored === "true" ? "block" : "block"
                         }`}
                         style={{ cursor: "pointer" }}>
-                        <Media body className='col-12 my-1 p-1'>
-                            <Media heading>
-                                <h5>{job.title}</h5>
-                            </Media>
+                        <Media body className='col-12 my-auto p-1 '>
+                            <h5 className='mb-5px'>{job.title}</h5>
 
-                            <Media heading>
-                                <h6 className='text-emp-primary'>
-                                    {/* <FontAwesomeIcon icon={faMapMarkerAlt} />{" "} */}
-                                    {job.author && job.author.instituteName
-                                        ? job.author.instituteName
-                                        : job.instituteName
-                                        ? job.instituteName
-                                        : job.description &&
-                                          job.description.company
-                                        ? job.description.company
-                                        : "Company"}
-                                </h6>
-                            </Media>
-                            <Media heading>
-                                <h6>
-                                    <FontAwesomeIcon icon={faMapMarkerAlt} />{" "}
-                                    {job.description &&
-                                        job.description.location}
-                                </h6>
-                            </Media>
+                            <h6 className='text-emp-primary mb-2px'>
+                                {/* <FontAwesomeIcon icon={faMapMarkerAlt} />{" "} */}
+                                {job.author && job.author.instituteName
+                                    ? job.author.instituteName
+                                    : job.instituteName
+                                    ? job.instituteName
+                                    : job.description && job.description.company
+                                    ? job.description.company
+                                    : "Company"}
+                            </h6>
+
+                            <h6 className='mb-5px'>
+                                {job.description && job.description.location}
+                            </h6>
 
                             {/* ?     <hr className='my-2' /> */}
-                            <div className='row m-0'>
+                            <div className='row m-0 '>
                                 <div className='col-12 descr'>
-                                    <em style={{ fontSize: ".9rem" }}>
-                                        {job.description &&
-                                            job.description.line}
-                                    </em>
+                                    {job.description && job.description.line}
                                 </div>
                             </div>
-                            <hr />
+
                             {job.startDate && (
-                                <div className='row'>
+                                <div className='row mt-1'>
                                     {new Intl.DateTimeFormat(
                                         "en-US",
                                         optionsDate,
@@ -211,43 +205,52 @@ const Job = ({ job, userId, user }) => {
                                             "en-US",
                                             optionsDate,
                                         ).format(new Date(job.endDate))}`}
+
+                                    {job.category === "Day Job" && (
+                                        <span className='row'>
+                                            {"|"}
+                                            {job.startDate && (
+                                                <div className=''>
+                                                    {new Intl.DateTimeFormat(
+                                                        "en-US",
+                                                        options,
+                                                    ).format(
+                                                        new Date(job.startDate),
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            {job.endDate && (
+                                                <div className=''>
+                                                    {" - "}
+                                                    {new Intl.DateTimeFormat(
+                                                        "en-US",
+                                                        options,
+                                                    ).format(
+                                                        new Date(job.endDate),
+                                                    )}
+                                                </div>
+                                            )}
+                                        </span>
+                                    )}
                                 </div>
                             )}
 
-                            {job.category === "Day Job" && (
-                                <div className='row'>
-                                    {job.startDate && (
-                                        <div className=''>
-                                            {new Intl.DateTimeFormat(
-                                                "en-US",
-                                                options,
-                                            ).format(new Date(job.startDate))}
-                                        </div>
-                                    )}
-
-                                    {job.endDate && (
-                                        <div className=''>
-                                            {" - "}
-                                            {new Intl.DateTimeFormat(
-                                                "en-US",
-                                                options,
-                                            ).format(new Date(job.endDate))}
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-
-                            <div className='col-12  px-0 '>
+                            <div className='col-12 mt-8px px-0 row justify-content-between'>
                                 <Badges
                                     desc={job.description}
                                     superSpecialization={
                                         job.superSpecialization
                                     }
+                                    sponsored={job.sponsored}
                                 />
                                 {job.applied === 1 && (
                                     <Badge
-                                        color='warning'
-                                        style={{ float: "right" }}>
+                                        color='warning my-auto mr-2'
+                                        style={{
+                                            float: "right",
+                                            height: "max-content",
+                                        }}>
                                         Applied
                                     </Badge>
                                 )}
@@ -261,7 +264,7 @@ const Job = ({ job, userId, user }) => {
                         <Media
                             left
                             href='#'
-                            className='d-none d-md-block col-12 col-sm-3 my-auto mx-auto '>
+                            className='d-none d-lg-block col-12 col-sm-3 my-auto mx-auto '>
                             <Media
                                 object
                                 src={
@@ -476,14 +479,9 @@ export default class JobSearch extends Component {
                         locumCount: data.locumcount,
                         pageCount: Math.ceil(data.count / this.state.pageSize),
                         loaded: true,
-                        jobsFound: `${data.count} ${this.state.profession}${
-                            this.state.profession !== "" &&
-                            this.state.specialization != ""
-                                ? " - "
-                                : ""
-                        }${this.state.specialization} ${
-                            data.jobs.length <= 1 ? "Job" : "Jobs"
-                        } found`,
+                        jobsFound: `${data.count} ${this.state.profession} ${
+                            data.jobs.length == 1 ? "Job" : "Jobs"
+                        }`,
                     });
                 })
                 .catch((ERR) => {
@@ -512,14 +510,9 @@ export default class JobSearch extends Component {
                         jobs: ndata.jobs,
                         pageCount: Math.ceil(ndata.count / this.state.pageSize),
                         loaded: true,
-                        jobsFound: `${ndata.count} ${this.state.profession}${
-                            this.state.profession !== "" &&
-                            this.state.specialization != ""
-                                ? " - "
-                                : ""
-                        }${this.state.specialization} ${
-                            ndata.jobs.length <= 1 ? "Job" : "Jobs"
-                        } found`,
+                        jobsFound: `${ndata.count} ${this.state.profession} ${
+                            ndata.jobs.length == 1 ? "Job" : "Jobs"
+                        }`,
                     });
                     console.log("----------------");
                     console.log(this.state.isZero);
@@ -562,14 +555,9 @@ export default class JobSearch extends Component {
                             pageCount: Math.ceil(
                                 data.count / this.state.pageSize,
                             ),
-                            jobsFound: `${data.count} ${this.state.profession}${
-                                this.state.profession !== "" &&
-                                this.state.specialization != ""
-                                    ? " - "
-                                    : ""
-                            }${this.state.specialization} ${
-                                data.jobs.length <= 1 ? "Job" : "Jobs"
-                            } found`,
+                            jobsFound: `${data.count} ${
+                                this.state.profession
+                            } ${data.jobs.length == 1 ? "Job" : "Jobs"}`,
                         });
                         console.log("----------------");
                         console.log(this.state.isZero);
@@ -609,14 +597,9 @@ export default class JobSearch extends Component {
                             ),
                             locumCount: data.locumcount,
 
-                            jobsFound: `${data.count} ${this.state.profession}${
-                                this.state.profession !== "" &&
-                                this.state.specialization != ""
-                                    ? " - "
-                                    : ""
-                            }${this.state.specialization} ${
-                                data.jobs.length <= 1 ? "Job" : "Jobs"
-                            } found`,
+                            jobsFound: `${data.count} ${
+                                this.state.profession
+                            } ${data.jobs.length == 1 ? "Job" : "Jobs"}`,
                         });
                         console.log("----------------");
                         console.log(this.state.isZero);
@@ -689,14 +672,9 @@ export default class JobSearch extends Component {
                                           data.count / this.state.pageSize,
                                       ),
 
-                            jobsFound: `${data.count} ${this.state.profession}${
-                                this.state.profession !== "" &&
-                                this.state.specialization != ""
-                                    ? " - "
-                                    : ""
-                            }${this.state.specialization} ${
-                                data.jobs.length <= 1 ? "Job" : "Jobs"
-                            } found`,
+                            jobsFound: `${data.count} ${
+                                this.state.profession
+                            } ${data.jobs.length == 1 ? "Job" : "Jobs"}`,
                         });
                     })
                     .catch((err) => {
@@ -736,15 +714,20 @@ export default class JobSearch extends Component {
                                       )
                                 : 0,
 
+                            // jobsFound: data.jobs
+                            //     ? `${data.count} ${this.state.profession}${
+                            //           this.state.profession !== "" &&
+                            //           this.state.specialization != ""
+                            //               ? " - "
+                            //               : ""
+                            //       }${this.state.specialization} ${
+                            //           data.jobs.length == 1 ? "Job" : "Jobs"
+                            //       }`
+                            //     : "",
                             jobsFound: data.jobs
-                                ? `${data.count} ${this.state.profession}${
-                                      this.state.profession !== "" &&
-                                      this.state.specialization != ""
-                                          ? " - "
-                                          : ""
-                                  }${this.state.specialization} ${
-                                      data.jobs.length <= 1 ? "Job" : "Jobs"
-                                  } found`
+                                ? `${data.count} ${this.state.profession} ${
+                                      data.jobs.length == 1 ? "Job" : "Jobs"
+                                  }`
                                 : "",
                         });
                         console.log("----------------");
@@ -1762,7 +1745,18 @@ export default class JobSearch extends Component {
                             zIndex: 500,
                         }}>
                         <h4
-                            className='my-auto col-7 col-sm-5 px-0 job-found'
+                            className='d-block d-md-none my-auto col-7 col-sm-5 px-0 job text-js-primary'
+                            // py-1 py-sm-3
+                            style={{ height: "fit-content" }}>
+                            {this.state.jobFound !== "" &&
+                                `${
+                                    this.state.jobs.length === 1
+                                        ? this.state.jobs.length + " Job"
+                                        : this.state.jobs.length + " Jobs"
+                                }`}
+                        </h4>
+                        <h4
+                            className='d-none d-md-block my-auto col-7 col-sm-5 px-0 job text-js-primary'
                             // py-1 py-sm-3
                             style={{ height: "fit-content" }}>
                             {this.state.jobsFound}

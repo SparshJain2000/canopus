@@ -45,7 +45,7 @@ const BounceIn = styled.div`
     animation: 0.3s ${keyframes`${slideInRight}`} 0s;
 `;
 
-const Badges = ({ desc, superSpecialization }) => {
+const Badges = ({ desc, superSpecialization, sponsored }) => {
     const superSp = superSpecialization ? superSpecialization : "";
     let badges = [...superSp];
     if (desc) {
@@ -60,9 +60,15 @@ const Badges = ({ desc, superSpecialization }) => {
 
     return (
         <div>
+            {sponsored === "true" && (
+                <Badge className='mr-1' color='js-secondary'>
+                    Promoted
+                </Badge>
+            )}
+
             {badges.map((badge, i) => {
                 return (
-                    <Badge className='mx-1' color='info'>
+                    <Badge className='mr-1' color='info'>
                         {badge}
                     </Badge>
                 );
@@ -105,6 +111,15 @@ class SimilarJobs extends Component {
                 });
     }
     render() {
+        const options = {
+            hour: "numeric",
+            minute: "numeric",
+        };
+        const optionsDate = {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+        };
         return (
             <div>
                 {this.state.message === "" &&
@@ -134,48 +149,109 @@ class SimilarJobs extends Component {
                                         // }
                                     >
                                         <Media body className='col-12 my-1 p-2'>
-                                            <Media heading>
-                                                <h5>{job.title}</h5>
-                                            </Media>
+                                            <h5 className='mb-5px'>
+                                                {job.title}
+                                            </h5>
 
-                                            <Media heading>
-                                                <h6 className='text-info'>
-                                                    {/* <FontAwesomeIcon icon={faMapMarkerAlt} />{" "} */}
-                                                    {job.description.company
-                                                        ? job.description
-                                                              .company
-                                                        : "Company"}
-                                                </h6>
-                                            </Media>
-                                            <Media heading>
-                                                <h6>
-                                                    <FontAwesomeIcon
-                                                        icon={faMapMarkerAlt}
-                                                    />{" "}
-                                                    {job.description.location}
-                                                </h6>
-                                            </Media>
+                                            <h6 className='text-emp-primary mb-2px'>
+                                                {/* <FontAwesomeIcon icon={faMapMarkerAlt} />{" "} */}
+                                                {job.author &&
+                                                job.author.instituteName
+                                                    ? job.author.instituteName
+                                                    : job.instituteName
+                                                    ? job.instituteName
+                                                    : job.description &&
+                                                      job.description.company
+                                                    ? job.description.company
+                                                    : "Company"}
+                                            </h6>
+
+                                            <h6 className='mb-5px'>
+                                                {job.description &&
+                                                    job.description.location}
+                                            </h6>
 
                                             {/* ?     <hr className='my-2' /> */}
-                                            <div className='row m-0'>
-                                                <div className='col-12 desc'>
-                                                    <em
-                                                        style={{
-                                                            fontSize: ".9rem",
-                                                        }}>
-                                                        {job.description.line}
-                                                    </em>
+                                            <div className='row m-0 '>
+                                                <div className='col-12 descr'>
+                                                    {job.description &&
+                                                        job.description.line}
                                                 </div>
                                             </div>
-                                            <hr />
 
-                                            <div className='col-12  px-0 '>
+                                            {job.startDate && (
+                                                <div className='row mt-1'>
+                                                    {new Intl.DateTimeFormat(
+                                                        "en-US",
+                                                        optionsDate,
+                                                    ).format(
+                                                        new Date(job.startDate),
+                                                    )}
+
+                                                    {job.category === "Locum" &&
+                                                        ` - ${new Intl.DateTimeFormat(
+                                                            "en-US",
+                                                            optionsDate,
+                                                        ).format(
+                                                            new Date(
+                                                                job.endDate,
+                                                            ),
+                                                        )}`}
+
+                                                    {job.category ===
+                                                        "Day Job" && (
+                                                        <span className='row'>
+                                                            {"|"}
+                                                            {job.startDate && (
+                                                                <div className=''>
+                                                                    {new Intl.DateTimeFormat(
+                                                                        "en-US",
+                                                                        options,
+                                                                    ).format(
+                                                                        new Date(
+                                                                            job.startDate,
+                                                                        ),
+                                                                    )}
+                                                                </div>
+                                                            )}
+
+                                                            {job.endDate && (
+                                                                <div className=''>
+                                                                    {" - "}
+                                                                    {new Intl.DateTimeFormat(
+                                                                        "en-US",
+                                                                        options,
+                                                                    ).format(
+                                                                        new Date(
+                                                                            job.endDate,
+                                                                        ),
+                                                                    )}
+                                                                </div>
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            <div className='col-12 mt-8px px-0 row justify-content-between'>
                                                 <Badges
                                                     desc={job.description}
                                                     superSpecialization={
                                                         job.superSpecialization
                                                     }
+                                                    sponsored={job.sponsored}
                                                 />
+                                                {job.applied === 1 && (
+                                                    <Badge
+                                                        color='warning my-auto mr-2'
+                                                        style={{
+                                                            float: "right",
+                                                            height:
+                                                                "max-content",
+                                                        }}>
+                                                        Applied
+                                                    </Badge>
+                                                )}
                                             </div>
                                         </Media>
                                     </a>

@@ -56,8 +56,7 @@ class App extends Component {
             });
     }
     componentDidMount() {
-        console.log(data);
-        console.log(this.state.user);
+        console.log("UPDATED V4");
         if (!this.state.user) {
             this.getUser();
         }

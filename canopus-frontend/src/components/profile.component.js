@@ -264,6 +264,7 @@ export default class Profile extends Component {
         }
     }
     componentDidMount() {
+        console.log(this.props.match);
         if (this.props.match) {
             if (!this.props.user) {
                 this.setState({ editable: false });
@@ -313,11 +314,15 @@ export default class Profile extends Component {
     }
     render() {
         const option = { hour: "numeric", minute: "numeric" };
+
         return (
             <div>
-                <Nav tabs className='justify-content-between '>
-                    <div className='row justify-content-start col-6 col-sm-7'>
-                        {/* <NavItem className='mx-1 mx-sm-2'>
+                {this.state.editable && (
+                    <Nav
+                        tabs
+                        className='justify-content-between col-12 col-sm-11 col-xl-8 mx-auto'>
+                        <div className='row justify-content-start col-6 col-sm-7'>
+                            {/* <NavItem className='mx-1 mx-sm-2'>
                             <NavLink
                                 to='/employer'
                                 // onClick={() => {
@@ -334,10 +339,10 @@ export default class Profile extends Component {
                                 <h6>Jobs</h6>
                             </NavLink>
                         </NavItem> */}
-                    </div>
-                    <div className='col-12  col-sm-5 row pr-2 pr-sm-3 justify-content-end'>
-                        <div className='col-12 col-sm-5 px-0 pr-0 pr-sm-1'>
-                            {/* <Link to='/profile/update'>
+                        </div>
+                        <div className='col-12  col-sm-5 row pr-2 pr-sm-3 justify-content-end'>
+                            <div className='col-12 col-sm-5 px-0 pr-0 pr-sm-1'>
+                                {/* <Link to='/profile/update'>
                                 <Button
                                     className=' mt-2 my-1 px-2 w-100'
                                     size='sm'
@@ -350,27 +355,28 @@ export default class Profile extends Component {
                                     />
                                 </Button>
                             </Link> */}
+                            </div>
+                            <div className='px-0 pl-0 pl-sm-1'>
+                                <Link to='/profile/update'>
+                                    <Button
+                                        className=' mt-2 my-1 px-4 w-100'
+                                        size='sm'
+                                        style={{ textAlign: "center" }}
+                                        color='emp-primary'>
+                                        Update Profile{" "}
+                                        <FontAwesomeIcon
+                                            icon={faPen}
+                                            className='ml-2'
+                                        />
+                                    </Button>
+                                </Link>
+                            </div>
                         </div>
-                        <div className='px-0 pl-0 pl-sm-1'>
-                            <Link to='/profile/update'>
-                                <Button
-                                    className=' mt-2 my-1 px-4 w-100'
-                                    size='sm'
-                                    style={{ textAlign: "center" }}
-                                    color='emp-primary'>
-                                    Update Profile{" "}
-                                    <FontAwesomeIcon
-                                        icon={faPen}
-                                        className='ml-2'
-                                    />
-                                </Button>
-                            </Link>
-                        </div>
-                    </div>
-                </Nav>
+                    </Nav>
+                )}
                 {this.state.profile ? (
                     <div className='row my-3 mx-auto p-2 p-sm-0 col-12 col-sm-11 col-xl-8 justify-content-center '>
-                        <div className='col-12 col-lg-3'>
+                        <div className='col-12 col-lg-4'>
                             <div
                                 className='block-noHover row text-dark p-2 mt-3 mb-5 my-lg-0'
                                 style={{
@@ -525,13 +531,13 @@ export default class Profile extends Component {
                             </div>
                         </div>
 
-                        <div className='col-12 col-lg-8 mt-lg-0 ml-sm-0 ml-lg-3 '>
+                        <div className='col-12 col-lg-7 mt-lg-0 ml-sm-0 ml-lg-3 '>
                             <div className='p-3 block-noHover'>
                                 <h4 className='position-relative text-emp-primary'>
                                     {this.state.profile.title}
                                 </h4>
                             </div>
-                            <div className='p-3 block-noHover mt-4'>
+                            <div className='p-3 block-noHover mt-2'>
                                 <h4 className='position-relative text-emp-primary'>
                                     Area of Work
                                 </h4>
@@ -550,7 +556,7 @@ export default class Profile extends Component {
                                 </h6>
                             </div>
 
-                            <div className='p-3 block-noHover mt-4'>
+                            <div className='p-3 block-noHover mt-2'>
                                 <h4 className='position-relative mb-3 text-emp-primary'>
                                     Education
                                 </h4>
@@ -582,7 +588,7 @@ export default class Profile extends Component {
                                         </div>
                                     ))}
                             </div>
-                            <div className='p-3 block-noHover mt-4'>
+                            <div className='p-3 block-noHover mt-2'>
                                 <h4 className='position-relative text-emp-primary'>
                                     Availability
                                 </h4>
@@ -635,7 +641,7 @@ export default class Profile extends Component {
                                     "undefined" ||
                                 this.state.profile.resume === ""
                             ) && (
-                                <div className='block-noHover mt-4 p-2 p-sm-3'>
+                                <div className='block-noHover mt-2 p-2 p-sm-3'>
                                     <h4 className='text-emp-primary'>Resume</h4>
 
                                     {(typeof this.state.profile.resume ===
@@ -678,7 +684,7 @@ export default class Profile extends Component {
                                             <div className='col-12 col-sm-8 row justify-content-between'>
                                                 <a
                                                     href={`${this.state.profile.resume}`}
-                                                    className=' btn btn-info btn-sm mr-1'>
+                                                    className=' btn btn-emp-primary btn-sm mr-1'>
                                                     View Resume
                                                     <FontAwesomeIcon
                                                         className='ml-2'

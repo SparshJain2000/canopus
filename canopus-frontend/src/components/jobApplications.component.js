@@ -269,7 +269,7 @@ const Job = ({
     return (
         <div className='col-12 col-md-6'>
             <Media
-                className={`row  justify-content-center m-2 m-md-3 p-2 px-md-2  ${
+                className={`row  justify-content-center m-2 m-md-2 p-2 px-md-2  ${
                     job.sponsored === "true" ? "block" : "block"
                 }`}>
                 <Media body className='col-12 p-1'>
@@ -307,7 +307,7 @@ const Job = ({
                                             params={{ freelance: freelance }}>
                                             <Button
                                                 size={"sm"}
-                                                className='btn btn-js-secondary w-100'>
+                                                className='btn btn-emp-secondary w-100'>
                                                 Edit
                                             </Button>
                                         </Link>
@@ -318,7 +318,7 @@ const Job = ({
                                 <div className='row mx-0 px-0 justify-content-end'>
                                     <div className='col-5 px-0 pr-1'>
                                         <Button
-                                            color='emp-primary'
+                                            color='js-primary'
                                             size={"sm"}
                                             className='w-100'
                                             onClick={(e) => {
@@ -346,7 +346,7 @@ const Job = ({
                                             <Button
                                                 size={"sm"}
                                                 color='emp-secondary'
-                                                className='btn btn-primary w-100'>
+                                                className='btn  w-100'>
                                                 View
                                             </Button>
                                         </Link>
@@ -597,15 +597,15 @@ const Job = ({
                                     <Link
                                         to={`/profile/${applicant.id}`}
                                         title='View Profile'
-                                        className='btn btn-primary btn-sm float-right mx-1'
+                                        className='btn btn-emp-primary btn-sm float-right mx-1'
                                         style={{ borderRadius: "50%" }}>
                                         <FontAwesomeIcon icon={faArrowRight} />
                                     </Link>
                                     {freelance && (
                                         <Button
-                                            color='success'
+                                            color='emp-secondary'
                                             title='Accept'
-                                            className='btn btn-primary btn-sm float-right mx-1'
+                                            className='btn btn-emp-secondary btn-sm float-right mx-1'
                                             onClick={() => {
                                                 setMess(
                                                     `accept_${applicant.id}`,
@@ -969,10 +969,10 @@ export default class JobApplications extends Component {
                             </DropdownMenu>
                         </Dropdown>
                     </div>
-                    <div className='row w-100 '>
+                    <div className='row w-100 px-2 px-sm-0'>
                         {this.state.freelanceJobs ? (
                             this.state.freelanceJobs.length !== 0 && (
-                                <div className='row w-100 px-2'>
+                                <div className='row w-100 px-2 px-sm-0'>
                                     <h3 className='col-12 px-2 px-sm-3'>
                                         Locum/Day Jobs
                                     </h3>
@@ -1018,11 +1018,11 @@ export default class JobApplications extends Component {
                         )}
                     </div>
 
-                    <div className='row px-2 w-100'>
+                    <div className='row px-2 w-100 px-sm-0'>
                         {this.state.jobs !== null &&
                         this.state.jobs !== undefined ? (
                             this.state.jobs.length !== 0 && (
-                                <div className='row w-100 px-2'>
+                                <div className='row w-100 px-2 px-sm-0'>
                                     <h3 className='col-12 px-2 px-sm-3'>
                                         Regular Jobs
                                     </h3>
