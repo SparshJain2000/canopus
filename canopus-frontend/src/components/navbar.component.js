@@ -204,7 +204,7 @@ const NavbarComponent = (props) => {
                                 }}>
                                 <div className='toast-header px-auto'>
                                     <strong className='mx-auto'>
-                                        Employer
+                                        Employers
                                     </strong>
                                 </div>
                                 <ToastBody className='row justify-content-around mx-1 font-20px'>
