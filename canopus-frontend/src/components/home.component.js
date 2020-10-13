@@ -57,7 +57,7 @@ const Home = (props) => {
                         <h1
                             className='text-white px-2'
                             style={{ textAlign: "center", zIndex: "100" }}>
-                            New Provider Jobs Added Every Day
+                            New Possibilities Every Day
                         </h1>
                     </div>
                     <div className='form-inline home-search  justify-content-center mt-3 '>
@@ -99,7 +99,7 @@ const Home = (props) => {
                         ) : (
                             <Button
                                 color='emp-primary'
-                                className='my-2 my-sm-0 col-3'
+                                className='my-2 my-sm-0 col-3 col-sm-2'
                                 disabled>
                                 Search
                             </Button>
@@ -108,11 +108,85 @@ const Home = (props) => {
                 </div>
             </div>
             <div
-                className='p-3 p-md-5  '
+                className='row p-3 p-md-5'
                 style={{ backgroundColor: "#ededed" }}>
-                <h1 style={{ textAlign: "center" }}>Jobs by Category</h1>
+                <div className='col-12 col-md-3 p-4 text-align-center my-auto'>
+                    <h4>
+                        <strong>Jobs for any scope</strong>
+                    </h4>
+                </div>
+                <div className='col-12 col-md-9 row border p-3 bg-white'>
+                    <div className='col-12 col-md-4 p-2'>
+                        <h5
+                            className='w-75 pb-2'
+                            style={{ borderBottom: "3px solid #0A4F70" }}>
+                            <strong>Day Job</strong>
+                        </h5>
+                        {/* <div
+                            className='w-75 mb-1'
+                            style={{
+                                backgroundColor: "#0A4F70",
+                                height: "4px",
+                            }}></div> */}
+                        <p>
+                            Short stints that can be wrapped up in less than a
+                            day. Think specialized procedures or consultations.
+                        </p>
+                    </div>
+                    <div className='col-12 col-md-4 p-2 px-md-4 py-2 border-xy'>
+                        <h5
+                            className='w-75 pb-2'
+                            style={{ borderBottom: "3px solid #0A4F70" }}>
+                            <strong>Locum Position</strong>
+                        </h5>
+                        {/* <div
+                            className='w-75 mb-1'
+                            style={{
+                                backgroundColor: "#0A4F70",
+                                height: "4px",
+                            }}></div> */}
+                        <p>
+                            Slightly longer stints that last less than a month
+                            to ensure uninterrupted care for patients.
+                        </p>
+                    </div>
+                    <div className='col-12 col-md-4 p-2 pl-md-4'>
+                        <h5
+                            className='w-75 pb-2'
+                            style={{ borderBottom: "3px solid #0A4F70" }}>
+                            <strong>Formal Job</strong>
+                        </h5>
+                        {/* <div
+                            className='w-75 mb-1'
+                            style={{
+                                backgroundColor: "#0A4F70",
+                                height: "4px",
+                            }}></div> */}
+                        <p>
+                            Longer-term jobs for career growth and continuous
+                            education.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div className='p-3 p-md-5  '>
+                <h2 style={{ textAlign: "center" }}>Jobs by Category</h2>
                 <div className='row justify-content-center px-3 px-md-4 m-4 '>
-                    <div className='jobs text-secondary'>
+                    {professionArray.map((prof) => (
+                        <div className='jobs text-secondary mx-2'>
+                            <Link
+                                to={{
+                                    pathname: `/search-jobs/`,
+                                    state: {
+                                        feild: "profession",
+                                        query: prof.value,
+                                    },
+                                }}>
+                                {prof.label}
+                            </Link>
+                        </div>
+                    ))}
+                    {/* <div className='jobs text-secondary'>
                         <Link
                             to={{
                                 pathname: `/search-jobs/`,
@@ -124,93 +198,10 @@ const Home = (props) => {
                             General Surgery
                         </Link>
                     </div>
-                    <div className='jobs text-secondary'>
-                        <Link
-                            to={{
-                                pathname: `/search-jobs/`,
-                                state: {
-                                    feild: "profession",
-                                    query: "Nurse",
-                                },
-                            }}>
-                            Certified Registered Nurse
-                        </Link>
-                    </div>
-                    <div className='jobs text-secondary'>
-                        <Link
-                            to={{
-                                pathname: `/search-jobs/`,
-                                state: {
-                                    feild: "profession",
-                                    query: "Physician",
-                                },
-                            }}>
-                            Physician
-                        </Link>
-                    </div>
-                    {/* <div className='jobs text-secondary'>
-                        <Link
-                            to={{
-                                pathname: `/search-jobs/`,
-                                state: {
-                                    feild: "profession",
-                                    query: "Therapist",
-                                },
-                            }}>
-                            Therapist
-                        </Link>
-                    </div> */}
-                    <div className='jobs text-secondary'>
-                        <Link
-                            to={{
-                                pathname: `/search-jobs/`,
-                                state: {
-                                    feild: "profession",
-                                    query: "Technicians",
-                                },
-                            }}>
-                            Technicians
-                        </Link>
-                    </div>
-                    <div className='jobs text-secondary'>
-                        <Link
-                            to={{
-                                pathname: `/search-jobs/`,
-                                state: {
-                                    feild: "specialization",
-                                    query: "Community Health",
-                                },
-                            }}>
-                            Community Health
-                        </Link>
-                    </div>
-                    <div className='jobs text-secondary'>
-                        <Link
-                            to={{
-                                pathname: `/search-jobs/`,
-                                state: {
-                                    feild: "specialization",
-                                    query: "Anaesthesiology",
-                                },
-                            }}>
-                            Anesthetist (CRNA)
-                        </Link>
-                    </div>
-                    <div className='jobs text-secondary'>
-                        <Link
-                            to={{
-                                pathname: `/search-jobs/`,
-                                state: {
-                                    feild: "specialization",
-                                    query: "Ear, Nose and Throat",
-                                },
-                            }}>
-                            ENT Specialist
-                        </Link>
-                    </div>
+                   */}
                 </div>
             </div>
-            <div className='p-3 p-md-5 row w-100 mx-auto justify-content-center'>
+            {/* <div className='p-3 p-md-5 row w-100 mx-auto justify-content-center'>
                 <img
                     src={doctor}
                     alt='doctor'
@@ -230,7 +221,7 @@ const Home = (props) => {
                         Get Started
                     </Link>
                 </div>
-            </div>
+            </div> */}
         </div>
     );
 };
