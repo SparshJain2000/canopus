@@ -152,17 +152,17 @@ const NavbarComponent = (props) => {
                         className='row mx-auto justify-content-center px-5'
                         navbar>
                         <NavItem className='m-1'>
+                            <NavLink to='/'>Home</NavLink>
+                        </NavItem>
+                        <NavItem className='m-1'>
                             <NavLink to='/search-jobs'>Job Search</NavLink>
                         </NavItem>
-                        <NavItem className='m-1'>
-                            <NavLink to='/employer'>Find Employees</NavLink>
-                        </NavItem>
-                        <NavItem className='m-1'>
+                        {/* <NavItem className='m-1'>
                             <NavLink to='/'>Career Resources</NavLink>
                         </NavItem>
                         <NavItem className='m-1'>
                             <NavLink to='/'>About US</NavLink>
-                        </NavItem>
+                        </NavItem> */}
                     </Nav>
                     {!props.user ? (
                         <Nav
@@ -175,10 +175,10 @@ const NavbarComponent = (props) => {
                                 }}>
                                 <div className='toast-header '>
                                     <strong className='mx-auto'>
-                                        JobSeekers
+                                        Job Seekers
                                     </strong>
                                 </div>
-                                <ToastBody className='row justify-content-around mx-1'>
+                                <ToastBody className='row justify-content-around mx-1 font-20px'>
                                     <div>
                                         <Link
                                             to='/user/login'
@@ -192,7 +192,7 @@ const NavbarComponent = (props) => {
                                         <Link
                                             to='/user/signup'
                                             className='badge badge-lg badge-js-primary p-2 ml-1'>
-                                            Signup
+                                            Sign Up
                                         </Link>
                                     </div>
                                 </ToastBody>
@@ -207,7 +207,7 @@ const NavbarComponent = (props) => {
                                         Employer
                                     </strong>
                                 </div>
-                                <ToastBody className='row justify-content-around mx-1'>
+                                <ToastBody className='row justify-content-around mx-1 font-20px'>
                                     <div>
                                         <Link
                                             to='/employer/login'
@@ -221,7 +221,7 @@ const NavbarComponent = (props) => {
                                         <a
                                             href='/employer/signup'
                                             className='badge badge-lg badge-emp-primary p-2 ml-1'>
-                                            Signup
+                                            Sign Up
                                         </a>
                                     </div>
                                 </ToastBody>
