@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Open+Sans&family=Raleway&family=Montserrat:wght@400;600&family=Open+Sans&display=swap&family=Chivo:wght@400&famliy=Lobster&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Merriweather&display=swap&family=Open+Sans&family=Raleway&family=Montserrat:wght@400;600&family=Open+Sans&display=swap&family=Chivo:wght@400&famliy=Lobster&display=swap");
 html {
     overflow-x: hidden;
     max-width: 100vw;
@@ -308,6 +308,31 @@ th {
     background-color: #F04C63;
     border-color: #F04C63;
     /* opacity: .7; */
+}
+
+.bg-js-primary {
+    background-color: #F04C63;
+    color: white;
+    border-radius: .3rem;
+}
+
+.bg-emp-primary {
+    background-color: #0A4F70;
+    color: white;
+    border-radius: .3rem;
+}
+
+.bg-emp-primary:hover,
+.bg-js-primary:hover {
+    color: white
+}
+
+.font-20px {
+    font-size: 20px
+}
+
+.font-19px {
+    font-size: 18px
 }
 
 
