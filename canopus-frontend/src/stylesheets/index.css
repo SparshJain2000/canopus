@@ -33,6 +33,15 @@ h5 {
     font-family: "Open Sans", sans-serif;
 }
 
+.Merri24px {
+    font-size: 24px;
+    font-family: "Merriweather", sans-serif;
+}
+
+.nav-link h6 {
+    font-size: 22px
+}
+
 .mb-5px {
     margin-bottom: 5px;
 }
@@ -331,8 +340,12 @@ th {
     font-size: 20px
 }
 
-.font-19px {
+.font-18px {
     font-size: 18px
+}
+
+.font-16px {
+    font-size: 16px
 }
 
 
