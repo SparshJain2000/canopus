@@ -86,7 +86,7 @@ const Home = (props) => {
                                         query: param,
                                     },
                                 }}
-                                className='col-3 btn btn-emp-primary my-2 my-sm-0'>
+                                className='col-3 col-md-2 btn btn-emp-primary my-2 my-sm-0'>
                                 <span
                                 // style={{
                                 //     fontSize:
@@ -99,7 +99,7 @@ const Home = (props) => {
                         ) : (
                             <Button
                                 color='emp-primary'
-                                className='my-2 my-sm-0 col-3 col-sm-2'
+                                className='my-2 my-sm-0 col-3 col-md-2'
                                 disabled>
                                 Search
                             </Button>
@@ -109,7 +109,7 @@ const Home = (props) => {
             </div>
             <div
                 className='row p-3 p-md-5'
-                style={{ backgroundColor: "#ededed" }}>
+                style={{ backgroundColor: "#f9f9f9" }}>
                 <div className='col-12 col-md-3 p-4 text-align-center my-auto'>
                     <h4>
                         <strong>Jobs for any scope</strong>

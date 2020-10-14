@@ -102,7 +102,12 @@ const Badges = ({ desc, superSpecialization, sponsored }) => {
                     </Badge>
                 );
             })}
-            {number > 0 && `+ ${number} more`}
+            {number > 0 && (
+                <Badge
+                    className='mr-1'
+                    color='info'
+                    key={120}>{`+ ${number} more`}</Badge>
+            )}
         </div>
     );
 };
@@ -169,7 +174,7 @@ const Job = ({ job, userId, user }) => {
                         }`}
                         style={{ cursor: "pointer" }}>
                         <Media body className='col-12 my-auto p-1 '>
-                            <h5 className='mb-5px'>{job.title}</h5>
+                            <h5 className='mb-5px Merri24px'>{job.title}</h5>
 
                             <h6 className='text-emp-primary mb-2px'>
                                 {/* <FontAwesomeIcon icon={faMapMarkerAlt} />{" "} */}
@@ -272,7 +277,7 @@ const Job = ({ job, userId, user }) => {
                                         ? job.author.photo
                                         : hospital
                                 }
-                                style={{ maxHeight: "200px" }}
+                                style={{ maxHeight: "160px" }}
                                 alt='Generic placeholder image'
                                 className='img-fluid float-right pr-2 pr-lg-3'
                             />
@@ -1875,13 +1880,14 @@ export default class JobSearch extends Component {
                                             // ref={this.location}
                                             onChange={(e) => {
                                                 console.log(e);
-                                                this.setState({
-                                                    sortBy: e.value,
-                                                });
-                                                this.search(0);
-                                                // this.setState({
-                                                //     location: e ? e.value : "",
-                                                // });
+                                                this.setState(
+                                                    {
+                                                        sortBy: e.value,
+                                                    },
+                                                    () => {
+                                                        this.search(0);
+                                                    },
+                                                );
                                             }}
                                         />
                                     </div>

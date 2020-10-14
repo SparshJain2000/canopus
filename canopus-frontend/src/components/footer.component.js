@@ -35,7 +35,7 @@ export default function FooterComponent() {
                             </li>
                             <li>
                                 <FontAwesomeIcon icon={faAngleDoubleRight} />{" "}
-                                <Link to='/search-jobs'>Job Search</Link>
+                                <Link to='/'>Terms & Conditions</Link>
                             </li>
                             {/* <li>
                                 <FontAwesomeIcon icon={faAngleDoubleRight} />{" "}

@@ -375,7 +375,7 @@ export default class Profile extends Component {
                     </Nav>
                 )}
                 {this.state.profile ? (
-                    <div className='row my-3 mx-auto p-2 p-sm-0 col-12 col-sm-11 col-xl-8 justify-content-center '>
+                    <div className='row my-3 mx-auto p-2 p-sm-0 col-12 col-sm-11 col-xl-8 justify-content-center font-16px'>
                         <div className='col-12 col-lg-4'>
                             <div
                                 className='block-noHover row text-dark p-2 mt-3 mb-5 my-lg-0'
@@ -452,7 +452,7 @@ export default class Profile extends Component {
                                                     className='ml-2 mr-3'
                                                 />
                                             </div>
-                                            <div className='col-11 pl-3'>
+                                            <div className='col-11 pl-3 font-16px'>
                                                 {this.state.profile.title &&
                                                     this.state.profile.title}
                                             </div>
@@ -467,7 +467,7 @@ export default class Profile extends Component {
                                                         className='ml-2 mr-3'
                                                     />
                                                 </div>
-                                                <div className='col-11 px-0 pl-3'>
+                                                <div className='col-11 px-0 pl-3 font-16px'>
                                                     {this.state.profile.address
                                                         .city !== "" &&
                                                     this.state.profile.address
@@ -489,7 +489,7 @@ export default class Profile extends Component {
                                                 />
                                             </div>
                                             <div
-                                                className='col-11 pl-3'
+                                                className='col-11 pl-3 font-16px'
                                                 style={{
                                                     whiteSpace: "nowrap",
                                                     overflow: "hidden",
@@ -512,7 +512,7 @@ export default class Profile extends Component {
                                                         }}
                                                     />
                                                 </div>
-                                                <div className='col-11 pl-3'>
+                                                <div className='col-11 pl-3 font-16px'>
                                                     {"+91-"}
                                                     {this.state.profile.phone}
                                                 </div>
@@ -533,33 +533,30 @@ export default class Profile extends Component {
 
                         <div className='col-12 col-lg-7 mt-lg-0 ml-sm-0 ml-lg-3 '>
                             <div className='p-3 block-noHover'>
-                                <h4 className='position-relative text-emp-primary'>
+                                <h4 className='position-relative text-emp-primary Merri24px'>
                                     {this.state.profile.title}
                                 </h4>
                             </div>
                             <div className='p-3 block-noHover mt-2'>
-                                <h4 className='position-relative text-emp-primary'>
+                                <h5 className='position-relative text-emp-primary'>
                                     Area of Work
-                                </h4>
-                                <h6>
-                                    <strong>
-                                        {this.state.profile.profession}
-                                    </strong>
-                                </h6>
-                                <h6>{this.state.profile.specialization}</h6>
-                                <h6>
-                                    <em>
-                                        {this.state.profile.superSpecialization.join(
-                                            ", ",
-                                        )}
-                                    </em>
-                                </h6>
+                                </h5>
+
+                                <strong>{this.state.profile.profession}</strong>
+                                <br />
+                                {this.state.profile.specialization}
+                                <br />
+                                <em>
+                                    {this.state.profile.superSpecialization.join(
+                                        ", ",
+                                    )}
+                                </em>
                             </div>
 
                             <div className='p-3 block-noHover mt-2'>
-                                <h4 className='position-relative mb-3 text-emp-primary'>
+                                <h5 className='position-relative mb-3 text-emp-primary'>
                                     Education
-                                </h4>
+                                </h5>
 
                                 {this.state.profile.education &&
                                     this.state.profile.education.map((data) => (
@@ -568,11 +565,11 @@ export default class Profile extends Component {
                                             <Media>
                                                 <Media body>
                                                     <Media heading>
-                                                        <h5>
+                                                        <h6>
                                                             <strong>
                                                                 {data.degree}
                                                             </strong>
-                                                        </h5>
+                                                        </h6>
                                                     </Media>
                                                     <Media heading>
                                                         <h6>
@@ -589,9 +586,9 @@ export default class Profile extends Component {
                                     ))}
                             </div>
                             <div className='p-3 block-noHover mt-2'>
-                                <h4 className='position-relative text-emp-primary'>
+                                <h5 className='position-relative text-emp-primary'>
                                     Availability
-                                </h4>
+                                </h5>
 
                                 {this.state.profile.availability &&
                                     this.state.profile.availability.map(
@@ -642,7 +639,7 @@ export default class Profile extends Component {
                                 this.state.profile.resume === ""
                             ) && (
                                 <div className='block-noHover mt-2 p-2 p-sm-3'>
-                                    <h4 className='text-emp-primary'>Resume</h4>
+                                    <h5 className='text-emp-primary'>Resume</h5>
 
                                     {(typeof this.state.profile.resume ===
                                         "undefined" ||

@@ -73,7 +73,12 @@ const Badges = ({ desc, superSpecialization, sponsored }) => {
                     </Badge>
                 );
             })}
-            {number > 0 && `+ ${number} more`}
+            {number > 0 && (
+                <Badge
+                    className='mr-1'
+                    color='info'
+                    key={120}>{`+ ${number} more`}</Badge>
+            )}
         </div>
     );
 };
@@ -149,7 +154,7 @@ class SimilarJobs extends Component {
                                         // }
                                     >
                                         <Media body className='col-12 my-1 p-2'>
-                                            <h5 className='mb-5px'>
+                                            <h5 className='mb-5px Merri24px'>
                                                 {job.title}
                                             </h5>
 
@@ -524,8 +529,8 @@ export default class Job extends Component {
                         </div>
                         <div className='col-11 col-sm-9 col-md-8 main-job mx-auto my-3 p-2 p-sm-3'>
                             <div className='row '>
-                                <div className='col-7 col-md-10 my-auto'>
-                                    <h5>{job.title}</h5>
+                                <div className='col-7 col-md-10 my-auto '>
+                                    <h5 className='Merri24px'>{job.title}</h5>
                                     <Link
                                         to={`/employer/profile/${job.author.id}`}>
                                         <h6 className='text-info'>

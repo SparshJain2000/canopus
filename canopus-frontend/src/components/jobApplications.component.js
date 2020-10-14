@@ -125,7 +125,12 @@ const Badges = ({ desc, superSpecialization, sponsored }) => {
                     </Badge>
                 );
             })}
-            {number > 0 && `+ ${number} more`}
+            {number > 0 && (
+                <Badge
+                    className='mr-1'
+                    color='info'
+                    key={120}>{`+ ${number} more`}</Badge>
+            )}
         </div>
     );
 };
@@ -275,19 +280,19 @@ const Job = ({
                 <Media body className='col-12 p-1'>
                     <Media heading className='row'>
                         <div className='col-6 col-sm-8 px-0'>
-                            <h5>{job.title}</h5>
+                            <h5 className='Merri24px'>{job.title}</h5>
                             <h6>
-                                <FontAwesomeIcon icon={faMapMarkerAlt} />{" "}
+                                {/* <FontAwesomeIcon icon={faMapMarkerAlt} />{" "} */}
                                 {job.description && job.description.location}
                             </h6>
                         </div>
                         <div className='col-6 col-sm-4  mt-0 p-0 '>
                             {jobType === "Saved" && (
                                 <div className='row mx-0 px-0 justify-content-end'>
-                                    <div className='col-8 px-0 pr-1'>
+                                    <div className='col-7 px-0 pr-1'>
                                         <Button
                                             size={"sm"}
-                                            color='js-primary'
+                                            color='emp-primary'
                                             onClick={(e) => {
                                                 setMess("discard");
                                                 toggle();
@@ -318,7 +323,7 @@ const Job = ({
                                 <div className='row mx-0 px-0 justify-content-end'>
                                     <div className='col-5 px-0 pr-1'>
                                         <Button
-                                            color='js-primary'
+                                            color='emp-primary'
                                             size={"sm"}
                                             className='w-100'
                                             onClick={(e) => {
@@ -432,7 +437,7 @@ const Job = ({
                     <hr className='mt-0 mb-2' />
                     <div className='row m-0'>
                         <div className='col-12 desc'>
-                            <em>{job.description && job.description.line}</em>
+                            {job.description && job.description.line}
                             <br />
                         </div>
                         <hr />
