@@ -20,6 +20,7 @@ import {
     faPen,
     faMinus,
     faMinusCircle,
+    faPlus,
 } from "@fortawesome/free-solid-svg-icons";
 import InputMap from "./map.component";
 import Axios from "axios";
@@ -462,7 +463,7 @@ export default class UpdateEmployer extends Component {
                 },
             );
             console.log(uploadBlobResponse);
-            return `https://canopus.blob.core.windows.net/employer-image/profile`;
+            return `https://curoidprod.blob.core.windows.net/employer-image/profile`;
         } catch (error) {
             console.error(error);
         }
@@ -686,7 +687,7 @@ export default class UpdateEmployer extends Component {
         return (
             <div className='mx-auto col-12 col-sm-10 col-xl-8 px-0'>
                 <Nav tabs className='justify-content-between '>
-                    <div className='row justify-content-start col-12 col-sm-5 col-md-6 col-lg-7'>
+                    <div className='row justify-content-start col-6 col-sm-5 col-md-6 col-lg-7'>
                         <NavItem className='mx-1 mx-sm-2'>
                             <NavLink
                                 className='p-1 p-sm-2 active-tab nav-link'
@@ -702,7 +703,7 @@ export default class UpdateEmployer extends Component {
                             </NavLink>
                         </NavItem>
                     </div>
-                    <div className='col-12 col-sm-7 col-md-6 col-lg-5 row px-2 justify-content-around justify-content-sm-end'>
+                    <div className='col-6 col-sm-7 col-md-6 col-lg-5 row px-2 justify-content-around justify-content-sm-end'>
                         {/* <div className='px-0 pr-0 pr-sm-1'>
                             <Link to='/employer/update'>
                                 <Button
@@ -790,7 +791,7 @@ export default class UpdateEmployer extends Component {
                                                     this.state.uploadingLogo
                                                 }>
                                                 <label
-                                                    htmlFor='image'
+                                                    htmlFor='logo'
                                                     style={{
                                                         display: "inline-block",
                                                         margin: 0,
@@ -811,7 +812,7 @@ export default class UpdateEmployer extends Component {
                                                     opacity: 0,
                                                     cursor: "pointer",
                                                 }}
-                                                id='image'
+                                                id='logo'
                                                 accept='image/*'
                                                 ref={this.logo}
                                                 disabled={
@@ -1121,26 +1122,27 @@ export default class UpdateEmployer extends Component {
                             <h4 className='text-emp-primary'>Media</h4>
                         </FormGroup>
                         <Label className='row'>
-                            <h5 className='col-9  col-sm-10 my-auto pl-0'>
+                            <h5 className='col-8 col-sm-10 my-auto pl-0'>
                                 Links
                             </h5>
-
-                            <Button
-                                color={"emp-secondary-2"}
-                                disabled={this.state.links.length >= 5}
-                                onClick={() => {
-                                    if (this.state.links.length < 5) {
-                                        let links = this.state.links;
-                                        links.push("");
-                                        this.setState({
-                                            links: links,
-                                        });
-                                    }
-                                }}
-                                className={`col-3 col-sm-2 btn-sm`}
-                                style={{ cursor: "pointer" }}>
-                                Add Link
-                            </Button>
+                            <div className='col-4 col-sm-2 px-0 row justify-content-end'>
+                                <Button
+                                    color={"emp-secondary-2"}
+                                    disabled={this.state.links.length >= 5}
+                                    onClick={() => {
+                                        if (this.state.links.length < 5) {
+                                            let links = this.state.links;
+                                            links.push("");
+                                            this.setState({
+                                                links: links,
+                                            });
+                                        }
+                                    }}
+                                    className={`btn-sm`}
+                                    style={{ cursor: "pointer" }}>
+                                    <FontAwesomeIcon icon={faPlus} /> Add Link
+                                </Button>
+                            </div>
                         </Label>
                         {this.state.links.map((x, i) => (
                             <div className='my-1 row'>
@@ -1172,18 +1174,20 @@ export default class UpdateEmployer extends Component {
                             color='warning'
                             isOpen={this.state.showError3}
                             toggle={() => {
-                                this.setState({ showError3: false });
+                                this.setState({
+                                    showError3: !this.state.showError3,
+                                });
                             }}>
                             {this.state.imageError}
                         </Alert>
                         <Label className='row mt-2'>
-                            <h5 className='col-9 col-sm-10 pl-0 my-auto'>
+                            <h5 className='col-7 col-sm-10 pl-0 my-auto'>
                                 Image
                             </h5>
-                            <div className='col-3 col-sm-2'>
+                            <div className='col-5 col-sm-2 px-0 row justify-content-end'>
                                 <div className='my-1  ml-0 pl-0'>
                                     <button
-                                        className='btn btn-emp-secondary-2 btn-sm btn-float w-100'
+                                        className='btn btn-emp-secondary-2 btn-sm '
                                         // style={{
                                         //     borderRadius: "50%",
                                         // }}
@@ -1199,7 +1203,7 @@ export default class UpdateEmployer extends Component {
                                                 cursor: "pointer",
                                                 width: "100%",
                                             }}>
-                                            {/* <FontAwesomeIcon icon={faPen} /> */}
+                                            <FontAwesomeIcon icon={faPlus} />{" "}
                                             Add Image
                                         </label>
                                     </button>
@@ -1280,28 +1284,30 @@ export default class UpdateEmployer extends Component {
                         ))}
                         <hr />
                         <Label className='row mt-2'>
-                            <h5 className='col-9 col-sm-10 pl-0 my-auto'>
+                            <h5 className='col-8 col-sm-10 pl-0 my-auto'>
                                 Videos
                             </h5>
-                            <Button
-                                // icon={faPlusCircle}
-                                // size='lg'
-                                color={"emp-secondary-2"}
-                                disabled={this.state.youtube.length >= 5}
-                                onClick={() => {
-                                    if (this.state.youtube.length < 5) {
-                                        let youtube = this.state.youtube;
-                                        youtube.push("");
-                                        this.setState({
-                                            youtube: youtube,
-                                        });
-                                    }
-                                }}
-                                disabled={this.state.youtube.length >= 5}
-                                className={`col-3 col-sm-2 btn-sm`}
-                                style={{ cursor: "pointer" }}>
-                                Add Links
-                            </Button>
+                            <div className='col-4 col-sm-2 px-0 row justify-content-end'>
+                                <Button
+                                    // icon={faPlusCircle}
+                                    // size='lg'
+                                    color={"emp-secondary-2"}
+                                    disabled={this.state.youtube.length >= 5}
+                                    onClick={() => {
+                                        if (this.state.youtube.length < 5) {
+                                            let youtube = this.state.youtube;
+                                            youtube.push("");
+                                            this.setState({
+                                                youtube: youtube,
+                                            });
+                                        }
+                                    }}
+                                    disabled={this.state.youtube.length >= 5}
+                                    className={` btn-sm`}
+                                    style={{ cursor: "pointer" }}>
+                                    <FontAwesomeIcon icon={faPlus} /> Add Link
+                                </Button>
+                            </div>
                         </Label>
                         {this.state.youtube.map((x, i) => (
                             <div className='my-1 row'>
@@ -1336,7 +1342,7 @@ export default class UpdateEmployer extends Component {
                             </h4>
                         </FormGroup>
                         <FormGroup className='row'>
-                            <div className='col-12 col-md-6  p-0 pr-1  my-1'>
+                            <div className='col-12 col-md-6  p-0 pr-sm-1  my-1'>
                                 <Label className='mb-1'>
                                     First Name{" "}
                                     <span className='text-danger'> *</span>
@@ -1349,7 +1355,7 @@ export default class UpdateEmployer extends Component {
                                     invalid={!this.state.valid.firstName}
                                 />
                             </div>
-                            <div className='col-12 col-md-6  p-0 pl-1  my-1'>
+                            <div className='col-12 col-md-6  p-0 pl-sm-1  my-1'>
                                 <Label className='mb-1'>
                                     Last Name{" "}
                                     <span className='text-danger'>*</span>
@@ -1361,7 +1367,7 @@ export default class UpdateEmployer extends Component {
                                     value={this.state.lastName}
                                 />
                             </div>
-                            <div className='col-12 col-md-6  p-0 pr-1  my-1'>
+                            <div className='col-12 col-md-6  p-0 pr-sm-1  my-1'>
                                 <Label className='mb-1'>E-mail</Label>
                                 <Input
                                     placeholder='Email'
@@ -1371,7 +1377,7 @@ export default class UpdateEmployer extends Component {
                                     disabled={true}
                                 />
                             </div>
-                            <div className='col-12 col-md-6  p-0 pl-1  my-1'>
+                            <div className='col-12 col-md-6  p-0 pl-sm-1  my-1'>
                                 <Label className='mb-1'>
                                     Phone no.{" "}
                                     <span className='text-danger'>*</span>
@@ -1389,7 +1395,7 @@ export default class UpdateEmployer extends Component {
                             </div>
                         </FormGroup>
                     </div>
-                    <div className='p-4 m-3 mx-lg-4 d-flex justify-content-end'>
+                    <div className='px-lg-0 m-2 mx-lg-0 d-flex justify-content-end'>
                         {/* {this.state.loading ? (
                             <Button
                                 // onClick={this.update}
@@ -1407,7 +1413,7 @@ export default class UpdateEmployer extends Component {
                         <Button
                             onClick={this.reload}
                             // className='w-25'
-                            size='lg'
+
                             disabled={this.state.loading}
                             color='emp-secondary'>
                             Discard Updates
@@ -1415,7 +1421,7 @@ export default class UpdateEmployer extends Component {
                         <Button
                             onClick={this.update}
                             // className='w-25'
-                            size='lg'
+
                             className='ml-1'
                             disabled={this.state.loading}
                             color='emp-primary'>

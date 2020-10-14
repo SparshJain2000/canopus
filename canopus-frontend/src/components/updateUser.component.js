@@ -283,23 +283,25 @@ export default class UpdateUser extends Component {
                     })
                         .then(({ data }) => {
                             const sas = data.token;
-                            this.uploadToStorage("canopus", sas, resume).then(
-                                (res) => {
-                                    console.log(res);
-                                    const url = `https://canopus.blob.core.windows.net/user-image/${this.state.id}_${file.name}`;
-                                    console.log(url);
-                                    this.setState({
-                                        resume: url,
-                                        prevResume: "",
-                                        loading: false,
-                                        uploadingLogo: false,
-                                        showError: false,
-                                        progress: 0,
-                                    });
-                                    // this.update();
-                                    this.setState({ uploaded: true });
-                                },
-                            );
+                            this.uploadToStorage(
+                                "curoidprod",
+                                sas,
+                                resume,
+                            ).then((res) => {
+                                console.log(res);
+                                const url = `https://curoidprod.blob.core.windows.net/user-image/${this.state.id}_${file.name}`;
+                                console.log(url);
+                                this.setState({
+                                    resume: url,
+                                    prevResume: "",
+                                    loading: false,
+                                    uploadingLogo: false,
+                                    showError: false,
+                                    progress: 0,
+                                });
+                                // this.update();
+                                this.setState({ uploaded: true });
+                            });
                         })
                         .catch((e) => console.log(e));
                 else {
@@ -523,7 +525,7 @@ export default class UpdateUser extends Component {
                 },
             );
             console.log(uploadBlobResponse);
-            return `https://canopus.blob.core.windows.net/user-image/profile`;
+            return `https://curoidprod.blob.core.windows.net/user-image/profile`;
         } catch (error) {
             console.error(error);
         }
@@ -586,10 +588,10 @@ export default class UpdateUser extends Component {
                     })
                         .then(({ data }) => {
                             const sas = data.token;
-                            console.log(sas);
-                            this.uploadToStorage("canopus", sas, image).then(
+                            console.log(data);
+                            this.uploadToStorage("curoidprod", sas, image).then(
                                 (res) => {
-                                    const url = `https://canopus.blob.core.windows.net/user-image/${this.state.id}_${file.name}`;
+                                    const url = `https://curoidprod.blob.core.windows.net/user-image/${this.state.id}_${file.name}`;
                                     this.setState({
                                         logo: url,
                                         loading: false,
