@@ -97,7 +97,7 @@ const ApplicantDetails = ({ applicant }) => {
     }, []);
     return <div>{!error && data && data.username}</div>;
 };
-const Badges = ({ desc, superSpecialization }) => {
+const Badges = ({ desc, superSpecialization, sponsored }) => {
     const superSp = superSpecialization ? superSpecialization : "";
     let badges = [];
     if (desc && desc.type && desc.incentives)
@@ -113,6 +113,11 @@ const Badges = ({ desc, superSpecialization }) => {
 
     return (
         <div>
+            {sponsored === "true" && (
+                <Badge className='mr-1' color='js-secondary'>
+                    Promoted
+                </Badge>
+            )}
             {badges.map((badge, i) => {
                 return (
                     <Badge className='mx-1' color='info' key={i}>
@@ -120,7 +125,12 @@ const Badges = ({ desc, superSpecialization }) => {
                     </Badge>
                 );
             })}
-            {number > 0 && `+ ${number} more`}
+            {number > 0 && (
+                <Badge
+                    className='mr-1'
+                    color='info'
+                    key={120}>{`+ ${number} more`}</Badge>
+            )}
         </div>
     );
 };
@@ -264,25 +274,25 @@ const Job = ({
     return (
         <div className='col-12 col-md-6'>
             <Media
-                className={`row  justify-content-center m-2 m-md-3 p-2 px-md-2  ${
-                    job.sponsored === "true" ? "block-info" : "block"
+                className={`row  justify-content-center m-2 m-md-2 p-2 px-md-2  ${
+                    job.sponsored === "true" ? "block" : "block"
                 }`}>
                 <Media body className='col-12 p-1'>
                     <Media heading className='row'>
                         <div className='col-6 col-sm-8 px-0'>
-                            <h5>{job.title}</h5>
+                            <h5 className='Merri24px'>{job.title}</h5>
                             <h6>
-                                <FontAwesomeIcon icon={faMapMarkerAlt} />{" "}
+                                {/* <FontAwesomeIcon icon={faMapMarkerAlt} />{" "} */}
                                 {job.description && job.description.location}
                             </h6>
                         </div>
                         <div className='col-6 col-sm-4  mt-0 p-0 '>
                             {jobType === "Saved" && (
                                 <div className='row mx-0 px-0 justify-content-end'>
-                                    <div className='col-8 px-0 pr-1'>
+                                    <div className='col-7 px-0 pr-1'>
                                         <Button
                                             size={"sm"}
-                                            color='js-primary'
+                                            color='emp-secondary'
                                             onClick={(e) => {
                                                 setMess("discard");
                                                 toggle();
@@ -302,7 +312,7 @@ const Job = ({
                                             params={{ freelance: freelance }}>
                                             <Button
                                                 size={"sm"}
-                                                className='btn btn-js-secondary w-100'>
+                                                className='btn btn-emp-secondary w-100'>
                                                 Edit
                                             </Button>
                                         </Link>
@@ -313,7 +323,7 @@ const Job = ({
                                 <div className='row mx-0 px-0 justify-content-end'>
                                     <div className='col-5 px-0 pr-1'>
                                         <Button
-                                            color='emp-primary'
+                                            color='emp-secondary'
                                             size={"sm"}
                                             className='w-100'
                                             onClick={(e) => {
@@ -341,7 +351,7 @@ const Job = ({
                                             <Button
                                                 size={"sm"}
                                                 color='emp-secondary'
-                                                className='btn btn-primary w-100'>
+                                                className='btn  w-100'>
                                                 View
                                             </Button>
                                         </Link>
@@ -404,7 +414,7 @@ const Job = ({
                                             }}
                                             params={{ freelance: freelance }}>
                                             <Button
-                                                className='btn btn-js-secondary w-100'
+                                                className='btn btn-emp-secondary w-100'
                                                 size='sm'>
                                                 Edit
                                             </Button>
@@ -427,7 +437,7 @@ const Job = ({
                     <hr className='mt-0 mb-2' />
                     <div className='row m-0'>
                         <div className='col-12 desc'>
-                            <em>{job.description && job.description.line}</em>
+                            {job.description && job.description.line}
                             <br />
                         </div>
                         <hr />
@@ -474,6 +484,7 @@ const Job = ({
                             <div className='col-12  px-0 '>
                                 <Badges
                                     desc={job.description}
+                                    sponsored={job.sponsored}
                                     superSpecialization={
                                         job.superSpecialization
                                     }
@@ -591,15 +602,15 @@ const Job = ({
                                     <Link
                                         to={`/profile/${applicant.id}`}
                                         title='View Profile'
-                                        className='btn btn-primary btn-sm float-right mx-1'
+                                        className='btn btn-emp-primary btn-sm float-right mx-1'
                                         style={{ borderRadius: "50%" }}>
                                         <FontAwesomeIcon icon={faArrowRight} />
                                     </Link>
                                     {freelance && (
                                         <Button
-                                            color='success'
+                                            color='emp-secondary'
                                             title='Accept'
-                                            className='btn btn-primary btn-sm float-right mx-1'
+                                            className='btn btn-emp-secondary btn-sm float-right mx-1'
                                             onClick={() => {
                                                 setMess(
                                                     `accept_${applicant.id}`,
@@ -621,59 +632,65 @@ const Job = ({
             </Media>
             <Modal isOpen={modal} toggle={toggle} style={{ marginTop: "20vh" }}>
                 <ModalHeader toggle={toggle} className='py-1'>
-                    {mess === "promote" && "Promote the Job?"}
-                    {mess === "post" && "Publish the Job?"}
-                    {mess === "discard" && "Discard the Job?"}
+                    {mess === "promote" && "Promote Job?"}
+                    {mess === "post" && "Publish Job?"}
+                    {mess === "discard" && "Discard Job?"}
                     {mess.split("_")[0] === "accept" && "Accept the Applicant?"}
                 </ModalHeader>
                 <ModalBody className='py-3'>
                     {mess === "promote" &&
-                        "Are you sure you want to promote this job ?"}
+                        "Promote this job for prominent placement in the job search. You may have limited slots for promotions."}
                     {mess.split("_")[0] === "accept" &&
                         "Are you sure you want to confirm the applicant. Clicking on “OK” will confirm the applicant and close the job for other applicants"}
                     {mess === "post" &&
-                        "Posting the Job will make it visible to applicants."}
+                        "Posting this Job will make it visibile to applicants."}
                     {mess === "discard" &&
                         "You will not be able to recover this job."}
                 </ModalBody>
-                <ModalFooter className='py-1'>
+                <ModalFooter className='py-1 font-16px'>
+                    <Button color='emp-secondary' size='sm' onClick={toggle}>
+                        {mess === "discard" && "Keep Job"}
+                        {mess === "post" && "Wait"}
+                        {mess === "promote" && "Wait"}
+                        {mess.split("_")[0] === "accept" && "No"}
+                    </Button>
                     {mess === "promote" && (
                         <Button
                             size='sm'
-                            color='primary'
+                            color='emp-primary'
                             onClick={(e) => {
                                 toggle();
                                 sponsor();
                             }}>
-                            Promote
+                            Promote Job
                         </Button>
                     )}
                     {mess === "post" && (
                         <Button
                             size='sm'
-                            color='primary'
+                            color='emp-primary'
                             onClick={(e) => {
                                 toggle();
                                 post();
                             }}>
-                            Post
+                            Post Job
                         </Button>
                     )}
                     {mess === "discard" && (
                         <Button
                             size='sm'
-                            color='danger'
+                            color='emp-primary'
                             onClick={(e) => {
                                 toggle();
                                 discard();
                             }}>
-                            Delete
+                            Delete Job
                         </Button>
                     )}
                     {mess.split("_")[0] === "accept" && (
                         <Button
                             size='sm'
-                            color='primary'
+                            color='emp-primary'
                             onClick={(e) => {
                                 toggle();
                                 accept(mess.split("_")[1]);
@@ -681,12 +698,6 @@ const Job = ({
                             Yes
                         </Button>
                     )}
-                    <Button color='secondary' size='sm' onClick={toggle}>
-                        {mess === "discard" && "Keep"}
-                        {mess === "post" && "Wait"}
-                        {mess === "promote" && "No"}
-                        {mess.split("_")[0] === "accept" && "No"}
-                    </Button>
                 </ModalFooter>
             </Modal>
             <Modal
@@ -833,10 +844,10 @@ export default class JobApplications extends Component {
         let banner;
         if (this.props.data) banner = this.props.data.sponsor_banner;
         return (
-            <div className='w-100'>
+            <div className='col-12 col-xl-10 px-0 mx-auto'>
                 {window.location.pathname === "/applications" && (
                     <Nav tabs className='justify-content-between '>
-                        <div className='row justify-content-start col-6 col-sm-7'>
+                        <div className='row justify-content-start col-12 col-sm-5 col-md-6 col-lg-7'>
                             <NavItem className='mx-1 mx-sm-2'>
                                 <NavLink
                                     to='/employer'
@@ -850,16 +861,16 @@ export default class JobApplications extends Component {
                             <NavItem className='mx-1 mx-sm-2'>
                                 <NavLink
                                     to='/applications'
-                                    className={`p-1 p-sm-2  active-tab nav-link`}>
+                                    className={`p-1 p-sm-2 active-tab nav-link`}>
                                     <h6>Jobs</h6>
                                 </NavLink>
                             </NavItem>
                         </div>
-                        <div className='col-6 col-sm-5 row pr-2 pr-sm-3 justify-content-end'>
-                            <div className='col-12 col-sm-5 px-0 pr-0 pr-sm-1'>
+                        <div className='col-12 col-sm-7 col-md-6 col-lg-5 row px-2 justify-content-around justify-content-sm-end'>
+                            <div className='px-0 pr-0 pr-sm-1'>
                                 <Link to='/employer/update'>
                                     <Button
-                                        className=' mt-2 my-1 px-2 w-100'
+                                        className=' mt-2 my-1 px-4 w-100'
                                         size='sm'
                                         id='update'
                                         style={{ textAlign: "center" }}
@@ -877,10 +888,10 @@ export default class JobApplications extends Component {
                                     </Button>
                                 </Link>
                             </div>
-                            <div className='col-12 col-sm-5 px-0 pl-0 pl-sm-1'>
+                            <div className='px-0 pl-0 pl-sm-1'>
                                 <Link to='/post'>
                                     <Button
-                                        className=' mt-2 my-1 px-2 w-100'
+                                        className=' mt-2 my-1 px-4 w-100'
                                         size='sm'
                                         id='post'
                                         style={{ textAlign: "center" }}
@@ -901,7 +912,9 @@ export default class JobApplications extends Component {
                         </div>
                     </Nav>
                 )}
-                <div className='row pt-3 w-100 justify-content-end'>
+                <div
+                    className='row pt-3 w-100 justify-content-end mx-1 mx-xl-0'
+                    style={{ minHeight: "30vh" }}>
                     {/* <div className='col-7 px-0 pl-3'>
                         <h3 className='text-align-left   '>
                         {this.state.jobType} Jobs
@@ -963,10 +976,22 @@ export default class JobApplications extends Component {
                             </DropdownMenu>
                         </Dropdown>
                     </div>
-                    <div className='row w-100'>
+                    {this.state.freelanceJobs &&
+                        this.state.jobs &&
+                        this.state.freelanceJobs.length === 0 &&
+                        this.state.jobs.length === 0 && (
+                            <div
+                                className='w-100 px-2 px-sm-0 text-align-center'
+                                style={{ minHeight: "40vh" }}>
+                                <h1 className='text-align-center my-5'>
+                                    No Jobs Found
+                                </h1>
+                            </div>
+                        )}
+                    <div className='row w-100 px-2 px-sm-0'>
                         {this.state.freelanceJobs ? (
                             this.state.freelanceJobs.length !== 0 && (
-                                <div className='row w-100 px-2'>
+                                <div className='row w-100 px-2 px-sm-0'>
                                     <h3 className='col-12 px-2 px-sm-3'>
                                         Locum/Day Jobs
                                     </h3>
@@ -1012,11 +1037,11 @@ export default class JobApplications extends Component {
                         )}
                     </div>
 
-                    <div className='row px-2 w-100'>
+                    <div className='row px-2 w-100 px-sm-0'>
                         {this.state.jobs !== null &&
                         this.state.jobs !== undefined ? (
                             this.state.jobs.length !== 0 && (
-                                <div className='row w-100 px-2'>
+                                <div className='row w-100 px-2 px-sm-0'>
                                     <h3 className='col-12 px-2 px-sm-3'>
                                         Regular Jobs
                                     </h3>

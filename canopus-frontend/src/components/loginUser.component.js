@@ -176,7 +176,7 @@ export default class LoginUser extends Component {
                             <NavLink
                                 to='/user/forgot'
                                 className={`nav-link p-1 p-sm-2`}>
-                                <h6>Forgot password</h6>
+                                <h6>Forgot Password</h6>
                             </NavLink>
                         </NavItem>
                     </div>
@@ -258,7 +258,7 @@ export default class LoginUser extends Component {
                             <div className='text-center social-btn'>
                                 <a
                                     href='/auth/linkedin/user'
-                                    className='btn btn-linkedin mx-2'>
+                                    className='btn btn-emp-primary mx-2'>
                                     <FontAwesomeIcon icon={faLinkedin} />
                                     &nbsp; Linkedin
                                 </a>

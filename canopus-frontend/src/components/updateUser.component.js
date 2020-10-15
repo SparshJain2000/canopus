@@ -15,6 +15,8 @@ import {
     ButtonGroup,
     CustomInput,
     Alert,
+    InputGroupAddon,
+    InputGroupText,
 } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "../stylesheets/updateUser.css";
@@ -212,6 +214,17 @@ export default class UpdateUser extends Component {
             this.setState({
                 [e.target.name]: links,
             });
+        } else if (e.target.name === "phone") {
+            console.log(e.target.value);
+            // newValid[x] = Number(e.target.value) < 1000000000;
+            this.setState({
+                [e.target.name]: e.target.value,
+
+                valid: {
+                    ...this.state.valid,
+                    [e.target.name]: e.target.value.length === 10,
+                },
+            });
         } else
             this.setState({
                 [e.target.name]: e.target.value,
@@ -283,23 +296,25 @@ export default class UpdateUser extends Component {
                     })
                         .then(({ data }) => {
                             const sas = data.token;
-                            this.uploadToStorage("canopus", sas, resume).then(
-                                (res) => {
-                                    console.log(res);
-                                    const url = `https://canopus.blob.core.windows.net/user-image/${this.state.id}_${file.name}`;
-                                    console.log(url);
-                                    this.setState({
-                                        resume: url,
-                                        prevResume: "",
-                                        loading: false,
-                                        uploadingLogo: false,
-                                        showError: false,
-                                        progress: 0,
-                                    });
-                                    // this.update();
-                                    this.setState({ uploaded: true });
-                                },
-                            );
+                            this.uploadToStorage(
+                                "curoidprod",
+                                sas,
+                                resume,
+                            ).then((res) => {
+                                console.log(res);
+                                const url = `https://curoidprod.blob.core.windows.net/user-image/${this.state.id}_${file.name}`;
+                                console.log(url);
+                                this.setState({
+                                    resume: url,
+                                    prevResume: "",
+                                    loading: false,
+                                    uploadingLogo: false,
+                                    showError: false,
+                                    progress: 0,
+                                });
+                                // this.update();
+                                this.setState({ uploaded: true });
+                            });
                         })
                         .catch((e) => console.log(e));
                 else {
@@ -431,7 +446,7 @@ export default class UpdateUser extends Component {
                             !user.image ||
                             user.image === undefined ||
                             user.image === ""
-                                ? "https://i.pinimg.com/736x/74/73/ba/7473ba244a0ace6d9d301d5fe4478983--sarcasm-meme.jpg"
+                                ? "https://curoidprod.blob.core.windows.net/curoid/AdobeStock_292703400.jpeg"
                                 : user.image,
                     });
                     this.setState({
@@ -449,7 +464,7 @@ export default class UpdateUser extends Component {
                             !user.image ||
                             user.image === undefined ||
                             user.image === ""
-                                ? "https://i.pinimg.com/736x/74/73/ba/7473ba244a0ace6d9d301d5fe4478983--sarcasm-meme.jpg"
+                                ? "https://curoidprod.blob.core.windows.net/curoid/AdobeStock_292703400.jpeg"
                                 : user.image,
 
                         dob: user.dob,
@@ -523,7 +538,7 @@ export default class UpdateUser extends Component {
                 },
             );
             console.log(uploadBlobResponse);
-            return `https://canopus.blob.core.windows.net/user-image/profile`;
+            return `https://curoidprod.blob.core.windows.net/user-image/profile`;
         } catch (error) {
             console.error(error);
         }
@@ -586,10 +601,10 @@ export default class UpdateUser extends Component {
                     })
                         .then(({ data }) => {
                             const sas = data.token;
-                            console.log(sas);
-                            this.uploadToStorage("canopus", sas, image).then(
+                            console.log(data);
+                            this.uploadToStorage("curoidprod", sas, image).then(
                                 (res) => {
-                                    const url = `https://canopus.blob.core.windows.net/user-image/${this.state.id}_${file.name}`;
+                                    const url = `https://curoidprod.blob.core.windows.net/user-image/${this.state.id}_${file.name}`;
                                     this.setState({
                                         logo: url,
                                         loading: false,
@@ -672,8 +687,8 @@ export default class UpdateUser extends Component {
         }
         return (
             <div>
-                <div className='my-2 mx-1 mx-lg-5 py-2 px-1 px-lg-5'>
-                    <div className=' p-sm-4 my-3 mx-2 mx-lg-5 block-sm'>
+                <div className='mx-auto col-12 col-sm-10 col-xl-8 px-0'>
+                    <div className='p-3 p-sm-4 my-3  mx-lg-auto block-sm'>
                         <FormGroup>
                             <h5>Details</h5>
                         </FormGroup>
@@ -767,7 +782,7 @@ export default class UpdateUser extends Component {
                                         </h6>
                                     </Label>
                                     <Input
-                                        placeholder='eg: intervetnional cardilogist'
+                                        placeholder='e.g. Interventional Cardiologist'
                                         name='title'
                                         onChange={this.handleChange}
                                         value={this.state.title}
@@ -775,7 +790,7 @@ export default class UpdateUser extends Component {
                                         key={"title"}
                                     />
                                 </div>
-                                <div className='col-3 col-sm-2 pr-0 pr-sm-1 my-1 my-sm-2 pl-0'>
+                                <div className='col-3 col-sm-2 pr-1 pr-sm-0 my-1 my-sm-2 pl-0'>
                                     <Label
                                         className='mb-1'
                                         // style={{
@@ -791,7 +806,7 @@ export default class UpdateUser extends Component {
                                             </span>
                                         </h6>
                                     </Label>
-                                    <Input
+                                    <CustomInput
                                         placeholder='Salutation'
                                         type='select'
                                         // className='pl-1 m-0'
@@ -805,9 +820,9 @@ export default class UpdateUser extends Component {
                                         <option value='Mrs'>Mrs</option>
                                         <option value='Ms'>Ms</option>
                                         <option value='Prof'>Prof</option>
-                                    </Input>
+                                    </CustomInput>
                                 </div>
-                                <div className='col-9 col-sm-6 pl-1 pl-sm-1 pr-0 my-1 my-sm-2'>
+                                <div className='col-9 col-sm-5 px-0 px-sm-1 my-1 my-sm-2'>
                                     <Label className='mb-1'>
                                         <h6 className='mb-0 small-heading'>
                                             First Name{" "}
@@ -824,7 +839,7 @@ export default class UpdateUser extends Component {
                                         invalid={!this.state.valid.firstName}
                                     />
                                 </div>
-                                <div className='col-12 col-sm-4 pl-0 pl-sm-1 my-1 my-sm-2'>
+                                <div className='col-12 col-sm-5 pl-0 my-1 my-sm-2'>
                                     <Label className='mb-1'>
                                         <h6 className='mb-0 small-heading'>
                                             Last Name{" "}
@@ -842,7 +857,7 @@ export default class UpdateUser extends Component {
                                     />
                                 </div>
 
-                                <div className='col-12 col-sm-8 pr-0 pr-sm-1 my-1 my-sm-2'>
+                                <div className='col-12 col-sm-7 pr-0 pr-sm-1 my-1 my-sm-2'>
                                     <Label className='mb-1'>
                                         <h6 className='mb-0 small-heading'>
                                             Date of Birth
@@ -856,7 +871,7 @@ export default class UpdateUser extends Component {
                                         onChange={this.handleChange}
                                     />
                                 </div>
-                                <div className='col-12 col-sm-4 pl-0 pl-sm-1 my-1 my-sm-2'>
+                                <div className='col-12 col-sm-5 pl-0  my-1 my-sm-2'>
                                     <Label className='mb-1'>
                                         <h6 className='mb-0 small-heading'>
                                             Gender{" "}
@@ -881,7 +896,7 @@ export default class UpdateUser extends Component {
                                     </Input>
                                 </div>
 
-                                <div className='row my-1 my-sm-2'>
+                                <div className='row my-1 my-sm-2 col-12 px-0'>
                                     <Label className='col-12 mb-1'>
                                         <h6 className='mb-0 small-heading'>
                                             Location{" "}
@@ -890,27 +905,27 @@ export default class UpdateUser extends Component {
                                             </span>
                                         </h6>
                                     </Label>
-                                    <div className='col-12 col-sm-4 pl-0 my-1 my-sm-0'>
+                                    <div className='col-12 col-sm-3 pl-0 my-1 my-sm-0'>
                                         <Input
-                                            placeholder='city'
+                                            placeholder='City'
                                             name='city'
                                             onChange={this.handleChange}
                                             value={this.state.city}
                                             invalid={!this.state.valid.city}
                                         />
                                     </div>
-                                    <div className='col-12 col-sm-4 pl-0 pl-sm-1 my-1 my-sm-0'>
+                                    <div className='col-12 col-sm-4 px-0 px-sm-1 my-1 my-sm-0'>
                                         <Input
-                                            placeholder='state'
+                                            placeholder='State'
                                             name='state'
                                             onChange={this.handleChange}
                                             value={this.state.state}
                                             invalid={!this.state.valid.state}
                                         />
                                     </div>
-                                    <div className='col-12 col-sm-4 pl-0 pl-sm-1 my-1 my-sm-0'>
+                                    <div className='col-12 col-sm-5 my-1 my-sm-0'>
                                         <Input
-                                            placeholder='country'
+                                            placeholder='Country'
                                             name='country'
                                             onChange={this.handleChange}
                                             defaultValue={"India"}
@@ -928,30 +943,34 @@ export default class UpdateUser extends Component {
                                             </span>
                                         </h6>
                                     </Label>
-                                    <div className='col-12 col-sm-8 pr-0 pr-sm-1 my-1 my-sm-0'>
+                                    <div className='col-12 col-sm-7 pr-0 pr-sm-1 my-1 my-sm-0'>
                                         <Input
-                                            placeholder='email'
+                                            placeholder='Email'
                                             name='email'
                                             // onChange={this.handleChange}
                                             value={this.state.username}
                                             disabled={true}
                                         />
                                     </div>
-                                    <div className='col-12 col-sm-4 pl-0 pl-sm-1 my-1 my-sm-0'>
+                                    <InputGroup className='col-12 col-sm-5 pl-0 my-1 my-sm-0'>
+                                        <InputGroupAddon addonType='prepend'>
+                                            <InputGroupText>+91</InputGroupText>
+                                        </InputGroupAddon>
                                         <Input
-                                            placeholder='phone'
+                                            type='number'
+                                            placeholder='Phone'
                                             name='phone'
                                             onChange={this.handleChange}
                                             value={this.state.phone}
                                             invalid={!this.state.valid.phone}
                                         />
-                                    </div>
+                                    </InputGroup>
                                 </div>
                             </div>
                         </FormGroup>
                     </div>
                     <hr className='d-block d-sm-none' />
-                    <div className='p-sm-4 my-3 mx-2 mx-lg-5 block-sm'>
+                    <div className='p-3 p-sm-4 my-3  mx-lg-auto block-sm'>
                         <FormGroup>
                             <h5>Area of Work</h5>
                         </FormGroup>
@@ -1070,7 +1089,7 @@ export default class UpdateUser extends Component {
                     </div>
                     <hr className='d-block d-sm-none' />
 
-                    <div className='p-sm-4 my-3 mx-2 mx-lg-5 block-sm'>
+                    <div className='p-3 p-sm-4 my-3  mx-lg-auto block-sm'>
                         <FormGroup className='row'>
                             <h5 className='col-8 col-sm-10 px-0'>Education</h5>
                             <div className='col-4 col-sm-2 row justify-content-end px-0 d-none d-sm-flex'>
@@ -1363,6 +1382,7 @@ export default class UpdateUser extends Component {
                                     <div className='col-sm-1 d-flex flex-column justify-content-center text-align-center'>
                                         <FontAwesomeIcon
                                             icon={faTrash}
+                                            size='lg'
                                             className='d-none d-sm-flex text-danger my-auto ml-auto'
                                             style={{
                                                 cursor: "pointer",
@@ -1406,7 +1426,7 @@ export default class UpdateUser extends Component {
                     </div>
                     <hr className='d-block d-sm-none' />
 
-                    <div className='p-sm-4 my-3 mx-2 mx-lg-5 block-sm'>
+                    <div className='p-3 p-sm-4 my-3  mx-lg-auto block-sm'>
                         <FormGroup>
                             <h5>Resume</h5>
                         </FormGroup>
@@ -1525,7 +1545,7 @@ export default class UpdateUser extends Component {
                     </div>
                     <hr className='d-block d-sm-none' />
 
-                    <div className='p-sm-4 my-3 mx-2 mx-lg-5 block-sm'>
+                    <div className='p-3 p-sm-4 my-3  mx-lg-auto block-sm'>
                         <FormGroup>
                             <h5>Availability</h5>
                         </FormGroup>
@@ -1837,7 +1857,7 @@ export default class UpdateUser extends Component {
                             </Button>
                         )}
                     </div>
-                    <div className='p-1 p-sm-4 m-1 m-sm-3 mx-lg-4 d-flex justify-content-end'>
+                    <div className='p-3 p-sm-0 my-3  mx-lg-auto row justify-content-end'>
                         {/* {this.state.loading ? (
                             <Button disabled={true} color='primary'>
                                 <span className='my-auto'>Uploading File</span>

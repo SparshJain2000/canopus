@@ -14,6 +14,7 @@ import {
     faArrowLeft,
     faCheckCircle,
     faCommentsDollar,
+    faDice,
 } from "@fortawesome/free-solid-svg-icons";
 import {
     Badge,
@@ -39,13 +40,13 @@ import styled, { keyframes } from "styled-components";
 const formatter = new Intl.NumberFormat("en-IN", {
     style: "currency",
     currency: "INR",
-    maximumSignificantDigits: 7,
+    maximumSignificantDigits: 9,
 });
 const BounceIn = styled.div`
     animation: 0.3s ${keyframes`${slideInRight}`} 0s;
 `;
 
-const Badges = ({ desc, superSpecialization }) => {
+const Badges = ({ desc, superSpecialization, sponsored }) => {
     const superSp = superSpecialization ? superSpecialization : "";
     let badges = [...superSp];
     if (desc) {
@@ -60,14 +61,25 @@ const Badges = ({ desc, superSpecialization }) => {
 
     return (
         <div>
+            {sponsored === "true" && (
+                <Badge className='mr-1' color='js-secondary'>
+                    Promoted
+                </Badge>
+            )}
+
             {badges.map((badge, i) => {
                 return (
-                    <Badge className='mx-1' color='info'>
+                    <Badge className='mr-1' color='info'>
                         {badge}
                     </Badge>
                 );
             })}
-            {number > 0 && `+ ${number} more`}
+            {number > 0 && (
+                <Badge
+                    className='mr-1'
+                    color='info'
+                    key={120}>{`+ ${number} more`}</Badge>
+            )}
         </div>
     );
 };
@@ -105,6 +117,15 @@ class SimilarJobs extends Component {
                 });
     }
     render() {
+        const options = {
+            hour: "numeric",
+            minute: "numeric",
+        };
+        const optionsDate = {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+        };
         return (
             <div>
                 {this.state.message === "" &&
@@ -134,48 +155,109 @@ class SimilarJobs extends Component {
                                         // }
                                     >
                                         <Media body className='col-12 my-1 p-2'>
-                                            <Media heading>
-                                                <h5>{job.title}</h5>
-                                            </Media>
+                                            <h5 className='mb-5px Merri24px'>
+                                                {job.title}
+                                            </h5>
 
-                                            <Media heading>
-                                                <h6 className='text-info'>
-                                                    {/* <FontAwesomeIcon icon={faMapMarkerAlt} />{" "} */}
-                                                    {job.description.company
-                                                        ? job.description
-                                                              .company
-                                                        : "Company"}
-                                                </h6>
-                                            </Media>
-                                            <Media heading>
-                                                <h6>
-                                                    <FontAwesomeIcon
-                                                        icon={faMapMarkerAlt}
-                                                    />{" "}
-                                                    {job.description.location}
-                                                </h6>
-                                            </Media>
+                                            <h6 className='text-emp-primary mb-2px'>
+                                                {/* <FontAwesomeIcon icon={faMapMarkerAlt} />{" "} */}
+                                                {job.author &&
+                                                job.author.instituteName
+                                                    ? job.author.instituteName
+                                                    : job.instituteName
+                                                    ? job.instituteName
+                                                    : job.description &&
+                                                      job.description.company
+                                                    ? job.description.company
+                                                    : "Company"}
+                                            </h6>
+
+                                            <h6 className='mb-5px'>
+                                                {job.description &&
+                                                    job.description.location}
+                                            </h6>
 
                                             {/* ?     <hr className='my-2' /> */}
-                                            <div className='row m-0'>
-                                                <div className='col-12 desc'>
-                                                    <em
-                                                        style={{
-                                                            fontSize: ".9rem",
-                                                        }}>
-                                                        {job.description.line}
-                                                    </em>
+                                            <div className='row m-0 '>
+                                                <div className='col-12 descr'>
+                                                    {job.description &&
+                                                        job.description.line}
                                                 </div>
                                             </div>
-                                            <hr />
 
-                                            <div className='col-12  px-0 '>
+                                            {job.startDate && (
+                                                <div className='row mt-1'>
+                                                    {new Intl.DateTimeFormat(
+                                                        "en-US",
+                                                        optionsDate,
+                                                    ).format(
+                                                        new Date(job.startDate),
+                                                    )}
+
+                                                    {job.category === "Locum" &&
+                                                        ` - ${new Intl.DateTimeFormat(
+                                                            "en-US",
+                                                            optionsDate,
+                                                        ).format(
+                                                            new Date(
+                                                                job.endDate,
+                                                            ),
+                                                        )}`}
+
+                                                    {job.category ===
+                                                        "Day Job" && (
+                                                        <span className='row'>
+                                                            {"|"}
+                                                            {job.startDate && (
+                                                                <div className=''>
+                                                                    {new Intl.DateTimeFormat(
+                                                                        "en-US",
+                                                                        options,
+                                                                    ).format(
+                                                                        new Date(
+                                                                            job.startDate,
+                                                                        ),
+                                                                    )}
+                                                                </div>
+                                                            )}
+
+                                                            {job.endDate && (
+                                                                <div className=''>
+                                                                    {" - "}
+                                                                    {new Intl.DateTimeFormat(
+                                                                        "en-US",
+                                                                        options,
+                                                                    ).format(
+                                                                        new Date(
+                                                                            job.endDate,
+                                                                        ),
+                                                                    )}
+                                                                </div>
+                                                            )}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            )}
+
+                                            <div className='col-12 mt-8px px-0 row justify-content-between'>
                                                 <Badges
                                                     desc={job.description}
                                                     superSpecialization={
                                                         job.superSpecialization
                                                     }
+                                                    sponsored={job.sponsored}
                                                 />
+                                                {job.applied === 1 && (
+                                                    <Badge
+                                                        color='warning my-auto mr-2'
+                                                        style={{
+                                                            float: "right",
+                                                            height:
+                                                                "max-content",
+                                                        }}>
+                                                        Applied
+                                                    </Badge>
+                                                )}
                                             </div>
                                         </Media>
                                     </a>
@@ -225,7 +307,7 @@ const BannerVerify = () => {
 };
 const BannerUpdate = ({ mess, checkProf, checkSpec, checkResume }) => {
     const message = !checkResume
-        ? "Upload a resume."
+        ? "Please upload a resume to apply."
         : !checkProf
         ? "Your Profession must match Job Profession."
         : !checkSpec
@@ -233,10 +315,22 @@ const BannerUpdate = ({ mess, checkProf, checkSpec, checkResume }) => {
         : "";
     return (
         <div>
-            {`${message} Click here to `}
-            <a href='/profile/update' className='text-info'>
-                update profile
-            </a>
+            {!checkResume ? (
+                <div>
+                    Please
+                    <a href='/profile/update' className='text-info'>
+                        update a resume
+                    </a>{" "}
+                    to apply.
+                </div>
+            ) : (
+                <div>
+                    {`${message} Click here to `}
+                    <a href='/profile/update' className='text-info'>
+                        update profile
+                    </a>
+                </div>
+            )}
         </div>
     );
 };
@@ -448,8 +542,8 @@ export default class Job extends Component {
                         </div>
                         <div className='col-11 col-sm-9 col-md-8 main-job mx-auto my-3 p-2 p-sm-3'>
                             <div className='row '>
-                                <div className='col-7 col-md-10 my-auto'>
-                                    <h5>{job.title}</h5>
+                                <div className='col-12 col-md-10 my-auto '>
+                                    <h5 className='Merri24px'>{job.title}</h5>
                                     <Link
                                         to={`/employer/profile/${job.author.id}`}>
                                         <h6 className='text-info'>
@@ -472,7 +566,7 @@ export default class Job extends Component {
                                         {job.description.location}
                                     </h6>
                                 </div>
-                                <div className='col-5 col-md-2'>
+                                <div className='col-5 col-md-2 d-none d-md-block'>
                                     <img
                                         object
                                         src={
@@ -488,31 +582,29 @@ export default class Job extends Component {
                             </div>
                             {/* <hr /> */}
                             <div className=' row justify-content-around'>
-                                <div className='col-6 col-sm-3 my-1'>
+                                <div className='col-6 col-sm-3 my-1 px-0'>
                                     <h6>
                                         <b>Profession</b>
                                     </h6>
                                     {job.profession}
                                 </div>
 
-                                <div className='col-6 col-sm-3 my-1'>
+                                <div className='col-6 col-sm-3 my-1 px-0'>
                                     <h6>
                                         <b>Specialization </b>
                                     </h6>
                                     {job.specialization}
                                 </div>
 
-                                <div className='col-6 col-sm-3 my-1'>
+                                <div className='col-6 col-sm-3 my-1 px-0'>
                                     <h6>
-                                        <b>Experience level</b>
-                                        {/* <FontAwesomeIcon
-                                        icon={faMoneyBillWaveAlt}
-                                        className='ml-1'
-                                    /> */}
+                                        <b>Super - Specialization </b>
                                     </h6>
-                                    {job.description.experience}
+                                    {Array.isArray(job.superSpecialization)
+                                        ? job.superSpecialization.join(", ")
+                                        : job.superSpecialization}
                                 </div>
-                                <div className='col-6 col-sm-3 my-1'>
+                                <div className='col-6 col-sm-3 my-1 px-0'>
                                     <h6>
                                         <b>Posted On</b>
                                     </h6>
@@ -525,7 +617,7 @@ export default class Job extends Component {
                             </div>
                             <hr />
                             <div className='row justify-content-around'>
-                                <div className='col-6 col-sm-3 my-1'>
+                                <div className='col-6 col-sm-3 my-1 px-0'>
                                     <h6>
                                         <b>Incentives</b>
                                         {/* <FontAwesomeIcon
@@ -545,15 +637,17 @@ export default class Job extends Component {
                                             ),
                                         )}
                                 </div>
-                                <div className='col-6 col-sm-3 my-1'>
+                                <div className='col-6 col-sm-3 my-1 px-0'>
                                     <h6>
-                                        <b>Super - Specialization </b>
+                                        <b>Experience level</b>
+                                        {/* <FontAwesomeIcon
+                                        icon={faMoneyBillWaveAlt}
+                                        className='ml-1'
+                                    /> */}
                                     </h6>
-                                    {Array.isArray(job.superSpecialization)
-                                        ? job.superSpecialization.join(", ")
-                                        : job.superSpecialization}
+                                    {job.description.experience}
                                 </div>
-                                <div className='col-6 col-sm-3 my-1'>
+                                <div className='col-6 col-sm-3 my-1 px-0'>
                                     <h6>
                                         <b>Job Type</b>
                                         {/* <FontAwesomeIcon
@@ -565,7 +659,7 @@ export default class Job extends Component {
                                         ? job.description.type[0]
                                         : job.description.type}
                                 </div>
-                                <div className='col-6 col-sm-3 my-1'>
+                                <div className='col-6 col-sm-3 my-1 px-0'>
                                     <h6>
                                         <b>
                                             {`${
@@ -601,8 +695,8 @@ export default class Job extends Component {
                                 </div>
                             </div>
                             <hr />
-                            <div className='row'>
-                                <div className='col-6'>
+                            <div className='row col-12 col-sm-10 col-lg-8 mx-auto'>
+                                <div className='col-6 px-0 pr-1'>
                                     {this.props.user &&
                                     job.applicants &&
                                     job.applicants
@@ -738,7 +832,7 @@ export default class Job extends Component {
                                         )
                                     )}
                                 </div>
-                                <div className='col-6'>
+                                <div className='col-6 px-0 pl-1'>
                                     <div>
                                         <CopyToClipboard
                                             text={window.location.href}>
@@ -926,7 +1020,7 @@ export default class Job extends Component {
                                             )}
                                         <div className='m-2 mt-4 mx-auto pl-2'>
                                             <a
-                                                className='text-info'
+                                                className='text-emp-primary'
                                                 href={this.state.user.resume}>
                                                 View Resume
                                                 <FontAwesomeIcon
@@ -943,7 +1037,7 @@ export default class Job extends Component {
                                 </ModalBody>
                                 <ModalFooter>
                                     <Button
-                                        color='primary'
+                                        color='js-primary'
                                         onClick={this.applyJob}>
                                         Submit Application
                                     </Button>

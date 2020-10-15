@@ -52,10 +52,10 @@ export default class EmployerProfile extends Component {
         return (
             <div>
                 {this.state.employer && (
-                    <div className='d-flex flex-column-reverse flex-sm-row mx-2 mx-sm-3'>
+                    <div className='d-flex flex-column-reverse flex-sm-row mx-auto col-12 col-xl-8 px-2 px-xl-0'>
                         <div className='col-12  py-3'>
                             <div className='row m-2'>
-                                <div className='col-12 col-md-3 col-lg-2 px-5 px-sm-0 text-align-center'>
+                                <div className='col-8 col-md-3 col-lg-2 px-5 px-sm-0 text-align-center mx-auto'>
                                     <img
                                         src={
                                             this.state.employer.logo
@@ -174,11 +174,17 @@ export default class EmployerProfile extends Component {
                                     this.state.employer.image[0] === ""
                                 ) && (
                                     <div className='row p-3 m-2' style={block}>
-                                        <h4 className='text-blue'>Images</h4>
-                                        <ImageCarousel
-                                            style={{ minHeight: "360px" }}
-                                            items={this.state.employer.image}
-                                        />
+                                        <h4 className='text-emp-primary col-12'>
+                                            Images
+                                        </h4>
+                                        <div className='col-12 col-md-8 mx-auto'>
+                                            <ImageCarousel
+                                                style={{ minHeight: "360px" }}
+                                                items={
+                                                    this.state.employer.image
+                                                }
+                                            />
+                                        </div>
                                     </div>
                                 )}
                             {this.state.employer.youtube &&

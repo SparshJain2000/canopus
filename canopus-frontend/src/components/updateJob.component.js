@@ -1,5 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { NavLink, useLocation, Link, useHistory } from "react-router-dom";
+
+// import { useHistory } from "react-router";
 import {
     Form,
     Label,
@@ -217,6 +219,7 @@ const UpdateJob = (props) => {
                 location: location !== "",
                 experience: experience !== "",
                 line: line !== "",
+                salary: Number(salary) < 1000000000,
                 contact: contact !== "",
             };
 
@@ -240,7 +243,7 @@ const UpdateJob = (props) => {
                 else setModal(!modal);
             } else {
                 setModalError(true);
-                setMessError("Please fill all the fields !");
+                setMessError("Please fill all the fields correctly!");
             }
         }
     };
@@ -256,6 +259,10 @@ const UpdateJob = (props) => {
         eval(`set${e.target.name}`)(e.target.value);
         let newValid = { ...valid };
         newValid[x] = e.target.value !== "";
+        if (x === "salary") {
+            console.log(e.target.value);
+            newValid[x] = Number(e.target.value) < 1000000000;
+        }
         console.log(newValid);
         setValid(newValid);
     };
@@ -821,15 +828,16 @@ const UpdateJob = (props) => {
                 });
     };
     return (
-        <div>
+        <div className='p-2 p-md-0 mx-sm-auto col-12 col-md-10 col-xl-8'>
             <Nav tabs className='justify-content-between '>
-                <div className='row justify-content-start col-6 col-sm-7'>
+                <div className='row justify-content-start px-0 col-12 col-sm-7'>
                     <NavItem className='mx-1 mx-sm-2'>
                         <NavLink
                             to='/employer'
                             // onClick={() => {
                             //     this.toggleTab("1");
                             // }}
+                            style={{ borderColor: "transparent" }}
                             className={`p-1 p-sm-2 nav-link`}>
                             <h6>Overview</h6>
                         </NavLink>
@@ -837,16 +845,16 @@ const UpdateJob = (props) => {
                     <NavItem className='mx-1 mx-sm-2'>
                         <NavLink
                             to='/applications'
-                            className={`p-1 p-sm-2 nav-link`}>
+                            className={`p-1 p-sm-2 nav-link active-tab`}>
                             <h6>Jobs</h6>
                         </NavLink>
                     </NavItem>
                 </div>
-                <div className='col-6 col-sm-5 row pr-2 pr-sm-3 justify-content-end'>
-                    <div className='col-12 col-sm-5 px-0 pr-0 pr-sm-1'>
+                <div className='col-12 col-sm-5 row px-0 justify-content-around justify-content-sm-end'>
+                    <div className='px-0 pr-0 pr-sm-1'>
                         <Link to='/employer/update'>
                             <Button
-                                className=' mt-2 my-1 px-2 w-100'
+                                className=' mt-2 my-1 px-4 w-100'
                                 size='sm'
                                 style={{ textAlign: "center" }}
                                 color='emp-secondary'>
@@ -858,10 +866,10 @@ const UpdateJob = (props) => {
                             </Button>
                         </Link>
                     </div>
-                    <div className='col-12 col-sm-5 px-0 pl-0 pl-sm-1'>
+                    <div className='px-0 pl-0 pl-sm-1'>
                         <Link to='/post'>
                             <Button
-                                className=' mt-2 my-1 px-2 w-100'
+                                className=' mt-2 my-1 px-4 w-100'
                                 size='sm'
                                 style={{ textAlign: "center" }}
                                 color='emp-primary'>
@@ -875,8 +883,9 @@ const UpdateJob = (props) => {
                     </div>
                 </div>
             </Nav>
-            <Form className='border-block p-2 p-md-4 mx-2 mx-sm-auto m-1 m-sm-3 box'>
-                <h3>Edit a Job</h3>
+            <Form className='border-block'>
+                <h3 className='p-2 px-md-0'>Edit a Job</h3>
+
                 <div className=' p-2 p-sm-3 mt-4' style={block}>
                     <div className='row justify-content-between'>
                         <h4 className='col-9 col-sm-10 pl-2'>Job Details</h4>
@@ -1193,24 +1202,23 @@ const UpdateJob = (props) => {
 
                             <InputGroup className='col-12 col-sm-6 pl-md-1 my-1'>
                                 <Label className='m-1'>
-                                    <h6>Salary/Fees</h6>
+                                    <h6>Salary/Fees (for Locum/Day Jobs)</h6>
                                 </Label>
                                 <InputGroup className=''>
                                     <Input
-                                        placeholder='salary'
+                                        placeholder='Salary'
                                         type='number'
                                         className='form-control '
                                         ref={salaryRef}
                                         defaultValue={Number(salary)}
                                         name='Salary'
                                         onChange={handleChange}
-                                        required
+                                        invalid={
+                                            valid.salary === undefined
+                                                ? false
+                                                : !valid.salary
+                                        }
                                     />
-                                    <InputGroupAddon addonType='append'>
-                                        <InputGroupText>
-                                            per annum
-                                        </InputGroupText>
-                                    </InputGroupAddon>
                                 </InputGroup>
                             </InputGroup>
                             <InputGroup className='col-12'>
@@ -1615,7 +1623,7 @@ const UpdateJob = (props) => {
                                 .map(
                                     (x, index) =>
                                         x.profession === profession && (
-                                            <div className='row my-1'>
+                                            <div className='row my-1 col-12 px-0'>
                                                 <div className='col-1 position-relative'>
                                                     <Input
                                                         type='checkbox'
@@ -1674,14 +1682,14 @@ const UpdateJob = (props) => {
                                                         }}
                                                     />
                                                 </div>
-                                                <div className='col-8'>
+                                                <div className='col-10 col-sm-8'>
                                                     {`${x.name}; ${
                                                         x.specialization
                                                     }, ${x.superSpecialization.join(
                                                         ", ",
                                                     )}`}
                                                 </div>
-                                                <div className='col-3'>
+                                                <div className='col-12 col-sm-3 text-align-center'>
                                                     <a
                                                         href={`/profile/${x.id}`}
                                                         target='_blank'
@@ -1793,22 +1801,26 @@ const UpdateJob = (props) => {
                     )}
                     {(jobType === "close" || jobType === "post") && (
                         <div className='col-3 col-md-2 px-1'>
-                            <Link
-                                to={{
-                                    pathname: "/post",
-                                    state: { id, type2, jobType },
+                            <Button
+                                className='w-100'
+                                color='emp-secondary'
+                                onClick={(e) => {
+                                    history.push({
+                                        pathname: "/post",
+                                        state: { id, type2, jobType },
+                                    });
                                 }}>
-                                <Button className='w-100' color='emp-secondary'>
-                                    Copy
-                                </Button>
-                            </Link>
+                                Copy
+                            </Button>
                         </div>
                     )}
                     {(jobType === "post" || jobType === "save") && (
                         <div className='col-4 col-md-2 px-1'>
                             <Button
                                 onClick={(e) => {
-                                    setMess("post");
+                                    jobType === "save"
+                                        ? setMess("activate")
+                                        : setMess("post");
                                     toggle();
                                 }}
                                 className='w-100'
@@ -1822,10 +1834,11 @@ const UpdateJob = (props) => {
             <Modal isOpen={modal} toggle={toggle} style={{ marginTop: "20vh" }}>
                 <ModalHeader toggle={toggle} className='py-1'>
                     {mess === "save" && "Confirm Save"}
-                    {mess === "post" && "Update the Job?"}
-                    {mess === "discard" && "Discard the Job?"}
-                    {mess === "close" && "Close the Job?"}
-                    {mess === "extend" && "Extend the Job?"}
+                    {mess === "post" && "Update Job?"}
+                    {mess === "activate" && "Post Job?"}
+                    {mess === "discard" && "Discard Job?"}
+                    {mess === "close" && "Close Job?"}
+                    {mess === "extend" && "Extend Job?"}
 
                     {/* {mess.split("_")[0] === "accept" && "Confirm Accept"} */}
                 </ModalHeader>
@@ -1834,7 +1847,7 @@ const UpdateJob = (props) => {
                 </ModalHeader> */}
                 <ModalBody>
                     {mess === "promote" &&
-                        "Are you sure you want to promote this job ?"}
+                        "Promote this job for prominent placement in the job search. You may have limited slots for promotions."}
                     {mess === "post" &&
                         "Updating the Job will make it visible to applicants."}
                     {mess === "discard" &&
@@ -1843,23 +1856,32 @@ const UpdateJob = (props) => {
                         "Applicants will no longer be able to apply for this job."}
                     {mess === "extend" &&
                         "Are you sure you want to extend this job ?"}
+                    {mess === "activate" &&
+                        " Posting this Job will make it visibile to applicants."}
                 </ModalBody>
-                <ModalFooter>
+                <ModalFooter className='font-16px'>
+                    <Button color='emp-secondary' size='sm' onClick={toggle}>
+                        {mess === "discard" && "Keep Job"}
+                        {mess === "close" && "Keep it Open"}
+                        {(mess === "post" || mess === "activate") && "Wait"}
+                        {mess === "promote" && "No"}
+                        {mess === "extend" && "No"}
+                    </Button>
                     {mess === "post" && (
                         <Button
                             size='sm'
-                            color='primary'
+                            color='emp-primary'
                             onClick={(e) => {
                                 toggle();
                                 submit();
                             }}>
-                            Post
+                            Update Job
                         </Button>
                     )}
                     {mess === "save" && (
                         <Button
                             size='sm'
-                            color='primary'
+                            color='emp-primary'
                             onClick={(e) => {
                                 toggle();
                                 save();
@@ -1870,42 +1892,47 @@ const UpdateJob = (props) => {
                     {mess === "discard" && (
                         <Button
                             size='sm'
-                            color='danger'
+                            color='emp-primary'
                             onClick={(e) => {
                                 toggle();
                                 discard();
                             }}>
-                            Delete
+                            Delete Job
                         </Button>
                     )}
                     {mess === "close" && (
                         <Button
                             size='sm'
-                            color='danger'
+                            color='emp-primary'
                             onClick={(e) => {
                                 toggle();
                                 discard();
                             }}>
-                            Close
+                            Close Job
                         </Button>
                     )}
                     {mess === "extend" && (
                         <Button
                             size='sm'
-                            color='info'
+                            color='emp-primary'
                             onClick={(e) => {
                                 toggle();
                                 extend();
                             }}>
-                            Extend
+                            Extend Job
                         </Button>
                     )}
-                    <Button color='secondary' size='sm' onClick={toggle}>
-                        {(mess === "discard" || mess === "close") && "Keep"}
-                        {mess === "post" && "Wait"}
-                        {mess === "promote" && "No"}
-                        {mess === "extend" && "No"}
-                    </Button>
+                    {mess === "activate" && (
+                        <Button
+                            size='sm'
+                            color='emp-primary'
+                            onClick={(e) => {
+                                toggle();
+                                submit();
+                            }}>
+                            Post Job
+                        </Button>
+                    )}
                 </ModalFooter>
             </Modal>
             <Modal
@@ -1913,12 +1940,17 @@ const UpdateJob = (props) => {
                 toggle={toggleError}
                 style={{ marginTop: "20vh" }}>
                 <ModalHeader toggle={toggleError} className='py-1'>
-                    Error !
+                    Message
                 </ModalHeader>
                 {/* <ModalHeader toggle={toggle}>
                     {mess === "promote" && "Promote"}
                 </ModalHeader> */}
                 <ModalBody>{messError}</ModalBody>
+                <ModalFooter className='p-1'>
+                    <Button size='sm' color='emp-primary' onClick={toggleError}>
+                        Ok
+                    </Button>
+                </ModalFooter>
             </Modal>
         </div>
     );

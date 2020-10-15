@@ -65,9 +65,9 @@ export default class EnterPassword extends Component {
     }
     render() {
         return (
-            <div className='make-small'>
+            <div className='row m-1 m-sm-2'>
                 <Form
-                    className=' p-4 m-3 mx-lg-5'
+                    className='col-11 col-sm-7 col-md-6 col-lg-5 mx-auto p-4 '
                     style={block}
                     onSubmit={this.signUp}>
                     <FormGroup>
@@ -86,7 +86,7 @@ export default class EnterPassword extends Component {
                     </FormGroup>
 
                     <div className=' d-flex justify-content-end'>
-                        <Button type='submit' color='primary'>
+                        <Button type='submit' color='emp-primary'>
                             Reset Password
                         </Button>
                     </div>

@@ -16,14 +16,14 @@ import {
 
 export default function FooterComponent() {
     return (
-        <div className=' pt-5 pb-5 footer'>
+        <div className=' pt-4 pb-3 footer'>
             <div className='container'>
                 <div className='row'>
                     <div className='col-lg-5 col-xs-12 about-company'>
-                        <h2>Canopus</h2>
+                        <h2>Curoid</h2>
                         <p className='pr-5 text-white-50'>
-                            Lorem ipsum dolor sit amet, consectetur adipiscing
-                            elit. Nullam ac ante mollis quam tristique convallis{" "}
+                            Find the best medical talent to care for your
+                            patients
                         </p>
                     </div>
                     <div className='col-lg-3 col-xs-12 links'>
@@ -31,13 +31,15 @@ export default function FooterComponent() {
                         <ul className='m-0 p-0'>
                             <li>
                                 <FontAwesomeIcon icon={faAngleDoubleRight} />{" "}
-                                <Link to='/search-jobs/'></Link>Job Search
+                                <Link to='/privacy/'>Privacy Policy</Link>
                             </li>
                             <li>
                                 <FontAwesomeIcon icon={faAngleDoubleRight} />{" "}
-                                <Link to='/employer'>find employees</Link>
+                                <Link to='/terms-and-conditions'>
+                                    Terms & Conditions
+                                </Link>
                             </li>
-                            <li>
+                            {/* <li>
                                 <FontAwesomeIcon icon={faAngleDoubleRight} />{" "}
                                 <Link to='/profile/asdsad'>
                                     Career Resoures
@@ -46,18 +48,18 @@ export default function FooterComponent() {
                             <li>
                                 <FontAwesomeIcon icon={faAngleDoubleRight} />{" "}
                                 <Link to='/profile/asdsad'>About Us</Link>
-                            </li>
+                            </li> */}
                         </ul>
                     </div>
                     <div className='col-lg-4 col-xs-12 location mt-5 mt-md-0'>
-                        <h4 className='mt-lg-0 mt-sm-4'>Location</h4>
-                        <p>22, Lorem ipsum dolor, consectetur adipiscing</p>
+                        <h4 className='mt-lg-0 mt-sm-4'>Contact Us</h4>
                         <p className='mb-0'>
-                            <i className='fa fa-phone mr-3'></i>(541) 754-3010
+                            <i className='fa fa-phone mr-3'></i>(+91)
+                            8999-718-313
                         </p>
                         <p>
                             <i className='fa fa-envelope-o mr-3'></i>
-                            info@hsdf.com
+                            support@curoid.co
                         </p>
                     </div>
                 </div>
@@ -69,11 +71,7 @@ export default function FooterComponent() {
                                     <FontAwesomeIcon icon={faFacebook} />
                                 </a>
                             </li>
-                            <li className='list-inline-item'>
-                                <a href='https://www.google.com/'>
-                                    <FontAwesomeIcon icon={faGoogle} />
-                                </a>
-                            </li>
+
                             <li className='list-inline-item'>
                                 <a href='https://www.linkedin.com/'>
                                     <FontAwesomeIcon icon={faLinkedin} />
@@ -97,7 +95,7 @@ export default function FooterComponent() {
                     <div className='col copyright'>
                         <p className=''>
                             <small className='text-white-50'>
-                                © 2020. All Rights Reserved.
+                                © Curoid 2020. All Rights Reserved.
                             </small>
                         </p>
                     </div>
