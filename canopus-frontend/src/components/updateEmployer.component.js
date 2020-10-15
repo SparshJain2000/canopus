@@ -12,6 +12,9 @@ import {
     ModalHeader,
     ModalBody,
     Alert,
+    InputGroupAddon,
+    InputGroup,
+    InputGroupText,
 } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { NavLink, Link } from "react-router-dom";
@@ -57,7 +60,7 @@ export default class UpdateEmployer extends Component {
             type: "",
             links: [""],
             youtube: [""],
-            phone: null,
+            phone: "",
             image: [],
             about: "",
             about2: "",
@@ -85,6 +88,7 @@ export default class UpdateEmployer extends Component {
                 type: true,
                 // speciality: true,
                 city: true,
+                pin: true,
                 state: true,
                 firstName: true,
                 lastName: true,
@@ -163,13 +167,33 @@ export default class UpdateEmployer extends Component {
                             Number(e.target.value) <= 100000,
                     },
                 });
-            else
+            else if (e.target.name === "phone") {
+                console.log(e.target.value);
+                // newValid[x] = Number(e.target.value) < 1000000000;
+                this.setState({
+                    valid: {
+                        ...this.state.valid,
+                        [e.target.name]: e.target.value.length === 10,
+                    },
+                });
+            } else
                 this.setState({
                     valid: {
                         ...this.state.valid,
                         [e.target.name]: e.target.value !== "",
                     },
                 });
+        } else if (e.target.name === "pin") {
+            console.log(e.target.value);
+            // newValid[x] = Number(e.target.value) < 1000000000;
+            this.setState({
+                valid: {
+                    ...this.state.valid,
+                    [e.target.name]:
+                        e.target.value.length === 6 ||
+                        e.target.value.length === 0,
+                },
+            });
         }
     }
     checkYoutube() {
@@ -194,7 +218,9 @@ export default class UpdateEmployer extends Component {
             this.state.city === "" ||
             this.state.state === "" ||
             this.state.phone === "" ||
-            this.state.type === "";
+            this.state.type === "" ||
+            this.state.phone.length !== 10 ||
+            (this.state.pin.length !== 0 && this.state.pin.length > 6);
 
         const ytLinks = this.state.youtube.filter((link) => link !== "");
         const validYoutube = ytLinks.length > 0 ? this.checkYoutube() : true;
@@ -313,7 +339,12 @@ export default class UpdateEmployer extends Component {
                         //     id: user._id,
                         firstName: user.firstName,
                         lastName: user.lastName,
-                        logo: user.logo,
+                        logo:
+                            !user.logo ||
+                            user.logo === undefined ||
+                            user.logo === ""
+                                ? "https://curoidprod.blob.core.windows.net/curoid/AdobeStock_210416356.jpeg"
+                                : user.logo,
                         links: user.links,
                         username: user.username,
                         youtube: user.youtube,
@@ -323,8 +354,8 @@ export default class UpdateEmployer extends Component {
                         line: user.address.line,
                         pin: user.address.pin,
                         city: user.address.city,
+                        // state: user.address.state===""?"Maharashtra":user.address.state,
                         state: user.address.state,
-
                         lat: user.address.coordinates
                             ? user.address.coordinates.lat
                             : null,
@@ -359,69 +390,7 @@ export default class UpdateEmployer extends Component {
             });
     }
     reload() {
-        Axios.get("/api/employer/profile")
-            .then(({ data }) => {
-                const user = data;
-                console.log(user._id);
-                console.log(user);
-                if (user) {
-                    this.setState({
-                        id: user._id,
-                    });
-                    if (!user.address.coordinates) this.getGeoLocation();
-                    this.setState({
-                        id: user._id,
-                        // });
-                        // this.setState({
-                        //     id: user._id,
-                        firstName:
-                            user.firstName !== undefined ? user.firstName : "",
-                        logo: user.logo,
-                        lastName:
-                            user.lastName !== undefined ? user.lastName : "",
-                        links: user.links,
-                        username: user.username,
-                        youtube: user.youtube,
-                        image: user.image,
-                        speciality: user.specialty,
-                        phone: user.phone !== undefined ? user.phone : "",
-
-                        line: user.address.line,
-                        pin: user.address.pin,
-                        city: user.address.city,
-                        state: user.address.state,
-
-                        lat: user.address.coordinates
-                            ? user.address.coordinates.lat
-                            : null,
-                        lng: user.address.coordinates
-                            ? user.address.coordinates.lng
-                            : null,
-
-                        about: user.description.about,
-                        about2: user.description.about2,
-                        beds: Number(user.description.beds),
-                        OTs: user.description.OTs
-                            ? Number(user.description.OTs)
-                            : 0,
-                        ICUs: user.description.ICUs ? user.description.ICUs : 0,
-                        employeeCount: user.description.employeeCount
-                            ? Number(user.description.employeeCount)
-                            : 0,
-                        organization: user.instituteName
-                            ? user.instituteName
-                            : user.description.organization,
-                        type: user.description.type,
-                    });
-                }
-            })
-            .catch((err) => {
-                console.log(err);
-                this.setState({
-                    modalError: true,
-                    modalMess: "Something went wrong, Please try again.",
-                });
-            });
+       this.props.history.push("/employer")
     }
     async uploadToStorage(storageAccountName, sas, file) {
         // console.log(file);
@@ -831,7 +800,7 @@ export default class UpdateEmployer extends Component {
                                         <span className='text-danger'>*</span>
                                     </Label>
                                     <Input
-                                        placeholder='Organization name'
+                                        placeholder='Organization Name'
                                         name='organization'
                                         onChange={this.handleChange}
                                         value={this.state.organization}
@@ -952,7 +921,7 @@ export default class UpdateEmployer extends Component {
                                             name='pin'
                                             onChange={this.handleChange}
                                             value={this.state.pin}
-                                            max={999999}
+                                            invalid={!this.state.valid.pin}
                                         />
                                     </div>
                                     <div className='col-12 col-sm-6 pl-0 pl-sm-1 mb-2 mb-sm-0'>
@@ -963,7 +932,7 @@ export default class UpdateEmployer extends Component {
                                             </span>
                                         </Label>
                                         <select
-                                            placeholder='state'
+                                            placeholder='State'
                                             name='state'
                                             className='custom-select'
                                             onChange={(e) => {
@@ -976,6 +945,9 @@ export default class UpdateEmployer extends Component {
                                             // defaultValue={values.email}
                                             list='states'>
                                             {/* <datalist id='states'> */}
+                                            <option selected value=''>
+                                                Select State
+                                            </option>
                                             {stateArray.length !== 0 &&
                                                 stateArray.map((state) => (
                                                     <option value={state}>
@@ -992,7 +964,7 @@ export default class UpdateEmployer extends Component {
                                         <span className='text-danger'>*</span>
                                     </Label>
                                     <Input
-                                        placeholder='city'
+                                        placeholder='City'
                                         name='city'
                                         onChange={this.handleChange}
                                         value={this.state.city}
@@ -1073,7 +1045,7 @@ export default class UpdateEmployer extends Component {
                                 <Label className='mb-1'>Beds</Label>
                                 <Input
                                     type='number'
-                                    placeholder='Number of beds'
+                                    placeholder='Number of Beds'
                                     name='beds'
                                     value={Number(this.state.beds)}
                                     onChange={this.handleChange}
@@ -1108,7 +1080,7 @@ export default class UpdateEmployer extends Component {
                                 <Label className='mb-1'>Employee count</Label>
                                 <Input
                                     type='number'
-                                    placeholder='Number of OTs'
+                                    placeholder='No. of Employees'
                                     name='employeeCount'
                                     onChange={this.handleChange}
                                     invalid={!this.state.valid.employeeCount}
@@ -1148,7 +1120,7 @@ export default class UpdateEmployer extends Component {
                             <div className='my-1 row'>
                                 <Input
                                     id={i}
-                                    placeholder='Social Media Links'
+                                    placeholder='Social Media Link'
                                     name='links'
                                     onChange={(e) => this.handleChange(e, i)}
                                     value={this.state.links[i]}
@@ -1182,7 +1154,7 @@ export default class UpdateEmployer extends Component {
                         </Alert>
                         <Label className='row mt-2'>
                             <h5 className='col-7 col-sm-10 pl-0 my-auto'>
-                                Image
+                                Images
                             </h5>
                             <div className='col-5 col-sm-2 px-0 row justify-content-end'>
                                 <div className='my-1  ml-0 pl-0'>
@@ -1255,7 +1227,7 @@ export default class UpdateEmployer extends Component {
                             <div className='my-1 row'>
                                 <Input
                                     id={i}
-                                    placeholder='Image Links'
+                                    placeholder='Image Link'
                                     name='image'
                                     onChange={(e) => this.handleChange(e, i)}
                                     value={this.state.image[i]}
@@ -1382,16 +1354,21 @@ export default class UpdateEmployer extends Component {
                                     Phone no.{" "}
                                     <span className='text-danger'>*</span>
                                 </Label>
-                                <Input
-                                    type='number'
-                                    // max='999999999'
-                                    pattern='[1-9]{1}[0-9]{9}'
-                                    placeholder='Phone Number'
-                                    name='phone'
-                                    onChange={this.handleChange}
-                                    value={this.state.phone}
-                                    invalid={!this.state.valid.phone}
-                                />
+                                <InputGroup>
+                                    <InputGroupAddon addonType='prepend'>
+                                        <InputGroupText>+91</InputGroupText>
+                                    </InputGroupAddon>
+                                    <Input
+                                        type='number'
+                                        // max='999999999'
+                                        pattern='[1-9]{1}[0-9]{9}'
+                                        placeholder='Phone Number'
+                                        name='phone'
+                                        onChange={this.handleChange}
+                                        value={this.state.phone}
+                                        invalid={!this.state.valid.phone}
+                                    />
+                                </InputGroup>
                             </div>
                         </FormGroup>
                     </div>

@@ -15,6 +15,8 @@ import {
     ButtonGroup,
     CustomInput,
     Alert,
+    InputGroupAddon,
+    InputGroupText,
 } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "../stylesheets/updateUser.css";
@@ -211,6 +213,17 @@ export default class UpdateUser extends Component {
             console.log(links);
             this.setState({
                 [e.target.name]: links,
+            });
+        } else if (e.target.name === "phone") {
+            console.log(e.target.value);
+            // newValid[x] = Number(e.target.value) < 1000000000;
+            this.setState({
+                [e.target.name]: e.target.value,
+
+                valid: {
+                    ...this.state.valid,
+                    [e.target.name]: e.target.value.length === 10,
+                },
             });
         } else
             this.setState({
@@ -433,7 +446,7 @@ export default class UpdateUser extends Component {
                             !user.image ||
                             user.image === undefined ||
                             user.image === ""
-                                ? "https://i.pinimg.com/736x/74/73/ba/7473ba244a0ace6d9d301d5fe4478983--sarcasm-meme.jpg"
+                                ? "https://curoidprod.blob.core.windows.net/curoid/AdobeStock_292703400.jpeg"
                                 : user.image,
                     });
                     this.setState({
@@ -451,7 +464,7 @@ export default class UpdateUser extends Component {
                             !user.image ||
                             user.image === undefined ||
                             user.image === ""
-                                ? "https://i.pinimg.com/736x/74/73/ba/7473ba244a0ace6d9d301d5fe4478983--sarcasm-meme.jpg"
+                                ? "https://curoidprod.blob.core.windows.net/curoid/AdobeStock_292703400.jpeg"
                                 : user.image,
 
                         dob: user.dob,
@@ -769,7 +782,7 @@ export default class UpdateUser extends Component {
                                         </h6>
                                     </Label>
                                     <Input
-                                        placeholder='eg: intervetnional cardilogist'
+                                        placeholder='e.g. Interventional Cardiologist'
                                         name='title'
                                         onChange={this.handleChange}
                                         value={this.state.title}
@@ -894,7 +907,7 @@ export default class UpdateUser extends Component {
                                     </Label>
                                     <div className='col-12 col-sm-3 pl-0 my-1 my-sm-0'>
                                         <Input
-                                            placeholder='city'
+                                            placeholder='City'
                                             name='city'
                                             onChange={this.handleChange}
                                             value={this.state.city}
@@ -903,7 +916,7 @@ export default class UpdateUser extends Component {
                                     </div>
                                     <div className='col-12 col-sm-4 px-0 px-sm-1 my-1 my-sm-0'>
                                         <Input
-                                            placeholder='state'
+                                            placeholder='State'
                                             name='state'
                                             onChange={this.handleChange}
                                             value={this.state.state}
@@ -912,7 +925,7 @@ export default class UpdateUser extends Component {
                                     </div>
                                     <div className='col-12 col-sm-5 my-1 my-sm-0'>
                                         <Input
-                                            placeholder='country'
+                                            placeholder='Country'
                                             name='country'
                                             onChange={this.handleChange}
                                             defaultValue={"India"}
@@ -932,22 +945,26 @@ export default class UpdateUser extends Component {
                                     </Label>
                                     <div className='col-12 col-sm-7 pr-0 pr-sm-1 my-1 my-sm-0'>
                                         <Input
-                                            placeholder='email'
+                                            placeholder='Email'
                                             name='email'
                                             // onChange={this.handleChange}
                                             value={this.state.username}
                                             disabled={true}
                                         />
                                     </div>
-                                    <div className='col-12 col-sm-5 pl-0 my-1 my-sm-0'>
+                                    <InputGroup className='col-12 col-sm-5 pl-0 my-1 my-sm-0'>
+                                        <InputGroupAddon addonType='prepend'>
+                                            <InputGroupText>+91</InputGroupText>
+                                        </InputGroupAddon>
                                         <Input
-                                            placeholder='phone'
+                                            type='number'
+                                            placeholder='Phone'
                                             name='phone'
                                             onChange={this.handleChange}
                                             value={this.state.phone}
                                             invalid={!this.state.valid.phone}
                                         />
-                                    </div>
+                                    </InputGroup>
                                 </div>
                             </div>
                         </FormGroup>
@@ -1365,6 +1382,7 @@ export default class UpdateUser extends Component {
                                     <div className='col-sm-1 d-flex flex-column justify-content-center text-align-center'>
                                         <FontAwesomeIcon
                                             icon={faTrash}
+                                            size='lg'
                                             className='d-none d-sm-flex text-danger my-auto ml-auto'
                                             style={{
                                                 cursor: "pointer",

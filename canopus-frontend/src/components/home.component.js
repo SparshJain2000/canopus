@@ -120,7 +120,7 @@ const Home = (props) => {
                         <h5
                             className='w-75 pb-2'
                             style={{ borderBottom: "3px solid #0A4F70" }}>
-                            <strong>Day Job</strong>
+                            <strong>Day Jobs</strong>
                         </h5>
                         {/* <div
                             className='w-75 mb-1'
@@ -137,7 +137,7 @@ const Home = (props) => {
                         <h5
                             className='w-75 pb-2'
                             style={{ borderBottom: "3px solid #0A4F70" }}>
-                            <strong>Locum Position</strong>
+                            <strong>Locum Positions</strong>
                         </h5>
                         {/* <div
                             className='w-75 mb-1'
@@ -154,7 +154,7 @@ const Home = (props) => {
                         <h5
                             className='w-75 pb-2'
                             style={{ borderBottom: "3px solid #0A4F70" }}>
-                            <strong>Formal Job</strong>
+                            <strong>Formal Jobs</strong>
                         </h5>
                         {/* <div
                             className='w-75 mb-1'

@@ -35,7 +35,9 @@ export default function FooterComponent() {
                             </li>
                             <li>
                                 <FontAwesomeIcon icon={faAngleDoubleRight} />{" "}
-                                <Link to='/'>Terms & Conditions</Link>
+                                <Link to='/terms-and-conditions'>
+                                    Terms & Conditions
+                                </Link>
                             </li>
                             {/* <li>
                                 <FontAwesomeIcon icon={faAngleDoubleRight} />{" "}
@@ -93,7 +95,7 @@ export default function FooterComponent() {
                     <div className='col copyright'>
                         <p className=''>
                             <small className='text-white-50'>
-                                © 2020. All Rights Reserved.
+                                © Curoid 2020. All Rights Reserved.
                             </small>
                         </p>
                     </div>

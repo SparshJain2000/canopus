@@ -1049,11 +1049,13 @@ const PostJob = (props) => {
 
                             <InputGroup className='col-12 col-sm-6 pl-md-1 my-1'>
                                 <Label className='m-1'>
-                                    <h6 className='mb-1'>Salary/Fees</h6>
+                                    <h6 className='mb-1'>
+                                        Salary/Fees (for Locum/Day Jobs)
+                                    </h6>
                                 </Label>
                                 <InputGroup className=''>
                                     <Input
-                                        placeholder='salary'
+                                        placeholder='Salary'
                                         type='number'
                                         className='form-control '
                                         ref={salaryRef}
@@ -1638,16 +1640,19 @@ const PostJob = (props) => {
             <Modal isOpen={modal} toggle={toggle} style={{ marginTop: "20vh" }}>
                 <ModalHeader toggle={toggle} className='py-1'>
                     {mess === "save" && "Confirm Save"}
-                    {mess === "post" && "Confirm Publish"}
+                    {mess === "post" && "Post Job?"}
                     {/* {mess.split("_")[0] === "accept" && "Confirm Accept"} */}
                 </ModalHeader>
                 <ModalBody className='py-3'>
                     {mess === "post" &&
-                        "Are you sure you want to post this job ?"}
+                        "Posting this Job will make it visibile to applicants."}
                     {mess === "save" &&
                         "Are you sure you want to save the job?"}
                 </ModalBody>
-                <ModalFooter className='py-1'>
+                <ModalFooter className='py-1 font-16px'>
+                    <Button color='emp-secondary' size='sm' onClick={toggle}>
+                        {mess === "post" ? "Wait" : "No"}
+                    </Button>
                     {mess === "post" && (
                         <Button
                             size='sm'
@@ -1670,9 +1675,6 @@ const PostJob = (props) => {
                             Save
                         </Button>
                     )}
-                    <Button color='emp-secondary' size='sm' onClick={toggle}>
-                        Cancel
-                    </Button>
                 </ModalFooter>
             </Modal>
             <Modal

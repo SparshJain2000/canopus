@@ -171,7 +171,7 @@ export default class LoginEmployer extends Component {
                             <NavLink
                                 to='/employer/forgot'
                                 className={`nav-link p-1 p-sm-2`}>
-                                <h6>Forgot password</h6>
+                                <h6>Forgot Password</h6>
                             </NavLink>
                         </NavItem>
                     </div>

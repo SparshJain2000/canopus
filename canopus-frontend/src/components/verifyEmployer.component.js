@@ -41,7 +41,8 @@ export default class VerifyEmployer extends Component {
                         this.setState({
                             showError: true,
                             color: "success",
-                            error: "Email has been sent. Check your mailbox !",
+                            error:
+                                "A verification link has been sent to your email account, please click on the link to verify your email address. ",
                         });
                     }
                 })
@@ -70,7 +71,8 @@ export default class VerifyEmployer extends Component {
                     if (data.status === 200) {
                         this.setState({
                             showError: true,
-                            error: "Email has been sent. Check your mailbox !",
+                            error:
+                                "A verification link has been sent to your email account, please click on the link to verify your email address. ",
                             color: "success",
                         });
                     }
@@ -97,16 +99,26 @@ export default class VerifyEmployer extends Component {
                     {this.state.error}
                 </Alert>
                 <div className='make-small'>
-                    <div className=' p-4 m-3 mx-lg-5' style={block}>
-                        <h2>Check You Email </h2>
-                        Haven't got the mail?{" "}
+                    <div
+                        className='p-3 p-sm-5 m-3 m-sm-5 mx-lg-5'
+                        style={block}>
+                        <h2 className='mb-3'>Thanks for joining Curoid!</h2>
+                        If you don't get the verification email within few
+                        minutes (check your spam, promotions and trash folders
+                        to be sure!), try
                         <span
                             onClick={this.resend}
                             style={{ cursor: "pointer" }}
-                            className='text-info '>
+                            className='text-emp-primary'>
                             {" "}
-                            Resend again
+                            sending again{" "}
                         </span>
+                        or contact us at{" "}
+                        <a
+                            href='mailto:support@curoid.co'
+                            className='text-emp-primary'>
+                            support@curoid.co.
+                        </a>
                     </div>
                 </div>
                 <Modal

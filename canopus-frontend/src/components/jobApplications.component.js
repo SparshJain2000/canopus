@@ -292,7 +292,7 @@ const Job = ({
                                     <div className='col-7 px-0 pr-1'>
                                         <Button
                                             size={"sm"}
-                                            color='emp-primary'
+                                            color='emp-secondary'
                                             onClick={(e) => {
                                                 setMess("discard");
                                                 toggle();
@@ -323,7 +323,7 @@ const Job = ({
                                 <div className='row mx-0 px-0 justify-content-end'>
                                     <div className='col-5 px-0 pr-1'>
                                         <Button
-                                            color='emp-primary'
+                                            color='emp-secondary'
                                             size={"sm"}
                                             className='w-100'
                                             onClick={(e) => {
@@ -632,59 +632,65 @@ const Job = ({
             </Media>
             <Modal isOpen={modal} toggle={toggle} style={{ marginTop: "20vh" }}>
                 <ModalHeader toggle={toggle} className='py-1'>
-                    {mess === "promote" && "Promote the Job?"}
-                    {mess === "post" && "Publish the Job?"}
-                    {mess === "discard" && "Discard the Job?"}
+                    {mess === "promote" && "Promote Job?"}
+                    {mess === "post" && "Publish Job?"}
+                    {mess === "discard" && "Discard Job?"}
                     {mess.split("_")[0] === "accept" && "Accept the Applicant?"}
                 </ModalHeader>
                 <ModalBody className='py-3'>
                     {mess === "promote" &&
-                        "Are you sure you want to promote this job ?"}
+                        "Promote this job for prominent placement in the job search. You may have limited slots for promotions."}
                     {mess.split("_")[0] === "accept" &&
                         "Are you sure you want to confirm the applicant. Clicking on “OK” will confirm the applicant and close the job for other applicants"}
                     {mess === "post" &&
-                        "Posting the Job will make it visible to applicants."}
+                        "Posting this Job will make it visibile to applicants."}
                     {mess === "discard" &&
                         "You will not be able to recover this job."}
                 </ModalBody>
-                <ModalFooter className='py-1'>
+                <ModalFooter className='py-1 font-16px'>
+                    <Button color='emp-secondary' size='sm' onClick={toggle}>
+                        {mess === "discard" && "Keep Job"}
+                        {mess === "post" && "Wait"}
+                        {mess === "promote" && "Wait"}
+                        {mess.split("_")[0] === "accept" && "No"}
+                    </Button>
                     {mess === "promote" && (
                         <Button
                             size='sm'
-                            color='primary'
+                            color='emp-primary'
                             onClick={(e) => {
                                 toggle();
                                 sponsor();
                             }}>
-                            Promote
+                            Promote Job
                         </Button>
                     )}
                     {mess === "post" && (
                         <Button
                             size='sm'
-                            color='primary'
+                            color='emp-primary'
                             onClick={(e) => {
                                 toggle();
                                 post();
                             }}>
-                            Post
+                            Post Job
                         </Button>
                     )}
                     {mess === "discard" && (
                         <Button
                             size='sm'
-                            color='danger'
+                            color='emp-primary'
                             onClick={(e) => {
                                 toggle();
                                 discard();
                             }}>
-                            Delete
+                            Delete Job
                         </Button>
                     )}
                     {mess.split("_")[0] === "accept" && (
                         <Button
                             size='sm'
-                            color='primary'
+                            color='emp-primary'
                             onClick={(e) => {
                                 toggle();
                                 accept(mess.split("_")[1]);
@@ -692,12 +698,6 @@ const Job = ({
                             Yes
                         </Button>
                     )}
-                    <Button color='secondary' size='sm' onClick={toggle}>
-                        {mess === "discard" && "Keep"}
-                        {mess === "post" && "Wait"}
-                        {mess === "promote" && "No"}
-                        {mess.split("_")[0] === "accept" && "No"}
-                    </Button>
                 </ModalFooter>
             </Modal>
             <Modal
@@ -912,7 +912,9 @@ export default class JobApplications extends Component {
                         </div>
                     </Nav>
                 )}
-                <div className='row pt-3 w-100 justify-content-end mx-1 mx-xl-0'>
+                <div
+                    className='row pt-3 w-100 justify-content-end mx-1 mx-xl-0'
+                    style={{ minHeight: "30vh" }}>
                     {/* <div className='col-7 px-0 pl-3'>
                         <h3 className='text-align-left   '>
                         {this.state.jobType} Jobs
@@ -974,6 +976,18 @@ export default class JobApplications extends Component {
                             </DropdownMenu>
                         </Dropdown>
                     </div>
+                    {this.state.freelanceJobs &&
+                        this.state.jobs &&
+                        this.state.freelanceJobs.length === 0 &&
+                        this.state.jobs.length === 0 && (
+                            <div
+                                className='w-100 px-2 px-sm-0 text-align-center'
+                                style={{ minHeight: "40vh" }}>
+                                <h1 className='text-align-center my-5'>
+                                    No Jobs Found
+                                </h1>
+                            </div>
+                        )}
                     <div className='row w-100 px-2 px-sm-0'>
                         {this.state.freelanceJobs ? (
                             this.state.freelanceJobs.length !== 0 && (

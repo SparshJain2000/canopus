@@ -136,7 +136,7 @@ const NavbarComponent = (props) => {
             </Alert>
             <Navbar color='light' light expand='lg'>
                 <NavbarBrand href='/' className='text-align-center'>
-                    <img src={logo} alt='logo' width='130px' />
+                    <img src={logo} alt='logo' width='160px' />
                 </NavbarBrand>
                 <NavbarToggler
                     onClick={toggle}
@@ -148,9 +148,7 @@ const NavbarComponent = (props) => {
                     <span></span>
                 </NavbarToggler>
                 <Collapse isOpen={isOpen} navbar>
-                    <Nav
-                        className='row mx-auto justify-content-center px-5'
-                        navbar>
+                    <Nav className='row justify-content-center px-4' navbar>
                         <NavItem className='m-1'>
                             <NavLink to='/'>Home</NavLink>
                         </NavItem>
@@ -178,7 +176,7 @@ const NavbarComponent = (props) => {
                                         Job Seekers
                                     </strong>
                                 </div>
-                                <ToastBody className='row justify-content-around mx-1 font-20px'>
+                                <ToastBody className='row justify-content-around mx-1 font-18px'>
                                     <div>
                                         <Link
                                             to='/user/login'
@@ -207,7 +205,7 @@ const NavbarComponent = (props) => {
                                         Employers
                                     </strong>
                                 </div>
-                                <ToastBody className='row justify-content-around mx-1 font-20px'>
+                                <ToastBody className='row justify-content-around mx-1 font-18px'>
                                     <div>
                                         <Link
                                             to='/employer/login'

@@ -1,4 +1,8 @@
 @import url("https://fonts.googleapis.com/css2?family=Merriweather&display=swap&family=Open+Sans&family=Raleway&family=Montserrat:wght@400;600&family=Open+Sans&display=swap&family=Chivo:wght@400&famliy=Lobster&display=swap");
+#root {
+    min-height: 100vh;
+}
+
 html {
     overflow-x: hidden;
     max-width: 100vw;
@@ -10,7 +14,7 @@ body {
     font-family: "Open Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
-    overflow-x: hidden;
+    /* overflow-x: hidden; */
     /* background-color: #9b9b9b; */
     /* background-color: #f6f6f6;   */
     max-width: 100vw;
@@ -52,6 +56,10 @@ h5 {
 
 .mt-8px {
     margin-top: 8px
+}
+
+.mb-8px {
+    margin-bottom: 8px
 }
 
 code {
@@ -391,8 +399,41 @@ th {
     color: white
 }
 
+.badge.badge-js-secondary {
+    background: rgb(255, 255, 255);
+    color: #F04C63;
+    border: 1px solid #F04C63;
+    border-radius: 0.5rem;
+}
+
+.badge.badge-success-secondary {
+    background: rgb(255, 255, 255);
+    color: #5cb85c;
+    border: 1px solid #5cb85c;
+    border-radius: 0.5rem;
+}
+
 .custom-control-input:checked~.custom-control-label::before {
     color: #fff;
     border-color: #0A4F70;
     background-color: #0A4F70;
+}
+
+.sticky-bottom {
+    position: -webkit-sticky;
+    position: sticky;
+    bottom: 0;
+    width: 100vw;
+    align-self: flex-end;
+    z-index: 2000;
+}
+
+.alert-banner {
+    color: #0A4F70;
+    background-color: #f7f6f6;
+    border-color: #f7f6f6
+}
+
+.alert-banner:hover {
+    text-decoration: underline;
 }

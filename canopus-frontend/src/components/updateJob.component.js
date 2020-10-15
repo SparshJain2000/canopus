@@ -1,5 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { NavLink, useLocation, Link, useHistory } from "react-router-dom";
+
+// import { useHistory } from "react-router";
 import {
     Form,
     Label,
@@ -1200,11 +1202,11 @@ const UpdateJob = (props) => {
 
                             <InputGroup className='col-12 col-sm-6 pl-md-1 my-1'>
                                 <Label className='m-1'>
-                                    <h6>Salary/Fees</h6>
+                                    <h6>Salary/Fees (for Locum/Day Jobs)</h6>
                                 </Label>
                                 <InputGroup className=''>
                                     <Input
-                                        placeholder='salary'
+                                        placeholder='Salary'
                                         type='number'
                                         className='form-control '
                                         ref={salaryRef}
@@ -1799,22 +1801,26 @@ const UpdateJob = (props) => {
                     )}
                     {(jobType === "close" || jobType === "post") && (
                         <div className='col-3 col-md-2 px-1'>
-                            <Link
-                                to={{
-                                    pathname: "/post",
-                                    state: { id, type2, jobType },
+                            <Button
+                                className='w-100'
+                                color='emp-secondary'
+                                onClick={(e) => {
+                                    history.push({
+                                        pathname: "/post",
+                                        state: { id, type2, jobType },
+                                    });
                                 }}>
-                                <Button className='w-100' color='emp-secondary'>
-                                    Copy
-                                </Button>
-                            </Link>
+                                Copy
+                            </Button>
                         </div>
                     )}
                     {(jobType === "post" || jobType === "save") && (
                         <div className='col-4 col-md-2 px-1'>
                             <Button
                                 onClick={(e) => {
-                                    setMess("post");
+                                    jobType === "save"
+                                        ? setMess("activate")
+                                        : setMess("post");
                                     toggle();
                                 }}
                                 className='w-100'
@@ -1828,10 +1834,11 @@ const UpdateJob = (props) => {
             <Modal isOpen={modal} toggle={toggle} style={{ marginTop: "20vh" }}>
                 <ModalHeader toggle={toggle} className='py-1'>
                     {mess === "save" && "Confirm Save"}
-                    {mess === "post" && "Update the Job?"}
-                    {mess === "discard" && "Discard the Job?"}
-                    {mess === "close" && "Close the Job?"}
-                    {mess === "extend" && "Extend the Job?"}
+                    {mess === "post" && "Update Job?"}
+                    {mess === "activate" && "Post Job?"}
+                    {mess === "discard" && "Discard Job?"}
+                    {mess === "close" && "Close Job?"}
+                    {mess === "extend" && "Extend Job?"}
 
                     {/* {mess.split("_")[0] === "accept" && "Confirm Accept"} */}
                 </ModalHeader>
@@ -1840,7 +1847,7 @@ const UpdateJob = (props) => {
                 </ModalHeader> */}
                 <ModalBody>
                     {mess === "promote" &&
-                        "Are you sure you want to promote this job ?"}
+                        "Promote this job for prominent placement in the job search. You may have limited slots for promotions."}
                     {mess === "post" &&
                         "Updating the Job will make it visible to applicants."}
                     {mess === "discard" &&
@@ -1849,23 +1856,32 @@ const UpdateJob = (props) => {
                         "Applicants will no longer be able to apply for this job."}
                     {mess === "extend" &&
                         "Are you sure you want to extend this job ?"}
+                    {mess === "activate" &&
+                        " Posting this Job will make it visibile to applicants."}
                 </ModalBody>
-                <ModalFooter>
+                <ModalFooter className='font-16px'>
+                    <Button color='emp-secondary' size='sm' onClick={toggle}>
+                        {mess === "discard" && "Keep Job"}
+                        {mess === "close" && "Keep it Open"}
+                        {(mess === "post" || mess === "activate") && "Wait"}
+                        {mess === "promote" && "No"}
+                        {mess === "extend" && "No"}
+                    </Button>
                     {mess === "post" && (
                         <Button
                             size='sm'
-                            color='primary'
+                            color='emp-primary'
                             onClick={(e) => {
                                 toggle();
                                 submit();
                             }}>
-                            Post
+                            Update Job
                         </Button>
                     )}
                     {mess === "save" && (
                         <Button
                             size='sm'
-                            color='primary'
+                            color='emp-primary'
                             onClick={(e) => {
                                 toggle();
                                 save();
@@ -1876,42 +1892,47 @@ const UpdateJob = (props) => {
                     {mess === "discard" && (
                         <Button
                             size='sm'
-                            color='danger'
+                            color='emp-primary'
                             onClick={(e) => {
                                 toggle();
                                 discard();
                             }}>
-                            Delete
+                            Delete Job
                         </Button>
                     )}
                     {mess === "close" && (
                         <Button
                             size='sm'
-                            color='danger'
+                            color='emp-primary'
                             onClick={(e) => {
                                 toggle();
                                 discard();
                             }}>
-                            Close
+                            Close Job
                         </Button>
                     )}
                     {mess === "extend" && (
                         <Button
                             size='sm'
-                            color='info'
+                            color='emp-primary'
                             onClick={(e) => {
                                 toggle();
                                 extend();
                             }}>
-                            Extend
+                            Extend Job
                         </Button>
                     )}
-                    <Button color='secondary' size='sm' onClick={toggle}>
-                        {(mess === "discard" || mess === "close") && "Keep"}
-                        {mess === "post" && "Wait"}
-                        {mess === "promote" && "No"}
-                        {mess === "extend" && "No"}
-                    </Button>
+                    {mess === "activate" && (
+                        <Button
+                            size='sm'
+                            color='emp-primary'
+                            onClick={(e) => {
+                                toggle();
+                                submit();
+                            }}>
+                            Post Job
+                        </Button>
+                    )}
                 </ModalFooter>
             </Modal>
             <Modal
@@ -1919,12 +1940,17 @@ const UpdateJob = (props) => {
                 toggle={toggleError}
                 style={{ marginTop: "20vh" }}>
                 <ModalHeader toggle={toggleError} className='py-1'>
-                    Error !
+                    Message
                 </ModalHeader>
                 {/* <ModalHeader toggle={toggle}>
                     {mess === "promote" && "Promote"}
                 </ModalHeader> */}
                 <ModalBody>{messError}</ModalBody>
+                <ModalFooter className='p-1'>
+                    <Button size='sm' color='emp-primary' onClick={toggleError}>
+                        Ok
+                    </Button>
+                </ModalFooter>
             </Modal>
         </div>
     );
