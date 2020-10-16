@@ -324,11 +324,19 @@ const PostJob = (props) => {
 
                     // alert("Unable to post job : " + error);
                     // alert("Unable to post job");
-                    err.response.data
-                        ? setMessError(err.response.data.err)
-                        : setMessError(
-                              "Something went wrong, Please try again.",
-                          );
+                    if (
+                        err.response &&
+                        err.response.data &&
+                        err.response.data.err &&
+                        typeof err.response.data.err === "object"
+                    )
+                        setMessError("Something went wrong !");
+                    else
+                        err.response.data
+                            ? setMessError(err.response.data.err)
+                            : setMessError(
+                                  "Something went wrong, Please try again.",
+                              );
 
                     toggleError();
                 });
@@ -417,11 +425,20 @@ const PostJob = (props) => {
                     err.response && err.response.data
                         ? err.response.data.err
                         : "";
-
+                if (
+                    err.response &&
+                    err.response.data &&
+                    err.response.data.err &&
+                    typeof err.response.data.err === "object"
+                )
+                    setMessError("Something went wrong !");
                 // alert("Unable to post job : " + error);
-                err.response && err.response.data
-                    ? setMessError(err.response.data.err)
-                    : setMessError("Something went wrong, Please try again.");
+                else
+                    err.response && err.response.data
+                        ? setMessError(err.response.data.err)
+                        : setMessError(
+                              "Something went wrong, Please try again.",
+                          );
 
                 toggleError();
             });
@@ -1294,6 +1311,7 @@ const PostJob = (props) => {
                                         type='checkbox'
                                         name=''
                                         defaultValue={sponsored}
+                                        checked={sponsored}
                                         className='  position-absolute'
                                         style={{
                                             height: "1.1rem",

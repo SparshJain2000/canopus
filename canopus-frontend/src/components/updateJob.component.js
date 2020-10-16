@@ -631,15 +631,22 @@ const UpdateJob = (props) => {
             })
             .catch((err) => {
                 console.log(err);
-
                 console.log(err.response);
                 const error =
                     err.response && err.response.data
                         ? err.response.data.err
                         : "";
-                err.response && err.response.data
-                    ? setMessError(err.response.data.err)
-                    : setMessError("Error saving job");
+                if (
+                    err.response &&
+                    err.response.data &&
+                    err.response.data.err &&
+                    typeof err.response.data.err === "object"
+                )
+                    setMessError("Something went wrong !");
+                else
+                    err.response && err.response.data
+                        ? setMessError(err.response.data.err)
+                        : setMessError("Error saving job");
                 toggleError();
             });
         console.log(job);
