@@ -201,7 +201,7 @@ export default class SignupUser extends Component {
                         style={block}
                         noValidate>
                         <FormGroup>
-                            <h4 className='mb-5'>Sign Up</h4>
+                            <h4 className='mb-3'>Job Seeker Sign Up</h4>
                         </FormGroup>
 
                         <FormGroup>

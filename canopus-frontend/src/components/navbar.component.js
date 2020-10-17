@@ -285,7 +285,7 @@ const NavbarComponent = (props) => {
                                                     console.log(err.response);
                                                 });
                                         }}>
-                                        logout
+                                        Log Out
                                         <FontAwesomeIcon
                                             icon={faSignOutAlt}
                                             className='ml-3'

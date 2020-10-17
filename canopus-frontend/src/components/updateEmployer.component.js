@@ -9,6 +9,7 @@ import {
     Modal,
     Nav,
     NavItem,
+    ModalFooter,
     ModalHeader,
     ModalBody,
     Alert,
@@ -390,7 +391,7 @@ export default class UpdateEmployer extends Component {
             });
     }
     reload() {
-       this.props.history.push("/employer")
+        this.props.history.push("/employer");
     }
     async uploadToStorage(storageAccountName, sas, file) {
         // console.log(file);
@@ -654,9 +655,9 @@ export default class UpdateEmployer extends Component {
             // console.log(cityArray);
         }
         return (
-            <div className='mx-auto col-12 col-sm-10 col-xl-8 px-0'>
+            <div className='mx-auto col-12 col-sm-10 col-xl-8 px-0 overflow-hidden'>
                 <Nav tabs className='justify-content-between '>
-                    <div className='row justify-content-start col-6 col-sm-5 col-md-6 col-lg-7'>
+                    <div className='row justify-content-start col-7 col-sm-5 col-md-6 col-lg-7'>
                         <NavItem className='mx-1 mx-sm-2'>
                             <NavLink
                                 className='p-1 p-sm-2 active-tab nav-link'
@@ -672,7 +673,7 @@ export default class UpdateEmployer extends Component {
                             </NavLink>
                         </NavItem>
                     </div>
-                    <div className='col-6 col-sm-7 col-md-6 col-lg-5 row px-2 justify-content-around justify-content-sm-end'>
+                    <div className='row ustify-content-end'>
                         {/* <div className='px-0 pr-0 pr-sm-1'>
                             <Link to='/employer/update'>
                                 <Button
@@ -1420,6 +1421,14 @@ export default class UpdateEmployer extends Component {
                     {mess === "promote" && "Promote"}
                 </ModalHeader> */}
                     <ModalBody>{this.state.modalMess}</ModalBody>
+                    <ModalFooter className='p-1'>
+                        <Button
+                            size='sm'
+                            color='emp-primary'
+                            onClick={this.toggleModalError}>
+                            Ok
+                        </Button>
+                    </ModalFooter>
                 </Modal>
             </div>
         );

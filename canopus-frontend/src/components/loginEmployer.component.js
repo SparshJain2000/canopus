@@ -8,7 +8,16 @@ import {
     faLinkedin,
 } from "@fortawesome/free-brands-svg-icons";
 import { Link, NavLink } from "react-router-dom";
-import { Modal, ModalHeader, ModalBody, NavItem, Nav, Alert } from "reactstrap";
+import {
+    Modal,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+    Button,
+    NavItem,
+    Nav,
+    Alert,
+} from "reactstrap";
 import ReCAPTCHA from "react-google-recaptcha";
 import ReactGA from "react-ga";
 
@@ -188,7 +197,7 @@ export default class LoginEmployer extends Component {
                     <div
                         className='col-11 col-sm-7 col-md-6 col-lg-5 mx-auto p-4'
                         style={block}>
-                        <h4 className='mb-5'>Employer Login</h4>
+                        <h4 className='mb-3'>Employer Login</h4>
                         <form
                             className='login-form'
                             onSubmit={this.submitEmployer}>
@@ -287,6 +296,14 @@ export default class LoginEmployer extends Component {
                         </ModalHeader>
 
                         <ModalBody>{this.state.message}</ModalBody>
+                        <ModalFooter className='p-1'>
+                            <Button
+                                size='sm'
+                                color='emp-primary'
+                                onClick={this.toggle}>
+                                Ok
+                            </Button>
+                        </ModalFooter>
                     </Modal>
                 </div>
             </div>

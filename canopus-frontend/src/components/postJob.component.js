@@ -330,7 +330,7 @@ const PostJob = (props) => {
                         err.response.data.err &&
                         typeof err.response.data.err === "object"
                     )
-                        setMessError("Something went wrong !");
+                        setMessError("Something went wrong, Please try again.");
                     else
                         err.response.data
                             ? setMessError(err.response.data.err)
@@ -1663,7 +1663,7 @@ const PostJob = (props) => {
                 </ModalHeader>
                 <ModalBody className='py-3'>
                     {mess === "post" &&
-                        "Posting this Job will make it visibile to applicants."}
+                        "Posting this Job will make it visible to applicants."}
                     {mess === "save" &&
                         "Are you sure you want to save the job?"}
                 </ModalBody>
@@ -1679,7 +1679,7 @@ const PostJob = (props) => {
                                 toggle();
                                 submit();
                             }}>
-                            Post
+                            Post Job
                         </Button>
                     )}
                     {mess === "save" && (
@@ -1706,6 +1706,11 @@ const PostJob = (props) => {
                     {mess === "promote" && "Promote"}
                 </ModalHeader> */}
                 <ModalBody>{messError}</ModalBody>
+                <ModalFooter className='p-1'>
+                    <Button size='sm' color='emp-primary' onClick={toggleError}>
+                        Ok
+                    </Button>
+                </ModalFooter>
             </Modal>
         </div>
     );

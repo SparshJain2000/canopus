@@ -1,7 +1,14 @@
 import React, { Component } from "react";
 import Axios from "axios";
 import hospital from "../images/hospital.svg";
-import { Table, Badge, Modal, ModalBody } from "reactstrap";
+import {
+    Table,
+    Badge,
+    Modal,
+    ModalBody,
+    ModalFooter,
+    Button,
+} from "reactstrap";
 import ReactPlayer from "react-player";
 import ShowMap from "./showMap.component";
 import ImageCarousel from "./imageCarousel.component";
@@ -210,6 +217,14 @@ export default class EmployerProfile extends Component {
                     toggle={this.toggleErrorModal}
                     style={{ marginTop: "20vh" }}>
                     <ModalBody>{this.state.messError}</ModalBody>
+                    <ModalFooter className='p-1'>
+                        <Button
+                            size='sm'
+                            color='emp-primary'
+                            onClick={this.toggleErrorModal}>
+                            Ok
+                        </Button>
+                    </ModalFooter>
                 </Modal>
             </div>
         );
