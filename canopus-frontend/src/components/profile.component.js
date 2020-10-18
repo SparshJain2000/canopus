@@ -1414,6 +1414,14 @@ export default class Profile extends Component {
                             toggle={this.toggleModal}
                             style={{ marginTop: "20vh" }}>
                             <ModalBody>{this.state.messError}</ModalBody>
+                            <ModalFooter className='p-1'>
+                                <Button
+                                    size='sm'
+                                    color='emp-primary'
+                                    onClick={this.toggleModal}>
+                                    Ok
+                                </Button>
+                            </ModalFooter>
                         </Modal>
                     </div>
                 ) : (

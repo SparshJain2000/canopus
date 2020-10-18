@@ -9,6 +9,7 @@ import {
 import {
     faFacebook,
     faGoogle,
+    faInstagram,
     faLinkedin,
     faTwitter,
 } from "@fortawesome/free-brands-svg-icons";
@@ -50,8 +51,10 @@ export default function FooterComponent() {
                                 <Link to='/profile/asdsad'>About Us</Link>
                             </li> */}
                         </ul>
+                        <br />
                     </div>
-                    <div className='col-lg-4 col-xs-12 location mt-5 mt-md-0'>
+
+                    <div className='col-lg-4 col-xs-12 location'>
                         <h4 className='mt-lg-0 mt-sm-4'>Contact Us</h4>
                         <p className='mb-0'>
                             <i className='fa fa-phone mr-3'></i>(+91)
@@ -67,24 +70,23 @@ export default function FooterComponent() {
                     <div className='col-xs-12 col-sm-12 col-md-12 mt-2 mt-sm-5'>
                         <ul className='list-unstyled list-inline social text-center'>
                             <li className='list-inline-item'>
-                                <a href='https://www.facebook.com/'>
+                                <a href='https://www.facebook.com/Curoid'>
                                     <FontAwesomeIcon icon={faFacebook} />
                                 </a>
                             </li>
-
                             <li className='list-inline-item'>
-                                <a href='https://www.linkedin.com/'>
+                                <a href='https://www.instagram.com/curoid.co/'>
+                                    <FontAwesomeIcon icon={faInstagram} />
+                                </a>
+                            </li>
+                            <li className='list-inline-item'>
+                                <a href='https://www.linkedin.com/company/curoidco'>
                                     <FontAwesomeIcon icon={faLinkedin} />
                                 </a>
                             </li>
                             <li className='list-inline-item'>
-                                <a href='https://www.twitter.com/'>
+                                <a href='https://twitter.com/CuroidCo'>
                                     <FontAwesomeIcon icon={faTwitter} />
-                                </a>
-                            </li>
-                            <li className='list-inline-item'>
-                                <a href='mailto:ads@gmail.com'>
-                                    <FontAwesomeIcon icon={faEnvelope} />
                                 </a>
                             </li>
                         </ul>

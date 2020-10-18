@@ -12,6 +12,7 @@ import {
     NavItem,
     ModalHeader,
     ModalBody,
+    ModalFooter,
     ButtonGroup,
     CustomInput,
     Alert,
@@ -686,7 +687,7 @@ export default class UpdateUser extends Component {
             // console.log(suggestionarray);
         }
         return (
-            <div>
+            <div className='overflow-hidden'>
                 <div className='mx-auto col-12 col-sm-10 col-xl-8 px-0'>
                     <div className='p-3 p-sm-4 my-3  mx-lg-auto block-sm'>
                         <FormGroup>
@@ -1893,6 +1894,14 @@ export default class UpdateUser extends Component {
                     {mess === "promote" && "Promote"}
                 </ModalHeader> */}
                     <ModalBody>{this.state.modalMess}</ModalBody>
+                    <ModalFooter className='p-1'>
+                        <Button
+                            size='sm'
+                            color='emp-primary'
+                            onClick={this.toggleModalError}>
+                            Ok
+                        </Button>
+                    </ModalFooter>
                 </Modal>
             </div>
         );

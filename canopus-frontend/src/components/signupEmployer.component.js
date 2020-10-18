@@ -195,7 +195,7 @@ export default class SignupEmployer extends Component {
                         style={block}
                         noValidate>
                         <FormGroup>
-                            <h4 className='mb-5'>Sign Up</h4>
+                            <h4 className='mb-3'>Employer Sign Up</h4>
                         </FormGroup>
                         <FormGroup>
                             <Label>Email</Label>

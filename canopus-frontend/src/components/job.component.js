@@ -317,9 +317,9 @@ const BannerUpdate = ({ mess, checkProf, checkSpec, checkResume }) => {
         <div>
             {!checkResume ? (
                 <div>
-                    Please
+                    Please{" "}
                     <a href='/profile/update' className='text-info'>
-                        update a resume
+                        upload resume
                     </a>{" "}
                     to apply.
                 </div>

@@ -631,15 +631,22 @@ const UpdateJob = (props) => {
             })
             .catch((err) => {
                 console.log(err);
-
                 console.log(err.response);
                 const error =
                     err.response && err.response.data
                         ? err.response.data.err
                         : "";
-                err.response && err.response.data
-                    ? setMessError(err.response.data.err)
-                    : setMessError("Error saving job");
+                if (
+                    err.response &&
+                    err.response.data &&
+                    err.response.data.err &&
+                    typeof err.response.data.err === "object"
+                )
+                    setMessError("Something went wrong !");
+                else
+                    err.response && err.response.data
+                        ? setMessError(err.response.data.err)
+                        : setMessError("Error saving job");
                 toggleError();
             });
         console.log(job);
@@ -1849,15 +1856,15 @@ const UpdateJob = (props) => {
                     {mess === "promote" &&
                         "Promote this job for prominent placement in the job search. You may have limited slots for promotions."}
                     {mess === "post" &&
-                        "Updating the Job will make it visible to applicants."}
+                        "Updating the job will make the updates visible to applicants."}
                     {mess === "discard" &&
                         "You will not be able to recover this job."}
                     {mess === "close" &&
-                        "Applicants will no longer be able to apply for this job."}
+                        "Applicants will no longer be able to see or apply for this job."}
                     {mess === "extend" &&
                         "Are you sure you want to extend this job ?"}
                     {mess === "activate" &&
-                        " Posting this Job will make it visibile to applicants."}
+                        " Posting this Job will make it visible to applicants."}
                 </ModalBody>
                 <ModalFooter className='font-16px'>
                     <Button color='emp-secondary' size='sm' onClick={toggle}>

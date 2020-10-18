@@ -1,6 +1,13 @@
 import Axios from "axios";
 import React, { Component } from "react";
-import { Modal, ModalHeader, ModalBody, Alert } from "reactstrap";
+import {
+    Modal,
+    ModalHeader,
+    ModalBody,
+    ModalFooter,
+    Button,
+    Alert,
+} from "reactstrap";
 import { Link } from "react-router-dom";
 import "../stylesheets/verifyEmail.css";
 const block = {
@@ -132,6 +139,14 @@ export default class VerifyEmployer extends Component {
                     {mess === "promote" && "Promote"}
                 </ModalHeader> */}
                     <ModalBody>{this.state.message}</ModalBody>
+                    <ModalFooter className='p-1'>
+                        <Button
+                            size='sm'
+                            color='emp-primary'
+                            onClick={this.toggleModal}>
+                            Ok
+                        </Button>
+                    </ModalFooter>
                 </Modal>
             </div>
         );
