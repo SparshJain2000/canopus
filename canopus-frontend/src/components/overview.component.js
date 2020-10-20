@@ -51,9 +51,8 @@ export default class Overview extends Component {
                                         src={
                                             this.state.employer.logo
                                                 ? this.state.employer.logo
-                                                : hospital
+                                                : "https://curoidprod.blob.core.windows.net/curoid/AdobeStock_210416356.jpeg"
                                         }
-                                        alt=''
                                         className='img-fluid img-thumbnail'
                                     />
                                 </div>
