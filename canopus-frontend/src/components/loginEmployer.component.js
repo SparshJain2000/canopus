@@ -3,7 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import axios from "axios";
 import { faLock, faUser } from "@fortawesome/free-solid-svg-icons";
 import {
-    faFacebook,
+    // faFacebook,
     faGoogle,
     faLinkedin,
 } from "@fortawesome/free-brands-svg-icons";
@@ -19,7 +19,7 @@ import {
     Alert,
 } from "reactstrap";
 import ReCAPTCHA from "react-google-recaptcha";
-import ReactGA from "react-ga";
+// import ReactGA from "react-ga";
 
 const block = {
     borderRadius: " 0.25rem",
