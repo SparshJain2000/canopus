@@ -1,6 +1,6 @@
 import React, { useEffect, Component } from "react";
 import error from "../images/404.svg";
-import Loader from "react-loader-spinner";
+// import Loader from "react-loader-spinner";
 
 const linkStyle = {
     color: "#17a2b8",

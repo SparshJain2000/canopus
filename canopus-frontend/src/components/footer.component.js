@@ -2,13 +2,9 @@ import React from "react";
 import "../stylesheets/footer.css";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-    faAngleDoubleRight,
-    faEnvelope,
-} from "@fortawesome/free-solid-svg-icons";
+import { faAngleDoubleRight } from "@fortawesome/free-solid-svg-icons";
 import {
     faFacebook,
-    faGoogle,
     faInstagram,
     faLinkedin,
     faTwitter,

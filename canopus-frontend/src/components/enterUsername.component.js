@@ -1,25 +1,16 @@
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
 import {
     Label,
     Input,
     FormGroup,
     Form,
     Button,
-    Modal,
-    ModalBody,
-    ModalHeader,
     Nav,
     NavItem,
     Alert,
 } from "reactstrap";
 import { NavLink } from "react-router-dom";
 import ReCAPTCHA from "react-google-recaptcha";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-    faPlusCircle,
-    faMinus,
-    faMinusCircle,
-} from "@fortawesome/free-solid-svg-icons";
 import Axios from "axios";
 const block = {
     borderRadius: " 0.25rem",
