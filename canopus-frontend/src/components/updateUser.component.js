@@ -1,15 +1,12 @@
-import React, { Component, Fragment, createRef } from "react";
+import React, { Component } from "react";
 import {
     Label,
     Input,
     FormGroup,
-    Form,
     Button,
     Progress,
     Modal,
     InputGroup,
-    Nav,
-    NavItem,
     ModalHeader,
     ModalBody,
     ModalFooter,
@@ -23,23 +20,16 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import "../stylesheets/updateUser.css";
 // import data from "../data";
 
-import { NavLink, Link, Redirect, useHistory } from "react-router-dom";
 import {
-    faPlusCircle,
     faPen,
-    faMinus,
-    faMinusCircle,
     faPlus,
     faFileAlt,
-    faDumpster,
     faTrash,
     faTimes,
 } from "@fortawesome/free-solid-svg-icons";
-import InputMap from "./map.component";
 import Axios from "axios";
 import { BlobServiceClient } from "@azure/storage-blob";
 import imageCompression from "browser-image-compression";
-import ImageCarousel from "./imageCarousel.component";
 import Select from "react-select";
 var weekdays = new Array(
     "Sunday",
@@ -50,16 +40,6 @@ var weekdays = new Array(
     "Friday",
     "Saturday",
 );
-const daysArray = weekdays.map((day) => {
-    return { label: day.toLowerCase(), value: day.toLowerCase() };
-});
-const block = {
-    borderRadius: " 0.25rem",
-    border: "0.05rem solid lightgrey",
-    /* background-color: rgba(0, 0, 0, 0.15); */
-    // boxShadow: " 3px 3px 6px rgba(0, 0, 0, 0.3)",
-    transition: "0.3s ease-in-out",
-};
 
 export default class UpdateUser extends Component {
     constructor(props) {
@@ -635,7 +615,6 @@ export default class UpdateUser extends Component {
     }
     render() {
         let degrees = [],
-            speciality = [],
             professionArray = [],
             suggestionarray = [],
             specializationArray = [];
@@ -648,7 +627,6 @@ export default class UpdateUser extends Component {
                     label: degree,
                 };
             });
-            speciality = this.props.data.speciality;
 
             professionArray = this.props.data.specializations.map((obj) => {
                 specializationObj[obj.profession] = obj.specialization.map(
@@ -1168,7 +1146,7 @@ export default class UpdateUser extends Component {
                                         style={{
                                             cursor: "pointer",
                                         }}
-                                        onClick={(e) => {
+                                        onClick={() => {
                                             let education = this.state
                                                 .education;
                                             education.splice(i, 1);
@@ -1388,7 +1366,7 @@ export default class UpdateUser extends Component {
                                             style={{
                                                 cursor: "pointer",
                                             }}
-                                            onClick={(e) => {
+                                            onClick={() => {
                                                 let education = this.state
                                                     .education;
                                                 education.splice(i, 1);
@@ -1615,7 +1593,7 @@ export default class UpdateUser extends Component {
                                                 style={{
                                                     cursor: "pointer",
                                                 }}
-                                                onClick={(e) => {
+                                                onClick={() => {
                                                     let availability = this
                                                         .state.availability;
                                                     availability.splice(i, 1);
@@ -1768,7 +1746,7 @@ export default class UpdateUser extends Component {
                                                                     ? "success"
                                                                     : "light"
                                                             }
-                                                            onClick={(e) => {
+                                                            onClick={() => {
                                                                 let links = this
                                                                     .state
                                                                     .availability;
@@ -1820,7 +1798,7 @@ export default class UpdateUser extends Component {
                                                     cursor: "pointer",
                                                     height: "100%",
                                                 }}
-                                                onClick={(e) => {
+                                                onClick={() => {
                                                     let availability = this
                                                         .state.availability;
                                                     availability.splice(i, 1);

@@ -13,8 +13,8 @@ import {
     faPhone,
     faArrowLeft,
     faCheckCircle,
-    faCommentsDollar,
-    faDice,
+    // faCommentsDollar,
+    // faDice,
 } from "@fortawesome/free-solid-svg-icons";
 import {
     Badge,
@@ -26,12 +26,12 @@ import {
     ModalBody,
     Media,
     UncontrolledPopover,
-    PopoverBody,
+    // PopoverBody,
     ModalFooter,
     Input,
 } from "reactstrap";
 import hospital from "../images/hospital.svg";
-import error from "../images/404.svg";
+// import error from "../images/404.svg";
 
 import "../stylesheets/job.css";
 import { slideInRight } from "react-animations";

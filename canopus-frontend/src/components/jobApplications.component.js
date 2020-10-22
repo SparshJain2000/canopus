@@ -10,21 +10,16 @@ import {
     ModalHeader,
     ModalFooter,
     UncontrolledTooltip,
-    Tooltip,
     ModalBody,
 } from "reactstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-    faMapMarkerAlt,
     faUser,
     faPen,
     faArrowRight,
     faChevronDown,
     faChevronUp,
     faCheck,
-    faCheckCircle,
-    faChartLine,
-    faRocket,
 } from "@fortawesome/free-solid-svg-icons";
 import hospital from "../images/hospital.svg";
 import "../stylesheets/jobApplications.css";
@@ -38,26 +33,12 @@ import {
     Dropdown,
     DropdownItem,
     DropdownMenu,
-    TabContent,
-    TabPane,
-    Row,
-    Col,
 } from "reactstrap";
-const chart = {
-    prefix: "fas",
-    iconName: "chart",
-    icon: [
-        512,
-        512,
-        [],
-        "f0000",
-        "m21.5 23h-19c-1.379 0-2.5-1.122-2.5-2.5v-17c0-1.378 1.121-2.5 2.5-2.5h19c1.379 0 2.5 1.122 2.5 2.5v17c0 1.378-1.121 2.5-2.5 2.5zm-19-21c-.827 0-1.5.673-1.5 1.5v17c0 .827.673 1.5 1.5 1.5h19c.827 0 1.5-.673 1.5-1.5v-17c0-.827-.673-1.5-1.5-1.5z m23.5 6h-23c-.276 0-.5-.224-.5-.5s.224-.5.5-.5h23c.276 0 .5.224.5.5s-.224.5-.5.5z m7.5 17c-.128 0-.256-.049-.354-.146-.195-.195-.195-.512 0-.707l3.5-3.5c.151-.153.385-.19.577-.094l1.678.839 3.245-3.245c.195-.195.512-.195.707 0s.195.512 0 .707l-3.5 3.5c-.152.152-.385.191-.577.094l-1.678-.839-3.245 3.245c-.097.097-.225.146-.353.146z m16.5 14c-.276 0-.5-.224-.5-.5v-2.5h-2.5c-.276 0-.5-.224-.5-.5s.224-.5.5-.5h3c.276 0 .5.224.5.5v3c0 .276-.224.5-.5.5z",
-    ],
-};
+
 const TT = ({ message, target, direction }) => {
     const [tooltipOpen, setTooltipOpen] = useState(false);
 
-    const toggle = () => setTooltipOpen(!tooltipOpen);
+    // const toggle = () => setTooltipOpen(!tooltipOpen);
 
     return (
         // <Tooltip

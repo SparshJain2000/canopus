@@ -6,8 +6,8 @@ import {
     Button,
     Input,
     InputGroup,
-    InputGroupAddon,
-    InputGroupText,
+    // InputGroupAddon,
+    // InputGroupText,
     Modal,
     ModalHeader,
     ModalBody,
@@ -22,12 +22,11 @@ import data from "../data";
 import "../stylesheets/postJob.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-    faMapMarkerAlt,
-    faUser,
+    // faMapMarkerAlt/
     faPen,
-    faEnvelope,
-    faArrowAltCircleDown,
-    faArrowAltCircleUp,
+    // faEnvelope,
+    // faArrowAltCircleDown,
+    // faArrowAltCircleUp,
     faChevronUp,
     faChevronDown,
     faExternalLinkAlt,

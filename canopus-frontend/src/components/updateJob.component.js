@@ -11,8 +11,8 @@ import {
     Button,
     Input,
     InputGroup,
-    InputGroupAddon,
-    InputGroupText,
+    // InputGroupAddon,
+    // InputGroupText,
     Modal,
     ModalBody,
     ModalFooter,
@@ -24,12 +24,12 @@ import data from "../data";
 import "../stylesheets/postJob.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-    faMapMarkerAlt,
-    faUser,
-    faEnvelope,
-    faArrowAltCircleDown,
+    // faMapMarkerAlt,
+    // faUser,
+    // faEnvelope,
+    // faArrowAltCircleDown,
     faPen,
-    faArrowAltCircleUp,
+    // faArrowAltCircleUp,
     faExternalLinkAlt,
     faChevronDown,
     faChevronUp,
@@ -52,13 +52,13 @@ const UpdateJob = (props) => {
     const typeRef = useRef(null);
     const locationRef = useRef(null);
     const salaryRef = useRef(null);
-    const companyRef = useRef(null);
+    // const companyRef = useRef(null);
     const skillsRef = useRef(null);
-    const numberAppRef = useRef(null);
-    const endDateRef = useRef(null);
-    const freelanceRef = useRef(null);
-    const dateRef = useRef(null);
-    const endTimeRef = useRef(null);
+    // const numberAppRef = useRef(null);
+    // const endDateRef = useRef(null);
+    // const freelanceRef = useRef(null);
+    // const dateRef = useRef(null);
+    // const endTimeRef = useRef(null);
     const startTimeRef = useRef(null);
 
     const currentDate = new Date();
@@ -906,7 +906,6 @@ const UpdateJob = (props) => {
 
                         <FontAwesomeIcon
                             icon={showDetail ? faChevronUp : faChevronDown}
-                            className='text-info'
                             size='md'
                             onClick={toggleDetail}
                             className='col-3 col-sm-1 my-auto'
@@ -1234,7 +1233,6 @@ const UpdateJob = (props) => {
                                 </Label>
                                 <div style={{ width: `100%` }} className=''>
                                     <Select
-                                        onChange={(opt) => console.log(opt)}
                                         isMulti
                                         autosize={true}
                                         placeholder='Incentives'
@@ -1282,7 +1280,6 @@ const UpdateJob = (props) => {
                         <h4 className='col-9 col-sm-10 pl-2'>Description</h4>
                         <FontAwesomeIcon
                             icon={showSkill ? faChevronUp : faChevronDown}
-                            className='text-info'
                             size='md'
                             onClick={toggleSkill}
                             className='col-3 col-sm-1 my-auto'
@@ -1347,7 +1344,7 @@ const UpdateJob = (props) => {
                         <h4 className='col-9 col-sm-10 pl-2'>Other Details</h4>
                         <FontAwesomeIcon
                             icon={showOtherDetail ? faChevronUp : faChevronDown}
-                            className='text-info'
+                            // className='text-info'
                             size='md'
                             onClick={toggleOtherDetail}
                             className='col-3 col-sm-1 my-auto'
@@ -1722,10 +1719,10 @@ const UpdateJob = (props) => {
                     {jobType === "post" &&
                         type !== "Day Job" &&
                         type !== "Locum Position" &&
-                        job.extension === 1 &&
-                        (currentDate - new Date(job.expireAt)) /
+                        job.extension == 1 &&
+                        (new Date() - new Date(job.expireAt)) /
                             (1000 * 3600 * 24) <=
-                            7 && (
+                            10 && (
                             <div className='col-3 col-md-2 px-1'>
                                 <Button
                                     onClick={(e) => {
