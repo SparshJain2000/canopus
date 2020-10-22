@@ -8,7 +8,7 @@ import {
     Button,
     Alert,
 } from "reactstrap";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 import "../stylesheets/verifyEmail.css";
 const block = {
     borderRadius: " 0.25rem",

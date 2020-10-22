@@ -2,10 +2,9 @@ import React, { useRef, useState } from "react";
 import Select from "react-select";
 import "../stylesheets/home.css";
 import "bootstrap/dist/css/bootstrap.min.css";
-import doctor from "../images/doctor.png";
 
 import { Button, Alert } from "reactstrap";
-import { Redirect, Link } from "react-router-dom";
+import { Link } from "react-router-dom";
 import video from "../images/video.mp4";
 
 const Home = (props) => {

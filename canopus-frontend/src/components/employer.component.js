@@ -1,38 +1,36 @@
 import React, { Component } from "react";
 import { NavLink, Link } from "react-router-dom";
-import job from "../images/job.png";
-import applicants from "../images/profile.png";
-import bg1 from "../images/bg1.jpg";
-import bg2 from "../images/bg4.jpg";
+// import job from "../images/job.png";
+// import applicants from "../images/profile.png";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import axios from "axios";
-import JobApplications from "./jobApplications.component";
-import MarkdownIt from "markdown-it";
+// import axios from "axios";
+// import JobApplications from "./jobApplications.component";
+// import MarkdownIt from "markdown-it";
 import Overview from "./overview.component";
-import MdEditor from "react-markdown-editor-lite";
+// import MdEditor from "react-markdown-editor-lite";
 // import style manually
 import "react-markdown-editor-lite/lib/index.css";
 import {
-    faUser,
-    faMapMarkerAlt,
-    faEnvelope,
-    faBriefcaseMedical,
+    // faUser,
+    // faMapMarkerAlt,
+    // faEnvelope,
+    // faBriefcaseMedical,
     faPen,
-    faPlus,
-    faFileAlt,
-    faPenAlt,
+    // faPlus,
+    // faFileAlt,
+    // faPenAlt,
 } from "@fortawesome/free-solid-svg-icons";
 import {
     Button,
     Nav,
     NavItem,
-    TabPane,
-    TabContent,
-    Row,
-    Col,
+    // TabPane,
+    // TabContent,
+    // Row,
+    // Col,
 } from "reactstrap";
 // Initialize a markdown parser
-const mdParser = new MarkdownIt();
+// const mdParser = new MarkdownIt();
 export default class Employer extends Component {
     constructor(props) {
         super(props);

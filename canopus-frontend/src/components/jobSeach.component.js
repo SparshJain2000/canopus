@@ -17,9 +17,9 @@ import {
     CustomInput,
     Pagination,
     PaginationItem,
-    FormGroup,
-    Input,
-    Label,
+    // FormGroup,
+    // Input,
+    // Label,
     PaginationLink,
     TabContent,
     TabPane,
@@ -35,7 +35,7 @@ import {
     ModalFooter,
 } from "reactstrap";
 import axios from "axios";
-import doctor from "../images/doctor.png";
+// import doctor from "../images/doctor.png";
 import hospital from "../images/hospital.svg";
 import Loader from "react-loader-spinner";
 import Select from "react-select";

@@ -1,7 +1,6 @@
 import Axios from "axios";
 import React, { Component } from "react";
-import { Modal, ModalHeader, ModalBody, Alert } from "reactstrap";
-import { Link } from "react-router-dom";
+import { Alert } from "reactstrap";
 import "../stylesheets/verifyEmail.css";
 const block = {
     borderRadius: " 0.25rem",

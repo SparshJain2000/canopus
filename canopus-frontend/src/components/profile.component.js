@@ -278,7 +278,7 @@ export default class Profile extends Component {
                 .then(({ data }) => {
                     if (!data.image)
                         data.image =
-                            "https://i.pinimg.com/736x/74/73/ba/7473ba244a0ace6d9d301d5fe4478983--sarcasm-meme.jpg";
+                            "https://curoidprod.blob.core.windows.net/curoid/AdobeStock_292703400.jpeg";
                     this.setState({
                         profile: data,
                     });
@@ -297,7 +297,7 @@ export default class Profile extends Component {
                 .then(({ data }) => {
                     if (!data.image)
                         data.image =
-                            "https://i.pinimg.com/736x/74/73/ba/7473ba244a0ace6d9d301d5fe4478983--sarcasm-meme.jpg";
+                            "https://curoidprod.blob.core.windows.net/curoid/AdobeStock_292703400.jpeg";
                     this.setState({
                         profile: data,
                     });
@@ -426,100 +426,118 @@ export default class Profile extends Component {
                                         />
                                     </div>
                                 </div>
-                                <div
-                                    className='py-3 px-2 col-12 col-sm-8 col-lg-12 position-relative'
-                                    style={{
-                                        borderRadius: "0.5rem",
-                                    }}>
-                                    <div className='m-2 mx-auto'>
-                                        <h6 className='row'>
-                                            <div className='col-1 px-0'>
-                                                <FontAwesomeIcon
-                                                    icon={faUser}
-                                                    className='ml-2 mr-3'
-                                                />
-                                            </div>
-                                            <div className='col-11 pl-3 text-capitalize'>
-                                                {`${this.state.profile.salutation}. ${this.state.profile.firstName} ${this.state.profile.lastName}`}
-                                            </div>
-                                        </h6>
-                                    </div>
-                                    <div className='m-2 mx-auto'>
-                                        <h6 className='row'>
-                                            <div className='col-1 px-0'>
-                                                <FontAwesomeIcon
-                                                    icon={faBriefcaseMedical}
-                                                    className='ml-2 mr-3'
-                                                />
-                                            </div>
-                                            <div className='col-11 pl-3 font-16px'>
-                                                {this.state.profile.title &&
-                                                    this.state.profile.title}
-                                            </div>
-                                        </h6>
-                                    </div>
-                                    {this.state.profile.address && (
+                                {this.state.profile.salutation !==
+                                    undefined && (
+                                    <div
+                                        className='py-3 px-2 col-12 col-sm-8 col-lg-12 position-relative'
+                                        style={{
+                                            borderRadius: "0.5rem",
+                                        }}>
                                         <div className='m-2 mx-auto'>
                                             <h6 className='row'>
                                                 <div className='col-1 px-0'>
                                                     <FontAwesomeIcon
-                                                        icon={faMapMarkerAlt}
+                                                        icon={faUser}
                                                         className='ml-2 mr-3'
                                                     />
                                                 </div>
-                                                <div className='col-11 px-0 pl-3 font-16px'>
-                                                    {this.state.profile.address
-                                                        .city !== "" &&
-                                                    this.state.profile.address
-                                                        .state !== "" &&
-                                                    this.state.profile.address
-                                                        .country !== ""
-                                                        ? `${this.state.profile.address.city}, ${this.state.profile.address.state}, ${this.state.profile.address.country}`
-                                                        : ``}
+
+                                                <div className='col-11 pl-3 text-capitalize'>
+                                                    {`${this.state.profile.salutation}. ${this.state.profile.firstName} ${this.state.profile.lastName}`}
                                                 </div>
                                             </h6>
                                         </div>
-                                    )}
-                                    <div className='m-2 mx-auto'>
-                                        <h6 className='row'>
-                                            <div className='col-1 px-0'>
-                                                <FontAwesomeIcon
-                                                    icon={faEnvelope}
-                                                    className='ml-2 mr-3'
-                                                />
-                                            </div>
-                                            <div
-                                                className='col-11 pl-3 font-16px'
-                                                style={{
-                                                    whiteSpace: "nowrap",
-                                                    overflow: "hidden",
-                                                    textOverflow: "ellipsis",
-                                                }}>
-                                                {this.state.profile.username}
-                                            </div>
-                                        </h6>
-                                    </div>
-                                    {this.state.profile.phone !== "" && (
                                         <div className='m-2 mx-auto'>
                                             <h6 className='row'>
                                                 <div className='col-1 px-0'>
                                                     <FontAwesomeIcon
-                                                        icon={faPhone}
+                                                        icon={
+                                                            faBriefcaseMedical
+                                                        }
                                                         className='ml-2 mr-3'
-                                                        style={{
-                                                            transform:
-                                                                "rotateY(180deg)",
-                                                        }}
                                                     />
                                                 </div>
                                                 <div className='col-11 pl-3 font-16px'>
-                                                    {"+91-"}
-                                                    {this.state.profile.phone}
+                                                    {this.state.profile.title &&
+                                                        this.state.profile
+                                                            .title}
                                                 </div>
                                             </h6>
                                         </div>
-                                    )}
-                                    {/* {this.state.editable && (
+                                        {this.state.profile.address && (
+                                            <div className='m-2 mx-auto'>
+                                                <h6 className='row'>
+                                                    <div className='col-1 px-0'>
+                                                        <FontAwesomeIcon
+                                                            icon={
+                                                                faMapMarkerAlt
+                                                            }
+                                                            className='ml-2 mr-3'
+                                                        />
+                                                    </div>
+                                                    <div className='col-11 px-0 pl-3 font-16px'>
+                                                        {this.state.profile
+                                                            .address.city !==
+                                                            "" &&
+                                                        this.state.profile
+                                                            .address.state !==
+                                                            "" &&
+                                                        this.state.profile
+                                                            .address.country !==
+                                                            ""
+                                                            ? `${this.state.profile.address.city}, ${this.state.profile.address.state}, ${this.state.profile.address.country}`
+                                                            : ``}
+                                                    </div>
+                                                </h6>
+                                            </div>
+                                        )}
+                                        <div className='m-2 mx-auto'>
+                                            <h6 className='row'>
+                                                <div className='col-1 px-0'>
+                                                    <FontAwesomeIcon
+                                                        icon={faEnvelope}
+                                                        className='ml-2 mr-3'
+                                                    />
+                                                </div>
+                                                <div
+                                                    className='col-11 pl-3 font-16px'
+                                                    style={{
+                                                        whiteSpace: "nowrap",
+                                                        overflow: "hidden",
+                                                        textOverflow:
+                                                            "ellipsis",
+                                                    }}>
+                                                    {
+                                                        this.state.profile
+                                                            .username
+                                                    }
+                                                </div>
+                                            </h6>
+                                        </div>
+                                        {this.state.profile.phone !== "" && (
+                                            <div className='m-2 mx-auto'>
+                                                <h6 className='row'>
+                                                    <div className='col-1 px-0'>
+                                                        <FontAwesomeIcon
+                                                            icon={faPhone}
+                                                            className='ml-2 mr-3'
+                                                            style={{
+                                                                transform:
+                                                                    "rotateY(180deg)",
+                                                            }}
+                                                        />
+                                                    </div>
+                                                    <div className='col-11 pl-3 font-16px'>
+                                                        {"+91-"}
+                                                        {
+                                                            this.state.profile
+                                                                .phone
+                                                        }
+                                                    </div>
+                                                </h6>
+                                            </div>
+                                        )}
+                                        {/* {this.state.editable && (
                                         <button
                                             className='btn btn-info btn-sm m-2 btn-float'
                                             style={{ borderRadius: "50%" }}
@@ -527,7 +545,8 @@ export default class Profile extends Component {
                                             <FontAwesomeIcon icon={faPen} />
                                         </button>
                                     )} */}
-                                </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
 

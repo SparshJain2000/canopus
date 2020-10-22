@@ -1,15 +1,7 @@
 import React, { Component } from "react";
 import Axios from "axios";
-import hospital from "../images/hospital.svg";
-import {
-    Table,
-    Badge,
-    Modal,
-    ModalBody,
-    ModalFooter,
-    Button,
-} from "reactstrap";
-import ReactPlayer from "react-player";
+import { Badge, Modal, ModalBody, ModalFooter, Button } from "reactstrap";
+// import ReactPlayer from "react-player";
 import ShowMap from "./showMap.component";
 import ImageCarousel from "./imageCarousel.component";
 import VideoCarousel from "./videoCarousel.component";
@@ -67,7 +59,7 @@ export default class EmployerProfile extends Component {
                                         src={
                                             this.state.employer.logo
                                                 ? this.state.employer.logo
-                                                : hospital
+                                                : "https://curoidprod.blob.core.windows.net/curoid/AdobeStock_210416356.jpeg"
                                         }
                                         alt=''
                                         className='img-fluid img-thumbnail'
